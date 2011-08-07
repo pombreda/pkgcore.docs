@@ -1,0 +1,304 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Configuring pkgcore &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="configuring-pkgcore">
+<h1>Configuring pkgcore<a class="headerlink" href="#configuring-pkgcore" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="note-for-portage-users">
+<h2>Note for Portage users<a class="headerlink" href="#note-for-portage-users" title="Permalink to this headline">¶</a></h2>
+<p>If you already know how to configure Portage you can probably just skip this
+file. As long as you do not have an <tt class="docutils literal"><span class="pre">/etc/pkgcore.conf</span></tt> or <tt class="docutils literal"><span class="pre">~/.pkgcore.conf</span></tt>
+pkgcore will read Portage&#8217;s configuration files.</p>
+</div>
+<div class="section" id="basics-querying">
+<h2>Basics, querying<a class="headerlink" href="#basics-querying" title="Permalink to this headline">¶</a></h2>
+<p>There are multiple ways to configure pkgcore. No matter which method you pick,
+the <tt class="docutils literal"><span class="pre">pconfig</span></tt> utility will allow you to check if pkgcore interprets the
+configuration the way you intend. Part of a configuration dump could look
+like:</p>
+<div class="highlight-python"><pre>$ pconfig dump
+&lt;lots of output snipped&gt;
+
+'/usr/local/portage/private' {
+    # typename of this section: repo
+    class pkgcore.ebuild.repository.UnconfiguredTree;
+    # type: refs:cache
+    cache {
+        # typename of this section: cache
+        class pkgcore.cache.flat_hash.database;
+&lt;some stuff snipped&gt;
+        # type: str
+        label '/usr/local/portage/private';
+        # type: str
+        location '/var/cache/edb/dep';
+    };
+    # type: list
+    default_mirrors 'http://ftp.easynet.nl/mirror/gentoo//distfiles';
+    # type: ref:eclass_cache
+    eclass_cache 'eclass stack';
+    # type: str
+    location '/usr/local/portage/private';
+}
+&lt;lots of output snipped&gt;</pre>
+</div>
+<p>Starting at the top this means there is a &#8220;repo&#8221; known to pkgcore as
+&#8220;/usr/local/portage/private&#8221;, of the class
+&#8220;pkgcore.ebuild.repository.UnconfiguredTree&#8221;. The &#8220;repo&#8221; type means it
+is something containing packages. The &#8220;class&#8221; means that this
+particular repo contains unbuilt ebuilds. Below that are various
+parameters specific to this class. The &#8220;type&#8221; comment tells you how
+the argument is interpreted (this depends on the class).</p>
+<p>The first is &#8220;cache&#8221;. This is a nested section: it defines a new
+object of the type &#8220;cache&#8221;, class &#8220;pkgcore.cache.flat_hash.database&#8221;.
+Below that are the parameters given to this cache class. It is import
+to understand that the ebuild repository does not care about the exact
+class of the cache. All it needs is one or more things of type
+&#8220;cache&#8221;. There could have been some db-based cache here for example.</p>
+<p>The next argument to the repo is &#8220;default_mirrors&#8221; which is handled as
+a list of strings. &#8220;location&#8221; is a single string.</p>
+<p>&#8220;eclass_cache&#8221; is a section reference pointing to the named section
+&#8220;eclass stack&#8221; defined elsewhere in the dump (omitted here).</p>
+<p>If your configuration defines a section that does not show up in
+dump you can use <tt class="docutils literal"><span class="pre">uncollapsable</span></tt> to figure out why:</p>
+<div class="highlight-python"><pre>$ pconfig uncollapsable
+Collapsing section named 'ebuild-repo-common':
+type pkgcore.ebuild.repository.UnconfiguredTree needs settings for 'location'
+
+Collapsing section named 'cache-common':
+type pkgcore.cache.flat_hash.database needs settings for 'label'</pre>
+</div>
+<p>Unfortunately the configuration system cannot distinguish between
+sections that are only meant as a base for other sections and actual
+configuration mistakes. The messages you see here are harmless. If you
+are debugging a missing section you should look for &#8220;Collapsing
+section named &#8216;the-broken-section&#8217;&#8221; in the output.</p>
+</div>
+<div class="section" id="portage-compatibility-mode">
+<h2>Portage compatibility mode<a class="headerlink" href="#portage-compatibility-mode" title="Permalink to this headline">¶</a></h2>
+<p>If you do not have a global (<tt class="docutils literal"><span class="pre">/etc/pkgcore.conf</span></tt>) or local
+(<tt class="docutils literal"><span class="pre">~/.pkgcore.conf</span></tt>) configuration file pkgcore will automatically fall back to
+reading <tt class="docutils literal"><span class="pre">/etc/make.conf</span></tt> and the other Portage configuration files.  A
+noticable difference is pkgcore does not support picking up variables like USE
+from the environment, so you can&#8217;t run commands like <tt class="docutils literal"><span class="pre">USE=&quot;foo&quot;</span> <span class="pre">pmerge</span>
+<span class="pre">package</span></tt>. Apart from that things should just work the way you&#8217;re used to.</p>
+</div>
+<div class="section" id="beyond-portage-compatibility-mode">
+<h2>Beyond Portage compatibility mode<a class="headerlink" href="#beyond-portage-compatibility-mode" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="basics">
+<h3>Basics<a class="headerlink" href="#basics" title="Permalink to this headline">¶</a></h3>
+<p>If you want to define extra repositories pkgcore should know about but Portage
+should not you will need a minimal configuration file. Pkgcore reads two
+configuration files: <tt class="docutils literal"><span class="pre">~/.pkgcore.conf</span></tt> and <tt class="docutils literal"><span class="pre">/etc/pkgcore.conf</span></tt>.  Settings in
+the former override the ones in the latter.</p>
+<p>If one of them exists this completely disables Portage configuration file
+parsing. The first thing you will probably want to do is re-enable that, by
+putting in one of the configuration files:</p>
+<div class="highlight-python"><pre>[autoload-portage]
+class=pkgcore.ebuild.portage_conf.config_from_make_conf</pre>
+</div>
+<p>If you then run <tt class="docutils literal"><span class="pre">pconfig</span> <span class="pre">dump</span></tt> you should see among other things:</p>
+<div class="highlight-python"><pre>'autoload-portage' {
+   # typename of this section: configsection
+   class pkgcore.ebuild.portage_conf.config_from_make_conf;
+}</pre>
+</div>
+<p>Section names are usually arbitrary but sections that load extra configuration
+data are an exception: they have to start with &#8220;autoload&#8221; or they will not be
+processed. If you change the section name to just &#8220;portage&#8221; you will still see
+it show up in <tt class="docutils literal"><span class="pre">pconfig</span> <span class="pre">dump</span></tt> but all other things defined in
+<tt class="docutils literal"><span class="pre">/etc/make.conf</span></tt> will disappear.</p>
+<p><tt class="docutils literal"><span class="pre">pconfig</span></tt> can tell you what arguments a class takes:</p>
+<div class="highlight-python"><pre>$ pconfig describe_class pkgcore.config.basics.parse_config_file
+typename is configsection
+
+parser: callable (required)
+path: str (required)</pre>
+</div>
+<p>If you wanted to remove the overlay mentioned at the top of this document from
+<tt class="docutils literal"><span class="pre">/etc/make.conf</span></tt> but keep it available to pkgcore you would add:</p>
+<div class="highlight-python"><pre>[/usr/local/portage/private]
+class=pkgcore.ebuild.repository.UnconfiguredTree
+cache=private-cache
+default_mirrors='http://ftp.easynet.nl/mirror/gentoo//distfiles'
+eclass_cache='eclass stack'
+location='/usr/local/portage/private'
+
+[private-cache]
+class=pkgcore.cache.flat_hash.database
+; All the stuff snipped earlier
+label='/usr/local/portage/private'
+location='/var/cache/edb/dep'</pre>
+</div>
+<p>Because the ini file format does not allow nesting sections we had to
+put the cache in a named section and refer to that. The dump output
+will reflect this but everything else will work just like it did
+before.</p>
+</div>
+<div class="section" id="inherits">
+<h3>Inherits<a class="headerlink" href="#inherits" title="Permalink to this headline">¶</a></h3>
+<p>If you have a lot of those overlays you can avoid repeating the common
+bits:</p>
+<div class="highlight-python"><pre>[stuff-common-to-repos]
+class=pkgcore.ebuild.repository.UnconfiguredTree
+default_mirrors='http://ftp.easynet.nl/mirror/gentoo//distfiles'
+eclass_cache='eclass stack'
+inherit-only=true
+
+[/usr/local/portage/private]
+inherit=stuff-common-to-repos
+location='/usr/local/portage/private'
+cache=private-cache
+
+[/usr/local/portage/other-overlay]
+inherit=stuff-common-to-repos
+location='/usr/local/portage/other-overlay'
+cache=other-overlay-cache
+
+; And do the same thing for the caches.</pre>
+</div>
+<p>There is nothing special about sections used as target for &#8220;inherit&#8221;.
+They can be complete sections, although they do not have to be. If
+they are not complete sections you should set inherit-only to true for
+them, to make pconfig uncollapsable ignore errors in them.</p>
+<p>Actually, the Portage emulation mode uses inherit targets too, so you
+could just have inherited &#8220;ebuild-repo-common&#8221;. Inherit targets do not
+have to live in the same file as they are inherited from.</p>
+<p>One last special features: things marked as &#8220;incremental&#8221; get their
+inherited value appended instead of overriding it.</p>
+</div>
+<div class="section" id="different-config-format">
+<h3>Different config format<a class="headerlink" href="#different-config-format" title="Permalink to this headline">¶</a></h3>
+<p>If you have pyparsing installed pkgcore supports a second
+configuration file format that is very similar to the dump output
+(not entirely identical: the string escaping rules are different). It
+does not try to detect what format your config file is in:
+<tt class="docutils literal"><span class="pre">pkgcore.conf</span></tt> is always in &#8220;ini&#8221; format. But you can load a second
+configuration file from there:</p>
+<div class="highlight-python"><pre>[autoload-dhcpformat]
+class=pkgcore.config.parse_config_file
+parser=pkgcore.config.dhcpformat.config_from_file
+path=/home/&lt;you&gt;/.pkgcore.dhcpconf</pre>
+</div>
+<p>If you use &#8220;pkgcore.config.cparser.config_from_file&#8221; as &#8220;parser&#8221; you
+can use this to load a second ini-style file. The loaded file can also
+contain autoloads of its own, loading more config files or
+portage_conf. For example, if <tt class="docutils literal"><span class="pre">.pkgcore.dhcpconf</span></tt> looks like:</p>
+<div class="highlight-python"><pre>"autoload-portage" {
+    class pkgcore.ebuild.portage_conf.config_from_make_conf;
+}</pre>
+</div>
+<p>it will load <tt class="docutils literal"><span class="pre">/etc/make.conf</span></tt>.</p>
+<p>If you want to get rid of <tt class="docutils literal"><span class="pre">/etc/make.conf</span></tt> entirely you can start from the
+output of <tt class="docutils literal"><span class="pre">pconfig</span> <span class="pre">dump</span></tt>. But be careful: <tt class="docutils literal"><span class="pre">pconfig</span></tt> does not escape strings
+exactly the same way dhcpformat parses them, so make sure you check the dump
+after you disable portage_conf for mistakes.</p>
+</div>
+<div class="section" id="aliases">
+<h3>Aliases<a class="headerlink" href="#aliases" title="Permalink to this headline">¶</a></h3>
+<p>You may have seen something called &#8220;section_alias&#8221; in a Portage
+compatibility configuration. These are used to make an existing named
+section show up under a second name. You probably do not need them if
+you write your own configuration.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Configuring pkgcore</a><ul>
+<li><a class="reference internal" href="#note-for-portage-users">Note for Portage users</a></li>
+<li><a class="reference internal" href="#basics-querying">Basics, querying</a></li>
+<li><a class="reference internal" href="#portage-compatibility-mode">Portage compatibility mode</a></li>
+<li><a class="reference internal" href="#beyond-portage-compatibility-mode">Beyond Portage compatibility mode</a><ul>
+<li><a class="reference internal" href="#basics">Basics</a></li>
+<li><a class="reference internal" href="#inherits">Inherits</a></li>
+<li><a class="reference internal" href="#different-config-format">Different config format</a></li>
+<li><a class="reference internal" href="#aliases">Aliases</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

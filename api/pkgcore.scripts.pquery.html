@@ -1,0 +1,658 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.scripts.pquery &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.spawn" href="pkgcore.spawn.html" />
+    <link rel="prev" title="pkgcore.scripts.pplugincache" href="pkgcore.scripts.pplugincache.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.spawn.html" title="pkgcore.spawn"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.scripts.pplugincache.html" title="pkgcore.scripts.pplugincache"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.scripts.pquery">
+<span id="pkgcore-scripts-pquery"></span><h1>pkgcore.scripts.pquery<a class="headerlink" href="#module-pkgcore.scripts.pquery" title="Permalink to this headline">¶</a></h1>
+<p>Extract information from repositories.</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">any</span></tt></td>
+<td>any(iterable) -&gt; bool</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.append_const_callback" title="pkgcore.scripts.pquery.append_const_callback"><tt class="xref py py-obj docutils literal"><span class="pre">append_const_callback</span></tt></a>(option,&nbsp;opt_str,&nbsp;...)</td>
+<td>Callback version of python 2.5&#8217;s append_const action.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.atom_type" title="pkgcore.scripts.pquery.atom_type"><tt class="xref py py-obj docutils literal"><span class="pre">atom_type</span></tt></a>(option,&nbsp;opt,&nbsp;value)</td>
+<td></td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">decorate_forced_wrapping</span></tt>([setting])</td>
+<td>Decorator to force a specific line wrapping state for the duration of invocation</td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">demandload</span></tt>(scope,&nbsp;*imports)</td>
+<td>Import modules into scope when each is first used.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.format_attr" title="pkgcore.scripts.pquery.format_attr"><tt class="xref py py-obj docutils literal"><span class="pre">format_attr</span></tt></a>(config,&nbsp;out,&nbsp;pkg,&nbsp;attr)</td>
+<td>Grab a package attr and print it through a formatter.</td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">format_depends</span></tt>(out,&nbsp;*args,&nbsp;**kwds)</td>
+<td></td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">iter_stable_unique</span></tt>(iterable)</td>
+<td>Given a sequence, yield unique items while preserving ordering</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.main" title="pkgcore.scripts.pquery.main"><tt class="xref py py-obj docutils literal"><span class="pre">main</span></tt></a>(options,&nbsp;out,&nbsp;err)</td>
+<td>Run a query.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.mk_strregex" title="pkgcore.scripts.pquery.mk_strregex"><tt class="xref py py-obj docutils literal"><span class="pre">mk_strregex</span></tt></a>(value,&nbsp;**kwds)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.optparse_type" title="pkgcore.scripts.pquery.optparse_type"><tt class="xref py py-obj docutils literal"><span class="pre">optparse_type</span></tt></a>(parsefunc)</td>
+<td>Wrap a parsefunc shared with the expression-style code for optparse.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.parse_description" title="pkgcore.scripts.pquery.parse_description"><tt class="xref py py-obj docutils literal"><span class="pre">parse_description</span></tt></a>(value)</td>
+<td>Value is used as a regexp matching description or longdescription.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.parse_envmatch" title="pkgcore.scripts.pquery.parse_envmatch"><tt class="xref py py-obj docutils literal"><span class="pre">parse_envmatch</span></tt></a>(value)</td>
+<td>Apply a regexp to the environment.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.parse_expression" title="pkgcore.scripts.pquery.parse_expression"><tt class="xref py py-obj docutils literal"><span class="pre">parse_expression</span></tt></a>(string)</td>
+<td>Convert a string to a restriction object using pyparsing.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.parse_maintainer" title="pkgcore.scripts.pquery.parse_maintainer"><tt class="xref py py-obj docutils literal"><span class="pre">parse_maintainer</span></tt></a>(value)</td>
+<td>Case insensitive Regex match on the combined &#8216;name &lt;email&gt;&#8217; bit of</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.parse_maintainer_email" title="pkgcore.scripts.pquery.parse_maintainer_email"><tt class="xref py py-obj docutils literal"><span class="pre">parse_maintainer_email</span></tt></a>(value)</td>
+<td>Case insensitive Regex match on the email bit of metadata.xml&#8217;s</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.parse_maintainer_name" title="pkgcore.scripts.pquery.parse_maintainer_name"><tt class="xref py py-obj docutils literal"><span class="pre">parse_maintainer_name</span></tt></a>(value)</td>
+<td>Case insensitive Regex match on the name bit of metadata.xml&#8217;s</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.parse_owns" title="pkgcore.scripts.pquery.parse_owns"><tt class="xref py py-obj docutils literal"><span class="pre">parse_owns</span></tt></a>(value)</td>
+<td>Value is a comma delimited set of paths to search contents for</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.parse_ownsre" title="pkgcore.scripts.pquery.parse_ownsre"><tt class="xref py py-obj docutils literal"><span class="pre">parse_ownsre</span></tt></a>(value)</td>
+<td>Value is a regexp matched against the string form of an fs object.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.parse_revdep" title="pkgcore.scripts.pquery.parse_revdep"><tt class="xref py py-obj docutils literal"><span class="pre">parse_revdep</span></tt></a>(value)</td>
+<td>Value should be an atom, packages with deps intersecting that match.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.print_package" title="pkgcore.scripts.pquery.print_package"><tt class="xref py py-obj docutils literal"><span class="pre">print_package</span></tt></a>(options,&nbsp;out,&nbsp;err,&nbsp;pkg)</td>
+<td>Print a package.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.print_packages_noversion" title="pkgcore.scripts.pquery.print_packages_noversion"><tt class="xref py py-obj docutils literal"><span class="pre">print_packages_noversion</span></tt></a>(options,&nbsp;out,&nbsp;err,&nbsp;pkgs)</td>
+<td>Print a summary of all versions for a single package.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.revdep_callback" title="pkgcore.scripts.pquery.revdep_callback"><tt class="xref py py-obj docutils literal"><span class="pre">revdep_callback</span></tt></a>(option,&nbsp;opt_str,&nbsp;value,&nbsp;parser)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.revdep_pkgs_callback" title="pkgcore.scripts.pquery.revdep_pkgs_callback"><tt class="xref py py-obj docutils literal"><span class="pre">revdep_pkgs_callback</span></tt></a>(option,&nbsp;opt_str,&nbsp;value,&nbsp;...)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.revdep_pkgs_match" title="pkgcore.scripts.pquery.revdep_pkgs_match"><tt class="xref py py-obj docutils literal"><span class="pre">revdep_pkgs_match</span></tt></a>(pkgs,&nbsp;value)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.stringify_attr" title="pkgcore.scripts.pquery.stringify_attr"><tt class="xref py py-obj docutils literal"><span class="pre">stringify_attr</span></tt></a>(config,&nbsp;pkg,&nbsp;attr)</td>
+<td>Grab a package attr and convert it to a string.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.DataSourceRestriction" title="pkgcore.scripts.pquery.DataSourceRestriction"><tt class="xref py py-obj docutils literal"><span class="pre">DataSourceRestriction</span></tt></a>(childrestriction,&nbsp;**kwargs)</td>
+<td>Turn a data_source into a line iterator and apply a restriction.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.Option" title="pkgcore.scripts.pquery.Option"><tt class="xref py py-obj docutils literal"><span class="pre">Option</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<td>C{optparse.Option} subclass supporting our custom types.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.scripts.pquery.OptionParser" title="pkgcore.scripts.pquery.OptionParser"><tt class="xref py py-obj docutils literal"><span class="pre">OptionParser</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<td>Option parser with custom option postprocessing and validation.</td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">partial</span></tt></td>
+<td>partial(func, <a href="#id1"><span class="problematic" id="id2">*</span></a>args, <a href="#id3"><span class="problematic" id="id4">**</span></a>keywords) - new function with partial application</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Data</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">PARSE_FUNCS</span></tt></td>
+<td>dict() -&gt; new empty dictionary</td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">extras</span></tt></td>
+<td>dict() -&gt; new empty dictionary</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="pkgcore.scripts.pquery.DataSourceRestriction">
+<em class="property">class </em><tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">DataSourceRestriction</tt><big>(</big><em>childrestriction</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#DataSourceRestriction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.DataSourceRestriction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pkgcore.restrictions.values.html#pkgcore.restrictions.values.base" title="pkgcore.restrictions.values.base"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.restrictions.values.base</span></tt></a></p>
+<p>Turn a data_source into a line iterator and apply a restriction.</p>
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.DataSourceRestriction.force_False">
+<tt class="descname">force_False</tt><big>(</big><em>pkg</em>, <em>attr</em>, <em>val</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.DataSourceRestriction.force_False" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.DataSourceRestriction.force_True">
+<tt class="descname">force_True</tt><big>(</big><em>pkg</em>, <em>attr</em>, <em>val</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.DataSourceRestriction.force_True" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.DataSourceRestriction.intersect">
+<tt class="descname">intersect</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.DataSourceRestriction.intersect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.DataSourceRestriction.match">
+<tt class="descname">match</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#DataSourceRestriction.match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.DataSourceRestriction.match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.scripts.pquery.Option">
+<em class="property">class </em><tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">Option</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#Option"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.Option" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pkgcore.util.commandline_optparse.Option</span></tt></p>
+<p>C{optparse.Option} subclass supporting our custom types.</p>
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.Option.check_value">
+<tt class="descname">check_value</tt><big>(</big><em>opt</em>, <em>value</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.Option.check_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.Option.convert_value">
+<tt class="descname">convert_value</tt><big>(</big><em>opt</em>, <em>value</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.Option.convert_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.Option.get_opt_string">
+<tt class="descname">get_opt_string</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.Option.get_opt_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.Option.process">
+<tt class="descname">process</tt><big>(</big><em>opt</em>, <em>value</em>, <em>values</em>, <em>parser</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.Option.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.Option.take_action">
+<tt class="descname">take_action</tt><big>(</big><em>action</em>, <em>dest</em>, <em>opt</em>, <em>value</em>, <em>values</em>, <em>parser</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.Option.take_action" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.Option.takes_value">
+<tt class="descname">takes_value</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.Option.takes_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.scripts.pquery.OptionParser">
+<em class="property">class </em><tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">OptionParser</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#OptionParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pkgcore.util.commandline_optparse.OptionParser</span></tt></p>
+<p>Option parser with custom option postprocessing and validation.</p>
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.add_option">
+<tt class="descname">add_option</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.add_option" title="Permalink to this definition">¶</a></dt>
+<dd><p>add_option(Option)
+add_option(opt_str, ..., kwarg=val, ...)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.add_option_group">
+<tt class="descname">add_option_group</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.add_option_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.add_options">
+<tt class="descname">add_options</tt><big>(</big><em>option_list</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.add_options" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.check_values">
+<tt class="descname">check_values</tt><big>(</big><em>values</em>, <em>args</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.check_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do some basic sanity checking.</p>
+<p>optparse defaults unset lists to None. An empty sequence is
+much more convenient (lets you use them in a for loop without
+a None check) so we fix those up (based on action &#8220;append&#8221;).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.destroy">
+<tt class="descname">destroy</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.destroy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Declare that you are done with this OptionParser.  This cleans up
+reference cycles so the OptionParser (and all objects referenced by
+it) can be garbage-collected promptly.  After calling destroy(), the
+OptionParser is unusable.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.disable_interspersed_args">
+<tt class="descname">disable_interspersed_args</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.disable_interspersed_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set parsing to stop on the first non-option. Use this if
+you have a command processor which runs another command that
+has options of its own and you want to make sure these options
+don&#8217;t get confused.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.enable_interspersed_args">
+<tt class="descname">enable_interspersed_args</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.enable_interspersed_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set parsing to not stop on the first non-option, allowing
+interspersing switches with command arguments. This is the
+default behavior. See also disable_interspersed_args() and the
+class documentation description of the attribute
+allow_interspersed_args.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.error">
+<tt class="descname">error</tt><big>(</big><em>msg</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.error" title="Permalink to this definition">¶</a></dt>
+<dd><p>error(msg : string)</p>
+<p>Print a usage message incorporating &#8216;msg&#8217; to stderr and exit.
+If you override this in a subclass, it should not return &#8211; it
+should either exit or raise an exception.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.exit">
+<tt class="descname">exit</tt><big>(</big><em>status=0</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.exit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.expand_prog_name">
+<tt class="descname">expand_prog_name</tt><big>(</big><em>s</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.expand_prog_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.format_description">
+<tt class="descname">format_description</tt><big>(</big><em>formatter</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.format_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.format_epilog">
+<tt class="descname">format_epilog</tt><big>(</big><em>formatter</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.format_epilog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.format_help">
+<tt class="descname">format_help</tt><big>(</big><em>formatter=None</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.format_help" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.format_option_help">
+<tt class="descname">format_option_help</tt><big>(</big><em>formatter=None</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.format_option_help" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.get_default_values">
+<tt class="descname">get_default_values</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.get_default_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Slightly simplified copy of optparse code using our Values class.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.get_description">
+<tt class="descname">get_description</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.get_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.get_option">
+<tt class="descname">get_option</tt><big>(</big><em>opt_str</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.get_option" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.get_option_group">
+<tt class="descname">get_option_group</tt><big>(</big><em>opt_str</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.get_option_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.get_prog_name">
+<tt class="descname">get_prog_name</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.get_prog_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.get_usage">
+<tt class="descname">get_usage</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.get_usage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.get_version">
+<tt class="descname">get_version</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.get_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add pkgcore&#8217;s version to the version information.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.has_option">
+<tt class="descname">has_option</tt><big>(</big><em>opt_str</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.has_option" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.scripts.pquery.OptionParser.option_class">
+<tt class="descname">option_class</tt><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.option_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#pkgcore.scripts.pquery.Option" title="pkgcore.scripts.pquery.Option"><tt class="xref py py-class docutils literal"><span class="pre">Option</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.parse_args">
+<tt class="descname">parse_args</tt><big>(</big><em>args=None</em>, <em>values=None</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.parse_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extend optparse to clear the ref values -&gt; parser it adds.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.parse_atom">
+<tt class="descname">parse_atom</tt><big>(</big><em>arg</em>, <em>msg=None</em>, <em>eapi=-1</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.parse_atom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.parse_restrict">
+<tt class="descname">parse_restrict</tt><big>(</big><em>arg</em>, <em>msg=None</em>, <em>eapi=None</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.parse_restrict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.print_help">
+<tt class="descname">print_help</tt><big>(</big><em>file=None</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.print_help" title="Permalink to this definition">¶</a></dt>
+<dd><p>print_help(file : file = stdout)</p>
+<p>Print an extended help message, listing all options and any
+help text provided with them, to &#8216;file&#8217; (default stdout).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.print_usage">
+<tt class="descname">print_usage</tt><big>(</big><em>file=None</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.print_usage" title="Permalink to this definition">¶</a></dt>
+<dd><p>print_usage(file : file = stdout)</p>
+<p>Print the usage message for the current program (self.usage) to
+&#8216;file&#8217; (default stdout).  Any occurrence of the string &#8220;%prog&#8221; in
+self.usage is replaced with the name of the current program
+(basename of sys.argv[0]).  Does nothing if self.usage is empty
+or not defined.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.print_version">
+<tt class="descname">print_version</tt><big>(</big><em>file=None</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.print_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the version to a filelike (defaults to stdout).</p>
+<p>Overridden because the optparse one is a noop if self.version is false.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.remove_option">
+<tt class="descname">remove_option</tt><big>(</big><em>opt_str</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.remove_option" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.set_conflict_handler">
+<tt class="descname">set_conflict_handler</tt><big>(</big><em>handler</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.set_conflict_handler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.set_default">
+<tt class="descname">set_default</tt><big>(</big><em>dest</em>, <em>value</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.set_default" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.set_defaults">
+<tt class="descname">set_defaults</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.set_defaults" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.set_description">
+<tt class="descname">set_description</tt><big>(</big><em>description</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.set_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.set_process_default_values">
+<tt class="descname">set_process_default_values</tt><big>(</big><em>process</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.set_process_default_values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.scripts.pquery.OptionParser.set_usage">
+<tt class="descname">set_usage</tt><big>(</big><em>usage</em><big>)</big><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.set_usage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.scripts.pquery.OptionParser.values_class">
+<tt class="descname">values_class</tt><a class="headerlink" href="#pkgcore.scripts.pquery.OptionParser.values_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">Values</span></tt></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.append_const_callback">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">append_const_callback</tt><big>(</big><em>option</em>, <em>opt_str</em>, <em>value</em>, <em>parser</em>, <em>const</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#append_const_callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.append_const_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback version of python 2.5&#8217;s append_const action.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.atom_type">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">atom_type</tt><big>(</big><em>option</em>, <em>opt</em>, <em>value</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#atom_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.atom_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.format_attr">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">format_attr</tt><big>(</big><em>config</em>, <em>out</em>, <em>pkg</em>, <em>attr</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#format_attr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.format_attr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grab a package attr and print it through a formatter.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.main">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">main</tt><big>(</big><em>options</em>, <em>out</em>, <em>err</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run a query.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.mk_strregex">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">mk_strregex</tt><big>(</big><em>value</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#mk_strregex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.mk_strregex" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.optparse_type">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">optparse_type</tt><big>(</big><em>parsefunc</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#optparse_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.optparse_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrap a parsefunc shared with the expression-style code for optparse.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.parse_description">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">parse_description</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#parse_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.parse_description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Value is used as a regexp matching description or longdescription.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.parse_envmatch">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">parse_envmatch</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#parse_envmatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.parse_envmatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a regexp to the environment.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.parse_expression">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">parse_expression</tt><big>(</big><em>string</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#parse_expression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.parse_expression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a string to a restriction object using pyparsing.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.parse_maintainer">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">parse_maintainer</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#parse_maintainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.parse_maintainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Case insensitive Regex match on the combined &#8216;name &lt;email&gt;&#8217; bit of
+metadata.xml&#8217;s maintainer data.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.parse_maintainer_email">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">parse_maintainer_email</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#parse_maintainer_email"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.parse_maintainer_email" title="Permalink to this definition">¶</a></dt>
+<dd><p>Case insensitive Regex match on the email bit of metadata.xml&#8217;s
+maintainer data.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.parse_maintainer_name">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">parse_maintainer_name</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#parse_maintainer_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.parse_maintainer_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Case insensitive Regex match on the name bit of metadata.xml&#8217;s
+maintainer data.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.parse_owns">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">parse_owns</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#parse_owns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.parse_owns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Value is a comma delimited set of paths to search contents for</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.parse_ownsre">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">parse_ownsre</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#parse_ownsre"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.parse_ownsre" title="Permalink to this definition">¶</a></dt>
+<dd><p>Value is a regexp matched against the string form of an fs object.</p>
+<p>This means the object kind is prepended to the path the regexp has
+to match.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.parse_revdep">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">parse_revdep</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#parse_revdep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.parse_revdep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Value should be an atom, packages with deps intersecting that match.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.print_package">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">print_package</tt><big>(</big><em>options</em>, <em>out</em>, <em>err</em>, <em>pkg</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#print_package"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.print_package" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print a package.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.print_packages_noversion">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">print_packages_noversion</tt><big>(</big><em>options</em>, <em>out</em>, <em>err</em>, <em>pkgs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#print_packages_noversion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.print_packages_noversion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print a summary of all versions for a single package.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.revdep_callback">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">revdep_callback</tt><big>(</big><em>option</em>, <em>opt_str</em>, <em>value</em>, <em>parser</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#revdep_callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.revdep_callback" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.revdep_pkgs_callback">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">revdep_pkgs_callback</tt><big>(</big><em>option</em>, <em>opt_str</em>, <em>value</em>, <em>parser</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#revdep_pkgs_callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.revdep_pkgs_callback" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.revdep_pkgs_match">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">revdep_pkgs_match</tt><big>(</big><em>pkgs</em>, <em>value</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#revdep_pkgs_match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.revdep_pkgs_match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.scripts.pquery.stringify_attr">
+<tt class="descclassname">pkgcore.scripts.pquery.</tt><tt class="descname">stringify_attr</tt><big>(</big><em>config</em>, <em>pkg</em>, <em>attr</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/scripts/pquery.html#stringify_attr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.scripts.pquery.stringify_attr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grab a package attr and convert it to a string.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.scripts.pplugincache.html"
+                        title="previous chapter">pkgcore.scripts.pplugincache</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.spawn.html"
+                        title="next chapter">pkgcore.spawn</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.spawn.html" title="pkgcore.spawn"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.scripts.pplugincache.html" title="pkgcore.scripts.pplugincache"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,255 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>snakeoil.tar &mdash; snakeoil v-trunk documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '-trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="snakeoil v-trunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="snakeoil.test" href="snakeoil.test.html" />
+    <link rel="prev" title="snakeoil.struct_compat" href="snakeoil.struct_compat.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.test.html" title="snakeoil.test"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.struct_compat.html" title="snakeoil.struct_compat"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-snakeoil.tar">
+<span id="snakeoil-tar"></span><h1>snakeoil.tar<a class="headerlink" href="#module-snakeoil.tar" title="Permalink to this headline">¶</a></h1>
+<p>fixed up Tarfile implementation</p>
+<p>Specifically this grabs a copy of <a class="reference external" href="http://docs.python.org/library/tarfile.html#module-tarfile" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">tarfile</span></tt></a> and applies a set of
+modifications- roughly a 33% memory reduction in usage</p>
+<p>Note that this modules initial setup semantics are technically racy- if the
+python implementation allows for the GIL to be swapped to a different thread
+during tarfile import (at literally the exact right moment) this version
+can bleed through.  Extremely unlikely chance (haven&#8217;t managed to even trigger
+it once yet), but the potential seems to be there.</p>
+<p>In usage, instead of importing tarfile you should just import this module
+instead.  It&#8217;s intended to be a drop in replacement.</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">is_tarfile</span></tt>(name)</td>
+<td>Return True if name points to a tar archive that we</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">ExFileObject</span></tt>(tarfile,&nbsp;tarinfo)</td>
+<td></td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">TarFile</span></tt>([name,&nbsp;mode,&nbsp;fileobj,&nbsp;format,&nbsp;...])</td>
+<td>The TarFile Class provides an interface to tar archives.</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.tar.TarInfo" title="snakeoil.tar.TarInfo"><tt class="xref py py-obj docutils literal"><span class="pre">TarInfo</span></tt></a>([name])</td>
+<td>Customized TarInfo implementation.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Exceptions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">TarError</span></tt></td>
+<td>Base exception.</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="snakeoil.tar.TarInfo">
+<em class="property">class </em><tt class="descclassname">snakeoil.tar.</tt><tt class="descname">TarInfo</tt><big>(</big><em>name=''</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/tar.html#TarInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.tar.TarInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/tarfile.html#tarfile.TarInfo" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">tarfile.TarInfo</span></tt></a></p>
+<p>Customized TarInfo implementation.</p>
+<p>Note that this implementation has a locked down set of __slots__.  The slotting
+doesn&#8217;t remove the underlying Dict being created (which we still pay memory for),
+but via using __slots__ we no longer pay the overallocation cost of dicts per
+TarInfo instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>buf</strong> &#8211; deletion and setting are disallowed in this implementation.
+This is done primarily to avoid having to have &gt;512 bytes per TarInfo
+object.</li>
+<li><strong>gname</strong> &#8211; same as TarInfo.gname, just interned via a property.</li>
+<li><strong>uname</strong> &#8211; same as TarInfo.uname, just interned via a property.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="snakeoil.tar.TarInfo.create_gnu_header">
+<tt class="descname">create_gnu_header</tt><big>(</big><em>info</em><big>)</big><a class="headerlink" href="#snakeoil.tar.TarInfo.create_gnu_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the object as a GNU header block sequence.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="snakeoil.tar.TarInfo.create_pax_global_header">
+<em class="property">classmethod </em><tt class="descname">create_pax_global_header</tt><big>(</big><em>pax_headers</em><big>)</big><a class="headerlink" href="#snakeoil.tar.TarInfo.create_pax_global_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the object as a pax global header block sequence.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.tar.TarInfo.create_pax_header">
+<tt class="descname">create_pax_header</tt><big>(</big><em>info</em>, <em>encoding</em>, <em>errors</em><big>)</big><a class="headerlink" href="#snakeoil.tar.TarInfo.create_pax_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the object as a ustar header block. If it cannot be
+represented this way, prepend a pax extended header sequence
+with supplement information.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.tar.TarInfo.create_ustar_header">
+<tt class="descname">create_ustar_header</tt><big>(</big><em>info</em><big>)</big><a class="headerlink" href="#snakeoil.tar.TarInfo.create_ustar_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the object as a ustar header block.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.tar.TarInfo.del_buf">
+<tt class="descname">del_buf</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/snakeoil/tar.html#TarInfo.del_buf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.tar.TarInfo.del_buf" title="Permalink to this definition">¶</a></dt>
+<dd><p>the ability to delete the buffer is disabled in this
+patched version</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="snakeoil.tar.TarInfo.frombuf">
+<em class="property">classmethod </em><tt class="descname">frombuf</tt><big>(</big><em>buf</em><big>)</big><a class="headerlink" href="#snakeoil.tar.TarInfo.frombuf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a TarInfo object from a 512 byte string buffer.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="snakeoil.tar.TarInfo.fromtarfile">
+<em class="property">classmethod </em><tt class="descname">fromtarfile</tt><big>(</big><em>tarfile</em><big>)</big><a class="headerlink" href="#snakeoil.tar.TarInfo.fromtarfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the next TarInfo object from TarFile object
+tarfile.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.tar.TarInfo.get_info">
+<tt class="descname">get_info</tt><big>(</big><em>encoding</em>, <em>errors</em><big>)</big><a class="headerlink" href="#snakeoil.tar.TarInfo.get_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the TarInfo&#8217;s attributes as a dictionary.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.tar.TarInfo.set_buf">
+<tt class="descname">set_buf</tt><big>(</big><em>val</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/tar.html#TarInfo.set_buf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.tar.TarInfo.set_buf" title="Permalink to this definition">¶</a></dt>
+<dd><p>the ability to set the buffer is disabled in this
+patched version</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.tar.TarInfo.tobuf">
+<tt class="descname">tobuf</tt><big>(</big><em>format=1</em>, <em>encoding='ANSI_X3.4-1968'</em>, <em>errors='strict'</em><big>)</big><a class="headerlink" href="#snakeoil.tar.TarInfo.tobuf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a tar header as a string of 512 byte blocks.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="snakeoil.struct_compat.html"
+                        title="previous chapter">snakeoil.struct_compat</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="snakeoil.test.html"
+                        title="next chapter">snakeoil.test</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.test.html" title="snakeoil.test"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.struct_compat.html" title="snakeoil.struct_compat"
+             >previous</a> |</li>
+        <li><a href="../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

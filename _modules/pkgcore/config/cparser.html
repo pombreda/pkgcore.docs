@@ -1,0 +1,128 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.config.cparser &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="pkgcore.config" href="../config.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../config.html" accesskey="U">pkgcore.config</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.config.cparser</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2009 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># Copyright: 2005 Marien Zwart &lt;marienz@gentoo.org&gt;</span>
+<span class="c"># License: BSD/GPL2</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">ini based configuration format</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;config_from_file&quot;</span><span class="p">,)</span>
+
+<span class="kn">import</span> <span class="nn">ConfigParser</span>
+
+<span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">basics</span><span class="p">,</span> <span class="n">errors</span>
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">mappings</span>
+
+<span class="k">class</span> <span class="nc">CaseSensitiveConfigParser</span><span class="p">(</span><span class="n">ConfigParser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">optionxform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">val</span>
+
+
+<div class="viewcode-block" id="config_from_file"><a class="viewcode-back" href="../../../api/pkgcore.config.cparser.html#pkgcore.config.cparser.config_from_file">[docs]</a><span class="k">def</span> <span class="nf">config_from_file</span><span class="p">(</span><span class="n">file_obj</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    generate a config dict</span>
+
+<span class="sd">    :param file_obj: file protocol instance</span>
+<span class="sd">    :return: L{snakeoil.mappings.LazyValDict} instance</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cparser</span> <span class="o">=</span> <span class="n">CaseSensitiveConfigParser</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">cparser</span><span class="o">.</span><span class="n">readfp</span><span class="p">(</span><span class="n">file_obj</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">ParsingError</span><span class="p">,</span> <span class="n">pe</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ParsingError</span><span class="p">(</span><span class="s">&quot;while parsing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">file_obj</span><span class="p">,),</span> <span class="n">pe</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_section</span><span class="p">(</span><span class="n">section</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">basics</span><span class="o">.</span><span class="n">ConfigSectionFromStringDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">cparser</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="n">section</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">mappings</span><span class="o">.</span><span class="n">LazyValDict</span><span class="p">(</span><span class="n">cparser</span><span class="o">.</span><span class="n">sections</span><span class="p">,</span> <span class="n">get_section</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../config.html" >pkgcore.config</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

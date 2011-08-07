@@ -1,0 +1,337 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.ebuild.conditionals &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.ebuild.const" href="pkgcore.ebuild.const.html" />
+    <link rel="prev" title="pkgcore.ebuild.restricts" href="pkgcore.ebuild.restricts.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.const.html" title="pkgcore.ebuild.const"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.restricts.html" title="pkgcore.ebuild.restricts"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.ebuild.conditionals">
+<span id="pkgcore-ebuild-conditionals"></span><h1>pkgcore.ebuild.conditionals<a class="headerlink" href="#module-pkgcore.ebuild.conditionals" title="Permalink to this headline">¶</a></h1>
+<p>DepSet parsing.</p>
+<p>Turns a DepSet (depends, rdepends, SRC_URI, license, etc) into
+appropriate conditionals.</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.conditionals.stringify_boolean" title="pkgcore.ebuild.conditionals.stringify_boolean"><tt class="xref py py-obj docutils literal"><span class="pre">stringify_boolean</span></tt></a>(node[,&nbsp;func])</td>
+<td>func is used to stringify the actual content. Useful for fetchables.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.conditionals.DepSet" title="pkgcore.ebuild.conditionals.DepSet"><tt class="xref py py-obj docutils literal"><span class="pre">DepSet</span></tt></a>(restrictions,&nbsp;element_class,&nbsp;node_conds)</td>
+<td>gentoo DepSet syntax parser</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="pkgcore.ebuild.conditionals.DepSet">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.conditionals.</tt><tt class="descname">DepSet</tt><big>(</big><em>restrictions</em>, <em>element_class</em>, <em>node_conds</em>, <em>known_conditionals=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/conditionals.html#DepSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pkgcore.restrictions.boolean.html#pkgcore.restrictions.boolean.AndRestriction" title="pkgcore.restrictions.boolean.AndRestriction"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.restrictions.boolean.AndRestriction</span></tt></a></p>
+<p>gentoo DepSet syntax parser</p>
+<dl class="method">
+<dt id="pkgcore.ebuild.conditionals.DepSet.add_restriction">
+<tt class="descname">add_restriction</tt><big>(</big><em>*new_restrictions</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.add_restriction" title="Permalink to this definition">¶</a></dt>
+<dd><p>add an more restriction(s)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_restrictions</strong> &#8211; if node_type is enforced,
+restrictions must be of that type.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.conditionals.DepSet.change_restrictions">
+<tt class="descname">change_restrictions</tt><big>(</big><em>*restrictions</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.change_restrictions" title="Permalink to this definition">¶</a></dt>
+<dd><p>return a new instance of self.__class__, using supplied restrictions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.conditionals.DepSet.cnf_solutions">
+<tt class="descname">cnf_solutions</tt><big>(</big><em>full_solution_expansion=False</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.cnf_solutions" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns solutions in CNF (conjunctive normalized form) of this instance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_solution_expansion</strong> &#8211; controls whether to expand everything
+(break apart atoms for example); this isn&#8217;t likely what you want</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.conditionals.DepSet.dnf_solutions">
+<tt class="descname">dnf_solutions</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.dnf_solutions" title="Permalink to this definition">¶</a></dt>
+<dd><p>list form of L{iter_dnf_solutions}, see iter_dnf_solutions for args</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.conditionals.DepSet.element_class">
+<tt class="descname">element_class</tt><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.element_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.conditionals.DepSet.evaluate_conditionals">
+<tt class="descname">evaluate_conditionals</tt><big>(</big><em>parent_cls</em>, <em>parent_seq</em>, <em>enabled</em>, <em>tristate_locked=None</em>, <em>force_collapse=False</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.evaluate_conditionals" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.conditionals.DepSet.evaluate_depset">
+<tt class="descname">evaluate_depset</tt><big>(</big><em>cond_dict</em>, <em>tristate_filter=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/conditionals.html#DepSet.evaluate_depset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.evaluate_depset" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cond_dict</strong> &#8211; container to be used for conditional collapsing,
+typically is a use list</li>
+<li><strong>tristate_filter</strong> &#8211; a control; if specified, must be a container
+of conditionals to lock to cond_dict.
+during processing, if it&#8217;s not in tristate_filter will
+automatically enable the payload
+(regardless of the conditionals negation)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.conditionals.DepSet.finalize">
+<tt class="descname">finalize</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.finalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>finalize the restriction instance, disallowing adding restrictions.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pkgcore.ebuild.conditionals.DepSet.find_cond_nodes">
+<em class="property">static </em><tt class="descname">find_cond_nodes</tt><big>(</big><em>restriction_set</em>, <em>yield_non_conditionals=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/conditionals.html#DepSet.find_cond_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.find_cond_nodes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.conditionals.DepSet.force_False">
+<tt class="descname">force_False</tt><big>(</big><em>*a</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.force_False" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.conditionals.DepSet.force_True">
+<tt class="descname">force_True</tt><big>(</big><em>*a</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.force_True" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.conditionals.DepSet.has_conditionals">
+<tt class="descname">has_conditionals</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/conditionals.html#DepSet.has_conditionals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.has_conditionals" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.conditionals.DepSet.intersect">
+<tt class="descname">intersect</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.intersect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.conditionals.DepSet.iter_cnf_solutions">
+<tt class="descname">iter_cnf_solutions</tt><big>(</big><em>full_solution_expansion=False</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.iter_cnf_solutions" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns solutions in CNF (conjunctive normalized form) of this instance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_solution_expansion</strong> &#8211; controls whether to expand everything
+(break apart atoms for example); this isn&#8217;t likely what you want</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.conditionals.DepSet.iter_dnf_solutions">
+<tt class="descname">iter_dnf_solutions</tt><big>(</big><em>full_solution_expansion=False</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.iter_dnf_solutions" title="Permalink to this definition">¶</a></dt>
+<dd><p>generater yielding DNF (disjunctive normalized form) of this instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_solution_expansion</strong> &#8211; controls whether to expand everything
+(break apart atoms for example); this isn&#8217;t likely what you want</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.conditionals.DepSet.known_conditionals">
+<tt class="descname">known_conditionals</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/conditionals.html#DepSet.known_conditionals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.known_conditionals" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.conditionals.DepSet.match">
+<tt class="descname">match</tt><big>(</big><em>*a</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/conditionals.html#DepSet.match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.conditionals.DepSet.node_conds">
+<tt class="descname">node_conds</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/conditionals.html#DepSet.node_conds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.node_conds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.conditionals.DepSet.parse">
+<em class="property">classmethod </em><tt class="descname">parse</tt><big>(</big><em>dep_str</em>, <em>element_class</em>, <em>operators=None</em>, <em>element_func=None</em>, <em>transitive_use_atoms=False</em>, <em>allow_src_uri_file_renames=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/conditionals.html#DepSet.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.parse" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dep_str</strong> &#8211; string abiding by DepSet syntax</li>
+<li><strong>operators</strong> &#8211; mapping of node -&gt; callable for special operators
+in DepSet syntax</li>
+<li><strong>element_func</strong> &#8211; if None, element_class is used for generating
+elements, else it&#8217;s used to generate elements.
+Mainly useful for when you need to curry a few args for instance
+generation, since element_class _must_ be a class</li>
+<li><strong>element_class</strong> &#8211; class of generated elements</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.conditionals.DepSet.parse_depset">
+<tt class="descname">parse_depset</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.parse_depset" title="Permalink to this definition">¶</a></dt>
+<dd><p>initialize a depset instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.conditionals.DepSet.restrictions">
+<tt class="descname">restrictions</tt><a class="headerlink" href="#pkgcore.ebuild.conditionals.DepSet.restrictions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.conditionals.stringify_boolean">
+<tt class="descclassname">pkgcore.ebuild.conditionals.</tt><tt class="descname">stringify_boolean</tt><big>(</big><em>node</em>, <em>func=&lt;type 'str'&gt;</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/conditionals.html#stringify_boolean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.conditionals.stringify_boolean" title="Permalink to this definition">¶</a></dt>
+<dd><p>func is used to stringify the actual content. Useful for fetchables.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.restricts.html"
+                        title="previous chapter">pkgcore.ebuild.restricts</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.const.html"
+                        title="next chapter">pkgcore.ebuild.const</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.const.html" title="pkgcore.ebuild.const"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.restricts.html" title="pkgcore.ebuild.restricts"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

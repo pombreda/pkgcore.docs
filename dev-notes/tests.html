@@ -1,0 +1,148 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Testing &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="Developer Notes" href="../dev-notes.html" />
+    <link rel="next" title="perl CPAN" href="formats/cpan.html" />
+    <link rel="prev" title="Tackling domain" href="tackling-domain.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="formats/cpan.html" title="perl CPAN"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tackling-domain.html" title="Tackling domain"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../dev-notes.html" accesskey="U">Developer Notes</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="testing">
+<h1>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h1>
+<p>We use twisted.trial for our tests, to run the test framework run:</p>
+<blockquote>
+<div>trial pkgcore</div></blockquote>
+<p>Your own tests must be stored in pkgcore.test - furthermore, tests must
+pass when ran repeatedly (-u option). You will want at least twisted-2.2
+for that, &lt;2.2 has a few false positives.</p>
+<div class="section" id="testing-for-negative-assertions">
+<h2>Testing for negative assertions<a class="headerlink" href="#testing-for-negative-assertions" title="Permalink to this headline">¶</a></h2>
+<p>When coding it&#8217;s easy to write test cases asserting that you get result xyz
+from foo, usually asserting the correct flow. This is ok if nothing goes
+wrong, but that doesn&#8217;t normally happen. :)</p>
+<p>Negative assertions (there probably is a better term for it) means asserting
+failure conditions and ensuring that the code handles zyx properly when it
+gets thrown at it. Most test cases seem to miss this, resulting in bugs
+being able to hide away for when things go wrong.</p>
+</div>
+<div class="section" id="using-coverage">
+<h2>Using &#8211;coverage<a class="headerlink" href="#using-coverage" title="Permalink to this headline">¶</a></h2>
+<p>When writing tests for your code (or for existing code without any tests), it
+is very useful to use &#8211;coverage. Run <cite>trial &#8211;coverage &lt;path/to/test&gt;</cite>, and
+then check &lt;cwd&gt;/_trial_temp/coverage/&lt;test/module/name&gt;. Any lines prefixed
+with &#8216;&gt;&gt;&gt;&gt;&gt;&#8217; have not been covered by your tests. This should be rectified
+before your code is merged to mainline (though this is not always possible).
+Those lines prefixed with a number show the number of times that line of code
+is evaluated.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Testing</a><ul>
+<li><a class="reference internal" href="#testing-for-negative-assertions">Testing for negative assertions</a></li>
+<li><a class="reference internal" href="#using-coverage">Using &#8211;coverage</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tackling-domain.html"
+                        title="previous chapter">Tackling domain</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="formats/cpan.html"
+                        title="next chapter">perl CPAN</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="formats/cpan.html" title="perl CPAN"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tackling-domain.html" title="Tackling domain"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../dev-notes.html" >Developer Notes</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

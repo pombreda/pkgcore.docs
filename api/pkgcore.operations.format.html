@@ -1,0 +1,387 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.operations.format &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.operations.observer" href="pkgcore.operations.observer.html" />
+    <link rel="prev" title="pkgcore.operations.domain" href="pkgcore.operations.domain.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.operations.observer.html" title="pkgcore.operations.observer"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.operations.domain.html" title="pkgcore.operations.domain"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.operations.format">
+<span id="pkgcore-operations-format"></span><h1>pkgcore.operations.format<a class="headerlink" href="#module-pkgcore.operations.format" title="Permalink to this headline">¶</a></h1>
+<p>build operation</p>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.operations.format.build_base" title="pkgcore.operations.format.build_base"><tt class="xref py py-obj docutils literal"><span class="pre">build_base</span></tt></a>(domain,&nbsp;observer)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.operations.format.empty_build_op" title="pkgcore.operations.format.empty_build_op"><tt class="xref py py-obj docutils literal"><span class="pre">empty_build_op</span></tt></a>(pkg[,&nbsp;observer,&nbsp;clean])</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.operations.format.fetch" title="pkgcore.operations.format.fetch"><tt class="xref py py-obj docutils literal"><span class="pre">fetch</span></tt></a>(pkg)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.operations.format.install" title="pkgcore.operations.format.install"><tt class="xref py py-obj docutils literal"><span class="pre">install</span></tt></a>(domain,&nbsp;newpkg,&nbsp;observer)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.operations.format.replace" title="pkgcore.operations.format.replace"><tt class="xref py py-obj docutils literal"><span class="pre">replace</span></tt></a>(domain,&nbsp;old_pkg,&nbsp;new_pkg,&nbsp;observer)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.operations.format.uninstall" title="pkgcore.operations.format.uninstall"><tt class="xref py py-obj docutils literal"><span class="pre">uninstall</span></tt></a>(domain,&nbsp;oldpkg,&nbsp;observer)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Exceptions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.operations.format.FailedDirectory" title="pkgcore.operations.format.FailedDirectory"><tt class="xref py py-obj docutils literal"><span class="pre">FailedDirectory</span></tt></a>(path,&nbsp;text)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.operations.format.GenericBuildError" title="pkgcore.operations.format.GenericBuildError"><tt class="xref py py-obj docutils literal"><span class="pre">GenericBuildError</span></tt></a>(err)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Data</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">errors</span></tt></td>
+<td>tuple() -&gt; empty tuple</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="pkgcore.operations.format.build_base">
+<em class="property">class </em><tt class="descclassname">pkgcore.operations.format.</tt><tt class="descname">build_base</tt><big>(</big><em>domain</em>, <em>observer</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#build_base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.build_base" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="pkgcore.operations.format.build_base.finish">
+<tt class="descname">finish</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#build_base.finish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.build_base.finish" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.build_base.start">
+<tt class="descname">start</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#build_base.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.build_base.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.operations.format.install">
+<em class="property">class </em><tt class="descclassname">pkgcore.operations.format.</tt><tt class="descname">install</tt><big>(</big><em>domain</em>, <em>newpkg</em>, <em>observer</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#install"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.install" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.operations.format.build_base" title="pkgcore.operations.format.build_base"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.operations.format.build_base</span></tt></a></p>
+<dl class="method">
+<dt id="pkgcore.operations.format.install.add_triggers">
+<tt class="descname">add_triggers</tt><big>(</big><em>engine</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#install.add_triggers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.install.add_triggers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.install.finalize">
+<tt class="descname">finalize</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#install.finalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.install.finalize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.install.finish">
+<tt class="descname">finish</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.format.install.finish" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.install.postinst">
+<tt class="descname">postinst</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#install.postinst"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.install.postinst" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.install.preinst">
+<tt class="descname">preinst</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#install.preinst"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.install.preinst" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.install.start">
+<tt class="descname">start</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.format.install.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.operations.format.uninstall">
+<em class="property">class </em><tt class="descclassname">pkgcore.operations.format.</tt><tt class="descname">uninstall</tt><big>(</big><em>domain</em>, <em>oldpkg</em>, <em>observer</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#uninstall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.uninstall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.operations.format.build_base" title="pkgcore.operations.format.build_base"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.operations.format.build_base</span></tt></a></p>
+<dl class="method">
+<dt id="pkgcore.operations.format.uninstall.add_triggers">
+<tt class="descname">add_triggers</tt><big>(</big><em>engine</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#uninstall.add_triggers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.uninstall.add_triggers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.uninstall.finalize">
+<tt class="descname">finalize</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#uninstall.finalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.uninstall.finalize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.uninstall.finish">
+<tt class="descname">finish</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.format.uninstall.finish" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.uninstall.postinst">
+<tt class="descname">postinst</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#uninstall.postinst"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.uninstall.postinst" title="Permalink to this definition">¶</a></dt>
+<dd><p>any post unmerge steps needed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.uninstall.postrm">
+<tt class="descname">postrm</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#uninstall.postrm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.uninstall.postrm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.uninstall.prerm">
+<tt class="descname">prerm</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#uninstall.prerm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.uninstall.prerm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.uninstall.start">
+<tt class="descname">start</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.format.uninstall.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.operations.format.replace">
+<em class="property">class </em><tt class="descclassname">pkgcore.operations.format.</tt><tt class="descname">replace</tt><big>(</big><em>domain</em>, <em>old_pkg</em>, <em>new_pkg</em>, <em>observer</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#replace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.replace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.operations.format.install" title="pkgcore.operations.format.install"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.operations.format.install</span></tt></a>, <a class="reference internal" href="#pkgcore.operations.format.uninstall" title="pkgcore.operations.format.uninstall"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.operations.format.uninstall</span></tt></a></p>
+<dl class="method">
+<dt id="pkgcore.operations.format.replace.add_triggers">
+<tt class="descname">add_triggers</tt><big>(</big><em>engine</em><big>)</big><a class="headerlink" href="#pkgcore.operations.format.replace.add_triggers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.replace.finalize">
+<tt class="descname">finalize</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.format.replace.finalize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.replace.finish">
+<tt class="descname">finish</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.format.replace.finish" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.replace.postinst">
+<tt class="descname">postinst</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.format.replace.postinst" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.replace.postrm">
+<tt class="descname">postrm</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.format.replace.postrm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.replace.preinst">
+<tt class="descname">preinst</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.format.replace.preinst" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.replace.prerm">
+<tt class="descname">prerm</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.format.replace.prerm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.replace.start">
+<tt class="descname">start</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.format.replace.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.operations.format.fetch">
+<em class="property">class </em><tt class="descclassname">pkgcore.operations.format.</tt><tt class="descname">fetch</tt><big>(</big><em>pkg</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#fetch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.fetch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="pkgcore.operations.format.fetch.cleanup">
+<tt class="descname">cleanup</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#fetch.cleanup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.fetch.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.fetch.fetch">
+<tt class="descname">fetch</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.format.fetch.fetch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.fetch.finalize">
+<tt class="descname">finalize</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#fetch.finalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.fetch.finalize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.operations.format.empty_build_op">
+<em class="property">class </em><tt class="descclassname">pkgcore.operations.format.</tt><tt class="descname">empty_build_op</tt><big>(</big><em>pkg</em>, <em>observer=None</em>, <em>clean=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#empty_build_op"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.empty_build_op" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.operations.format.build_base" title="pkgcore.operations.format.build_base"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.operations.format.build_base</span></tt></a></p>
+<dl class="method">
+<dt id="pkgcore.operations.format.empty_build_op.cleanup">
+<tt class="descname">cleanup</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#empty_build_op.cleanup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.empty_build_op.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.empty_build_op.finalize">
+<tt class="descname">finalize</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#empty_build_op.finalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.empty_build_op.finalize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.empty_build_op.finish">
+<tt class="descname">finish</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.format.empty_build_op.finish" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.format.empty_build_op.start">
+<tt class="descname">start</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.format.empty_build_op.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pkgcore.operations.format.FailedDirectory">
+<em class="property">exception </em><tt class="descclassname">pkgcore.operations.format.</tt><tt class="descname">FailedDirectory</tt><big>(</big><em>path</em>, <em>text</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#FailedDirectory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.FailedDirectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pkgcore.operations.format.BuildError</span></tt></p>
+<dl class="attribute">
+<dt id="pkgcore.operations.format.FailedDirectory.args">
+<tt class="descname">args</tt><a class="headerlink" href="#pkgcore.operations.format.FailedDirectory.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.operations.format.FailedDirectory.message">
+<tt class="descname">message</tt><a class="headerlink" href="#pkgcore.operations.format.FailedDirectory.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pkgcore.operations.format.GenericBuildError">
+<em class="property">exception </em><tt class="descclassname">pkgcore.operations.format.</tt><tt class="descname">GenericBuildError</tt><big>(</big><em>err</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/format.html#GenericBuildError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.format.GenericBuildError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pkgcore.operations.format.BuildError</span></tt></p>
+<dl class="attribute">
+<dt id="pkgcore.operations.format.GenericBuildError.args">
+<tt class="descname">args</tt><a class="headerlink" href="#pkgcore.operations.format.GenericBuildError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.operations.format.GenericBuildError.message">
+<tt class="descname">message</tt><a class="headerlink" href="#pkgcore.operations.format.GenericBuildError.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.operations.domain.html"
+                        title="previous chapter">pkgcore.operations.domain</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.operations.observer.html"
+                        title="next chapter">pkgcore.operations.observer</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.operations.observer.html" title="pkgcore.operations.observer"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.operations.domain.html" title="pkgcore.operations.domain"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

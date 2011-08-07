@@ -1,0 +1,212 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.spawn &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.sync" href="pkgcore.sync.html" />
+    <link rel="prev" title="pkgcore.scripts.pquery" href="pkgcore.scripts.pquery.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.sync.html" title="pkgcore.sync"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.scripts.pquery.html" title="pkgcore.scripts.pquery"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.spawn">
+<span id="pkgcore-spawn"></span><h1>pkgcore.spawn<a class="headerlink" href="#module-pkgcore.spawn" title="Permalink to this headline">¶</a></h1>
+<p>subprocess related functionality</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.spawn.cleanup_pids" title="pkgcore.spawn.cleanup_pids"><tt class="xref py py-obj docutils literal"><span class="pre">cleanup_pids</span></tt></a>([pids])</td>
+<td>reap list of pids if specified, else all children</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.spawn.find_binary" title="pkgcore.spawn.find_binary"><tt class="xref py py-obj docutils literal"><span class="pre">find_binary</span></tt></a>(binary[,&nbsp;paths])</td>
+<td>look through the PATH environment, finding the binary to execute</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.spawn.spawn" title="pkgcore.spawn.spawn"><tt class="xref py py-obj docutils literal"><span class="pre">spawn</span></tt></a>(mycommand[,&nbsp;env,&nbsp;opt_name,&nbsp;fd_pipes,&nbsp;...])</td>
+<td>wrapper around execve</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.spawn.spawn_bash" title="pkgcore.spawn.spawn_bash"><tt class="xref py py-obj docutils literal"><span class="pre">spawn_bash</span></tt></a>(mycommand,&nbsp;**keywords[,&nbsp;debug,&nbsp;...])</td>
+<td>spawn the command via bash -c</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.spawn.spawn_fakeroot" title="pkgcore.spawn.spawn_fakeroot"><tt class="xref py py-obj docutils literal"><span class="pre">spawn_fakeroot</span></tt></a>(mycommand,&nbsp;save_file,&nbsp;**keywords)</td>
+<td>spawn a process via fakeroot</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.spawn.spawn_get_output" title="pkgcore.spawn.spawn_get_output"><tt class="xref py py-obj docutils literal"><span class="pre">spawn_get_output</span></tt></a>(mycommand,&nbsp;**keywords[,&nbsp;...])</td>
+<td>Call spawn, collecting the output to fd&#8217;s specified in collect_fds list.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.spawn.spawn_sandbox" title="pkgcore.spawn.spawn_sandbox"><tt class="xref py py-obj docutils literal"><span class="pre">spawn_sandbox</span></tt></a>(mycommand,&nbsp;**keywords[,&nbsp;opt_name])</td>
+<td>spawn the command under sandboxed</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="pkgcore.spawn.cleanup_pids">
+<tt class="descclassname">pkgcore.spawn.</tt><tt class="descname">cleanup_pids</tt><big>(</big><em>pids=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/spawn.html#cleanup_pids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.spawn.cleanup_pids" title="Permalink to this definition">¶</a></dt>
+<dd><p>reap list of pids if specified, else all children</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.spawn.spawn">
+<tt class="descclassname">pkgcore.spawn.</tt><tt class="descname">spawn</tt><big>(</big><em>mycommand</em>, <em>env=None</em>, <em>opt_name=None</em>, <em>fd_pipes=None</em>, <em>returnpid=False</em>, <em>uid=None</em>, <em>gid=None</em>, <em>groups=None</em>, <em>umask=None</em>, <em>logfile=None</em>, <em>chdir=None</em>, <em>path_lookup=True</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/spawn.html#spawn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.spawn.spawn" title="Permalink to this definition">¶</a></dt>
+<dd><p>wrapper around execve</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>opt_name</strong> &#8211; controls what the process is named
+(what it would show up as under top for example)</li>
+<li><strong>fd_pipes</strong> (<em>mapping from existing fd to fd (inside the new process)</em>) &#8211; controls what fd&#8217;s are left open in the spawned process-</li>
+<li><strong>returnpid</strong> &#8211; controls whether spawn waits for the process to finish,
+or returns the pid.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.spawn.spawn_sandbox">
+<tt class="descclassname">pkgcore.spawn.</tt><tt class="descname">spawn_sandbox</tt><big>(</big><em>mycommand</em>, <em>opt_name=None</em>, <em>**keywords</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/spawn.html#spawn_sandbox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.spawn.spawn_sandbox" title="Permalink to this definition">¶</a></dt>
+<dd><p>spawn the command under sandboxed</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.spawn.spawn_bash">
+<tt class="descclassname">pkgcore.spawn.</tt><tt class="descname">spawn_bash</tt><big>(</big><em>mycommand</em>, <em>debug=False</em>, <em>opt_name=None</em>, <em>**keywords</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/spawn.html#spawn_bash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.spawn.spawn_bash" title="Permalink to this definition">¶</a></dt>
+<dd><p>spawn the command via bash -c</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.spawn.spawn_fakeroot">
+<tt class="descclassname">pkgcore.spawn.</tt><tt class="descname">spawn_fakeroot</tt><big>(</big><em>mycommand</em>, <em>save_file</em>, <em>env=None</em>, <em>opt_name=None</em>, <em>returnpid=False</em>, <em>**keywords</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/spawn.html#spawn_fakeroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.spawn.spawn_fakeroot" title="Permalink to this definition">¶</a></dt>
+<dd><p>spawn a process via fakeroot</p>
+<p>refer to the fakeroot manpage for specifics of using fakeroot</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.spawn.spawn_get_output">
+<tt class="descclassname">pkgcore.spawn.</tt><tt class="descname">spawn_get_output</tt><big>(</big><em>mycommand</em>, <em>spawn_type=&lt;function spawn at 0x3029cf8&gt;</em>, <em>raw_exit_code=False</em>, <em>collect_fds=(1</em>, <em>)</em>, <em>fd_pipes=None</em>, <em>split_lines=True</em>, <em>**keywords</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/spawn.html#spawn_get_output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.spawn.spawn_get_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call spawn, collecting the output to fd&#8217;s specified in collect_fds list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spawn_type</strong> &#8211; the passed in function to call-
+typically spawn_bash, spawn, spawn_sandbox, or spawn_fakeroot.
+defaults to spawn</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.spawn.find_binary">
+<tt class="descclassname">pkgcore.spawn.</tt><tt class="descname">find_binary</tt><big>(</big><em>binary</em>, <em>paths=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/spawn.html#find_binary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.spawn.find_binary" title="Permalink to this definition">¶</a></dt>
+<dd><p>look through the PATH environment, finding the binary to execute</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.scripts.pquery.html"
+                        title="previous chapter">pkgcore.scripts.pquery</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.sync.html"
+                        title="next chapter">pkgcore.sync</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.sync.html" title="pkgcore.sync"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.scripts.pquery.html" title="pkgcore.scripts.pquery"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

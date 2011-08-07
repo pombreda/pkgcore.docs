@@ -1,0 +1,247 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>snakeoil.chksum &mdash; snakeoil v-trunk documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '-trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="snakeoil v-trunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="snakeoil.compatibility" href="snakeoil.compatibility.html" />
+    <link rel="prev" title="snakeoil.caching_2to3" href="snakeoil.caching_2to3.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.compatibility.html" title="snakeoil.compatibility"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.caching_2to3.html" title="snakeoil.caching_2to3"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-snakeoil.chksum">
+<span id="snakeoil-chksum"></span><h1>snakeoil.chksum<a class="headerlink" href="#module-snakeoil.chksum" title="Permalink to this headline">¶</a></h1>
+<p>chksum verification/generation subsystem</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">demandload</span></tt>(scope,&nbsp;*imports)</td>
+<td>Import modules into scope when each is first used.</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.chksum.get_chksums" title="snakeoil.chksum.get_chksums"><tt class="xref py py-obj docutils literal"><span class="pre">get_chksums</span></tt></a>(location,&nbsp;*chksums)</td>
+<td>run multiple chksumers over a data_source/file path</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.chksum.get_handler" title="snakeoil.chksum.get_handler"><tt class="xref py py-obj docutils literal"><span class="pre">get_handler</span></tt></a>(requested)</td>
+<td>get a chksum handler</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.chksum.get_handlers" title="snakeoil.chksum.get_handlers"><tt class="xref py py-obj docutils literal"><span class="pre">get_handlers</span></tt></a>([requested])</td>
+<td>get multiple chksum handlers</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.chksum.init" title="snakeoil.chksum.init"><tt class="xref py py-obj docutils literal"><span class="pre">init</span></tt></a>([additional_handlers])</td>
+<td>init the chksum subsystem.</td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">listdir_files</span></tt></td>
+<td>listdir_files(path, followSymlinks=True)</td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">load_module</span></tt>(name)</td>
+<td>load a module</td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">loop_over_file</span></tt>(filename,&nbsp;*objs)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">base_data_source</span></tt></td>
+<td>base data_source class; implementations of the protocol are advised</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Data</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">chksum_types</span></tt></td>
+<td>dict() -&gt; new empty dictionary</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="snakeoil.chksum.get_chksums">
+<tt class="descclassname">snakeoil.chksum.</tt><tt class="descname">get_chksums</tt><big>(</big><em>location</em>, <em>*chksums</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/chksum.html#get_chksums"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.chksum.get_chksums" title="Permalink to this definition">¶</a></dt>
+<dd><p>run multiple chksumers over a data_source/file path</p>
+<p>Note that if you need multiple chksums for a file, you should invoke this with
+all desired chksums- the implementation will do some internal efficiency tricks
+(doing the IO once for example).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>location</strong> &#8211; either a data_source, or a filepath to generate chksum data for</li>
+<li><strong>chksums</strong> &#8211; variable arg, the name of the chksums desired.  These need to
+be valid chksums known in <cite>chksum_types</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a list of chksums, matching the order of requested chksums</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="snakeoil.chksum.get_handler">
+<tt class="descclassname">snakeoil.chksum.</tt><tt class="descname">get_handler</tt><big>(</big><em>requested</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/chksum.html#get_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.chksum.get_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a chksum handler</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name" colspan="2">Raises KeyError:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">if chksum type has no registered handler</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">chksum handler (callable)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="snakeoil.chksum.get_handlers">
+<tt class="descclassname">snakeoil.chksum.</tt><tt class="descname">get_handlers</tt><big>(</big><em>requested=None</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/chksum.html#get_handlers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.chksum.get_handlers" title="Permalink to this definition">¶</a></dt>
+<dd><p>get multiple chksum handlers</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>requested</strong> &#8211; None (all handlers), or a sequence of the specific
+handlers desired.</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">Raises KeyError:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">if requested chksum type has no registered handler</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">dict of chksum_type:chksum handler</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="snakeoil.chksum.init">
+<tt class="descclassname">snakeoil.chksum.</tt><tt class="descname">init</tt><big>(</big><em>additional_handlers=None</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/chksum.html#init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.chksum.init" title="Permalink to this definition">¶</a></dt>
+<dd><p>init the chksum subsystem.</p>
+<p>Scan dirname(__file__), find what handlers are available, and load them.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>additional_handlers</strong> &#8211; None, or pass in a dict of type:func</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="snakeoil.caching_2to3.html"
+                        title="previous chapter">snakeoil.caching_2to3</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="snakeoil.compatibility.html"
+                        title="next chapter">snakeoil.compatibility</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.compatibility.html" title="snakeoil.compatibility"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.caching_2to3.html" title="snakeoil.caching_2to3"
+             >previous</a> |</li>
+        <li><a href="../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,172 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.config.mke2fsformat &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="pkgcore.config" href="../config.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../config.html" accesskey="U">pkgcore.config</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.config.mke2fsformat</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2005 Marien Zwart &lt;marienz@gentoo.org&gt;</span>
+<span class="c"># License: BSD/GPL2</span>
+
+<span class="sd">&quot;&quot;&quot;Parse a mke2fs.conf(5) style configuration file.</span>
+
+<span class="sd">Example of the supported format (not a complete config)::</span>
+
+<span class="sd">    # this is a comment.</span>
+<span class="sd">    # this is a config section.</span>
+<span class="sd">    [metadata]</span>
+<span class="sd">        # strings may be quoted or unquoted. semicolon terminator.</span>
+<span class="sd">        type = cache</span>
+<span class="sd">        class = pkgcore.cache.metadata.database</span>
+<span class="sd">        # true, yes or 1 for boolean True (case-insensitive).</span>
+<span class="sd">        readonly = true</span>
+<span class="sd">        location = /usr/portage/</span>
+
+
+<span class="sd">    # this needs to be quoted because it has a space in it</span>
+<span class="sd">    [livefs domain]</span>
+<span class="sd">        # this could be unquoted.</span>
+<span class="sd">        type = &quot;domain&quot;</span>
+<span class="sd">        package.keywords = &quot;/etc/portage/package.keywords&quot;</span>
+<span class="sd">        default = yes</span>
+<span class="sd">        # this is a section reference, with a nested anonymous section.</span>
+<span class="sd">        repositories = {</span>
+<span class="sd">            type = repo</span>
+<span class="sd">            class = pkgcore.ebuild.repository.tree</span>
+<span class="sd">            location = /usr/portage</span>
+<span class="sd">            # this is also a section reference, but instead of a nested section</span>
+<span class="sd">            # we refer to the named metadata section above</span>
+<span class="sd">            cache = metadata</span>
+<span class="sd">        }</span>
+<span class="sd">        fetcher = {</span>
+<span class="sd">            type = fetcher</span>
+<span class="sd">            distdir = /usr/portage/distfiles</span>
+<span class="sd">        }</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;config_from_file&quot;</span><span class="p">,)</span>
+
+<span class="c"># The tests for this are in test_dhcpformat.</span>
+
+<span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">dhcpformat</span><span class="p">,</span> <span class="n">errors</span>
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">mappings</span>
+<span class="kn">import</span> <span class="nn">pyparsing</span> <span class="kn">as</span> <span class="nn">pyp</span>
+
+
+<span class="n">_section_contents</span> <span class="o">=</span> <span class="n">pyp</span><span class="o">.</span><span class="n">Forward</span><span class="p">()</span>
+<span class="n">_value</span> <span class="o">=</span> <span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">alphanums</span> <span class="o">+</span> <span class="s">&#39;./_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">setWhitespaceChars</span><span class="p">(</span><span class="s">&#39; </span><span class="se">\t</span><span class="s">&#39;</span><span class="p">)</span> <span class="o">|</span>
+          <span class="n">pyp</span><span class="o">.</span><span class="n">quotedString</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">removeQuotes</span><span class="p">))</span>
+
+<span class="n">_section</span> <span class="o">=</span> <span class="n">pyp</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span>
+    <span class="n">pyp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&#39;{&#39;</span> <span class="o">+</span> <span class="n">pyp</span><span class="o">.</span><span class="n">lineEnd</span><span class="p">)</span> <span class="o">+</span> <span class="n">_section_contents</span> <span class="o">+</span> <span class="n">pyp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&#39;}&#39;</span><span class="p">))</span>
+
+<span class="c"># &quot;statement seems to have no effect&quot;</span>
+<span class="c"># pylint: disable-msg=W0104</span>
+<span class="n">_section_contents</span> <span class="o">&lt;&lt;</span> <span class="n">pyp</span><span class="o">.</span><span class="n">dictOf</span><span class="p">(</span>
+    <span class="n">_value</span> <span class="o">+</span> <span class="n">pyp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&#39;=&#39;</span><span class="p">),</span>
+    <span class="n">pyp</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">OneOrMore</span><span class="p">((</span><span class="n">_value</span> <span class="o">|</span> <span class="n">_section</span><span class="p">)</span><span class="o">.</span><span class="n">setWhitespaceChars</span><span class="p">(</span><span class="s">&#39; </span><span class="se">\t</span><span class="s">&#39;</span><span class="p">)))</span> <span class="o">+</span>
+    <span class="n">pyp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">lineEnd</span><span class="p">))</span>
+
+<span class="n">parser</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">pyp</span><span class="o">.</span><span class="n">stringStart</span> <span class="o">+</span>
+    <span class="n">pyp</span><span class="o">.</span><span class="n">dictOf</span><span class="p">(</span>
+        <span class="n">pyp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&#39;[&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">_value</span> <span class="o">+</span> <span class="n">pyp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&#39;]&#39;</span> <span class="o">+</span> <span class="n">pyp</span><span class="o">.</span><span class="n">lineEnd</span><span class="p">),</span>
+        <span class="n">_section_contents</span><span class="p">)</span><span class="o">.</span><span class="n">ignore</span><span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">pythonStyleComment</span><span class="p">)</span> <span class="o">+</span>
+    <span class="n">pyp</span><span class="o">.</span><span class="n">stringEnd</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="config_from_file"><a class="viewcode-back" href="../../../api/pkgcore.config.mke2fsformat.html#pkgcore.config.mke2fsformat.config_from_file">[docs]</a><span class="k">def</span> <span class="nf">config_from_file</span><span class="p">(</span><span class="n">file_obj</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parseFile</span><span class="p">(</span><span class="n">file_obj</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">pyp</span><span class="o">.</span><span class="n">ParseException</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">file_obj</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">file_obj</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">build_section</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">dhcpformat</span><span class="o">.</span><span class="n">ConfigSection</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">mappings</span><span class="o">.</span><span class="n">LazyValDict</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">keys</span><span class="p">,</span> <span class="n">build_section</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../config.html" >pkgcore.config</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

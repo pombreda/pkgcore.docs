@@ -1,0 +1,133 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.resolver.util &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.resolver.util</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2007-2008 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;group_attempts&quot;</span><span class="p">,</span> <span class="s">&quot;fails_filter&quot;</span><span class="p">,</span> <span class="s">&quot;reduce_to_failures&quot;</span><span class="p">,)</span>
+
+<div class="viewcode-block" id="group_attempts"><a class="viewcode-back" href="../../../api/pkgcore.resolver.util.html#pkgcore.resolver.util.group_attempts">[docs]</a><span class="k">def</span> <span class="nf">group_attempts</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">filter_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="bp">True</span><span class="p">):</span>
+    <span class="n">last</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sequence</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;inspecting&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">l</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">last</span><span class="p">,</span> <span class="n">l</span>
+            <span class="n">last</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[]</span>
+        <span class="k">elif</span> <span class="n">last</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">filter_func</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                <span class="c"># inline ignored frames</span>
+                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s">&#39;ignored&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+                    <span class="n">l</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">y</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">events</span> <span class="k">if</span> <span class="n">filter_func</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">l</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">last</span><span class="p">,</span> <span class="n">l</span>
+</div>
+<div class="viewcode-block" id="fails_filter"><a class="viewcode-back" href="../../../api/pkgcore.resolver.util.html#pkgcore.resolver.util.fails_filter">[docs]</a><span class="k">def</span> <span class="nf">fails_filter</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">succeeded</span>
+    <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;viable&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;inspecting&quot;</span>
+</div>
+<div class="viewcode-block" id="reduce_to_failures"><a class="viewcode-back" href="../../../api/pkgcore.resolver.util.html#pkgcore.resolver.util.reduce_to_failures">[docs]</a><span class="k">def</span> <span class="nf">reduce_to_failures</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">frame</span><span class="o">.</span><span class="n">succeeded</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="n">frame</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">nodes</span> <span class="ow">in</span> <span class="n">group_attempts</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">events</span><span class="p">,</span> <span class="n">fails_filter</span><span class="p">):</span>
+        <span class="n">l2</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="n">l2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reduce_to_failures</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">l2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">pkg</span><span class="p">,</span> <span class="n">l2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">l</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,290 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.vdb.virtuals &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.vdb.virtuals</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2006-2008 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;OldStyleVirtuals&quot;</span><span class="p">,)</span>
+
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">stat</span>
+
+<span class="kn">from</span> <span class="nn">pkgcore.restrictions</span> <span class="kn">import</span> <span class="n">packages</span><span class="p">,</span> <span class="n">values</span>
+<span class="kn">from</span> <span class="nn">pkgcore.ebuild.atom</span> <span class="kn">import</span> <span class="n">atom</span>
+<span class="kn">from</span> <span class="nn">pkgcore.package.errors</span> <span class="kn">import</span> <span class="n">InvalidDependency</span>
+<span class="kn">from</span> <span class="nn">pkgcore.os_data</span> <span class="kn">import</span> <span class="n">portage_gid</span>
+<span class="kn">from</span> <span class="nn">pkgcore.repository</span> <span class="kn">import</span> <span class="n">virtual</span>
+
+<span class="kn">from</span> <span class="nn">snakeoil.lists</span> <span class="kn">import</span> <span class="n">iflatten_instance</span>
+<span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">listdir</span><span class="p">,</span> <span class="n">ensure_dirs</span><span class="p">,</span> <span class="n">pjoin</span><span class="p">,</span> <span class="n">readlines_ascii</span>
+<span class="kn">from</span> <span class="nn">snakeoil.currying</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">snakeoil.fileutils</span> <span class="kn">import</span> <span class="n">read_dict</span><span class="p">,</span> <span class="n">AtomicWriteFile</span>
+<span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
+<span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
+    <span class="s">&#39;errno&#39;</span><span class="p">,</span>
+    <span class="s">&#39;pkgcore.log:logger&#39;</span><span class="p">)</span>
+
+<span class="c"># generic functions.</span>
+
+<span class="k">def</span> <span class="nf">_collect_virtuals</span><span class="p">(</span><span class="n">virtuals</span><span class="p">,</span> <span class="n">iterable</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">virtualpkg</span> <span class="ow">in</span> <span class="n">iflatten_instance</span><span class="p">(</span>
+            <span class="n">pkg</span><span class="o">.</span><span class="n">provides</span><span class="o">.</span><span class="n">evaluate_depset</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">use</span><span class="p">)):</span>
+            <span class="n">virtuals</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">virtualpkg</span><span class="o">.</span><span class="n">package</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
+                <span class="n">pkg</span><span class="o">.</span><span class="n">fullver</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">versioned_atom</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_finalize_virtuals</span><span class="p">(</span><span class="n">virtuals</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">pkg_dict</span> <span class="ow">in</span> <span class="n">virtuals</span><span class="o">.</span><span class="n">itervalues</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">full_ver</span><span class="p">,</span> <span class="n">rdep_atoms</span> <span class="ow">in</span> <span class="n">pkg_dict</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">pkg_dict</span><span class="p">[</span><span class="n">full_ver</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">rdep_atoms</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_collect_default_providers</span><span class="p">(</span><span class="n">virtuals</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">((</span><span class="n">virt</span><span class="p">,</span>
+        <span class="nb">frozenset</span><span class="p">(</span><span class="n">atom</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">itervalues</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">y</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">virt</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">virtuals</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
+
+<span class="c"># noncaching...</span>
+
+<span class="k">def</span> <span class="nf">_grab_virtuals</span><span class="p">(</span><span class="n">repo</span><span class="p">):</span>
+    <span class="n">virtuals</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">_collect_virtuals</span><span class="p">(</span><span class="n">virtuals</span><span class="p">,</span> <span class="n">repo</span><span class="p">)</span>
+    <span class="n">defaults</span> <span class="o">=</span> <span class="n">_collect_default_providers</span><span class="p">(</span><span class="n">virtuals</span><span class="p">)</span>
+    <span class="n">_finalize_virtuals</span><span class="p">(</span><span class="n">virtuals</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">defaults</span><span class="p">,</span> <span class="n">virtuals</span>
+
+<span class="k">def</span> <span class="nf">non_caching_virtuals</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">livefs</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">OldStyleVirtuals</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">_grab_virtuals</span><span class="p">,</span> <span class="n">repo</span><span class="p">))</span>
+
+
+<span class="c">#caching</span>
+
+<span class="k">def</span> <span class="nf">_get_mtimes</span><span class="p">(</span><span class="n">loc</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">sdir</span> <span class="o">=</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_ISDIR</span>
+    <span class="c"># yes, listdir here makes sense due to the stating, and the</span>
+    <span class="c"># potential for listdir_dirs to do it&#39;s own statting if the</span>
+    <span class="c"># underlying FS doesn&#39;t support dt_type...</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">listdir</span><span class="p">(</span><span class="n">loc</span><span class="p">):</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">sdir</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">st_mode</span><span class="p">):</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">st_mtime</span>
+    <span class="k">return</span> <span class="n">d</span>
+
+<span class="k">def</span> <span class="nf">_write_mtime_cache</span><span class="p">(</span><span class="n">mtimes</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">location</span><span class="p">):</span>
+    <span class="n">old</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">umask</span><span class="p">(</span><span class="mo">0113</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;attempting to update mtime cache at </span><span class="si">%r</span><span class="s">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">location</span><span class="p">,))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ensure_dirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">location</span><span class="p">),</span>
+                <span class="n">gid</span><span class="o">=</span><span class="n">portage_gid</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="mo">0775</span><span class="p">):</span>
+                <span class="c"># bugger, can&#39;t update..</span>
+                <span class="k">return</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">AtomicWriteFile</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">gid</span><span class="o">=</span><span class="n">portage_gid</span><span class="p">,</span> <span class="n">perms</span><span class="o">=</span><span class="mo">0664</span><span class="p">)</span>
+            <span class="c"># invert the data...</span>
+            <span class="n">rev_data</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">ver_dict</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">fullver</span><span class="p">,</span> <span class="n">virtuals</span> <span class="ow">in</span> <span class="n">ver_dict</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                    <span class="k">for</span> <span class="n">virtual</span> <span class="ow">in</span> <span class="n">virtuals</span><span class="p">:</span>
+                        <span class="n">rev_data</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">virtual</span><span class="o">.</span><span class="n">category</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                            <span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">fullver</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">virtual</span><span class="p">)))</span>
+            <span class="k">for</span> <span class="n">cat</span><span class="p">,</span> <span class="n">mtime</span> <span class="ow">in</span> <span class="n">mtimes</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">cat</span> <span class="ow">in</span> <span class="n">rev_data</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%i</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cat</span><span class="p">,</span> <span class="n">mtime</span><span class="p">,</span>
+                         <span class="s">&#39;</span><span class="se">\t</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rev_data</span><span class="p">[</span><span class="n">cat</span><span class="p">])))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%i</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cat</span><span class="p">,</span> <span class="n">mtime</span><span class="p">))</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chown</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">portage_gid</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">IOError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">f</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">discard</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">EACCES</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;unable to update vdb virtuals cache due to &quot;</span>
+                <span class="s">&quot;lacking permissions&quot;</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">umask</span><span class="p">(</span><span class="n">old</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_read_mtime_cache</span><span class="p">(</span><span class="n">location</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;reading mtime cache at </span><span class="si">%r</span><span class="s">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">location</span><span class="p">,))</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">read_dict</span><span class="p">(</span><span class="n">readlines_ascii</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="bp">True</span><span class="p">),</span> <span class="n">splitter</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+            <span class="n">source_isiter</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="c"># mtime pkg1 fullver1 virtual1 pkg2 fullver2 virtual2...</span>
+            <span class="c"># if it&#39;s not the right length, skip this entry,</span>
+            <span class="c"># cache validation will update it.</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="n">d</span>
+    <span class="k">except</span> <span class="ne">IOError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
+            <span class="k">raise</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;failed reading mtime cache at </span><span class="si">%r</span><span class="s">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">location</span><span class="p">,))</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+<span class="k">def</span> <span class="nf">_convert_cached_virtuals</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">iterable</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="c"># skip the mtime entry.</span>
+    <span class="n">iterable</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">:</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">iterable</span><span class="o">.</span><span class="n">next</span><span class="p">(),</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">atom</span><span class="p">(</span><span class="n">iterable</span><span class="o">.</span><span class="n">next</span><span class="p">()))</span>
+    <span class="k">except</span> <span class="n">InvalidDependency</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+    <span class="k">return</span> <span class="n">d</span>
+
+<span class="k">def</span> <span class="nf">_merge_virtuals</span><span class="p">(</span><span class="n">virtuals</span><span class="p">,</span> <span class="n">new_virts</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">fullver_d</span> <span class="ow">in</span> <span class="n">new_virts</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">fullver</span><span class="p">,</span> <span class="n">provides</span> <span class="ow">in</span> <span class="n">fullver_d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">virtuals</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
+                <span class="n">fullver</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">provides</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_caching_grab_virtuals</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">cache_basedir</span><span class="p">):</span>
+    <span class="n">virtuals</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">update</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">cache</span> <span class="o">=</span> <span class="n">_read_mtime_cache</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">cache_basedir</span><span class="p">,</span> <span class="s">&#39;virtuals.cache&#39;</span><span class="p">))</span>
+
+    <span class="n">existing</span> <span class="o">=</span> <span class="n">_get_mtimes</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">cat</span><span class="p">,</span> <span class="n">mtime</span> <span class="ow">in</span> <span class="n">existing</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">cat</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">long</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">long</span><span class="p">(</span><span class="n">mtime</span><span class="p">):</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">_convert_cached_virtuals</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">_merge_virtuals</span><span class="p">(</span><span class="n">virtuals</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+        <span class="n">update</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">_collect_virtuals</span><span class="p">(</span><span class="n">virtuals</span><span class="p">,</span> <span class="n">repo</span><span class="o">.</span><span class="n">itermatch</span><span class="p">(</span>
+            <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">(</span><span class="s">&quot;category&quot;</span><span class="p">,</span>
+                <span class="n">values</span><span class="o">.</span><span class="n">StrExactMatch</span><span class="p">(</span><span class="n">cat</span><span class="p">))))</span>
+
+    <span class="k">if</span> <span class="n">update</span> <span class="ow">or</span> <span class="n">cache</span><span class="p">:</span>
+        <span class="n">_write_mtime_cache</span><span class="p">(</span><span class="n">existing</span><span class="p">,</span> <span class="n">virtuals</span><span class="p">,</span>
+            <span class="n">pjoin</span><span class="p">(</span><span class="n">cache_basedir</span><span class="p">,</span> <span class="s">&#39;virtuals.cache&#39;</span><span class="p">))</span>
+
+    <span class="n">defaults</span> <span class="o">=</span> <span class="n">_collect_default_providers</span><span class="p">(</span><span class="n">virtuals</span><span class="p">)</span>
+<span class="c">#    _finalize_virtuals(virtuals)</span>
+    <span class="k">return</span> <span class="n">defaults</span><span class="p">,</span> <span class="n">virtuals</span>
+
+<span class="k">def</span> <span class="nf">caching_virtuals</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">cache_basedir</span><span class="p">,</span> <span class="n">livefs</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">OldStyleVirtuals</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">_caching_grab_virtuals</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">cache_basedir</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="OldStyleVirtuals"><a class="viewcode-back" href="../../../api/pkgcore.vdb.virtuals.html#pkgcore.vdb.virtuals.OldStyleVirtuals">[docs]</a><span class="k">class</span> <span class="nc">OldStyleVirtuals</span><span class="p">(</span><span class="n">virtual</span><span class="o">.</span><span class="n">tree</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">load_func</span><span class="p">):</span>
+        <span class="n">virtual</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">livefs</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_func</span> <span class="o">=</span> <span class="n">load_func</span>
+
+    <span class="k">def</span> <span class="nf">_load_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_providers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_virtuals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_func</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">packages</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="s">&#39;virtual&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_virtuals</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">versions</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">update</span><span class="p">(((</span><span class="s">&#39;virtual&#39;</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">ver_dict</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">ver_dict</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_virtuals</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">versions</span><span class="o">.</span><span class="n">_finalized</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_func</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">_expand_vers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cp</span><span class="p">,</span> <span class="n">ver</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_virtuals</span><span class="p">[</span><span class="n">cp</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="n">ver</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">attr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;default_providers&#39;</span><span class="p">,</span> <span class="s">&#39;_virtuals&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">object</span><span class="o">.</span><span class="n">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_func</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load_data</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">object</span><span class="o">.</span><span class="n">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_versions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cp</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_virtuals</span><span class="p">[</span><span class="n">cp</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">())</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

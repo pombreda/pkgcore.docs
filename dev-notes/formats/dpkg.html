@@ -1,0 +1,168 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>dpkg &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../index.html" />
+    <link rel="up" title="Developer Notes" href="../../dev-notes.html" />
+    <link rel="next" title="WARNING" href="../framework/intro.html" />
+    <link rel="prev" title="perl CPAN" href="cpan.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../framework/intro.html" title="WARNING"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cpan.html" title="perl CPAN"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../dev-notes.html" accesskey="U">Developer Notes</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="dpkg">
+<h1>dpkg<a class="headerlink" href="#dpkg" title="Permalink to this headline">¶</a></h1>
+<p>this is just <em>basic</em> notes, nothing more. If you know details, fill in
+the gaps kindly</p>
+<p>repos are combined.</p>
+<dl class="docutils">
+<dt>Sources.gz</dt>
+<dd>(list of source based deb&#8217;s) holds name, version, and build deps.</dd>
+<dt>Packages.gz</dt>
+<dd>(binary debs, dpkgs)
+name, version, size, short and long description, bindeps.</dd>
+</dl>
+<p>repository layout:</p>
+<div class="highlight-python"><pre>dists
+        stable
+                main
+                        arch #binary-arm fex
+                        source #?
+                contrib #?
+                        arch # binary-arm fex
+                        source
+                non-free # guess.
+                        arch
+                        source
+        testing...
+        unstable...</pre>
+</div>
+<p>arch/binary-* dirs hold Packages.gz, and Release (potentially)
+source dirs hold Sources.gz and Release (optionally)</p>
+<p>has preinst, postinst, prerm, postrm
+Same semantics as ebuilds in terms of when to run (coincidence? :)</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">in dpkg</th>
+<th class="head">in ebuild</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>Build-Depends</td>
+<td>our DEPEND</td>
+</tr>
+<tr><td>Depends</td>
+<td>our RDEPEND</td>
+</tr>
+<tr><td>Pre-Depends</td>
+<td>configure time DEPEND</td>
+</tr>
+<tr><td>Conflicts</td>
+<td>blockers, affected by Essential
+(read up on this in debian policy guide)</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cpan.html"
+                        title="previous chapter">perl CPAN</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../framework/intro.html"
+                        title="next chapter">WARNING</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../framework/intro.html" title="WARNING"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="cpan.html" title="perl CPAN"
+             >previous</a> |</li>
+        <li><a href="../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../dev-notes.html" >Developer Notes</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

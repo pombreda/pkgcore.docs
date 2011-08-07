@@ -1,0 +1,175 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>snakeoil.caching_2to3 &mdash; snakeoil v-trunk documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '-trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="snakeoil v-trunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="snakeoil.chksum" href="snakeoil.chksum.html" />
+    <link rel="prev" title="snakeoil.caching" href="snakeoil.caching.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.chksum.html" title="snakeoil.chksum"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.caching.html" title="snakeoil.caching"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-snakeoil.caching_2to3">
+<span id="snakeoil-caching-2to3"></span><h1>snakeoil.caching_2to3<a class="headerlink" href="#module-snakeoil.caching_2to3" title="Permalink to this headline">¶</a></h1>
+<p>python 2to3 with caching support</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">StdoutRefactoringTool</span></tt>(*args)</td>
+<td></td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">md5_hash_data</span></tt>(data)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">MultiprocessRefactoringTool</span></tt>(*args,&nbsp;**kwargs)</td>
+<td></td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">RefactoringTool</span></tt>(fixer_names[,&nbsp;options,&nbsp;explicit])</td>
+<td></td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">SemLock</span></tt></td>
+<td>Semaphore/Mutex type</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.caching_2to3.caching_mixin" title="snakeoil.caching_2to3.caching_mixin"><tt class="xref py py-obj docutils literal"><span class="pre">caching_mixin</span></tt></a></td>
+<td>core caching logic</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Data</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">multiprocessing_available</span></tt></td>
+<td>bool(x) -&gt; bool</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="snakeoil.caching_2to3.caching_mixin">
+<em class="property">class </em><tt class="descclassname">snakeoil.caching_2to3.</tt><tt class="descname">caching_mixin</tt><a class="reference internal" href="../_modules/snakeoil/caching_2to3.html#caching_mixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.caching_2to3.caching_mixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>core caching logic</p>
+<p>Roughly, this works by intercepting 2to3 converter methods and checking
+a cache directory (defined by environment variable PY2TO3_CACHEDIR) for
+previous conversion attempts for this file.</p>
+<p>If the md5sum for the source matches the original conversion attempt, the
+original results are returned greatly speeding up repeated 2to3 conversions.</p>
+<p>If the md5sum doesn&#8217;t match, it does the 2to3 conversion and than stashes a copy
+of the results into the cache dir for future usage.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="snakeoil.caching.html"
+                        title="previous chapter">snakeoil.caching</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="snakeoil.chksum.html"
+                        title="next chapter">snakeoil.chksum</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.chksum.html" title="snakeoil.chksum"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.caching.html" title="snakeoil.caching"
+             >previous</a> |</li>
+        <li><a href="../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

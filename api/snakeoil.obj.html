@@ -1,0 +1,286 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>snakeoil.obj &mdash; snakeoil v-trunk documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '-trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="snakeoil v-trunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="snakeoil.osutils" href="snakeoil.osutils.html" />
+    <link rel="prev" title="snakeoil.modules" href="snakeoil.modules.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.osutils.html" title="snakeoil.osutils"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.modules.html" title="snakeoil.modules"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-snakeoil.obj">
+<span id="snakeoil-obj"></span><h1>snakeoil.obj<a class="headerlink" href="#module-snakeoil.obj" title="Permalink to this headline">¶</a></h1>
+<p>Object trickery including delayed instantiation and proxying</p>
+<p>Note that the delayed instantiation/proxying that is in use here goes several steps
+beyond your average proxy implementation- this functionality will take every
+step possible to make the proxy appear as if there was _no_ proxy at all.</p>
+<p>Specifically this functionality is aware of cpython VM/interpretter semantics-
+cpython doesn&#8217;t use __getattribute__ to pull certain methods (<cite>__str__</cite> is an
+example most people are aware of of, <cite>__call__</cite>, <cite>__getitem__</cite>, etc are ones most
+aren&#8217;t).  Delayed instantiation is significantly complicated when these methods
+aren&#8217;t properly handled- you wind up having to pay very close attention to exactly
+where those instances are passed to, what access them, do they trigger any of the slotted
+special methods, etc.  There is a catch to this however- you can&#8217;t just define
+all slotted methods since if the proxy has those slotted methods, it will use them
+and you can&#8217;t just throw TypeErrors- the execution path has differeed.</p>
+<p>Part of the purpose of snakeoil is to make things that should just work, <em>work</em>- this
+implementation exists to do just that via removing those concerns.  The proxying
+knows what the resultant class will be and uses a custom proxy that will appear
+the same to the python machinery for slotted methods- literally the python VM
+won&#8217;t try to __iadd__ the proxy unless the resultant class would&#8217;ve supported that
+functionality, it will consider it callable if the resultant class would be, etc.</p>
+<p>By and large, this proxying is transparent if dealing in python objects (newstyle or old)-
+for example,</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">snakeoil.obj</span> <span class="kn">import</span> <span class="n">DelayedInstantiation_kls</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">foo</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="gp">... </span>  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">print</span> <span class="s">&quot;instance was created&quot;</span>
+<span class="gp">... </span>    <span class="bp">self</span><span class="o">.</span><span class="n">attribute</span> <span class="o">=</span> <span class="n">value</span>
+<span class="gp">... </span>  <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">delayed</span> <span class="o">=</span> <span class="n">DelayedInstantiation_kls</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="s">&quot;bar&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">DelayedInstantiation_kls</span><span class="p">(</span><span class="n">foo</span><span class="p">),</span> <span class="n">foo</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">delayed</span><span class="o">.</span><span class="n">attribute</span>
+<span class="go">instance was created</span>
+<span class="go">bar</span>
+</pre></div>
+</div>
+<p>This proxying however cannot cover up certain cpython internal issues- specifically
+builtins.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">snakeoil.obj</span> <span class="kn">import</span> <span class="n">DelayedInstantiation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">delayed_tuple</span> <span class="o">=</span> <span class="n">DelayedInstantiation</span><span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">delayed_tuple</span> <span class="o">+</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+<span class="go">(0, 1, 2, 3, 4, 5, 6, 7)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span> <span class="o">+</span> <span class="n">delayed_tuple</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="gr">TypeError</span>: <span class="n">can only concatenate tuple (not &quot;CustomDelayedObject&quot;) to tuple</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># the reason this differs comes down to the cpython vm translating the previous</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># call into essentially the following-</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span><span class="o">.</span><span class="n">__add__</span><span class="p">(</span><span class="n">delayed_tuple</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="gr">TypeError</span>: <span class="n">can only concatenate tuple (not &quot;CustomDelayedObject&quot;) to tuple</span>
+</pre></div>
+</div>
+<p>Simply put, while we can emulate/proxy at the python VM layer appearing like the target,
+at the c level (which is where tuples are implemented) they expect a certain object
+structure, and reach in access it directly in certain cases.  This cannot be safely
+proxied (nor realistically can it be proxied in general without extremely horrible
+thunking tricks), so it is not attempted.</p>
+<p>Essentially, if DelayedInstantiation&#8217;s/proxies are transparent when dealing in native
+python objects- you will not see issues and you don&#8217;t have to care where those objects
+are used, passed to, etc.  If you&#8217;re trying to proxy a builtin, it&#8217;s possible, but you
+do need to keep an eye on where that instance is passed to since it&#8217;s not fully transparent.</p>
+<p>As demonstrated above, if you&#8217;re trying to proxy a builtin object, the consuming code
+will have to order it&#8217;s operations appropriately- prefering the proxy&#8217;s methods
+over builtin methods (essentially have the proxy on the left for general ops).</p>
+<p>If that doesn&#8217;t make sense to the reader, it&#8217;s probably best that the reader not
+try to proxy builtin objects like tuples, lists, dicts, sets, etc.</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#snakeoil.obj.DelayedInstantiation" title="snakeoil.obj.DelayedInstantiation"><tt class="xref py py-obj docutils literal"><span class="pre">DelayedInstantiation</span></tt></a>(resultant_kls,&nbsp;func,&nbsp;...)</td>
+<td>Generate an objects that does not get initialized before it is used.</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.obj.DelayedInstantiation_kls" title="snakeoil.obj.DelayedInstantiation_kls"><tt class="xref py py-obj docutils literal"><span class="pre">DelayedInstantiation_kls</span></tt></a>(kls,&nbsp;*a,&nbsp;**kwd)</td>
+<td>wrapper for DelayedInstantiation</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.obj.make_SlottedDict_kls" title="snakeoil.obj.make_SlottedDict_kls"><tt class="xref py py-obj docutils literal"><span class="pre">make_SlottedDict_kls</span></tt></a>(keys)</td>
+<td>Create a space efficient mapping class with a limited set of keys</td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">make_kls</span></tt>(kls[,&nbsp;proxy_base])</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="snakeoil.obj.DelayedInstantiation">
+<tt class="descclassname">snakeoil.obj.</tt><tt class="descname">DelayedInstantiation</tt><big>(</big><em>resultant_kls</em>, <em>func</em>, <em>*a</em>, <em>**kwd</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/obj.html#DelayedInstantiation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.obj.DelayedInstantiation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate an objects that does not get initialized before it is used.</p>
+<p>The returned object can be passed around without triggering
+initialization. The first time it is actually used (an attribute
+is accessed) it is initialized once.</p>
+<p>The returned &#8220;fake&#8221; object cannot completely reliably mimic a
+builtin type. It will usually work but some corner cases may fail
+in confusing ways. Make sure to test if DelayedInstantiation has
+no unwanted side effects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>resultant_kls</strong> &#8211; type object to fake an instance of.</li>
+<li><strong>func</strong> &#8211; callable, the return value is used as initialized object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>All other positional args and keywords are passed to func during instantiation.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="snakeoil.obj.DelayedInstantiation_kls">
+<tt class="descclassname">snakeoil.obj.</tt><tt class="descname">DelayedInstantiation_kls</tt><big>(</big><em>kls</em>, <em>*a</em>, <em>**kwd</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/obj.html#DelayedInstantiation_kls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.obj.DelayedInstantiation_kls" title="Permalink to this definition">¶</a></dt>
+<dd><p>wrapper for DelayedInstantiation</p>
+<p>This just invokes DelayedInstantiation(kls, kls <a href="#id1"><span class="problematic" id="id2">*</span></a>a, <a href="#id3"><span class="problematic" id="id4">**</span></a>kwd)</p>
+<p>See <a class="reference internal" href="#snakeoil.obj.DelayedInstantiation" title="snakeoil.obj.DelayedInstantiation"><tt class="xref py py-func docutils literal"><span class="pre">DelayedInstantiation()</span></tt></a> for arguement specifics.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="snakeoil.obj.make_SlottedDict_kls">
+<tt class="descclassname">snakeoil.obj.</tt><tt class="descname">make_SlottedDict_kls</tt><big>(</big><em>keys</em><big>)</big><a class="headerlink" href="#snakeoil.obj.make_SlottedDict_kls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a space efficient mapping class with a limited set of keys</p>
+<p>Specifically, this function returns a class with it&#8217;s __slots__ locked
+to the passed in keys- this eliminates the allocation of a dict for the
+instance thus avoiding the wasted memory common to dictionary overallocation-
+for small mappings that waste is roughly 75%, for 100 item mappings it&#8217;s roughly
+95%, and for 1000 items it&#8217;s roughly 84%.  Point is, it&#8217;s sizable, consistantly so.</p>
+<p>The constraint of this is that the resultant mapping has a locked set of
+keys- you cannot add a key that wasn&#8217;t allowed up front.</p>
+<p>This functionality is primarily useful when you&#8217;ll be generating many
+dict instances, all with a common set of allowed keys.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>keys</strong> &#8211; iterable/sequence of keys to allow in the resultant mapping</td>
+</tr>
+</tbody>
+</table>
+<p>Example usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">snakeoil.obj</span> <span class="kn">import</span> <span class="n">make_SlottedDict_kls</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_kls</span> <span class="o">=</span> <span class="n">make_SlottedDict_kls</span><span class="p">([</span><span class="s">&quot;key1&quot;</span><span class="p">,</span> <span class="s">&quot;key2&quot;</span><span class="p">,</span> <span class="s">&quot;key3&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">items</span> <span class="o">=</span> <span class="p">((</span><span class="s">&quot;key1&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="s">&quot;key2&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="s">&quot;key3&quot;</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inst</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">slotted_inst</span> <span class="o">=</span> <span class="n">my_kls</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">sys</span><span class="o">.</span><span class="n">getsizeof</span><span class="p">(</span><span class="n">inst</span><span class="p">)</span> <span class="c"># note this is python2.6 functionality</span>
+<span class="go">280</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">sys</span><span class="o">.</span><span class="n">getsizeof</span><span class="p">(</span><span class="n">slotted_inst</span><span class="p">)</span>
+<span class="go">72</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># and now for an extreme example:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">raw</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="s">&quot;attribute</span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x</span><span class="p">,),</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1000</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">skls</span> <span class="o">=</span> <span class="n">make_SlottedDict_kls</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">sys</span><span class="o">.</span><span class="n">getsizeof</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+<span class="go">49432</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sraw</span> <span class="o">=</span> <span class="n">skls</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">sys</span><span class="o">.</span><span class="n">getsizeof</span><span class="p">(</span><span class="n">sraw</span><span class="p">)</span>
+<span class="go">8048</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">sraw</span><span class="p">[</span><span class="s">&quot;attribute2&quot;</span><span class="p">],</span> <span class="n">sraw</span><span class="p">[</span><span class="s">&quot;attribute3&quot;</span><span class="p">]</span>
+<span class="go">2 3</span>
+</pre></div>
+</div>
+<p>Note that those stats are for a 64bit python 2.6.5 VM.  The stats may
+differ for other python implementations or versions, although for cpython
+the stats above should hold +/- a couple of bites.</p>
+<p>Finally, it&#8217;s worth noting that the stats above are the minimal savings-
+via a side affect of the __slots__ the keys are automatically interned.</p>
+<p>This means that if you have 100 instances floating around, for dict&#8217;s
+that costs you sizeof(key) * 100, for slotted dict instances you pay
+sizeof(key) due to the interning.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="snakeoil.modules.html"
+                        title="previous chapter">snakeoil.modules</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="snakeoil.osutils.html"
+                        title="next chapter">snakeoil.osutils</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.osutils.html" title="snakeoil.osutils"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.modules.html" title="snakeoil.modules"
+             >previous</a> |</li>
+        <li><a href="../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

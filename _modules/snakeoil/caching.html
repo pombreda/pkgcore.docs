@@ -1,0 +1,232 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>snakeoil.caching &mdash; snakeoil v-trunk documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '-trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="snakeoil v-trunk documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for snakeoil.caching</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2006-2010 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: BSD/GPL2</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Transparent opportunistic weakref instance caching</span>
+
+<span class="sd">:py:class:`WeakInstMeta` is a metaclass designed such that you just add it into</span>
+<span class="sd">the target class, and instance caching will be done based on the args/keywords</span>
+<span class="sd">passed to __init__.  Essentially, embedding an opportunistic instance caching</span>
+<span class="sd">factory into the target class.</span>
+
+<span class="sd">There are some caveats to be aware of in using this metaclass:</span>
+
+<span class="sd">* If you&#39;re doing instance sharing, it&#39;s strongly advised you do this only for</span>
+<span class="sd">  immutable instances.  Generally speaking, you don&#39;t want two different codepaths</span>
+<span class="sd">  modifying the same object (a ORM implementation is a notable exemption to this).</span>
+<span class="sd">* The implementation doesn&#39;t gurantee that it&#39;ll always reuse an instance- if the</span>
+<span class="sd">  args/keywords aren&#39;t hashable, this machinery cannot cache the instance.  If the</span>
+<span class="sd">  invocation of the class differs in positional vs optional arg invocation, it&#39;s</span>
+<span class="sd">  possible to get back a new instance.</span>
+<span class="sd">* In short, if you&#39;re generating a lot of immutable instances and want to</span>
+<span class="sd">  automatically share instances to lower your memory footprint, WeakInstMeta is</span>
+<span class="sd">  a good metaclass to use.</span>
+<span class="sd">* This is weakref caching of instances- it will not force an instance to stay in</span>
+<span class="sd">  memory, it will only reuse instances that are already in memory.</span>
+
+
+<span class="sd">Simple usage example:</span>
+
+<span class="sd">&gt;&gt;&gt; from snakeoil.caching import WeakInstMeta</span>
+<span class="sd">&gt;&gt;&gt; class myfoo(object):</span>
+<span class="sd">...   __metaclass__ = WeakInstMeta</span>
+<span class="sd">...   __inst_caching__ = True # safety measure turning caching on</span>
+<span class="sd">...   counter = 0</span>
+<span class="sd">...</span>
+<span class="sd">...   def __init__(self, arg1, arg2, option=None):</span>
+<span class="sd">...     self.arg1, self.arg2, self.option = arg1, arg2, option</span>
+<span class="sd">...     self.__class__.counter += 1</span>
+<span class="sd">&gt;&gt;&gt;</span>
+<span class="sd">&gt;&gt;&gt; assert myfoo(1, 2, 3) is myfoo(1, 2, 3)</span>
+<span class="sd">&gt;&gt;&gt; assert myfoo(1, 2, option=3) is myfoo(1, 2, option=3)</span>
+<span class="sd">&gt;&gt;&gt; assert myfoo(1, 2) is not myfoo(1, 2, 3)</span>
+<span class="sd">&gt;&gt;&gt; # per caveats, please note that because this invocation differs</span>
+<span class="sd">&gt;&gt;&gt; # in positional/keywords, instance sharing does not occur-</span>
+<span class="sd">&gt;&gt;&gt; # despite the fact they&#39;re effectively the same to __init__</span>
+<span class="sd">&gt;&gt;&gt; assert myfoo(2, 3, 4) is not myfoo(1, 2, option=4)</span>
+<span class="sd">&gt;&gt;&gt;</span>
+<span class="sd">&gt;&gt;&gt; # finally note that it is weakref&#39;ing the instances.</span>
+<span class="sd">&gt;&gt;&gt; # we use the counter attribute here since the python allocator</span>
+<span class="sd">&gt;&gt;&gt; # will sometimes reuse the address if there are no allocations</span>
+<span class="sd">&gt;&gt;&gt; # between the deletion and creation</span>
+<span class="sd">&gt;&gt;&gt; o = myfoo(1, 2)</span>
+<span class="sd">&gt;&gt;&gt; my_count = o.counter</span>
+<span class="sd">&gt;&gt;&gt; del o</span>
+<span class="sd">&gt;&gt;&gt; assert my_count != myfoo(1, 2).counter # a new instance is created</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;WeakInstMeta&quot;</span><span class="p">,)</span>
+<span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
+<span class="n">demandload</span><span class="p">(</span>
+    <span class="nb">globals</span><span class="p">(),</span>
+    <span class="s">&#39;warnings&#39;</span><span class="p">,</span>
+    <span class="s">&#39;weakref:WeakValueDictionary&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">native_WeakInstMeta</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    metaclass for instance caching, resulting in reuse of unique instances</span>
+
+<span class="sd">    few notes-</span>
+<span class="sd">      - instances must be immutable (or effectively so).</span>
+<span class="sd">        Since creating a new instance may return a preexisting instance,</span>
+<span class="sd">        this requirement B{must} be honored.</span>
+<span class="sd">      - due to the potential for mishap, each subclass of a caching class must</span>
+<span class="sd">        assign __inst_caching__ = True to enable caching for the derivative.</span>
+<span class="sd">      - conversely, __inst_caching__ = False does nothing</span>
+<span class="sd">        (although it&#39;s useful as a sign of</span>
+<span class="sd">        I{do not enable caching for this class}</span>
+<span class="sd">      - instance caching can be disabled per instantiation via passing</span>
+<span class="sd">        disabling_inst_caching=True into the class constructor.</span>
+
+<span class="sd">    Being a metaclass, the voodoo used doesn&#39;t require modification of</span>
+<span class="sd">    the class itself.</span>
+
+<span class="sd">    Examples of usage is the restrictions subsystem for</span>
+<span class="sd">    U{pkgcore project&lt;http://pkgcore.org&gt;}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;__inst_caching__&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+            <span class="n">d</span><span class="p">[</span><span class="s">&quot;__inst_caching__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">d</span><span class="p">[</span><span class="s">&quot;__inst_dict__&quot;</span><span class="p">]</span>  <span class="o">=</span> <span class="n">WeakValueDictionary</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s">&quot;__inst_caching__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">slots</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;__slots__&#39;</span><span class="p">)</span>
+        <span class="c"># get ourselves a singleton to be safe...</span>
+        <span class="n">o</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">slots</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">bases</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="s">&#39;__weakref__&#39;</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">o</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s">&#39;__slots__&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">slots</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="s">&#39;__weakref__&#39;</span><span class="p">,)</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;disable caching via disable_inst_caching=True&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">__inst_caching__</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kw</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;disable_inst_caching&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+            <span class="n">kwlist</span> <span class="o">=</span> <span class="n">kw</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="n">kwlist</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">kwlist</span><span class="p">))</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">instance</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">__inst_dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">),</span> <span class="n">t</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s">&quot;caching keys for </span><span class="si">%s</span><span class="s">, got </span><span class="si">%s</span><span class="s"> for a=</span><span class="si">%s</span><span class="s">, kw=</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                        <span class="n">cls</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">kw</span><span class="p">))</span>
+                <span class="k">del</span> <span class="n">t</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">instance</span> <span class="o">=</span> <span class="bp">None</span>
+
+            <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">instance</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">native_WeakInstMeta</span><span class="p">,</span> <span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">__call__</span><span class="p">(</span><span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">cls</span><span class="o">.</span><span class="n">__inst_dict__</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">instance</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">instance</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">native_WeakInstMeta</span><span class="p">,</span> <span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">__call__</span><span class="p">(</span><span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">instance</span>
+
+<span class="c"># &quot;Invalid name&quot;</span>
+<span class="c"># pylint: disable-msg=C0103</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="c"># No name in module</span>
+    <span class="c"># pylint: disable-msg=E0611</span>
+    <span class="kn">from</span> <span class="nn">snakeoil._caching</span> <span class="kn">import</span> <span class="n">WeakInstMeta</span>
+    <span class="n">cpy_WeakInstMeta</span> <span class="o">=</span> <span class="n">WeakInstMeta</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">cpy_WeakInstMeta</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">WeakInstMeta</span> <span class="o">=</span> <span class="n">native_WeakInstMeta</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

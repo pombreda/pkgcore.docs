@@ -1,0 +1,183 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.ebuild.digest &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.ebuild.domain" href="pkgcore.ebuild.domain.html" />
+    <link rel="prev" title="pkgcore.ebuild.cpv" href="pkgcore.ebuild.cpv.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.domain.html" title="pkgcore.ebuild.domain"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.cpv.html" title="pkgcore.ebuild.cpv"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.ebuild.digest">
+<span id="pkgcore-ebuild-digest"></span><h1>pkgcore.ebuild.digest<a class="headerlink" href="#module-pkgcore.ebuild.digest" title="Permalink to this headline">¶</a></h1>
+<p>ebuild tree manifest/digest support</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.digest.parse_digest" title="pkgcore.ebuild.digest.parse_digest"><tt class="xref py py-obj docutils literal"><span class="pre">parse_digest</span></tt></a>(source[,&nbsp;throw_errors])</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.digest.parse_manifest" title="pkgcore.ebuild.digest.parse_manifest"><tt class="xref py py-obj docutils literal"><span class="pre">parse_manifest</span></tt></a>(source[,&nbsp;throw_errors,&nbsp;...])</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.digest.serialize_digest" title="pkgcore.ebuild.digest.serialize_digest"><tt class="xref py py-obj docutils literal"><span class="pre">serialize_digest</span></tt></a>(handle,&nbsp;fetchables)</td>
+<td>write out a digest entry for a fetchable</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.digest.serialize_manifest" title="pkgcore.ebuild.digest.serialize_manifest"><tt class="xref py py-obj docutils literal"><span class="pre">serialize_manifest</span></tt></a>(pkgdir,&nbsp;fetchables)</td>
+<td>Write a manifest given a pkg_instance</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="pkgcore.ebuild.digest.parse_digest">
+<tt class="descclassname">pkgcore.ebuild.digest.</tt><tt class="descname">parse_digest</tt><big>(</big><em>source</em>, <em>throw_errors=True</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/digest.html#parse_digest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.digest.parse_digest" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.digest.serialize_digest">
+<tt class="descclassname">pkgcore.ebuild.digest.</tt><tt class="descname">serialize_digest</tt><big>(</big><em>handle</em>, <em>fetchables</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/digest.html#serialize_digest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.digest.serialize_digest" title="Permalink to this definition">¶</a></dt>
+<dd><p>write out a digest entry for a fetchable</p>
+<p>throws KeyError if needed chksums are missing.  Requires at least md5
+and size chksums per fetchable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>handle</strong> &#8211; file object to write to</li>
+<li><strong>fetchables</strong> &#8211; list of L{pkgcore.fetch.fetchable} instances</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.digest.serialize_manifest">
+<tt class="descclassname">pkgcore.ebuild.digest.</tt><tt class="descname">serialize_manifest</tt><big>(</big><em>pkgdir</em>, <em>fetchables</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/digest.html#serialize_manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.digest.serialize_manifest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a manifest given a pkg_instance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>pkgdir</strong> &#8211; the location of the package dir</li>
+<li><strong>fetchables</strong> &#8211; the fetchables of the package</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.digest.parse_manifest">
+<tt class="descclassname">pkgcore.ebuild.digest.</tt><tt class="descname">parse_manifest</tt><big>(</big><em>source</em>, <em>throw_errors=True</em>, <em>ignore_gpg=True</em>, <em>kls_override=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/digest.html#parse_manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.digest.parse_manifest" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.cpv.html"
+                        title="previous chapter">pkgcore.ebuild.cpv</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.domain.html"
+                        title="next chapter">pkgcore.ebuild.domain</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.domain.html" title="pkgcore.ebuild.domain"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.cpv.html" title="pkgcore.ebuild.cpv"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

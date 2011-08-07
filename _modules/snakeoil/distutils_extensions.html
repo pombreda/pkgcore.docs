@@ -1,0 +1,529 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>snakeoil.distutils_extensions &mdash; snakeoil v-trunk documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '-trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="snakeoil v-trunk documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for snakeoil.distutils_extensions</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2008-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: BSD/GPL2</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">collection of distutils extensions adding things like automatic 2to3 translation,</span>
+<span class="sd">a test runner, basic bzr changelog generation, and working around broken stdlib</span>
+<span class="sd">extensions CFLAG passing in distutils.</span>
+
+<span class="sd">Generally speaking, you should flip through this modules src.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">errno</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&quot;SNAKEOIL_DEMANDLOAD_PROTECTION&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;n&#39;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&quot;SNAKEOIL_DEMANDLOAD_WARN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;n&#39;</span>
+
+<span class="kn">from</span> <span class="nn">distutils</span> <span class="kn">import</span> <span class="n">core</span><span class="p">,</span> <span class="n">ccompiler</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">errors</span>
+<span class="kn">from</span> <span class="nn">distutils.command</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">sdist</span> <span class="k">as</span> <span class="n">dst_sdist</span><span class="p">,</span> <span class="n">build_ext</span> <span class="k">as</span> <span class="n">dst_build_ext</span><span class="p">,</span> <span class="n">build_py</span> <span class="k">as</span> <span class="n">dst_build_py</span><span class="p">,</span>
+    <span class="n">build</span> <span class="k">as</span> <span class="n">dst_build</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">unittest_extensions</span>
+
+
+<div class="viewcode-block" id="OptionalExtension"><a class="viewcode-back" href="../../api/snakeoil.distutils_extensions.html#snakeoil.distutils_extensions.OptionalExtension">[docs]</a><span class="k">class</span> <span class="nc">OptionalExtension</span><span class="p">(</span><span class="n">core</span><span class="o">.</span><span class="n">Extension</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;python extension that is optional to build.</span>
+
+<span class="sd">    If it&#39;s not required to have the exception built, just preferable,</span>
+<span class="sd">    use this class instead of :py:class:`core.Extension` since the machinery</span>
+<span class="sd">    in this module relies on isinstance to identify what absolutely must</span>
+<span class="sd">    be built vs what would be nice to have built.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+</div>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&quot;nt&quot;</span><span class="p">:</span>
+    <span class="n">bzrbin</span> <span class="o">=</span> <span class="s">&quot;bzr.bat&quot;</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">bzrbin</span> <span class="o">=</span> <span class="s">&quot;bzr&quot;</span>
+
+
+<div class="viewcode-block" id="sdist"><a class="viewcode-back" href="../../api/snakeoil.distutils_extensions.html#snakeoil.distutils_extensions.sdist">[docs]</a><span class="k">class</span> <span class="nc">sdist</span><span class="p">(</span><span class="n">dst_sdist</span><span class="o">.</span><span class="n">sdist</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;sdist command specifying the right files and generating ChangeLog.&quot;&quot;&quot;</span>
+
+    <span class="n">user_options</span> <span class="o">=</span> <span class="n">dst_sdist</span><span class="o">.</span><span class="n">sdist</span><span class="o">.</span><span class="n">user_options</span> <span class="o">+</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s">&#39;changelog&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;create a ChangeLog [default]&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s">&#39;no-changelog&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;do not create the ChangeLog file&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s">&#39;changelog-start&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;the bzr rev to start dumping the changelog&#39;</span>
+            <span class="s">&#39; from; defaults to the last 5 tagged versions&#39;</span><span class="p">),</span>
+        <span class="p">]</span>
+
+    <span class="n">boolean_options</span> <span class="o">=</span> <span class="n">dst_sdist</span><span class="o">.</span><span class="n">sdist</span><span class="o">.</span><span class="n">boolean_options</span> <span class="o">+</span> <span class="p">[</span><span class="s">&#39;changelog&#39;</span><span class="p">]</span>
+
+    <span class="n">negative_opt</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;no-changelog&#39;</span><span class="p">:</span> <span class="s">&#39;changelog&#39;</span><span class="p">}</span>
+    <span class="n">negative_opt</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dst_sdist</span><span class="o">.</span><span class="n">sdist</span><span class="o">.</span><span class="n">negative_opt</span><span class="p">)</span>
+
+    <span class="n">default_format</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">dst_sdist</span><span class="o">.</span><span class="n">sdist</span><span class="o">.</span><span class="n">default_format</span><span class="p">)</span>
+    <span class="n">default_format</span><span class="p">[</span><span class="s">&quot;posix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;bztar&quot;</span>
+    <span class="n">default_log_format</span> <span class="o">=</span> <span class="s">&#39;--short&#39;</span>
+
+    <span class="n">package_namespace</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">initialize_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dst_sdist</span><span class="o">.</span><span class="n">sdist</span><span class="o">.</span><span class="n">initialize_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changelog</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changelog_start</span> <span class="o">=</span> <span class="bp">None</span>
+
+<div class="viewcode-block" id="sdist.get_file_list"><a class="viewcode-back" href="../../api/snakeoil.distutils_extensions.html#snakeoil.distutils_extensions.sdist.get_file_list">[docs]</a>    <span class="k">def</span> <span class="nf">get_file_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a filelist without doing anything involving MANIFEST files.&quot;&quot;&quot;</span>
+        <span class="c"># This is copied from the &quot;Recreate manifest&quot; bit of sdist.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filelist</span><span class="o">.</span><span class="n">findall</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_defaults</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_defaults</span><span class="p">()</span>
+
+        <span class="c"># This bit is roughly equivalent to a MANIFEST.in template file.</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">globs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">package_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">globs</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">filelist</span><span class="o">.</span><span class="n">include_pattern</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">pattern</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">filelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;AUTHORS&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;NOTES&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;NEWS&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;COPYING&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">filelist</span><span class="o">.</span><span class="n">include_pattern</span><span class="p">(</span><span class="s">&#39;.[ch]&#39;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s">&#39;src&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">filelist</span><span class="o">.</span><span class="n">exclude_pattern</span><span class="p">(</span><span class="s">&#39;build&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filelist</span><span class="o">.</span><span class="n">exclude_pattern</span><span class="p">(</span><span class="s">&#39;dist&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_to_file_list</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prune</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prune_file_list</span><span class="p">()</span>
+
+        <span class="c"># This is not optional: remove_duplicates needs sorted input.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filelist</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filelist</span><span class="o">.</span><span class="n">remove_duplicates</span><span class="p">()</span>
+</div>
+    <span class="k">def</span> <span class="nf">_add_to_file_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">find_last_tags_back</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">last_n_tags</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">majors_only</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s">&#39;bzr&#39;</span><span class="p">,</span> <span class="s">&#39;tags&#39;</span><span class="p">,</span> <span class="s">&#39;--sort=time&#39;</span><span class="p">],</span>
+            <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">stdout</span> <span class="k">if</span> <span class="n">x</span><span class="p">]</span>
+        <span class="n">data_d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">DistutilsExecError</span><span class="p">(</span><span class="s">&quot;bzr tags returned non zero: </span><span class="si">%r</span><span class="s">&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">returncode</span><span class="p">,))</span>
+        <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">revno</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">tag_targ</span> <span class="o">=</span> <span class="n">tag</span>
+            <span class="k">if</span> <span class="n">majors_only</span><span class="p">:</span>
+                <span class="n">tag_targ</span> <span class="o">=</span> <span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">tag_targ</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tag_targ</span><span class="p">)</span>
+                <span class="n">tags</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">tag_targ</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">revno</span><span class="p">))</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="n">tags</span><span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span> <span class="o">-</span> <span class="n">last_n_tags</span><span class="p">,</span> <span class="mi">0</span><span class="p">):]</span>
+        <span class="k">return</span> <span class="s">&#39;tag:</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tags</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],)</span>
+
+    <span class="k">def</span> <span class="nf">generate_verinfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_dir</span><span class="p">):</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;generating _verinfo&#39;</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">snakeoil.version</span> <span class="kn">import</span> <span class="n">get_git_version</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">get_git_version</span><span class="p">(</span><span class="n">base_dir</span><span class="p">)</span>
+        <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">package_namespace</span><span class="p">,</span> <span class="s">&#39;_verinfo.py&#39;</span><span class="p">),</span> <span class="s">&#39;w&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="s">&#39;version_info=&quot;&quot;&quot;</span><span class="si">%s</span><span class="s">&quot;&quot;&quot;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">val</span><span class="o">.</span><span class="n">strip</span><span class="p">(),))</span>
+
+<div class="viewcode-block" id="sdist.make_release_tree"><a class="viewcode-back" href="../../api/snakeoil.distutils_extensions.html#snakeoil.distutils_extensions.sdist.make_release_tree">[docs]</a>    <span class="k">def</span> <span class="nf">make_release_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_dir</span><span class="p">,</span> <span class="n">files</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create and populate the directory tree that is put in source tars.</span>
+
+<span class="sd">        This copies or hardlinks &quot;normal&quot; source files that should go</span>
+<span class="sd">        into the release and adds generated files that should not</span>
+<span class="sd">        exist in a working tree.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dst_sdist</span><span class="o">.</span><span class="n">sdist</span><span class="o">.</span><span class="n">make_release_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_dir</span><span class="p">,</span> <span class="n">files</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">changelog</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">changelog_start</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">changelog_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_last_tags_back</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">changelog_start</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">+=</span> <span class="p">[</span><span class="s">&#39;-r&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">..&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">changelog_start</span><span class="p">,),</span>
+                    <span class="s">&#39;--include-merge&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_log_format</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">+=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">default_log_format</span><span class="p">]</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;regenning ChangeLog to </span><span class="si">%r</span><span class="s"> (may take a while)&quot;</span> <span class="o">%</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">changelog_start</span><span class="p">,))</span>
+            <span class="k">if</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">bzrbin</span><span class="p">,</span> <span class="s">&#39;log&#39;</span><span class="p">,</span> <span class="s">&#39;--verbose&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">args</span><span class="p">,</span>
+                <span class="n">stdout</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="s">&#39;ChangeLog&#39;</span><span class="p">),</span> <span class="s">&#39;w&#39;</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">DistutilsExecError</span><span class="p">(</span><span class="s">&#39;bzr log failed&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generate_verinfo</span><span class="p">(</span><span class="n">base_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cleanup_post_release_tree</span><span class="p">(</span><span class="n">base_dir</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">cleanup_post_release_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_dir</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">base</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">base_dir</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.pyc&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">x</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.pyo&quot;</span><span class="p">):</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+
+
+</div>
+<span class="k">class</span> <span class="nc">build_py</span><span class="p">(</span><span class="n">dst_build_py</span><span class="o">.</span><span class="n">build_py</span><span class="p">):</span>
+
+    <span class="n">user_options</span> <span class="o">=</span> <span class="n">dst_build_py</span><span class="o">.</span><span class="n">build_py</span><span class="o">.</span><span class="n">user_options</span> <span class="o">+</span> <span class="p">[(</span><span class="s">&quot;inplace&quot;</span><span class="p">,</span> <span class="s">&quot;i&quot;</span><span class="p">,</span> <span class="s">&quot;do any source conversions in place&quot;</span><span class="p">)]</span>
+
+    <span class="n">package_namespace</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">generate_bzr_ver</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">initialize_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dst_build_py</span><span class="o">.</span><span class="n">build_py</span><span class="o">.</span><span class="n">initialize_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inplace</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">finalize_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inplace</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inplace</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">inplace</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">build_lib</span> <span class="o">=</span> <span class="s">&#39;.&#39;</span>
+        <span class="n">dst_build_py</span><span class="o">.</span><span class="n">build_py</span><span class="o">.</span><span class="n">finalize_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_compute_py3k_rebuilds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="n">pjoin</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span>
+        <span class="k">for</span> <span class="n">base</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_all_modules</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">new_mtime</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">lstat</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span>
+            <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">:</span>
+                <span class="c"># ok... wtf distutils?</span>
+                <span class="k">continue</span>
+            <span class="n">trg_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">build_lib</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">force</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">trg_path</span><span class="p">,</span> <span class="n">new_mtime</span>
+                <span class="k">continue</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">old_mtime</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">lstat</span><span class="p">(</span><span class="n">trg_path</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span>
+            <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">trg_path</span><span class="p">,</span> <span class="n">new_mtime</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">old_mtime</span> <span class="o">!=</span> <span class="n">new_mtime</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">trg_path</span><span class="p">,</span> <span class="n">new_mtime</span>
+
+    <span class="k">def</span> <span class="nf">_inner_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">py3k_rebuilds</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_run_generate_bzr_ver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">py3k_rebuilds</span><span class="p">):</span>
+        <span class="n">bzr_ver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_module_outfile</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">build_lib</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">package_namespace</span><span class="p">,),</span> <span class="s">&#39;bzr_verinfo&#39;</span><span class="p">)</span>
+        <span class="c"># this should check mtime...</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">bzr_ver</span><span class="p">):</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;generating bzr_verinfo&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">bzrbin</span><span class="p">,</span> <span class="s">&#39;version-info&#39;</span><span class="p">,</span> <span class="s">&#39;--format=python&#39;</span><span class="p">],</span>
+                <span class="n">stdout</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">bzr_ver</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)):</span>
+                <span class="c"># Not fatal, just less useful --version output.</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;generating bzr_verinfo failed!&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">byte_compile</span><span class="p">([</span><span class="n">bzr_ver</span><span class="p">])</span>
+                <span class="n">py3k_rebuilds</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">bzr_ver</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">lstat</span><span class="p">(</span><span class="n">bzr_ver</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">get_py2to3_converter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">proc_count</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">lib2to3</span> <span class="kn">import</span> <span class="n">refactor</span> <span class="k">as</span> <span class="n">ref_mod</span>
+        <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">caching_2to3</span>
+
+        <span class="k">if</span> <span class="n">proc_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">proc_count</span> <span class="o">=</span> <span class="n">get_number_of_processors</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">proc_count</span> <span class="ow">and</span> <span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span> <span class="ow">or</span> \
+            <span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;=</span>  <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">5</span><span class="p">)):</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;disabling parallelization: you&#39;re running a python &quot;</span>
+                <span class="s">&quot;version with a broken multiprocessing.queue.JoinableQueue.put &quot;</span>
+                <span class="s">&quot;(python bug 4660).&quot;</span><span class="p">)</span>
+            <span class="n">proc_count</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">assert</span> <span class="n">proc_count</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">proc_count</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">caching_2to3</span><span class="o">.</span><span class="n">multiprocessing_available</span><span class="p">:</span>
+            <span class="n">proc_count</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="n">refactor_kls</span> <span class="o">=</span> <span class="n">caching_2to3</span><span class="o">.</span><span class="n">MultiprocessRefactoringTool</span>
+
+        <span class="n">fixer_names</span> <span class="o">=</span> <span class="n">ref_mod</span><span class="o">.</span><span class="n">get_fixers_from_package</span><span class="p">(</span><span class="s">&#39;lib2to3.fixes&#39;</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">refactor_kls</span><span class="p">(</span><span class="n">fixer_names</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span><span class="o">.</span><span class="n">refactor</span>
+
+        <span class="k">def</span> <span class="nf">f2</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">caching_2to3</span><span class="o">.</span><span class="n">multiprocessing_available</span><span class="p">:</span>
+                <span class="n">kwds</span><span class="p">[</span><span class="s">&#39;num_processes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">proc_count</span>
+            <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">f2</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">py3k_rebuilds</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">inplace</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">is_py3k</span><span class="p">:</span>
+                <span class="n">py3k_rebuilds</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_compute_py3k_rebuilds</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">))</span>
+            <span class="n">dst_build_py</span><span class="o">.</span><span class="n">build_py</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_bzr_ver</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_run_generate_bzr_ver</span><span class="p">(</span><span class="n">py3k_rebuilds</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inner_run</span><span class="p">(</span><span class="n">py3k_rebuilds</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_py3k</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">converter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_py2to3_converter</span><span class="p">()</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;starting 2to3 conversion; this may take a while...&quot;</span><span class="p">)</span>
+        <span class="n">converter</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">py3k_rebuilds</span><span class="p">],</span> <span class="n">write</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">mtime</span> <span class="ow">in</span> <span class="n">py3k_rebuilds</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">utime</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">mtime</span><span class="p">))</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;completed py3k conversions&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">build_ext</span><span class="p">(</span><span class="n">dst_build_ext</span><span class="o">.</span><span class="n">build_ext</span><span class="p">):</span>
+
+    <span class="n">user_options</span> <span class="o">=</span> <span class="n">dst_build_ext</span><span class="o">.</span><span class="n">build_ext</span><span class="o">.</span><span class="n">user_options</span> <span class="o">+</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s">&quot;build-optional=&quot;</span><span class="p">,</span> <span class="s">&quot;o&quot;</span><span class="p">,</span> <span class="s">&quot;build optional C modules&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s">&quot;disable-distutils-flag-fixing&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&quot;disable fixing of issue &quot;</span>
+            <span class="s">&quot;969718 in python, adding missing -fno-strict-aliasing&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="n">boolean_options</span> <span class="o">=</span> <span class="n">dst_build</span><span class="o">.</span><span class="n">build</span><span class="o">.</span><span class="n">boolean_options</span> <span class="o">+</span> <span class="p">[</span><span class="s">&quot;build-optional&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">initialize_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dst_build_ext</span><span class="o">.</span><span class="n">build_ext</span><span class="o">.</span><span class="n">initialize_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">build_optional</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disable_distutils_flag_fixing</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">finalize_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dst_build_ext</span><span class="o">.</span><span class="n">build_ext</span><span class="o">.</span><span class="n">finalize_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_optional</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">build_optional</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_optional</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extensions</span> <span class="o">=</span> <span class="p">[</span><span class="n">ext</span> <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extensions</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ext</span><span class="p">,</span> <span class="n">OptionalExtension</span><span class="p">)]</span> <span class="ow">or</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">build_extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+            <span class="c"># say it with me kids... distutils sucks!</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;compiler_so&quot;</span><span class="p">,</span> <span class="s">&quot;compiler&quot;</span><span class="p">,</span> <span class="s">&quot;compiler_cxx&quot;</span><span class="p">):</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compiler</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">y</span> <span class="o">!=</span> <span class="s">&#39;-DNDEBUG&#39;</span><span class="p">]</span>
+                <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;-Wall&#39;</span><span class="p">)</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compiler</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">disable_distutils_flag_fixing</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;compiler_so&quot;</span><span class="p">,</span> <span class="s">&quot;compiler&quot;</span><span class="p">,</span> <span class="s">&quot;compiler_cxx&quot;</span><span class="p">):</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compiler</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s">&quot;-fno-strict-aliasing&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">val</span><span class="p">:</span>
+                    <span class="n">val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;-fno-strict-aliasing&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dst_build_ext</span><span class="o">.</span><span class="n">build_ext</span><span class="o">.</span><span class="n">build_extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="test"><a class="viewcode-back" href="../../api/snakeoil.distutils_extensions.html#snakeoil.distutils_extensions.test">[docs]</a><span class="k">class</span> <span class="nc">test</span><span class="p">(</span><span class="n">core</span><span class="o">.</span><span class="n">Command</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Run our unit tests in a built copy.</span>
+
+<span class="sd">    Based on code from setuptools.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">blacklist</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">()</span>
+
+    <span class="n">user_options</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&quot;inplace&quot;</span><span class="p">,</span> <span class="s">&quot;i&quot;</span><span class="p">,</span> <span class="s">&quot;do building/testing in place&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s">&quot;skip-rebuilding&quot;</span><span class="p">,</span> <span class="s">&quot;s&quot;</span><span class="p">,</span> <span class="s">&quot;skip rebuilds. primarily for development&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s">&quot;disable-fork&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&quot;disable forking of the testloader; primarily for debugging.  &quot;</span>
+            <span class="s">&quot;Automatically set in jython, disabled for cpython/unladen-swallow.&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s">&quot;namespaces=&quot;</span><span class="p">,</span> <span class="s">&quot;t&quot;</span><span class="p">,</span> <span class="s">&quot;run only tests matching these namespaces.  &quot;</span>
+            <span class="s">&quot;comma delimited&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s">&quot;pure-python&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&quot;disable building of extensions.  Enabled for jython, disabled elsewhere&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s">&quot;force&quot;</span><span class="p">,</span> <span class="s">&quot;f&quot;</span><span class="p">,</span> <span class="s">&quot;force build_py/build_ext as needed&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s">&quot;include-dirs=&quot;</span><span class="p">,</span> <span class="s">&quot;I&quot;</span><span class="p">,</span> <span class="s">&quot;include dirs for build_ext if needed&quot;</span><span class="p">),</span>
+        <span class="p">]</span>
+
+    <span class="n">default_test_namespace</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">initialize_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inplace</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disable_fork</span> <span class="o">=</span> <span class="n">is_jython</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">namespaces</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pure_python</span> <span class="o">=</span> <span class="n">is_jython</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">include_dirs</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">finalize_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inplace</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inplace</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disable_fork</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">disable_fork</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pure_python</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pure_python</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">include_dirs</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">include_dirs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_dirs</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">namespaces</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">namespaces</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">namespaces</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">namespaces</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">build_ext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reinitialize_command</span><span class="p">(</span><span class="s">&#39;build_ext&#39;</span><span class="p">)</span>
+        <span class="n">build_py</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reinitialize_command</span><span class="p">(</span><span class="s">&#39;build_py&#39;</span><span class="p">)</span>
+        <span class="n">build_ext</span><span class="o">.</span><span class="n">inplace</span> <span class="o">=</span> <span class="n">build_py</span><span class="o">.</span><span class="n">inplace</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inplace</span>
+        <span class="n">build_ext</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">build_py</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_dirs</span><span class="p">:</span>
+            <span class="n">build_ext</span><span class="o">.</span><span class="n">include_dirs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_dirs</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">pure_python</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_command</span><span class="p">(</span><span class="s">&#39;build_ext&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">inplace</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_command</span><span class="p">(</span><span class="s">&#39;build_py&#39;</span><span class="p">)</span>
+
+        <span class="n">syspath</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">[:]</span>
+        <span class="n">mods_to_wipe</span> <span class="o">=</span> <span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">inplace</span><span class="p">:</span>
+            <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+            <span class="n">syspath</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">cwd</span><span class="p">]</span>
+            <span class="n">test_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">build_py</span><span class="o">.</span><span class="n">build_lib</span><span class="p">)</span>
+            <span class="n">syspath</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">test_path</span><span class="p">)</span>
+            <span class="n">mods</span> <span class="o">=</span> <span class="n">build_py</span><span class="o">.</span><span class="n">find_all_modules</span><span class="p">()</span>
+            <span class="n">mods_to_wipe</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">mods</span><span class="p">)</span>
+            <span class="n">mods_to_wipe</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">mods</span><span class="p">)</span>
+
+        <span class="n">namespace</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">namespaces</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">namespaces</span><span class="p">:</span>
+            <span class="n">namespaces</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">default_test_namespace</span><span class="p">]</span>
+
+        <span class="n">retval</span> <span class="o">=</span> <span class="n">unittest_extensions</span><span class="o">.</span><span class="n">run_tests</span><span class="p">(</span><span class="n">namespaces</span><span class="p">,</span>
+            <span class="n">disable_fork</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">disable_fork</span><span class="p">,</span> <span class="n">blacklist</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">blacklist</span><span class="p">,</span>
+            <span class="n">pythonpath</span><span class="o">=</span><span class="n">syspath</span><span class="p">,</span> <span class="n">modules_to_wipe</span><span class="o">=</span><span class="n">mods_to_wipe</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">retval</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">DistutilsExecError</span><span class="p">(</span><span class="s">&quot;tests failed; return </span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">retval</span><span class="p">,))</span>
+
+<span class="c"># yes these are in snakeoil.compatibility; we can&#39;t rely on that module however</span>
+<span class="c"># since snakeoil source is in 2k form, but this module is 2k/3k compatible.</span>
+<span class="c"># in other words, it could be invoked by py3k to translate snakeoil to py3k</span></div>
+<span class="n">is_py3k</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">is_jython</span> <span class="o">=</span> <span class="s">&#39;java&#39;</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="s">&#39;getPlatform&#39;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span><span class="s">&#39;&#39;</span><span class="p">)()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">get_number_of_processors</span><span class="p">():</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="s">&quot;/proc/cpuinfo&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">())</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;:&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;processor&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">val</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">val</span>
+    <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+
+<span class="k">class</span> <span class="nc">build_docs_mixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="n">_kls</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">initialize_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_kls</span><span class="o">.</span><span class="n">initialize_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generate</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">generate_docs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="s">&#39;make&#39;</span><span class="p">,</span> <span class="s">&#39;generated&#39;</span><span class="p">],</span> <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">source_dir</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">DistutilsExecError</span><span class="p">(</span><span class="s">&quot;doc generation failed&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generate_docs</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kls</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">setup_kls</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">sphinx.setup_command</span> <span class="kn">import</span> <span class="n">BuildDoc</span> <span class="k">as</span> <span class="n">_BuildDoc</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">class</span> <span class="nc">BuildDoc</span><span class="p">(</span><span class="n">_BuildDoc</span><span class="p">,</span> <span class="n">cls</span><span class="p">):</span>
+            <span class="n">_kls</span> <span class="o">=</span> <span class="n">_BuildDoc</span>
+            <span class="n">user_options</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_BuildDoc</span><span class="o">.</span><span class="n">user_options</span><span class="p">)</span> \
+                <span class="o">+</span> <span class="p">[(</span><span class="s">&#39;generate&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;force autogeneration of intermediate docs&#39;</span><span class="p">)]</span>
+            <span class="c"># annoying.</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="s">&quot;initialize_options run&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
+                <span class="nb">locals</span><span class="p">()[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">BuildDoc</span>
+
+<span class="k">def</span> <span class="nf">sphinx_build_docs</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">build_docs_mixin</span><span class="o">.</span><span class="n">setup_kls</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

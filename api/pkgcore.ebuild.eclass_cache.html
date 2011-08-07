@@ -1,0 +1,267 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.ebuild.eclass_cache &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.ebuild.errors" href="pkgcore.ebuild.errors.html" />
+    <link rel="prev" title="pkgcore.ebuild.ebuild_src" href="pkgcore.ebuild.ebuild_src.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.errors.html" title="pkgcore.ebuild.errors"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.ebuild_src.html" title="pkgcore.ebuild.ebuild_src"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.ebuild.eclass_cache">
+<span id="pkgcore-ebuild-eclass-cache"></span><h1>pkgcore.ebuild.eclass_cache<a class="headerlink" href="#module-pkgcore.ebuild.eclass_cache" title="Permalink to this headline">¶</a></h1>
+<p>in memory representation of on disk eclass stacking order</p>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.eclass_cache.StackedCaches" title="pkgcore.ebuild.eclass_cache.StackedCaches"><tt class="xref py py-obj docutils literal"><span class="pre">StackedCaches</span></tt></a>(caches,&nbsp;**kwds)</td>
+<td>collapse multiple eclass caches into one.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.eclass_cache.base" title="pkgcore.ebuild.eclass_cache.base"><tt class="xref py py-obj docutils literal"><span class="pre">base</span></tt></a>([portdir,&nbsp;eclassdir])</td>
+<td>Maintains the cache information about eclasses available to an ebuild.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.eclass_cache.cache" title="pkgcore.ebuild.eclass_cache.cache"><tt class="xref py py-obj docutils literal"><span class="pre">cache</span></tt></a>(path[,&nbsp;portdir])</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="pkgcore.ebuild.eclass_cache.base">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.eclass_cache.</tt><tt class="descname">base</tt><big>(</big><em>portdir=None</em>, <em>eclassdir=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/eclass_cache.html#base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.eclass_cache.base" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Maintains the cache information about eclasses available to an ebuild.</p>
+<dl class="attribute">
+<dt id="pkgcore.ebuild.eclass_cache.base.eclasses">
+<tt class="descname">eclasses</tt><a class="headerlink" href="#pkgcore.ebuild.eclass_cache.base.eclasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>InternalJitAttr object; basis of JIT cached attr access</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.eclass_cache.base.get_eclass">
+<tt class="descname">get_eclass</tt><big>(</big><em>eclass</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/eclass_cache.html#base.get_eclass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.eclass_cache.base.get_eclass" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.eclass_cache.base.get_eclass_data">
+<tt class="descname">get_eclass_data</tt><big>(</big><em>inherits</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/eclass_cache.html#base.get_eclass_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.eclass_cache.base.get_eclass_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the cachable entries from a list of inherited eclasses.</p>
+<p>Only make get_eclass_data calls for data you know came from
+this eclass_cache, otherwise be ready to catch a KeyError
+exception for any eclass that was requested, but not known to
+this cache.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.eclass_cache.base.is_eclass_data_valid">
+<tt class="descname">is_eclass_data_valid</tt><big>(</big><em>ec_dict</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/eclass_cache.html#base.is_eclass_data_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.eclass_cache.base.is_eclass_data_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if eclass data is still valid.</p>
+<p>Given a dict as returned by get_eclass_data, walk it comparing
+it to internal eclass view.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">a boolean representing whether that eclass data is still
+up to date, or not</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.eclass_cache.cache">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.eclass_cache.</tt><tt class="descname">cache</tt><big>(</big><em>path</em>, <em>portdir=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/eclass_cache.html#cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.eclass_cache.cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.ebuild.eclass_cache.base" title="pkgcore.ebuild.eclass_cache.base"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.ebuild.eclass_cache.base</span></tt></a></p>
+<dl class="attribute">
+<dt id="pkgcore.ebuild.eclass_cache.cache.eclasses">
+<tt class="descname">eclasses</tt><a class="headerlink" href="#pkgcore.ebuild.eclass_cache.cache.eclasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>InternalJitAttr object; basis of JIT cached attr access</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.eclass_cache.cache.get_eclass">
+<tt class="descname">get_eclass</tt><big>(</big><em>eclass</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.eclass_cache.cache.get_eclass" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.eclass_cache.cache.get_eclass_data">
+<tt class="descname">get_eclass_data</tt><big>(</big><em>inherits</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.eclass_cache.cache.get_eclass_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the cachable entries from a list of inherited eclasses.</p>
+<p>Only make get_eclass_data calls for data you know came from
+this eclass_cache, otherwise be ready to catch a KeyError
+exception for any eclass that was requested, but not known to
+this cache.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.eclass_cache.cache.is_eclass_data_valid">
+<tt class="descname">is_eclass_data_valid</tt><big>(</big><em>ec_dict</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.eclass_cache.cache.is_eclass_data_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if eclass data is still valid.</p>
+<p>Given a dict as returned by get_eclass_data, walk it comparing
+it to internal eclass view.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">a boolean representing whether that eclass data is still
+up to date, or not</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.eclass_cache.StackedCaches">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.eclass_cache.</tt><tt class="descname">StackedCaches</tt><big>(</big><em>caches</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/eclass_cache.html#StackedCaches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.eclass_cache.StackedCaches" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.ebuild.eclass_cache.base" title="pkgcore.ebuild.eclass_cache.base"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.ebuild.eclass_cache.base</span></tt></a></p>
+<p>collapse multiple eclass caches into one.</p>
+<p>Does L-&gt;R searching for eclass matches.</p>
+<dl class="attribute">
+<dt id="pkgcore.ebuild.eclass_cache.StackedCaches.eclasses">
+<tt class="descname">eclasses</tt><a class="headerlink" href="#pkgcore.ebuild.eclass_cache.StackedCaches.eclasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>InternalJitAttr object; basis of JIT cached attr access</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.eclass_cache.StackedCaches.get_eclass">
+<tt class="descname">get_eclass</tt><big>(</big><em>eclass</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.eclass_cache.StackedCaches.get_eclass" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.eclass_cache.StackedCaches.get_eclass_data">
+<tt class="descname">get_eclass_data</tt><big>(</big><em>inherits</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.eclass_cache.StackedCaches.get_eclass_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the cachable entries from a list of inherited eclasses.</p>
+<p>Only make get_eclass_data calls for data you know came from
+this eclass_cache, otherwise be ready to catch a KeyError
+exception for any eclass that was requested, but not known to
+this cache.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.eclass_cache.StackedCaches.is_eclass_data_valid">
+<tt class="descname">is_eclass_data_valid</tt><big>(</big><em>ec_dict</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.eclass_cache.StackedCaches.is_eclass_data_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if eclass data is still valid.</p>
+<p>Given a dict as returned by get_eclass_data, walk it comparing
+it to internal eclass view.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">a boolean representing whether that eclass data is still
+up to date, or not</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.ebuild_src.html"
+                        title="previous chapter">pkgcore.ebuild.ebuild_src</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.errors.html"
+                        title="next chapter">pkgcore.ebuild.errors</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.errors.html" title="pkgcore.ebuild.errors"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.ebuild_src.html" title="pkgcore.ebuild.ebuild_src"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,397 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.ebuild.repo_objs &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.ebuild.repo_objs</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2006-2010 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">package class for buildable ebuilds</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;Maintainer&quot;</span><span class="p">,</span> <span class="s">&quot;MetadataXml&quot;</span><span class="p">,</span> <span class="s">&quot;LocalMetadataXml&quot;</span><span class="p">,</span> <span class="s">&quot;Manifest&quot;</span><span class="p">,</span>
+    <span class="s">&quot;SharedPkgData&quot;</span><span class="p">,</span> <span class="s">&quot;Licenses&quot;</span><span class="p">,</span> <span class="s">&quot;OverlayedLicenses&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">snakeoil.currying</span> <span class="kn">import</span> <span class="n">post_curry</span>
+<span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="nb">any</span>
+<span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
+<span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">pjoin</span><span class="p">,</span> <span class="n">listdir_files</span>
+<span class="kn">from</span> <span class="nn">snakeoil.caching</span> <span class="kn">import</span> <span class="n">WeakInstMeta</span>
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">klass</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
+<span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
+    <span class="s">&#39;snakeoil.xml:etree&#39;</span><span class="p">,</span>
+    <span class="s">&#39;pkgcore.ebuild:digest&#39;</span><span class="p">,</span>
+    <span class="s">&#39;pkgcore.log:logger&#39;</span><span class="p">,</span>
+    <span class="s">&#39;snakeoil:mappings&#39;</span><span class="p">,</span>
+    <span class="s">&#39;snakeoil:fileutils&#39;</span><span class="p">,</span>
+    <span class="s">&#39;errno&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="Maintainer"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.Maintainer">[docs]</a><span class="k">class</span> <span class="nc">Maintainer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Data on a single maintainer.</span>
+
+<span class="sd">    At least one of email and name is not C{None}.</span>
+
+<span class="sd">    :type email: C{unicode} object or C{None}</span>
+<span class="sd">    @ivar email: email address.</span>
+<span class="sd">    :type name: C{unicode} object or C{None}</span>
+<span class="sd">    @ivar name: full name</span>
+<span class="sd">    :type description: C{unicode} object or C{None}</span>
+<span class="sd">    @ivar description: description of maintainership.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;email&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">email</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;need at least one of name and email&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">email</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> &lt;</span><span class="si">%s</span><span class="s">&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">email</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">email</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> (</span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+</div>
+<div class="viewcode-block" id="MetadataXml"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.MetadataXml">[docs]</a><span class="k">class</span> <span class="nc">MetadataXml</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;metadata.xml parsed results</span>
+
+<span class="sd">    attributes are set to -1 if unloaded, None if no entry, or the value</span>
+<span class="sd">    if loaded</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;__weakref__&quot;</span><span class="p">,</span> <span class="s">&quot;_maintainers&quot;</span><span class="p">,</span> <span class="s">&quot;_herds&quot;</span><span class="p">,</span> <span class="s">&quot;_longdescription&quot;</span><span class="p">,</span>
+        <span class="s">&quot;_source&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="o">=</span> <span class="n">source</span>
+
+    <span class="k">def</span> <span class="nf">_generic_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parse_xml</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;herds&quot;</span><span class="p">,</span> <span class="s">&quot;maintainers&quot;</span><span class="p">,</span> <span class="s">&quot;longdescription&quot;</span><span class="p">):</span>
+        <span class="nb">locals</span><span class="p">()[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">post_curry</span><span class="p">(</span><span class="n">_generic_attr</span><span class="p">,</span> <span class="s">&quot;_&quot;</span><span class="o">+</span><span class="n">attr</span><span class="p">))</span>
+    <span class="k">del</span> <span class="n">attr</span>
+
+    <span class="k">def</span> <span class="nf">_parse_xml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">source</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span><span class="o">.</span><span class="n">bytes_fileobj</span><span class="p">()</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+        <span class="n">maintainers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;maintainer&quot;</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">email</span> <span class="o">=</span> <span class="n">description</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s">&quot;name&quot;</span><span class="p">:</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">text</span>
+                <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s">&quot;email&quot;</span><span class="p">:</span>
+                    <span class="n">email</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">text</span>
+                <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s">&#39;description&#39;</span><span class="p">:</span>
+                    <span class="n">description</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">text</span>
+            <span class="n">maintainers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Maintainer</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="n">email</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_maintainers</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">maintainers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_herds</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;herd&quot;</span><span class="p">))</span>
+
+        <span class="c"># Could be unicode!</span>
+        <span class="n">longdesc</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">findtext</span><span class="p">(</span><span class="s">&quot;longdescription&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">longdesc</span><span class="p">:</span>
+            <span class="n">longdesc</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">longdesc</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_longdescription</span> <span class="o">=</span> <span class="n">longdesc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="o">=</span> <span class="bp">None</span>
+
+</div>
+<div class="viewcode-block" id="LocalMetadataXml"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.LocalMetadataXml">[docs]</a><span class="k">class</span> <span class="nc">LocalMetadataXml</span><span class="p">(</span><span class="n">MetadataXml</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_parse_xml</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">MetadataXml</span><span class="o">.</span><span class="n">_parse_xml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_source</span><span class="p">,</span> <span class="s">&quot;rb&quot;</span><span class="p">,</span> <span class="mi">32768</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">oe</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">oe</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_maintainers</span> <span class="o">=</span> <span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_herds</span> <span class="o">=</span> <span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_longdescription</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="o">=</span> <span class="bp">None</span>
+
+
+</div>
+<div class="viewcode-block" id="Manifest"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.Manifest">[docs]</a><span class="k">class</span> <span class="nc">Manifest</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">enforce_gpg</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="o">=</span> <span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="ow">not</span> <span class="n">enforce_gpg</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_pull_manifest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">source</span><span class="p">,</span> <span class="n">gpg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">digest</span><span class="o">.</span><span class="n">parse_manifest</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">ignore_gpg</span><span class="o">=</span><span class="n">gpg</span><span class="p">,</span>
+            <span class="n">kls_override</span><span class="o">=</span><span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aux</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ebuild</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_misc</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_version</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Manifest.version"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.Manifest.version">[docs]</a>    <span class="k">def</span> <span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pull_manifest</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Manifest.required_files"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.Manifest.required_files">[docs]</a>    <span class="k">def</span> <span class="nf">required_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pull_manifest</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">mappings</span><span class="o">.</span><span class="n">StackedDict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ebuild</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_misc</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Manifest.aux_files"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.Manifest.aux_files">[docs]</a>    <span class="k">def</span> <span class="nf">aux_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pull_manifest</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aux</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Manifest.distfiles"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.Manifest.distfiles">[docs]</a>    <span class="k">def</span> <span class="nf">distfiles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pull_manifest</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;only manifest2 instances carry digest data&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span>
+
+</div></div>
+<div class="viewcode-block" id="SharedPkgData"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.SharedPkgData">[docs]</a><span class="k">class</span> <span class="nc">SharedPkgData</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;__weakref__&quot;</span><span class="p">,</span> <span class="s">&quot;metadata_xml&quot;</span><span class="p">,</span> <span class="s">&quot;manifest&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata_xml</span><span class="p">,</span> <span class="n">manifest</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata_xml</span> <span class="o">=</span> <span class="n">metadata_xml</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span> <span class="o">=</span> <span class="n">manifest</span>
+
+</div>
+<div class="viewcode-block" id="Licenses"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.Licenses">[docs]</a><span class="k">class</span> <span class="nc">Licenses</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">WeakInstMeta</span>
+    <span class="n">__inst_caching__</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;_base&#39;</span><span class="p">,</span> <span class="s">&#39;_licenses&#39;</span><span class="p">,</span> <span class="s">&#39;_groups&#39;</span><span class="p">)</span>
+
+    <span class="n">licenses_dir</span> <span class="o">=</span> <span class="s">&#39;licenses&#39;</span>
+    <span class="n">license_group_location</span> <span class="o">=</span> <span class="s">&#39;profiles/license_groups&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_base</span><span class="p">):</span>
+        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_base&#39;</span><span class="p">,</span> <span class="n">repo_base</span><span class="p">)</span>
+
+    <span class="nd">@klass.jit_attr_none</span>
+<div class="viewcode-block" id="Licenses.licenses"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.Licenses.licenses">[docs]</a>    <span class="k">def</span> <span class="nf">licenses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">listdir_files</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">licenses_dir</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">:</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="p">()</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+</div>
+    <span class="nd">@klass.jit_attr_none</span>
+<div class="viewcode-block" id="Licenses.groups"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.Licenses.groups">[docs]</a>    <span class="k">def</span> <span class="nf">groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fp</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">license_group_location</span><span class="p">)</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">fileutils</span><span class="o">.</span><span class="n">read_dict</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">splitter</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">fileutils</span><span class="o">.</span><span class="n">ParseError</span><span class="p">,</span> <span class="n">pe</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;failed parsing license_groups: </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">pe</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_expand_groups</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
+</div>
+    <span class="k">def</span> <span class="nf">_expand_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groups</span><span class="p">):</span>
+        <span class="n">keep_going</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">groups</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">groups</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">keep_going</span><span class="p">:</span>
+            <span class="n">keep_going</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">groups</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;@&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">v</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="n">keep_going</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">v2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;@&#39;</span><span class="p">:</span>
+                        <span class="n">v2</span> <span class="o">=</span> <span class="n">v2</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">v2</span> <span class="ow">or</span> <span class="n">v2</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;invalid license group reference: </span><span class="si">%r</span><span class="s"> in </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span>
+                                <span class="n">v2</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+                            <span class="k">continue</span>
+                        <span class="k">elif</span> <span class="n">v2</span> <span class="o">==</span> <span class="n">k</span><span class="p">:</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;cyclic license group references for </span><span class="si">%r</span><span class="s"> in </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span>
+                                <span class="n">v2</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+                            <span class="k">continue</span>
+                        <span class="n">l</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">groups</span><span class="p">[</span><span class="n">v2</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span>
+                <span class="n">groups</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">l</span>
+
+<div class="viewcode-block" id="Licenses.refresh"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.Licenses.refresh">[docs]</a>    <span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_licenses</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_groups</span> <span class="o">=</span> <span class="bp">None</span>
+</div>
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">license</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">license</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">license</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">licenses_dir</span><span class="p">,</span> <span class="n">license</span><span class="p">))</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">license</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">licenses</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">license</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">license</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">licenses</span>
+
+</div>
+<div class="viewcode-block" id="OverlayedLicenses"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.OverlayedLicenses">[docs]</a><span class="k">class</span> <span class="nc">OverlayedLicenses</span><span class="p">(</span><span class="n">Licenses</span><span class="p">):</span>
+
+    <span class="n">__inst_caching__</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;_license_instances&#39;</span><span class="p">,</span> <span class="s">&#39;_license_sources&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">license_sources</span><span class="p">):</span>
+        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_license_sources&#39;</span><span class="p">,</span> <span class="n">license_sources</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_license_instances</span><span class="p">()</span>
+
+    <span class="nd">@klass.jit_attr_none</span>
+<div class="viewcode-block" id="OverlayedLicenses.groups"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.OverlayedLicenses.groups">[docs]</a>    <span class="k">def</span> <span class="nf">groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">li</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_license_instances</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">li</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                    <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+=</span> <span class="n">v</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="n">d</span>
+</div>
+    <span class="nd">@klass.jit_attr_none</span>
+<div class="viewcode-block" id="OverlayedLicenses.licenses"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.OverlayedLicenses.licenses">[docs]</a>    <span class="k">def</span> <span class="nf">licenses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="nb">iter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_license_instances</span><span class="p">)))</span>
+</div>
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">license</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">li</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_license_instances</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">li</span><span class="p">[</span><span class="n">license</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">license</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OverlayedLicenses.refresh"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.OverlayedLicenses.refresh">[docs]</a>    <span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_license_instances</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">li</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_license_instances</span><span class="p">:</span>
+            <span class="n">li</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+        <span class="n">Licenses</span><span class="o">.</span><span class="n">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_load_license_instances</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_license_sources</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Licenses</span><span class="p">):</span>
+                <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s">&#39;licenses&#39;</span><span class="p">):</span>
+                <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">licenses</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_license_instances&#39;</span><span class="p">,</span>
+            <span class="nb">tuple</span><span class="p">(</span><span class="n">l</span><span class="p">))</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

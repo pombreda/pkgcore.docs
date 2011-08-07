@@ -1,0 +1,672 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.ebuild.triggers &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.ebuild.triggers</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2006-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">gentoo/ebuild specific triggers</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;collapse_envd&quot;</span><span class="p">,</span> <span class="s">&quot;string_collapse_envd&quot;</span><span class="p">,</span> <span class="s">&quot;env_update&quot;</span><span class="p">,</span>
+    <span class="s">&quot;ConfigProtectInstall&quot;</span><span class="p">,</span> <span class="s">&quot;ConfigProtectUninstall&quot;</span><span class="p">,</span> <span class="s">&quot;preinst_contents_reset&quot;</span><span class="p">,</span>
+    <span class="s">&quot;collision_protect&quot;</span><span class="p">,</span> <span class="s">&quot;install_into_symdir_protect&quot;</span><span class="p">,</span> <span class="s">&quot;InfoRegen&quot;</span><span class="p">,</span> <span class="s">&quot;SFPerms&quot;</span><span class="p">,</span>
+    <span class="s">&quot;FixImageSymlinks&quot;</span><span class="p">,</span> <span class="s">&quot;generate_triggers&quot;</span><span class="p">)</span>
+
+
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">errno</span>
+<span class="kn">from</span> <span class="nn">pkgcore.merge</span> <span class="kn">import</span> <span class="n">triggers</span><span class="p">,</span> <span class="n">const</span><span class="p">,</span> <span class="n">errors</span>
+<span class="kn">from</span> <span class="nn">pkgcore.fs</span> <span class="kn">import</span> <span class="n">livefs</span>
+<span class="kn">from</span> <span class="nn">pkgcore.restrictions</span> <span class="kn">import</span> <span class="n">values</span>
+
+<span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">normpath</span>
+<span class="kn">from</span> <span class="nn">snakeoil.fileutils</span> <span class="kn">import</span> <span class="n">read_bash_dict</span><span class="p">,</span> <span class="n">AtomicWriteFile</span>
+<span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">listdir_files</span>
+<span class="kn">from</span> <span class="nn">snakeoil.lists</span> <span class="kn">import</span> <span class="n">stable_unique</span><span class="p">,</span> <span class="n">iflatten_instance</span>
+<span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span>
+
+<span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
+<span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
+    <span class="s">&quot;fnmatch&quot;</span><span class="p">,</span>
+    <span class="s">&#39;pkgcore:os_data&#39;</span><span class="p">,</span>
+    <span class="s">&#39;pkgcore.merge.engine:map_new_cset_livefs&#39;</span><span class="p">,</span>
+    <span class="s">&#39;snakeoil:compatibility&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">colon_parsed</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">[</span><span class="s">&quot;ADA_INCLUDE_PATH&quot;</span><span class="p">,</span>  <span class="s">&quot;ADA_OBJECTS_PATH&quot;</span><span class="p">,</span> <span class="s">&quot;INFODIR&quot;</span><span class="p">,</span> <span class="s">&quot;INFOPATH&quot;</span><span class="p">,</span>
+     <span class="s">&quot;LDPATH&quot;</span><span class="p">,</span> <span class="s">&quot;MANPATH&quot;</span><span class="p">,</span> <span class="s">&quot;PATH&quot;</span><span class="p">,</span> <span class="s">&quot;PRELINK_PATH&quot;</span><span class="p">,</span> <span class="s">&quot;PRELINK_PATH_MASK&quot;</span><span class="p">,</span>
+     <span class="s">&quot;PYTHONPATH&quot;</span><span class="p">,</span> <span class="s">&quot;PKG_CONFIG_PATH&quot;</span><span class="p">,</span> <span class="s">&quot;ROOTPATH&quot;</span><span class="p">])</span>
+
+<span class="n">incrementals</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">[</span><span class="s">&#39;ADA_INCLUDE_PATH&#39;</span><span class="p">,</span> <span class="s">&#39;ADA_OBJECTS_PATH&#39;</span><span class="p">,</span> <span class="s">&#39;CLASSPATH&#39;</span><span class="p">,</span> <span class="s">&#39;CONFIG_PROTECT&#39;</span><span class="p">,</span>
+     <span class="s">&#39;CONFIG_PROTECT_MASK&#39;</span><span class="p">,</span> <span class="s">&#39;INFODIR&#39;</span><span class="p">,</span> <span class="s">&#39;INFOPATH&#39;</span><span class="p">,</span> <span class="s">&#39;KDEDIRS&#39;</span><span class="p">,</span> <span class="s">&#39;LDPATH&#39;</span><span class="p">,</span>
+     <span class="s">&#39;MANPATH&#39;</span><span class="p">,</span> <span class="s">&#39;PATH&#39;</span><span class="p">,</span> <span class="s">&#39;PRELINK_PATH&#39;</span><span class="p">,</span> <span class="s">&#39;PRELINK_PATH_MASK&#39;</span><span class="p">,</span> <span class="s">&#39;PYTHONPATH&#39;</span><span class="p">,</span>
+     <span class="s">&#39;ROOTPATH&#39;</span><span class="p">,</span> <span class="s">&#39;PKG_CONFIG_PATH&#39;</span><span class="p">])</span>
+
+<span class="n">default_ldpath</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;/lib&#39;</span><span class="p">,</span> <span class="s">&#39;/lib64&#39;</span><span class="p">,</span> <span class="s">&#39;/lib32&#39;</span><span class="p">,</span>
+    <span class="s">&#39;/usr/lib&#39;</span><span class="p">,</span> <span class="s">&#39;/usr/lib64&#39;</span><span class="p">,</span> <span class="s">&#39;/usr/lib32&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="collapse_envd"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.collapse_envd">[docs]</a><span class="k">def</span> <span class="nf">collapse_envd</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
+    <span class="n">collapsed_d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">env_d_files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">listdir_files</span><span class="p">(</span><span class="n">base</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">,</span> <span class="n">oe</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">oe</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
+            <span class="k">raise</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">env_d_files</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.bak&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">x</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;~&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;._cfg&quot;</span><span class="p">)</span> \
+                <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">read_bash_dict</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+            <span class="c"># inefficient, but works.</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="n">collapsed_d</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">d</span>
+
+    <span class="n">loc_incrementals</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">incrementals</span><span class="p">)</span>
+    <span class="n">loc_colon_parsed</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">colon_parsed</span><span class="p">)</span>
+
+    <span class="c"># split out env.d defined incrementals..</span>
+    <span class="c"># update incrementals *and* colon parsed for colon_seperated;</span>
+    <span class="c"># incrementals on it&#39;s own is space seperated.</span>
+
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">collapsed_d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;COLON_SEPARATED&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">v</span><span class="p">:</span>
+            <span class="n">loc_colon_parsed</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+    <span class="n">loc_incrementals</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">loc_colon_parsed</span><span class="p">)</span>
+
+    <span class="c"># now space.</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">collapsed_d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;SPACE_SEPARATED&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">v</span><span class="p">:</span>
+            <span class="n">loc_incrementals</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+    <span class="c"># now reinterpret.</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">collapsed_d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">loc_incrementals</span><span class="p">:</span>
+            <span class="n">collapsed_d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">loc_colon_parsed</span><span class="p">:</span>
+            <span class="n">collapsed_d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">iflatten_instance</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">v</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">collapsed_d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">iflatten_instance</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">v</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">collapsed_d</span><span class="p">,</span> <span class="n">loc_incrementals</span><span class="p">,</span> <span class="n">loc_colon_parsed</span>
+
+</div>
+<div class="viewcode-block" id="string_collapse_envd"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.string_collapse_envd">[docs]</a><span class="k">def</span> <span class="nf">string_collapse_envd</span><span class="p">(</span><span class="n">envd_dict</span><span class="p">,</span> <span class="n">incrementals</span><span class="p">,</span> <span class="n">colon_incrementals</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;transform a passed in dict to strictly strings&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">envd_dict</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">incrementals</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">colon_incrementals</span><span class="p">:</span>
+            <span class="n">envd_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;:&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">envd_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+</div>
+<span class="k">def</span> <span class="nf">update_ldso</span><span class="p">(</span><span class="n">ld_search_path</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="s">&#39;/&#39;</span><span class="p">):</span>
+    <span class="c"># we do an atomic rename instead of open and write quick</span>
+    <span class="c"># enough (avoid the race iow)</span>
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="s">&#39;etc&#39;</span><span class="p">,</span> <span class="s">&#39;ld.so.conf&#39;</span><span class="p">)</span>
+    <span class="n">new_f</span> <span class="o">=</span> <span class="n">AtomicWriteFile</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="n">os_data</span><span class="o">.</span><span class="n">root_uid</span><span class="p">,</span> <span class="n">gid</span><span class="o">=</span><span class="n">os_data</span><span class="o">.</span><span class="n">root_uid</span><span class="p">,</span> <span class="n">perms</span><span class="o">=</span><span class="mo">0644</span><span class="p">)</span>
+    <span class="n">new_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;# automatically generated, edit env.d files instead</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+    <span class="n">new_f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">+</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ld_search_path</span><span class="p">)</span>
+    <span class="n">new_f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">perform_env_update</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">skip_ldso_update</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="n">d</span><span class="p">,</span> <span class="n">inc</span><span class="p">,</span> <span class="n">colon</span> <span class="o">=</span> <span class="n">collapse_envd</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s">&quot;etc/env.d&quot;</span><span class="p">))</span>
+
+    <span class="n">l</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;LDPATH&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">l</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">skip_ldso_update</span><span class="p">:</span>
+        <span class="n">update_ldso</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+
+    <span class="n">string_collapse_envd</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">inc</span><span class="p">,</span> <span class="n">colon</span><span class="p">)</span>
+
+    <span class="n">new_f</span> <span class="o">=</span> <span class="n">AtomicWriteFile</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s">&quot;etc&quot;</span><span class="p">,</span> <span class="s">&quot;profile.env&quot;</span><span class="p">),</span> <span class="n">uid</span><span class="o">=</span><span class="n">os_data</span><span class="o">.</span><span class="n">root_uid</span><span class="p">,</span> <span class="n">gid</span><span class="o">=</span><span class="n">os_data</span><span class="o">.</span><span class="n">root_gid</span><span class="p">,</span> <span class="n">perms</span><span class="o">=</span><span class="mo">0644</span><span class="p">)</span>
+    <span class="n">new_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;# autogenerated.  update env.d instead</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+    <span class="n">new_f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="s">&#39;export </span><span class="si">%s</span><span class="s">=&quot;</span><span class="si">%s</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+    <span class="n">new_f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">new_f</span> <span class="o">=</span> <span class="n">AtomicWriteFile</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s">&quot;etc&quot;</span><span class="p">,</span> <span class="s">&quot;profile.csh&quot;</span><span class="p">),</span> <span class="n">uid</span><span class="o">=</span><span class="n">os_data</span><span class="o">.</span><span class="n">root_uid</span><span class="p">,</span> <span class="n">gid</span><span class="o">=</span><span class="n">os_data</span><span class="o">.</span><span class="n">root_gid</span><span class="p">,</span> <span class="n">perms</span><span class="o">=</span><span class="mo">0644</span><span class="p">)</span>
+    <span class="n">new_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;# autogenerated, update env.d instead</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+    <span class="n">new_f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="s">&#39;setenv </span><span class="si">%s</span><span class="s">=&quot;</span><span class="si">%s</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+    <span class="n">new_f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="env_update"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.env_update">[docs]</a><span class="k">class</span> <span class="nc">env_update</span><span class="p">(</span><span class="n">triggers</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
+
+    <span class="n">required_csets</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">priority</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">_hooks</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;post_unmerge&#39;</span><span class="p">,</span> <span class="s">&#39;post_merge&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="env_update.trigger"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.env_update.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">):</span>
+        <span class="n">perform_env_update</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span>
+
+</div></div>
+<span class="k">def</span> <span class="nf">simple_chksum_compare</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="n">found</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">chksums</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s">&quot;size&quot;</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">o</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">chksums</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">o</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">o</span> <span class="o">!=</span> <span class="n">v</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">False</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">if</span> <span class="s">&quot;size&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">chksums</span> <span class="ow">and</span> <span class="s">&quot;size&quot;</span> <span class="ow">in</span> <span class="n">y</span><span class="o">.</span><span class="n">chksums</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">chksums</span><span class="p">[</span><span class="s">&quot;size&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">y</span><span class="o">.</span><span class="n">chksums</span><span class="p">[</span><span class="s">&quot;size&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">found</span>
+
+
+<span class="k">def</span> <span class="nf">gen_config_protect_filter</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">extra_protects</span><span class="o">=</span><span class="p">(),</span> <span class="n">extra_disables</span><span class="o">=</span><span class="p">()):</span>
+    <span class="n">collapsed_d</span><span class="p">,</span> <span class="n">inc</span><span class="p">,</span> <span class="n">colon</span> <span class="o">=</span> <span class="n">collapse_envd</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="s">&quot;etc/env.d&quot;</span><span class="p">))</span>
+    <span class="n">collapsed_d</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s">&quot;CONFIG_PROTECT&quot;</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extra_protects</span><span class="p">)</span>
+    <span class="n">collapsed_d</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s">&quot;CONFIG_PROTECT_MASK&quot;</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extra_disables</span><span class="p">)</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="p">[</span><span class="n">values</span><span class="o">.</span><span class="n">StrGlobMatch</span><span class="p">(</span><span class="n">normpath</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span><span class="p">)</span>
+         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">stable_unique</span><span class="p">(</span><span class="n">collapsed_d</span><span class="p">[</span><span class="s">&quot;CONFIG_PROTECT&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s">&quot;/etc&quot;</span><span class="p">]))]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">OrRestriction</span><span class="p">(</span><span class="o">*</span><span class="n">r</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">neg</span> <span class="o">=</span> <span class="n">stable_unique</span><span class="p">(</span><span class="n">collapsed_d</span><span class="p">[</span><span class="s">&quot;CONFIG_PROTECT_MASK&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">neg</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">neg</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">r2</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">StrGlobMatch</span><span class="p">(</span><span class="n">normpath</span><span class="p">(</span><span class="n">neg</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span><span class="p">,</span>
+                                     <span class="n">negate</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">r2</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">OrRestriction</span><span class="p">(</span>
+                <span class="n">negate</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                <span class="o">*</span><span class="p">[</span><span class="n">values</span><span class="o">.</span><span class="n">StrGlobMatch</span><span class="p">(</span><span class="n">normpath</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span><span class="p">)</span>
+                  <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">neg</span><span class="p">)])</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">AndRestriction</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">r2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">r</span>
+
+
+<div class="viewcode-block" id="ConfigProtectInstall"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.ConfigProtectInstall">[docs]</a><span class="k">class</span> <span class="nc">ConfigProtectInstall</span><span class="p">(</span><span class="n">triggers</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
+
+    <span class="n">required_csets</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;install_existing&#39;</span><span class="p">,</span> <span class="s">&#39;install&#39;</span><span class="p">)</span>
+    <span class="n">priority</span> <span class="o">=</span> <span class="mi">90</span>
+    <span class="n">_hooks</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;pre_merge&#39;</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra_protects</span><span class="o">=</span><span class="p">(),</span> <span class="n">extra_disables</span><span class="o">=</span><span class="p">()):</span>
+        <span class="n">triggers</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renames</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_protects</span> <span class="o">=</span> <span class="n">extra_protects</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_disables</span> <span class="o">=</span> <span class="n">extra_disables</span>
+
+<div class="viewcode-block" id="ConfigProtectInstall.register"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.ConfigProtectInstall.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">):</span>
+        <span class="n">triggers</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">)</span>
+        <span class="n">t2</span> <span class="o">=</span> <span class="n">ConfigProtectInstall_restore</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">renames</span><span class="p">)</span>
+        <span class="n">t2</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ConfigProtectInstall.trigger"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.ConfigProtectInstall.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">existing_cset</span><span class="p">,</span> <span class="n">install_cset</span><span class="p">):</span>
+        <span class="c"># hackish, but it works.</span>
+        <span class="n">protected_filter</span> <span class="o">=</span> <span class="n">gen_config_protect_filter</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extra_protects</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_disables</span><span class="p">)</span><span class="o">.</span><span class="n">match</span>
+        <span class="n">protected</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">existing_cset</span><span class="o">.</span><span class="n">iterfiles</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;/.keep&quot;</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="n">protected_filter</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">location</span><span class="p">):</span>
+                <span class="n">replacement</span> <span class="o">=</span> <span class="n">install_cset</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">simple_chksum_compare</span><span class="p">(</span><span class="n">replacement</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+                    <span class="n">protected</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
+                        <span class="n">pjoin</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span>
+                              <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">location</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">)),</span>
+                        <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">replacement</span><span class="o">.</span><span class="n">location</span><span class="p">),</span>
+                                    <span class="n">replacement</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">dir_loc</span><span class="p">,</span> <span class="n">entries</span> <span class="ow">in</span> <span class="n">protected</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">updates</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">existing</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">listdir_files</span><span class="p">(</span><span class="n">dir_loc</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;._cfg&quot;</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">OSError</span><span class="p">,</span> <span class="n">oe</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">oe</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
+                    <span class="k">raise</span>
+                <span class="c"># this shouldn&#39;t occur.</span>
+                <span class="k">continue</span>
+
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">existing</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c"># ._cfg0000_filename</span>
+                    <span class="n">count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">5</span><span class="p">:</span><span class="mi">9</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;_&quot;</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span>
+                    <span class="n">fn</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">10</span><span class="p">:]</span>
+                <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">updates</span><span class="p">:</span>
+                    <span class="n">updates</span><span class="p">[</span><span class="n">fn</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">count</span><span class="p">,</span> <span class="n">fn</span><span class="p">))</span>
+
+
+            <span class="c"># now we rename.</span>
+            <span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+                <span class="c"># check for any updates with the same chksums.</span>
+                <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">cfg_count</span><span class="p">,</span> <span class="n">cfg_fname</span> <span class="ow">in</span> <span class="n">updates</span><span class="p">[</span><span class="n">fname</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">simple_chksum_compare</span><span class="p">(</span><span class="n">livefs</span><span class="o">.</span><span class="n">gen_obj</span><span class="p">(</span>
+                            <span class="n">pjoin</span><span class="p">(</span><span class="n">dir_loc</span><span class="p">,</span> <span class="n">cfg_fname</span><span class="p">)),</span> <span class="n">entry</span><span class="p">):</span>
+                        <span class="n">count</span> <span class="o">=</span> <span class="n">cfg_count</span>
+                        <span class="k">break</span>
+                    <span class="n">count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">cfg_count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">install_cset</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="c"># this shouldn&#39;t occur...</span>
+                    <span class="k">continue</span>
+                <span class="n">new_fn</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">dir_loc</span><span class="p">,</span> <span class="s">&quot;._cfg</span><span class="si">%04i</span><span class="s">_</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">fname</span><span class="p">))</span>
+                <span class="n">new_entry</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">change_attributes</span><span class="p">(</span><span class="n">location</span><span class="o">=</span><span class="n">new_fn</span><span class="p">)</span>
+                <span class="n">install_cset</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_entry</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">renames</span><span class="p">[</span><span class="n">new_entry</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span>
+            <span class="k">del</span> <span class="n">updates</span>
+
+</div></div>
+<span class="k">class</span> <span class="nc">ConfigProtectInstall_restore</span><span class="p">(</span><span class="n">triggers</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
+
+    <span class="n">required_csets</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;install&#39;</span><span class="p">,)</span>
+    <span class="n">priority</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">_hooks</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;post_merge&#39;</span><span class="p">,)</span>
+
+    <span class="n">pkgcore_config_type</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">renames_dict</span><span class="p">):</span>
+        <span class="n">triggers</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renames</span> <span class="o">=</span> <span class="n">renames_dict</span>
+
+    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">install_cset</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">new_entry</span><span class="p">,</span> <span class="n">old_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">renames</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">install_cset</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">new_entry</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">install_cset</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">old_entry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renames</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="ConfigProtectUninstall"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.ConfigProtectUninstall">[docs]</a><span class="k">class</span> <span class="nc">ConfigProtectUninstall</span><span class="p">(</span><span class="n">triggers</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
+
+    <span class="n">required_csets</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;uninstall_existing&#39;</span><span class="p">,</span> <span class="s">&#39;uninstall&#39;</span><span class="p">)</span>
+    <span class="n">_hooks</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;pre_unmerge&#39;</span><span class="p">,)</span>
+
+    <span class="n">pkgcore_config_type</span> <span class="o">=</span> <span class="bp">None</span>
+
+<div class="viewcode-block" id="ConfigProtectUninstall.trigger"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.ConfigProtectUninstall.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">existing_cset</span><span class="p">,</span> <span class="n">uninstall_cset</span><span class="p">):</span>
+        <span class="n">protected_restrict</span> <span class="o">=</span> <span class="n">gen_config_protect_filter</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span>
+
+        <span class="n">remove</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">existing_cset</span><span class="o">.</span><span class="n">iterfiles</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;/.keep&quot;</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">protected_restrict</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">location</span><span class="p">):</span>
+                <span class="n">recorded_ent</span> <span class="o">=</span> <span class="n">uninstall_cset</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">simple_chksum_compare</span><span class="p">(</span><span class="n">recorded_ent</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+                        <span class="c"># chksum differs.  file stays.</span>
+                        <span class="n">remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">recorded_ent</span><span class="p">)</span>
+                <span class="c"># If a file doesn&#39;t exist we don&#39;t need to remove it</span>
+                <span class="k">except</span> <span class="ne">IOError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">,</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOTDIR</span><span class="p">):</span>
+                        <span class="k">raise</span>
+
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">remove</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">uninstall_cset</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+
+</div></div>
+<div class="viewcode-block" id="preinst_contents_reset"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.preinst_contents_reset">[docs]</a><span class="k">class</span> <span class="nc">preinst_contents_reset</span><span class="p">(</span><span class="n">triggers</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
+
+    <span class="n">required_csets</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;new_cset&#39;</span><span class="p">,)</span>
+    <span class="n">priority</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">_hooks</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;pre_merge&#39;</span><span class="p">,)</span>
+
+    <span class="n">pkgcore_config_type</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_op</span><span class="p">):</span>
+        <span class="n">triggers</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">format_op</span> <span class="o">=</span> <span class="n">format_op</span>
+
+<div class="viewcode-block" id="preinst_contents_reset.trigger"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.preinst_contents_reset.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">cset</span><span class="p">):</span>
+        <span class="c"># wipe, and get data again; ebuild preinst does untrackable</span>
+        <span class="c"># modifications to the fs</span>
+        <span class="n">cset</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">cs</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">scan_contents</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format_op</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;D&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">engine</span><span class="o">.</span><span class="n">offset</span> <span class="o">!=</span> <span class="s">&#39;/&#39;</span><span class="p">:</span>
+            <span class="n">cs</span> <span class="o">=</span> <span class="n">cs</span><span class="o">.</span><span class="n">insert_offset</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span>
+        <span class="n">cset</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">cs</span><span class="p">)</span>
+        <span class="c">#cs = map_new_cset_livefs(engine, {&#39;cset&#39;:cset}, &#39;cset&#39;)</span>
+        <span class="c">#cset.clear()</span>
+        <span class="c">#cset.update(cs)</span>
+
+</div></div>
+<div class="viewcode-block" id="collision_protect"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.collision_protect">[docs]</a><span class="k">class</span> <span class="nc">collision_protect</span><span class="p">(</span><span class="n">triggers</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
+
+    <span class="n">required_csets</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">const</span><span class="o">.</span><span class="n">INSTALL_MODE</span><span class="p">:(</span><span class="s">&#39;install&#39;</span><span class="p">,</span> <span class="s">&#39;install_existing&#39;</span><span class="p">),</span>
+        <span class="n">const</span><span class="o">.</span><span class="n">REPLACE_MODE</span><span class="p">:(</span><span class="s">&#39;install&#39;</span><span class="p">,</span> <span class="s">&#39;install_existing&#39;</span><span class="p">,</span> <span class="s">&#39;old_cset&#39;</span><span class="p">)</span>
+        <span class="p">}</span>
+
+    <span class="n">_hooks</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;sanity_check&#39;</span><span class="p">,)</span>
+    <span class="n">_engine_types</span> <span class="o">=</span> <span class="n">triggers</span><span class="o">.</span><span class="n">INSTALLING_MODES</span>
+
+    <span class="n">suppress_exceptions</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra_protects</span><span class="o">=</span><span class="p">(),</span> <span class="n">extra_disables</span><span class="o">=</span><span class="p">()):</span>
+        <span class="n">triggers</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_protects</span> <span class="o">=</span> <span class="n">extra_protects</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_disables</span> <span class="o">=</span> <span class="n">extra_disables</span>
+
+<div class="viewcode-block" id="collision_protect.trigger"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.collision_protect.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">install</span><span class="p">,</span> <span class="n">existing</span><span class="p">,</span> <span class="n">old_cset</span><span class="o">=</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c"># for the moment, we just care about files</span>
+        <span class="n">colliding</span> <span class="o">=</span> <span class="n">existing</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">install</span><span class="o">.</span><span class="n">iterdirs</span><span class="p">())</span>
+
+        <span class="c"># filter out daft .keep files.</span>
+
+        <span class="c"># hackish, but it works.</span>
+        <span class="n">protected_filter</span> <span class="o">=</span> <span class="n">gen_config_protect_filter</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extra_protects</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_disables</span><span class="p">)</span><span class="o">.</span><span class="n">match</span>
+
+        <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">colliding</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.keep&quot;</span><span class="p">):</span>
+                <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">protected_filter</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">location</span><span class="p">):</span>
+                <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="n">colliding</span><span class="o">.</span><span class="n">difference_update</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">l</span><span class="p">,</span> <span class="n">protected_filter</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">colliding</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">colliding</span><span class="o">.</span><span class="n">difference_update</span><span class="p">(</span><span class="n">old_cset</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">colliding</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">BlockModification</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                <span class="s">&quot;collision-protect: file(s) already exist: ( </span><span class="si">%s</span><span class="s"> )&quot;</span> <span class="o">%</span>
+                <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">colliding</span><span class="p">)))</span>
+
+</div></div>
+<div class="viewcode-block" id="install_into_symdir_protect"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.install_into_symdir_protect">[docs]</a><span class="k">class</span> <span class="nc">install_into_symdir_protect</span><span class="p">(</span><span class="n">triggers</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
+
+    <span class="n">required_csets</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">const</span><span class="o">.</span><span class="n">INSTALL_MODE</span><span class="p">:(</span><span class="s">&#39;install&#39;</span><span class="p">,</span> <span class="s">&#39;install_existing&#39;</span><span class="p">),</span>
+        <span class="n">const</span><span class="o">.</span><span class="n">REPLACE_MODE</span><span class="p">:(</span><span class="s">&#39;install&#39;</span><span class="p">,</span> <span class="s">&#39;install_existing&#39;</span><span class="p">,</span> <span class="s">&#39;old_cset&#39;</span><span class="p">)</span>
+        <span class="p">}</span>
+
+    <span class="n">_hooks</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;sanity_check&#39;</span><span class="p">,)</span>
+    <span class="n">_engine_types</span> <span class="o">=</span> <span class="n">triggers</span><span class="o">.</span><span class="n">INSTALLING_MODES</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra_protects</span><span class="o">=</span><span class="p">(),</span> <span class="n">extra_disables</span><span class="o">=</span><span class="p">()):</span>
+        <span class="n">triggers</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_protects</span> <span class="o">=</span> <span class="n">extra_protects</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_disables</span> <span class="o">=</span> <span class="n">extra_disables</span>
+
+<div class="viewcode-block" id="install_into_symdir_protect.trigger"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.install_into_symdir_protect.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">install</span><span class="p">,</span> <span class="n">existing</span><span class="p">,</span> <span class="n">old_cset</span><span class="o">=</span><span class="p">()):</span>
+        <span class="k">return</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c"># avoid generator madness</span>
+        <span class="n">install_into_symdir</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">linkset</span> <span class="ow">in</span> <span class="p">[</span><span class="n">install</span><span class="o">.</span><span class="n">iterlinks</span><span class="p">(),</span> <span class="n">existing</span><span class="o">.</span><span class="n">iterlinks</span><span class="p">()]:</span>
+            <span class="n">linkset</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">linkset</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">linkset</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">inst_file</span> <span class="ow">in</span> <span class="n">install</span><span class="o">.</span><span class="n">iterfiles</span><span class="p">():</span>
+                    <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">linkset</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">inst_file</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">location</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span><span class="p">):</span>
+                            <span class="n">install_into_symdir</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inst_file</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">install_into_symdir</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">BlockModification</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                <span class="s">&quot;file(s) installed into symlinked dir, will break when removing files from the original dir: ( </span><span class="si">%s</span><span class="s"> )&quot;</span> <span class="o">%</span>
+                <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">install_into_symdir</span><span class="p">)))</span>
+
+</div></div>
+<div class="viewcode-block" id="InfoRegen"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.InfoRegen">[docs]</a><span class="k">class</span> <span class="nc">InfoRegen</span><span class="p">(</span><span class="n">triggers</span><span class="o">.</span><span class="n">InfoRegen</span><span class="p">):</span>
+
+    <span class="n">_label</span> <span class="o">=</span> <span class="s">&quot;ebuild info regen&quot;</span>
+
+<div class="viewcode-block" id="InfoRegen.register"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.InfoRegen.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">):</span>
+        <span class="c"># wipe pre-existing info triggers.</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">engine</span><span class="o">.</span><span class="n">hooks</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="c"># yucky, but works.</span>
+            <span class="n">wipes</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">engine</span><span class="o">.</span><span class="n">hooks</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">triggers</span><span class="o">.</span><span class="n">InfoRegen</span><span class="o">.</span><span class="n">_label</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">wipes</span><span class="p">:</span>
+                <span class="n">engine</span><span class="o">.</span><span class="n">hooks</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">triggers</span><span class="o">.</span><span class="n">InfoRegen</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="InfoRegen.should_skip_directory"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.InfoRegen.should_skip_directory">[docs]</a>    <span class="k">def</span> <span class="nf">should_skip_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basepath</span><span class="p">,</span> <span class="n">files</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;.keepinfodir&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">files</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="InfoRegen.trigger"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.InfoRegen.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">engine</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span> <span class="s">&quot;etc/env.d&quot;</span><span class="p">)</span>
+        <span class="n">triggers</span><span class="o">.</span><span class="n">InfoRegen</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="InfoRegen.locations"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.InfoRegen.locations">[docs]</a>    <span class="k">def</span> <span class="nf">locations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">collapsed_d</span> <span class="o">=</span> <span class="n">collapse_envd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">collapsed_d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;INFOPATH&quot;</span><span class="p">,</span> <span class="p">())</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">l</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">triggers</span><span class="o">.</span><span class="n">InfoRegen</span><span class="o">.</span><span class="n">locations</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">l</span>
+
+</div></div>
+<div class="viewcode-block" id="SFPerms"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.SFPerms">[docs]</a><span class="k">class</span> <span class="nc">SFPerms</span><span class="p">(</span><span class="n">triggers</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
+    <span class="n">required_csets</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;new_cset&#39;</span><span class="p">,)</span>
+    <span class="n">_hooks</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;pre_merge&#39;</span><span class="p">,)</span>
+    <span class="n">_engine_types</span> <span class="o">=</span> <span class="n">triggers</span><span class="o">.</span><span class="n">INSTALLING_MODES</span>
+
+<div class="viewcode-block" id="SFPerms.trigger"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.SFPerms.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">cset</span><span class="p">):</span>
+        <span class="n">resets</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cset</span><span class="o">.</span><span class="n">iterfiles</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">mode</span> <span class="o">&amp;</span> <span class="mo">04000</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">mode</span> <span class="o">&amp;</span> <span class="mo">0044</span><span class="p">:</span>
+                    <span class="n">engine</span><span class="o">.</span><span class="n">observer</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;sfperms: dropping group/world read &quot;</span>
+                        <span class="s">&quot;due to SetGID: </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">x</span><span class="p">)</span>
+                    <span class="n">resets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">change_attributes</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">mode</span> <span class="o">&amp;</span> <span class="o">~</span><span class="mo">044</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">mode</span> <span class="o">&amp;</span> <span class="mo">02000</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">mode</span> <span class="o">&amp;</span> <span class="mo">0004</span><span class="p">:</span>
+                    <span class="n">engine</span><span class="o">.</span><span class="n">observer</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;sfperms: dropping world read &quot;</span>
+                        <span class="s">&quot;due to SetUID: </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">x</span><span class="p">)</span>
+                    <span class="n">resets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">change_attributes</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">mode</span> <span class="o">&amp;</span> <span class="o">~</span><span class="mo">004</span><span class="p">))</span>
+        <span class="n">cset</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">resets</span><span class="p">)</span>
+
+</div></div>
+<span class="k">def</span> <span class="nf">register_multilib_strict_trigger</span><span class="p">(</span><span class="n">domain_settings</span><span class="p">):</span>
+    <span class="n">locations</span> <span class="o">=</span> <span class="n">domain_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;MULTILIB_STRICT_DIRS&quot;</span><span class="p">)</span>
+    <span class="n">exempt</span> <span class="o">=</span> <span class="n">domain_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;MULTILIB_STRICT_EXEMPT&quot;</span><span class="p">,</span>
+        <span class="s">&quot;(perl5|gcc|gcc-lib)&quot;</span><span class="p">)</span>
+    <span class="n">deny_pattern</span> <span class="o">=</span> <span class="n">domain_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;MULTILIB_STRICT_DENY&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">None</span> <span class="ow">in</span> <span class="p">(</span><span class="n">locations</span><span class="p">,</span> <span class="n">deny_pattern</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="n">locations</span> <span class="o">=</span> <span class="n">locations</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">locations</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">locations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">locations</span> <span class="o">=</span> <span class="n">locations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">locations</span> <span class="o">=</span> <span class="s">&quot;(</span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="s">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">locations</span><span class="p">)</span>
+    <span class="n">limit_pattern</span> <span class="o">=</span> <span class="s">&quot;/</span><span class="si">%s</span><span class="s">/(?!</span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">locations</span><span class="p">,</span> <span class="n">exempt</span><span class="p">)</span>
+    <span class="k">while</span> <span class="s">&quot;//&quot;</span> <span class="ow">in</span> <span class="n">limit_pattern</span><span class="p">:</span>
+        <span class="n">limit_pattern</span> <span class="o">=</span> <span class="n">limit_pattern</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;//&quot;</span><span class="p">,</span> <span class="s">&quot;/&quot;</span><span class="p">)</span>
+    <span class="c"># this seems semi dodgey, specifically, that it won&#39;t catch &#39;em all</span>
+    <span class="n">trig</span> <span class="o">=</span> <span class="n">triggers</span><span class="o">.</span><span class="n">BlockFileType</span><span class="p">(</span><span class="s">&quot;.*</span><span class="si">%s</span><span class="s">.*&quot;</span> <span class="o">%</span> <span class="n">deny_pattern</span><span class="p">,</span> <span class="n">limit_pattern</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">trig</span>
+
+
+<div class="viewcode-block" id="FixImageSymlinks"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.FixImageSymlinks">[docs]</a><span class="k">class</span> <span class="nc">FixImageSymlinks</span><span class="p">(</span><span class="n">triggers</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
+    <span class="n">required_csets</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;new_cset&#39;</span><span class="p">,)</span>
+    <span class="n">_hooks</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;pre_merge&#39;</span><span class="p">,)</span>
+
+    <span class="n">pkgcore_config_type</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_op</span><span class="p">):</span>
+        <span class="n">triggers</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">format_op</span> <span class="o">=</span> <span class="n">format_op</span>
+
+<div class="viewcode-block" id="FixImageSymlinks.trigger"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.FixImageSymlinks.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">cset</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_op</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;D&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cset</span><span class="o">.</span><span class="n">iterlinks</span><span class="p">()</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">d</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">engine</span><span class="o">.</span><span class="n">observer</span><span class="p">:</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">observer</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">l</span><span class="p">:</span>
+                <span class="n">o</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;correcting </span><span class="si">%s</span><span class="s"> sym pointing into $D: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                    <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">target</span><span class="p">))</span>
+        <span class="n">d_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+        <span class="c"># drop the leading ${D}, and force an abspath via &#39;/&#39;</span>
+        <span class="n">cset</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">change_attributes</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">pjoin</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">target</span><span class="p">[</span><span class="n">d_len</span><span class="p">:]))</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">l</span><span class="p">)</span>
+</div></div>
+<div class="viewcode-block" id="generate_triggers"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.triggers.html#pkgcore.ebuild.triggers.generate_triggers">[docs]</a><span class="k">def</span> <span class="nf">generate_triggers</span><span class="p">(</span><span class="n">domain</span><span class="p">):</span>
+    <span class="n">domain_settings</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">settings</span>
+    <span class="k">yield</span> <span class="n">env_update</span><span class="p">()</span>
+
+    <span class="n">protect</span> <span class="o">=</span> <span class="n">domain_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;CONFIG_PROTECT&#39;</span><span class="p">,</span> <span class="p">())</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">protect</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+        <span class="n">protect</span> <span class="o">=</span> <span class="n">protect</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">domain_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;CONFIG_PROTECT_MASK&#39;</span><span class="p">,</span> <span class="p">())</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">protect</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+        <span class="n">protect</span> <span class="o">=</span> <span class="n">protect</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+    <span class="k">yield</span> <span class="n">ConfigProtectInstall</span><span class="p">(</span><span class="n">protect</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+    <span class="k">yield</span> <span class="n">ConfigProtectUninstall</span><span class="p">()</span>
+
+    <span class="n">features</span> <span class="o">=</span> <span class="n">domain_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;FEATURES&quot;</span><span class="p">,</span> <span class="p">())</span>
+    <span class="k">if</span> <span class="s">&quot;collision-protect&quot;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">collision_protect</span><span class="p">(</span><span class="n">protect</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s">&quot;multilib-strict&quot;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">register_multilib_strict_trigger</span><span class="p">(</span><span class="n">domain_settings</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s">&quot;sfperms&quot;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">SFPerms</span><span class="p">()</span>
+
+    <span class="k">yield</span> <span class="n">install_into_symdir_protect</span><span class="p">(</span><span class="n">protect</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+    <span class="n">install_mask</span> <span class="o">=</span> <span class="n">domain_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;INSTALL_MASK&quot;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;man&quot;</span><span class="p">,</span> <span class="s">&quot;info&quot;</span><span class="p">,</span> <span class="s">&quot;doc&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s">&quot;no</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+            <span class="n">install_mask</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;/usr/share/</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">x</span><span class="p">)</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">install_mask</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)</span>
+        <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">StrRegex</span><span class="p">(</span><span class="n">fnmatch</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+        <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">StrRegex</span><span class="p">(</span><span class="n">fnmatch</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">/*&quot;</span> <span class="o">%</span> <span class="n">x</span><span class="p">)))</span>
+    <span class="n">install_mask</span> <span class="o">=</span> <span class="n">l</span>
+
+    <span class="k">if</span> <span class="n">install_mask</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">install_mask</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">install_mask</span> <span class="o">=</span> <span class="n">install_mask</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">install_mask</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">OrRestriction</span><span class="p">(</span><span class="o">*</span><span class="n">install_mask</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">triggers</span><span class="o">.</span><span class="n">PruneFiles</span><span class="p">(</span><span class="n">install_mask</span><span class="o">.</span><span class="n">match</span><span class="p">)</span>
+        <span class="c"># note that if this wipes all /usr/share/ entries, should</span>
+        <span class="c"># wipe the empty dir.</span>
+
+    <span class="k">yield</span> <span class="n">InfoRegen</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

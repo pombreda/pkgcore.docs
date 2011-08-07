@@ -1,0 +1,414 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.scripts.pinspect &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.scripts.pinspect</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2009-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;pkgsets&quot;</span><span class="p">,</span> <span class="s">&quot;histo_data&quot;</span><span class="p">,</span> <span class="s">&quot;eapi_usage&quot;</span><span class="p">,</span> <span class="s">&quot;license_usage&quot;</span><span class="p">,</span>
+    <span class="s">&quot;mirror_usage&quot;</span><span class="p">,</span> <span class="s">&quot;eclass_usage&quot;</span><span class="p">,</span> <span class="s">&quot;mirror_usage&quot;</span><span class="p">,</span>
+    <span class="s">&quot;portageq&quot;</span><span class="p">,</span> <span class="s">&quot;query&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">pkgcore.util</span> <span class="kn">import</span> <span class="n">commandline</span>
+<span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">portageq</span> <span class="k">as</span> <span class="n">_portageq</span>
+<span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">inspect_profiles</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
+
+<span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
+    <span class="s">&#39;snakeoil.lists:iflatten_instance,unstable_unique&#39;</span><span class="p">,</span>
+    <span class="s">&#39;snakeoil.mappings:defaultdict&#39;</span><span class="p">,</span>
+    <span class="s">&#39;pkgcore:fetch&#39;</span><span class="p">,</span>
+    <span class="s">&#39;pkgcore.restrictions:packages&#39;</span><span class="p">,</span>
+    <span class="s">&#39;itertools:groupby,islice&#39;</span><span class="p">,</span>
+    <span class="s">&#39;operator:attrgetter,itemgetter&#39;</span>
+<span class="p">)</span>
+
+<span class="n">shared</span> <span class="o">=</span> <span class="p">(</span><span class="n">commandline</span><span class="o">.</span><span class="n">mk_argparser</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">add_help</span><span class="o">=</span><span class="bp">False</span><span class="p">),)</span>
+<span class="n">argparse_parser</span> <span class="o">=</span> <span class="n">commandline</span><span class="o">.</span><span class="n">mk_argparser</span><span class="p">(</span><span class="n">suppress</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="n">shared</span><span class="p">)</span>
+<span class="n">subparsers</span> <span class="o">=</span> <span class="n">argparse_parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s">&quot;report applets&quot;</span><span class="p">)</span>
+
+<span class="n">pkgsets</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;pkgsets&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s">&quot;pkgset related introspection&quot;</span><span class="p">)</span>
+<span class="n">mux</span> <span class="o">=</span> <span class="n">pkgsets</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">()</span>
+<span class="n">mux</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--all&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;display info on all pkgsets&quot;</span><span class="p">)</span>
+<span class="n">mux</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;pkgsets&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&quot;*&quot;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&quot;pkgset&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">StoreConfigObject</span><span class="p">,</span> <span class="n">config_type</span><span class="o">=</span><span class="s">&#39;pkgset&#39;</span><span class="p">,</span> <span class="n">store_name</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;pkgset to inspect&quot;</span><span class="p">)</span>
+<span class="k">del</span> <span class="n">mux</span>
+<span class="nd">@pkgsets.bind_main_func</span>
+<span class="k">def</span> <span class="nf">pkgsets_run</span><span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">opts</span><span class="o">.</span><span class="n">pkgsets</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">opts</span><span class="o">.</span><span class="n">all</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">bold</span><span class="p">,</span> <span class="s">&#39;available pkgset(s): &#39;</span><span class="p">,</span> <span class="n">out</span><span class="o">.</span><span class="n">reset</span><span class="p">,</span>
+                <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">pkgset</span><span class="p">)))</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">opts</span><span class="o">.</span><span class="n">pkgsets</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">pkgset</span><span class="p">)</span>
+
+    <span class="n">missing</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">for</span> <span class="n">position</span><span class="p">,</span> <span class="p">(</span><span class="n">set_name</span><span class="p">,</span> <span class="n">pkgset</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">pkgsets</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">position</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">bold</span><span class="p">,</span> <span class="s">&#39;pkgset &#39;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">set_name</span><span class="p">),</span> <span class="n">out</span><span class="o">.</span><span class="n">reset</span><span class="p">,</span> <span class="s">&#39;:&#39;</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">first_prefix</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;  &#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">restrict</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pkgset</span><span class="p">):</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">restrict</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">first_prefix</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+    <span class="k">return</span> <span class="mi">0</span>
+
+
+<span class="k">def</span> <span class="nf">print_simple_histogram</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">sort_by_key</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">first</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">last</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="c"># do the division up front...</span>
+
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">total</span><span class="p">)</span> <span class="o">/</span> <span class="mi">100</span>
+
+    <span class="k">if</span> <span class="n">sort_by_key</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">first</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">islice</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">first</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">last</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="p">)[</span><span class="o">-</span><span class="n">last</span><span class="p">:]</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">format</span> <span class="o">%</span> <span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="s">&#39;val&#39;</span><span class="p">:</span><span class="n">val</span><span class="p">,</span>
+            <span class="s">&#39;percent&#39;</span><span class="p">:</span><span class="s">&quot;</span><span class="si">%2.2f%%</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">val</span><span class="o">/</span><span class="n">total</span><span class="p">,)})</span>
+
+
+<div class="viewcode-block" id="histo_data"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pinspect.html#pkgcore.scripts.pinspect.histo_data">[docs]</a><span class="k">class</span> <span class="nc">histo_data</span><span class="p">(</span><span class="n">commandline</span><span class="o">.</span><span class="n">ArgparseCommand</span><span class="p">):</span>
+
+    <span class="n">per_repo_summary</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">allow_no_detail</span> <span class="o">=</span> <span class="bp">False</span>
+
+<div class="viewcode-block" id="histo_data.bind_to_parser"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pinspect.html#pkgcore.scripts.pinspect.histo_data.bind_to_parser">[docs]</a>    <span class="k">def</span> <span class="nf">bind_to_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
+        <span class="n">mux</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">()</span>
+        <span class="n">mux</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--no-final-summary&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s">&quot;disable outputting a summary of data across all repos&quot;</span><span class="p">)</span>
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">repo_summary</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">per_repo_summary</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">per_repo_summary</span><span class="p">:</span>
+            <span class="n">mux</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--no-repo-summary&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;repo_summary&#39;</span><span class="p">,</span>
+                <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_false&#39;</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s">&quot;disable outputting repo summaries&quot;</span><span class="p">)</span>
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">no_detail</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_no_detail</span><span class="p">:</span>
+            <span class="n">mux</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--no-detail&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s">&quot;disable outputting a detail view of all repos&quot;</span><span class="p">)</span>
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--sort-by-name&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s">&quot;sort output by name, rather then by frequency&quot;</span><span class="p">)</span>
+
+        <span class="n">mux</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">()</span>
+
+        <span class="n">mux</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--first&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s">&quot;show only the first N detail items&quot;</span><span class="p">)</span>
+
+        <span class="n">mux</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--last&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s">&quot;show only the last N detail items&quot;</span><span class="p">)</span>
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;repos&quot;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;repo&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;*&#39;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">StoreConfigObject</span><span class="p">,</span> <span class="n">config_type</span><span class="o">=</span><span class="s">&#39;repo&#39;</span><span class="p">,</span> <span class="n">store_name</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">CONFIG_ALL_DEFAULT</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s">&quot;repositories to inspect&quot;</span><span class="p">)</span>
+
+        <span class="n">commandline</span><span class="o">.</span><span class="n">ArgparseCommand</span><span class="o">.</span><span class="n">bind_to_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="histo_data.get_data"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pinspect.html#pkgcore.scripts.pinspect.histo_data.get_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="histo_data.transform_data_to_detail"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pinspect.html#pkgcore.scripts.pinspect.histo_data.transform_data_to_detail">[docs]</a>    <span class="k">def</span> <span class="nf">transform_data_to_detail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">data</span>
+</div>
+<div class="viewcode-block" id="histo_data.transform_data_to_summary"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pinspect.html#pkgcore.scripts.pinspect.histo_data.transform_data_to_summary">[docs]</a>    <span class="k">def</span> <span class="nf">transform_data_to_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">data</span>
+</div>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opts</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
+        <span class="n">global_stats</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">total_pkgs</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">repo</span> <span class="ow">in</span> <span class="n">opts</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">position</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+            <span class="n">position</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">bold</span><span class="p">,</span> <span class="s">&quot;repository&quot;</span><span class="p">,</span> <span class="n">out</span><span class="o">.</span><span class="n">reset</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="p">,</span>
+                <span class="nb">repr</span><span class="p">(</span><span class="n">repo_name</span><span class="p">),</span> <span class="s">&#39;:&#39;</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">,</span> <span class="n">repo_total</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">opts</span><span class="p">)</span>
+            <span class="n">detail_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform_data_to_detail</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">opts</span><span class="o">.</span><span class="n">no_detail</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">first_prefix</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;  &quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;no pkgs found&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">print_simple_histogram</span><span class="p">(</span><span class="n">detail_data</span><span class="p">,</span>
+                        <span class="n">out</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">per_repo_format</span><span class="p">,</span> <span class="n">repo_total</span><span class="p">,</span>
+                        <span class="n">sort_by_key</span><span class="o">=</span><span class="n">opts</span><span class="o">.</span><span class="n">sort_by_name</span><span class="p">,</span>
+                        <span class="n">first</span><span class="o">=</span><span class="n">opts</span><span class="o">.</span><span class="n">first</span><span class="p">,</span> <span class="n">last</span><span class="o">=</span><span class="n">opts</span><span class="o">.</span><span class="n">last</span><span class="p">)</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">first_prefix</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">detail_data</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="n">global_stats</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">global_stats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+=</span> <span class="n">val</span>
+            <span class="n">total_pkgs</span> <span class="o">+=</span> <span class="n">repo_total</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">opts</span><span class="o">.</span><span class="n">repo_summary</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">bold</span><span class="p">,</span> <span class="s">&#39;summary&#39;</span><span class="p">,</span> <span class="n">out</span><span class="o">.</span><span class="n">reset</span><span class="p">,</span> <span class="s">&#39;: &#39;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">per_repo_summary</span> <span class="o">%</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transform_data_to_summary</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">position</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">opts</span><span class="o">.</span><span class="n">no_final_summary</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">bold</span><span class="p">,</span> <span class="s">&#39;summary&#39;</span><span class="p">,</span> <span class="n">out</span><span class="o">.</span><span class="n">reset</span><span class="p">,</span> <span class="s">&#39;:&#39;</span><span class="p">)</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">first_prefix</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;  &#39;</span><span class="p">)</span>
+            <span class="n">print_simple_histogram</span><span class="p">(</span><span class="n">global_stats</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">summary_format</span><span class="p">,</span>
+                <span class="n">total_pkgs</span><span class="p">,</span> <span class="n">sort_by_key</span><span class="o">=</span><span class="n">opts</span><span class="o">.</span><span class="n">sort_by_name</span><span class="p">)</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">first_prefix</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+</div>
+<span class="k">class</span> <span class="nc">eapi_usage_kls</span><span class="p">(</span><span class="n">histo_data</span><span class="p">):</span>
+
+    <span class="n">per_repo_format</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;eapi: </span><span class="si">%(key)r</span><span class="s"> </span><span class="si">%(val)s</span><span class="s"> pkgs found, </span><span class="si">%(percent)s</span><span class="s"> of the &quot;</span>
+        <span class="s">&quot;repository&quot;</span><span class="p">)</span>
+
+    <span class="n">summary_format</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;eapi: </span><span class="si">%(key)r</span><span class="s"> </span><span class="si">%(val)s</span><span class="s"> pkgs found, </span><span class="si">%(percent)s</span><span class="s"> of all &quot;</span>
+        <span class="s">&quot;repositories&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="n">eapis</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">repo</span><span class="p">):</span>
+            <span class="n">eapis</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">eapi</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">eapis</span><span class="p">[</span><span class="n">pkg</span><span class="o">.</span><span class="n">eapi</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">eapis</span><span class="p">,</span> <span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="n">eapi_usage</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;eapi_usage&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&quot;report of eapi usage for targeted repositories&quot;</span><span class="p">)</span>
+<span class="n">eapi_usage</span><span class="o">.</span><span class="n">bind_class</span><span class="p">(</span><span class="n">eapi_usage_kls</span><span class="p">())</span>
+
+
+<span class="k">class</span> <span class="nc">license_usage_kls</span><span class="p">(</span><span class="n">histo_data</span><span class="p">):</span>
+
+    <span class="n">per_repo_format</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;license: </span><span class="si">%(key)r</span><span class="s"> </span><span class="si">%(val)s</span><span class="s"> pkgs found, </span><span class="si">%(percent)s</span><span class="s"> of the &quot;</span>
+        <span class="s">&quot;repository&quot;</span><span class="p">)</span>
+
+    <span class="n">summary_format</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;license: </span><span class="si">%(key)r</span><span class="s"> </span><span class="si">%(val)s</span><span class="s"> pkgs found, </span><span class="si">%(percent)s</span><span class="s"> of all &quot;</span>
+        <span class="s">&quot;repositories&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">repo</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">license</span> <span class="ow">in</span> <span class="n">unstable_unique</span><span class="p">(</span><span class="n">iflatten_instance</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">license</span><span class="p">)):</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">license</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">license</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="n">license_usage</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;license_usage&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&quot;report of license usage for targeted repositories&quot;</span><span class="p">)</span>
+<span class="n">license_usage</span><span class="o">.</span><span class="n">bind_class</span><span class="p">(</span><span class="n">license_usage_kls</span><span class="p">())</span>
+
+
+<span class="k">class</span> <span class="nc">eclass_usage_kls</span><span class="p">(</span><span class="n">histo_data</span><span class="p">):</span>
+
+    <span class="n">per_repo_format</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;eclass: </span><span class="si">%(key)r</span><span class="s"> </span><span class="si">%(val)s</span><span class="s"> pkgs found, </span><span class="si">%(percent)s</span><span class="s"> of the &quot;</span>
+        <span class="s">&quot;repository&quot;</span><span class="p">)</span>
+
+    <span class="n">summary_format</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;eclass: </span><span class="si">%(key)r</span><span class="s"> </span><span class="si">%(val)s</span><span class="s"> pkgs found, </span><span class="si">%(percent)s</span><span class="s"> of all &quot;</span>
+        <span class="s">&quot;repositories&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="n">pos</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">repo</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">eclass</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;_eclasses_&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">eclass</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">eclass</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="n">eclass_usage</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;eclass_usage&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&quot;report of eclass usage for targeted repositories&quot;</span><span class="p">)</span>
+<span class="n">eclass_usage</span><span class="o">.</span><span class="n">bind_class</span><span class="p">(</span><span class="n">eclass_usage_kls</span><span class="p">())</span>
+
+
+<span class="k">class</span> <span class="nc">mirror_usage_kls</span><span class="p">(</span><span class="n">histo_data</span><span class="p">):</span>
+
+    <span class="n">per_repo_format</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;mirror: </span><span class="si">%(key)r</span><span class="s"> </span><span class="si">%(val)s</span><span class="s"> pkgs found, </span><span class="si">%(percent)s</span><span class="s"> of the &quot;</span>
+        <span class="s">&quot;repository&quot;</span><span class="p">)</span>
+
+    <span class="n">summary_format</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;mirror: </span><span class="si">%(key)r</span><span class="s"> </span><span class="si">%(val)s</span><span class="s"> pkgs found, </span><span class="si">%(percent)s</span><span class="s"> of all &quot;</span>
+        <span class="s">&quot;repositories&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">repo</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">fetchable</span> <span class="ow">in</span> <span class="n">iflatten_instance</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">fetchables</span><span class="p">,</span>
+                <span class="n">fetch</span><span class="o">.</span><span class="n">fetchable</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">mirror</span> <span class="ow">in</span> <span class="n">fetchable</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">visit_mirrors</span><span class="p">(</span>
+                    <span class="n">treat_default_as_mirror</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mirror</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                        <span class="n">mirror</span> <span class="o">=</span> <span class="n">mirror</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">mirror</span><span class="o">.</span><span class="n">mirror_name</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">mirror</span><span class="o">.</span><span class="n">mirror_name</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="n">mirror_usage</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;mirror_usage&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&quot;report of SRC_URI mirror usage for targeted repositories&quot;</span><span class="p">)</span>
+<span class="n">mirror_usage</span><span class="o">.</span><span class="n">bind_class</span><span class="p">(</span><span class="n">mirror_usage_kls</span><span class="p">())</span>
+
+
+<span class="k">class</span> <span class="nc">distfiles_usage_kls</span><span class="p">(</span><span class="n">histo_data</span><span class="p">):</span>
+
+    <span class="n">per_repo_format</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;package: </span><span class="si">%(key)r</span><span class="s"> </span><span class="si">%(val)s</span><span class="s"> bytes, referencing </span><span class="si">%(percent)s</span><span class="s"> of the &quot;</span>
+        <span class="s">&quot;unique total&quot;</span><span class="p">)</span>
+
+    <span class="n">per_repo_summary</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;unique total </span><span class="si">%(total)i</span><span class="s"> bytes, sharing </span><span class="si">%(shared)i</span><span class="s"> bytes&quot;</span><span class="p">)</span>
+
+    <span class="n">summary_format</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;package: </span><span class="si">%(key)r</span><span class="s"> </span><span class="si">%(val)s</span><span class="s"> pkgs found, </span><span class="si">%(percent)s</span><span class="s"> of all &quot;</span>
+        <span class="s">&quot;repositories&quot;</span><span class="p">)</span>
+
+    <span class="n">allow_no_detail</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">bind_to_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
+        <span class="n">histo_data</span><span class="o">.</span><span class="n">bind_to_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--include-nonmirrored&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s">&quot;if set, nonmirrored  distfiles will be included in the total&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--include-restricted&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s">&quot;if set, fetch restricted distfiles will be included in the total&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="n">owners</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
+        <span class="n">iterable</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">itermatch</span><span class="p">(</span><span class="n">packages</span><span class="o">.</span><span class="n">AlwaysTrue</span><span class="p">,</span> <span class="n">sorter</span><span class="o">=</span><span class="nb">sorted</span><span class="p">)</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">subiter</span> <span class="ow">in</span> <span class="n">groupby</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">attrgetter</span><span class="p">(</span><span class="s">&quot;key&quot;</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">subiter</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">include_restricted</span> <span class="ow">and</span> <span class="s">&#39;fetch&#39;</span> <span class="ow">in</span> <span class="n">pkg</span><span class="o">.</span><span class="n">restrict</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">include_nonmirrored</span> <span class="ow">and</span> <span class="s">&#39;mirror&#39;</span> <span class="ow">in</span> <span class="n">pkg</span><span class="o">.</span><span class="n">restrict</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">for</span> <span class="n">fetchable</span> <span class="ow">in</span> <span class="n">iflatten_instance</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">fetchables</span><span class="p">,</span> <span class="n">fetch</span><span class="o">.</span><span class="n">fetchable</span><span class="p">):</span>
+                    <span class="n">owners</span><span class="p">[</span><span class="n">fetchable</span><span class="o">.</span><span class="n">filename</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                    <span class="n">items</span><span class="p">[</span><span class="n">fetchable</span><span class="o">.</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">fetchable</span><span class="o">.</span><span class="n">chksums</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;size&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">filename</span><span class="p">,</span> <span class="n">keys</span> <span class="ow">in</span> <span class="n">owners</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+=</span> <span class="n">items</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span>
+        <span class="n">unique</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">itervalues</span><span class="p">())</span>
+        <span class="n">shared</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">owners</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;total&quot;</span><span class="p">:</span><span class="n">unique</span><span class="p">,</span> <span class="s">&quot;shared&quot;</span><span class="p">:</span><span class="n">shared</span><span class="p">}),</span> <span class="n">unique</span>
+
+    <span class="k">def</span> <span class="nf">transform_data_to_detail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">transform_data_to_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+
+<span class="n">distfiles_usage</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;distfiles_usage&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&quot;report detailing distfiles space usage for targeted repositories&quot;</span><span class="p">)</span>
+<span class="n">distfiles_usage</span><span class="o">.</span><span class="n">bind_class</span><span class="p">(</span><span class="n">distfiles_usage_kls</span><span class="p">())</span>
+
+
+<span class="n">query</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;query&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&quot;auxiliary access to ebuild/repository info via portageq akin api&quot;</span><span class="p">)</span>
+<span class="n">_portageq</span><span class="o">.</span><span class="n">bind_parser</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;query&#39;</span><span class="p">)</span>
+
+<span class="n">portageq</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;portageq&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&quot;portageq compatible interface to query commands&quot;</span><span class="p">)</span>
+<span class="n">_portageq</span><span class="o">.</span><span class="n">bind_parser</span><span class="p">(</span><span class="n">portageq</span><span class="p">,</span> <span class="n">compat</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">profiles</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;profiles&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&quot;ebuild profiles related querying&quot;</span><span class="p">)</span>
+<span class="n">inspect_profiles</span><span class="o">.</span><span class="n">bind_parser</span><span class="p">(</span><span class="n">profiles</span><span class="p">,</span> <span class="s">&#39;profiles&#39;</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

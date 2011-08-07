@@ -1,0 +1,233 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.fs.tar &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.gpg" href="pkgcore.gpg.html" />
+    <link rel="prev" title="pkgcore.fs.ops" href="pkgcore.fs.ops.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.gpg.html" title="pkgcore.gpg"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.fs.ops.html" title="pkgcore.fs.ops"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.fs.tar">
+<span id="pkgcore-fs-tar"></span><h1>pkgcore.fs.tar<a class="headerlink" href="#module-pkgcore.fs.tar" title="Permalink to this headline">¶</a></h1>
+<p>binpkg tar utilities</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.fs.tar.add_contents_to_tarfile" title="pkgcore.fs.tar.add_contents_to_tarfile"><tt class="xref py py-obj docutils literal"><span class="pre">add_contents_to_tarfile</span></tt></a>(contents_set,&nbsp;tar_fd)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fs.tar.archive_to_fsobj" title="pkgcore.fs.tar.archive_to_fsobj"><tt class="xref py py-obj docutils literal"><span class="pre">archive_to_fsobj</span></tt></a>(src_tar)</td>
+<td></td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">cmp</span></tt></td>
+<td>cmp(x, y) -&gt; integer</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fs.tar.convert_archive" title="pkgcore.fs.tar.convert_archive"><tt class="xref py py-obj docutils literal"><span class="pre">convert_archive</span></tt></a>(archive)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fs.tar.fsobj_to_tarinfo" title="pkgcore.fs.tar.fsobj_to_tarinfo"><tt class="xref py py-obj docutils literal"><span class="pre">fsobj_to_tarinfo</span></tt></a>(fsobj[,&nbsp;absolute_path])</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fs.tar.generate_contents" title="pkgcore.fs.tar.generate_contents"><tt class="xref py py-obj docutils literal"><span class="pre">generate_contents</span></tt></a>(path[,&nbsp;compressor])</td>
+<td>generate a contentset from a tarball</td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">sorted_cmp</span></tt>(sequence,&nbsp;func[,&nbsp;key,&nbsp;reverse])</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fs.tar.write_set" title="pkgcore.fs.tar.write_set"><tt class="xref py py-obj docutils literal"><span class="pre">write_set</span></tt></a>(contents_set,&nbsp;filepath[,&nbsp;...])</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">fsDev</span></tt>(path,&nbsp;**kwds[,&nbsp;major,&nbsp;minor])</td>
+<td>dev class (char/block objects)</td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">fsDir</span></tt>(location,&nbsp;**d[,&nbsp;strict])</td>
+<td>dir class</td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">fsFifo</span></tt>(location,&nbsp;**d[,&nbsp;strict])</td>
+<td>fifo class (socket objects)</td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">fsFile</span></tt>(location,&nbsp;**kwds[,&nbsp;chksums,&nbsp;data])</td>
+<td>file class</td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">fsSymlink</span></tt></td>
+<td>symlink class</td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">invokable_data_source</span></tt>(data)</td>
+<td>data source that takes a callable instead of the actual data item</td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">partial</span></tt></td>
+<td>partial(func, <a href="#id1"><span class="problematic" id="id2">*</span></a>args, <a href="#id3"><span class="problematic" id="id4">**</span></a>keywords) - new function with partial application</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Data</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">known_compressors</span></tt></td>
+<td>dict() -&gt; new empty dictionary</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="pkgcore.fs.tar.add_contents_to_tarfile">
+<tt class="descclassname">pkgcore.fs.tar.</tt><tt class="descname">add_contents_to_tarfile</tt><big>(</big><em>contents_set</em>, <em>tar_fd</em>, <em>absolute_paths=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/tar.html#add_contents_to_tarfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.tar.add_contents_to_tarfile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.fs.tar.archive_to_fsobj">
+<tt class="descclassname">pkgcore.fs.tar.</tt><tt class="descname">archive_to_fsobj</tt><big>(</big><em>src_tar</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/tar.html#archive_to_fsobj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.tar.archive_to_fsobj" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.fs.tar.convert_archive">
+<tt class="descclassname">pkgcore.fs.tar.</tt><tt class="descname">convert_archive</tt><big>(</big><em>archive</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/tar.html#convert_archive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.tar.convert_archive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.fs.tar.fsobj_to_tarinfo">
+<tt class="descclassname">pkgcore.fs.tar.</tt><tt class="descname">fsobj_to_tarinfo</tt><big>(</big><em>fsobj</em>, <em>absolute_path=True</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/tar.html#fsobj_to_tarinfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.tar.fsobj_to_tarinfo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.fs.tar.generate_contents">
+<tt class="descclassname">pkgcore.fs.tar.</tt><tt class="descname">generate_contents</tt><big>(</big><em>path</em>, <em>compressor='bz2'</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/tar.html#generate_contents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.tar.generate_contents" title="Permalink to this definition">¶</a></dt>
+<dd><p>generate a contentset from a tarball</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> &#8211; string path to location on disk</li>
+<li><strong>compressor</strong> &#8211; defaults to bz2; decompressor to use, see
+L{known_compressors} for list of valid compressors</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.fs.tar.write_set">
+<tt class="descclassname">pkgcore.fs.tar.</tt><tt class="descname">write_set</tt><big>(</big><em>contents_set</em>, <em>filepath</em>, <em>compressor='bz2'</em>, <em>absolute_paths=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/tar.html#write_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.tar.write_set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.fs.ops.html"
+                        title="previous chapter">pkgcore.fs.ops</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.gpg.html"
+                        title="next chapter">pkgcore.gpg</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.gpg.html" title="pkgcore.gpg"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.fs.ops.html" title="pkgcore.fs.ops"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

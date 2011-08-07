@@ -1,0 +1,485 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.fs.fs &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.fs.livefs" href="pkgcore.fs.livefs.html" />
+    <link rel="prev" title="pkgcore.fs.contents" href="pkgcore.fs.contents.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.fs.livefs.html" title="pkgcore.fs.livefs"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.fs.contents.html" title="pkgcore.fs.contents"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.fs.fs">
+<span id="pkgcore-fs-fs"></span><h1>pkgcore.fs.fs<a class="headerlink" href="#module-pkgcore.fs.fs" title="Permalink to this headline">¶</a></h1>
+<p>filesystem entry abstractions</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.fs.fs.isdev" title="pkgcore.fs.fs.isdev"><tt class="xref py py-obj docutils literal"><span class="pre">isdev</span></tt></a>(*moreargs,&nbsp;**morekwargs)</td>
+<td>return True if obj is an instance of L{dev}, else False</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fs.fs.isdir" title="pkgcore.fs.fs.isdir"><tt class="xref py py-obj docutils literal"><span class="pre">isdir</span></tt></a>(*moreargs,&nbsp;**morekwargs)</td>
+<td>return True if obj is an instance of L{dir}, else False</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fs.fs.isfifo" title="pkgcore.fs.fs.isfifo"><tt class="xref py py-obj docutils literal"><span class="pre">isfifo</span></tt></a>(*moreargs,&nbsp;**morekwargs)</td>
+<td>return True if obj is an instance of L{fifo}, else False</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fs.fs.isfs_obj" title="pkgcore.fs.fs.isfs_obj"><tt class="xref py py-obj docutils literal"><span class="pre">isfs_obj</span></tt></a>(*moreargs,&nbsp;**morekwargs)</td>
+<td>return True if obj is an fsBase derived object</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fs.fs.isreg" title="pkgcore.fs.fs.isreg"><tt class="xref py py-obj docutils literal"><span class="pre">isreg</span></tt></a>(*moreargs,&nbsp;**morekwargs)</td>
+<td>return True if obj is an instance of L{reg}, else False</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fs.fs.issym" title="pkgcore.fs.fs.issym"><tt class="xref py py-obj docutils literal"><span class="pre">issym</span></tt></a>(*moreargs,&nbsp;**morekwargs)</td>
+<td>return True if obj is an instance of L{sym}, else False</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.fs.fs.fsDev" title="pkgcore.fs.fs.fsDev"><tt class="xref py py-obj docutils literal"><span class="pre">fsDev</span></tt></a>(path,&nbsp;**kwds[,&nbsp;major,&nbsp;minor])</td>
+<td>dev class (char/block objects)</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fs.fs.fsDir" title="pkgcore.fs.fs.fsDir"><tt class="xref py py-obj docutils literal"><span class="pre">fsDir</span></tt></a>(location,&nbsp;**d[,&nbsp;strict])</td>
+<td>dir class</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fs.fs.fsFifo" title="pkgcore.fs.fs.fsFifo"><tt class="xref py py-obj docutils literal"><span class="pre">fsFifo</span></tt></a>(location,&nbsp;**d[,&nbsp;strict])</td>
+<td>fifo class (socket objects)</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fs.fs.fsFile" title="pkgcore.fs.fs.fsFile"><tt class="xref py py-obj docutils literal"><span class="pre">fsFile</span></tt></a>(location,&nbsp;**kwds[,&nbsp;chksums,&nbsp;data])</td>
+<td>file class</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fs.fs.fsSymlink" title="pkgcore.fs.fs.fsSymlink"><tt class="xref py py-obj docutils literal"><span class="pre">fsSymlink</span></tt></a></td>
+<td>symlink class</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="pkgcore.fs.fs.fsFile">
+<em class="property">class </em><tt class="descclassname">pkgcore.fs.fs.</tt><tt class="descname">fsFile</tt><big>(</big><em>location</em>, <em>chksums=None</em>, <em>data=None</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/fs.html#fsFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.fs.fsFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pkgcore.fs.fs.fsBase</span></tt></p>
+<p>file class</p>
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsFile.basename">
+<tt class="descname">basename</tt><a class="headerlink" href="#pkgcore.fs.fs.fsFile.basename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.fs.fs.fsFile.change_attributes">
+<tt class="descname">change_attributes</tt><big>(</big><em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/fs.html#fsFile.change_attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.fs.fsFile.change_attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsFile.chksums">
+<tt class="descname">chksums</tt><a class="headerlink" href="#pkgcore.fs.fs.fsFile.chksums" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsFile.data">
+<tt class="descname">data</tt><a class="headerlink" href="#pkgcore.fs.fs.fsFile.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsFile.data_source">
+<tt class="descname">data_source</tt><a class="headerlink" href="#pkgcore.fs.fs.fsFile.data_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to data</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsFile.dirname">
+<tt class="descname">dirname</tt><a class="headerlink" href="#pkgcore.fs.fs.fsFile.dirname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsFile.gid">
+<tt class="descname">gid</tt><a class="headerlink" href="#pkgcore.fs.fs.fsFile.gid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsFile.location">
+<tt class="descname">location</tt><a class="headerlink" href="#pkgcore.fs.fs.fsFile.location" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsFile.mode">
+<tt class="descname">mode</tt><a class="headerlink" href="#pkgcore.fs.fs.fsFile.mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsFile.mtime">
+<tt class="descname">mtime</tt><a class="headerlink" href="#pkgcore.fs.fs.fsFile.mtime" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.fs.fs.fsFile.realpath">
+<tt class="descname">realpath</tt><big>(</big><em>cache=None</em><big>)</big><a class="headerlink" href="#pkgcore.fs.fs.fsFile.realpath" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculate the abspath/canonicalized path for this entry, returning
+a new instance if the path differs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cache</strong> &#8211; Either None (no cache), or a data object of path-&gt;
+resolved.  Currently unused, but left in for forwards compatibility</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsFile.uid">
+<tt class="descname">uid</tt><a class="headerlink" href="#pkgcore.fs.fs.fsFile.uid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.fs.fs.fsDir">
+<em class="property">class </em><tt class="descclassname">pkgcore.fs.fs.</tt><tt class="descname">fsDir</tt><big>(</big><em>location</em>, <em>strict=True</em>, <em>**d</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/fs.html#fsDir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.fs.fsDir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pkgcore.fs.fs.fsBase</span></tt></p>
+<p>dir class</p>
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsDir.basename">
+<tt class="descname">basename</tt><a class="headerlink" href="#pkgcore.fs.fs.fsDir.basename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.fs.fs.fsDir.change_attributes">
+<tt class="descname">change_attributes</tt><big>(</big><em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.fs.fs.fsDir.change_attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsDir.dirname">
+<tt class="descname">dirname</tt><a class="headerlink" href="#pkgcore.fs.fs.fsDir.dirname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsDir.gid">
+<tt class="descname">gid</tt><a class="headerlink" href="#pkgcore.fs.fs.fsDir.gid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsDir.location">
+<tt class="descname">location</tt><a class="headerlink" href="#pkgcore.fs.fs.fsDir.location" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsDir.mode">
+<tt class="descname">mode</tt><a class="headerlink" href="#pkgcore.fs.fs.fsDir.mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsDir.mtime">
+<tt class="descname">mtime</tt><a class="headerlink" href="#pkgcore.fs.fs.fsDir.mtime" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.fs.fs.fsDir.realpath">
+<tt class="descname">realpath</tt><big>(</big><em>cache=None</em><big>)</big><a class="headerlink" href="#pkgcore.fs.fs.fsDir.realpath" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculate the abspath/canonicalized path for this entry, returning
+a new instance if the path differs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cache</strong> &#8211; Either None (no cache), or a data object of path-&gt;
+resolved.  Currently unused, but left in for forwards compatibility</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsDir.uid">
+<tt class="descname">uid</tt><a class="headerlink" href="#pkgcore.fs.fs.fsDir.uid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsSymlink">
+<tt class="descclassname">pkgcore.fs.fs.</tt><tt class="descname">fsSymlink</tt><a class="headerlink" href="#pkgcore.fs.fs.fsSymlink" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">fsLink</span></tt></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.fs.fs.fsDev">
+<em class="property">class </em><tt class="descclassname">pkgcore.fs.fs.</tt><tt class="descname">fsDev</tt><big>(</big><em>path</em>, <em>major=-1</em>, <em>minor=-1</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/fs.html#fsDev"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.fs.fsDev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pkgcore.fs.fs.fsBase</span></tt></p>
+<p>dev class (char/block objects)</p>
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsDev.basename">
+<tt class="descname">basename</tt><a class="headerlink" href="#pkgcore.fs.fs.fsDev.basename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.fs.fs.fsDev.change_attributes">
+<tt class="descname">change_attributes</tt><big>(</big><em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.fs.fs.fsDev.change_attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsDev.dirname">
+<tt class="descname">dirname</tt><a class="headerlink" href="#pkgcore.fs.fs.fsDev.dirname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsDev.gid">
+<tt class="descname">gid</tt><a class="headerlink" href="#pkgcore.fs.fs.fsDev.gid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsDev.location">
+<tt class="descname">location</tt><a class="headerlink" href="#pkgcore.fs.fs.fsDev.location" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsDev.major">
+<tt class="descname">major</tt><a class="headerlink" href="#pkgcore.fs.fs.fsDev.major" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsDev.minor">
+<tt class="descname">minor</tt><a class="headerlink" href="#pkgcore.fs.fs.fsDev.minor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsDev.mode">
+<tt class="descname">mode</tt><a class="headerlink" href="#pkgcore.fs.fs.fsDev.mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsDev.mtime">
+<tt class="descname">mtime</tt><a class="headerlink" href="#pkgcore.fs.fs.fsDev.mtime" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.fs.fs.fsDev.realpath">
+<tt class="descname">realpath</tt><big>(</big><em>cache=None</em><big>)</big><a class="headerlink" href="#pkgcore.fs.fs.fsDev.realpath" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculate the abspath/canonicalized path for this entry, returning
+a new instance if the path differs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cache</strong> &#8211; Either None (no cache), or a data object of path-&gt;
+resolved.  Currently unused, but left in for forwards compatibility</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsDev.uid">
+<tt class="descname">uid</tt><a class="headerlink" href="#pkgcore.fs.fs.fsDev.uid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.fs.fs.fsFifo">
+<em class="property">class </em><tt class="descclassname">pkgcore.fs.fs.</tt><tt class="descname">fsFifo</tt><big>(</big><em>location</em>, <em>strict=True</em>, <em>**d</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/fs.html#fsFifo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.fs.fsFifo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pkgcore.fs.fs.fsBase</span></tt></p>
+<p>fifo class (socket objects)</p>
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsFifo.basename">
+<tt class="descname">basename</tt><a class="headerlink" href="#pkgcore.fs.fs.fsFifo.basename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.fs.fs.fsFifo.change_attributes">
+<tt class="descname">change_attributes</tt><big>(</big><em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.fs.fs.fsFifo.change_attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsFifo.dirname">
+<tt class="descname">dirname</tt><a class="headerlink" href="#pkgcore.fs.fs.fsFifo.dirname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsFifo.gid">
+<tt class="descname">gid</tt><a class="headerlink" href="#pkgcore.fs.fs.fsFifo.gid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsFifo.location">
+<tt class="descname">location</tt><a class="headerlink" href="#pkgcore.fs.fs.fsFifo.location" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsFifo.mode">
+<tt class="descname">mode</tt><a class="headerlink" href="#pkgcore.fs.fs.fsFifo.mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsFifo.mtime">
+<tt class="descname">mtime</tt><a class="headerlink" href="#pkgcore.fs.fs.fsFifo.mtime" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.fs.fs.fsFifo.realpath">
+<tt class="descname">realpath</tt><big>(</big><em>cache=None</em><big>)</big><a class="headerlink" href="#pkgcore.fs.fs.fsFifo.realpath" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculate the abspath/canonicalized path for this entry, returning
+a new instance if the path differs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cache</strong> &#8211; Either None (no cache), or a data object of path-&gt;
+resolved.  Currently unused, but left in for forwards compatibility</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fs.fs.fsFifo.uid">
+<tt class="descname">uid</tt><a class="headerlink" href="#pkgcore.fs.fs.fsFifo.uid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.fs.fs.isdir">
+<tt class="descclassname">pkgcore.fs.fs.</tt><tt class="descname">isdir</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.fs.fs.isdir" title="Permalink to this definition">¶</a></dt>
+<dd><p>return True if obj is an instance of L{dir}, else False</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.fs.fs.isreg">
+<tt class="descclassname">pkgcore.fs.fs.</tt><tt class="descname">isreg</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.fs.fs.isreg" title="Permalink to this definition">¶</a></dt>
+<dd><p>return True if obj is an instance of L{reg}, else False</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.fs.fs.issym">
+<tt class="descclassname">pkgcore.fs.fs.</tt><tt class="descname">issym</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.fs.fs.issym" title="Permalink to this definition">¶</a></dt>
+<dd><p>return True if obj is an instance of L{sym}, else False</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.fs.fs.isfifo">
+<tt class="descclassname">pkgcore.fs.fs.</tt><tt class="descname">isfifo</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.fs.fs.isfifo" title="Permalink to this definition">¶</a></dt>
+<dd><p>return True if obj is an instance of L{fifo}, else False</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.fs.fs.isdev">
+<tt class="descclassname">pkgcore.fs.fs.</tt><tt class="descname">isdev</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.fs.fs.isdev" title="Permalink to this definition">¶</a></dt>
+<dd><p>return True if obj is an instance of L{dev}, else False</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.fs.fs.isfs_obj">
+<tt class="descclassname">pkgcore.fs.fs.</tt><tt class="descname">isfs_obj</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.fs.fs.isfs_obj" title="Permalink to this definition">¶</a></dt>
+<dd><p>return True if obj is an fsBase derived object</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.fs.contents.html"
+                        title="previous chapter">pkgcore.fs.contents</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.fs.livefs.html"
+                        title="next chapter">pkgcore.fs.livefs</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.fs.livefs.html" title="pkgcore.fs.livefs"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.fs.contents.html" title="pkgcore.fs.contents"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

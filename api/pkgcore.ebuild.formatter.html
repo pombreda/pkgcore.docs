@@ -1,0 +1,475 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.ebuild.formatter &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.ebuild.misc" href="pkgcore.ebuild.misc.html" />
+    <link rel="prev" title="pkgcore.ebuild.filter_env" href="pkgcore.ebuild.filter_env.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.misc.html" title="pkgcore.ebuild.misc"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.filter_env.html" title="pkgcore.ebuild.filter_env"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.ebuild.formatter">
+<span id="pkgcore-ebuild-formatter"></span><h1>pkgcore.ebuild.formatter<a class="headerlink" href="#module-pkgcore.ebuild.formatter" title="Permalink to this headline">¶</a></h1>
+<p>pmerge formatting module</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.formatter.basic_factory" title="pkgcore.ebuild.formatter.basic_factory"><tt class="xref py py-obj docutils literal"><span class="pre">basic_factory</span></tt></a>()</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.formatter.paludis_factory" title="pkgcore.ebuild.formatter.paludis_factory"><tt class="xref py py-obj docutils literal"><span class="pre">paludis_factory</span></tt></a>()</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.formatter.pkgcore_factory" title="pkgcore.ebuild.formatter.pkgcore_factory"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore_factory</span></tt></a>()</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.formatter.portage_factory" title="pkgcore.ebuild.formatter.portage_factory"><tt class="xref py py-obj docutils literal"><span class="pre">portage_factory</span></tt></a>()</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.formatter.portage_verbose_factory" title="pkgcore.ebuild.formatter.portage_verbose_factory"><tt class="xref py py-obj docutils literal"><span class="pre">portage_verbose_factory</span></tt></a>()</td>
+<td>Version of portage-formatter that is always in verbose mode.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.formatter.userquery" title="pkgcore.ebuild.formatter.userquery"><tt class="xref py py-obj docutils literal"><span class="pre">userquery</span></tt></a>(prompt,&nbsp;out,&nbsp;err[,&nbsp;responses,&nbsp;...])</td>
+<td>Ask the user to choose from a set of options.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.formatter.BasicFormatter" title="pkgcore.ebuild.formatter.BasicFormatter"><tt class="xref py py-obj docutils literal"><span class="pre">BasicFormatter</span></tt></a>(**kwargs)</td>
+<td>A basic formatter, intended for scripts</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.formatter.CountingFormatter" title="pkgcore.ebuild.formatter.CountingFormatter"><tt class="xref py py-obj docutils literal"><span class="pre">CountingFormatter</span></tt></a>(**kwargs)</td>
+<td>Subclass for formatters that count packages</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.formatter.Formatter" title="pkgcore.ebuild.formatter.Formatter"><tt class="xref py py-obj docutils literal"><span class="pre">Formatter</span></tt></a>(**kwargs)</td>
+<td>Base Formatter class: All formatters should be subclasses of this.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.formatter.NoChoice" title="pkgcore.ebuild.formatter.NoChoice"><tt class="xref py py-obj docutils literal"><span class="pre">NoChoice</span></tt></a></td>
+<td>Raised by L{userquery} if no choice was made.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.formatter.PaludisFormatter" title="pkgcore.ebuild.formatter.PaludisFormatter"><tt class="xref py py-obj docutils literal"><span class="pre">PaludisFormatter</span></tt></a>(**kwargs)</td>
+<td>Paludis formatter</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.formatter.PkgcoreFormatter" title="pkgcore.ebuild.formatter.PkgcoreFormatter"><tt class="xref py py-obj docutils literal"><span class="pre">PkgcoreFormatter</span></tt></a>(**kwargs)</td>
+<td>The original pkgcore output</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.formatter.PortageFormatter" title="pkgcore.ebuild.formatter.PortageFormatter"><tt class="xref py py-obj docutils literal"><span class="pre">PortageFormatter</span></tt></a>(**kwargs)</td>
+<td>Portage formatter</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.formatter.use_expand_filter" title="pkgcore.ebuild.formatter.use_expand_filter"><tt class="xref py py-obj docutils literal"><span class="pre">use_expand_filter</span></tt></a>(use_expand,&nbsp;use_expand_hidden)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="exception">
+<dt id="pkgcore.ebuild.formatter.NoChoice">
+<em class="property">exception </em><tt class="descclassname">pkgcore.ebuild.formatter.</tt><tt class="descname">NoChoice</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#NoChoice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.NoChoice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.KeyboardInterrupt</span></tt></p>
+<p>Raised by L{userquery} if no choice was made.</p>
+<p>HACK: this subclasses KeyboardInterrupt, so if you ignore this it
+should do something reasonable.</p>
+<dl class="attribute">
+<dt id="pkgcore.ebuild.formatter.NoChoice.args">
+<tt class="descname">args</tt><a class="headerlink" href="#pkgcore.ebuild.formatter.NoChoice.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.formatter.NoChoice.message">
+<tt class="descname">message</tt><a class="headerlink" href="#pkgcore.ebuild.formatter.NoChoice.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.formatter.userquery">
+<tt class="descclassname">pkgcore.ebuild.formatter.</tt><tt class="descname">userquery</tt><big>(</big><em>prompt</em>, <em>out</em>, <em>err</em>, <em>responses=None</em>, <em>default_answer=None</em>, <em>limit=3</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#userquery"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.userquery" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ask the user to choose from a set of options.</p>
+<p>Displays a prompt and a set of responses, then waits for a
+response which is checked against the responses. If there is an
+unambiguous match the value is returned.</p>
+<p>If the user does not input a valid response after a number of
+tries L{NoChoice} is raised. You can catch this if you want to do
+something special. Because it subclasses C{KeyboardInterrupt}
+the default behaviour is to abort as if the user hit ctrl+c.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>responses</strong> (<em>mapping with C{basestring} keys and tuple values.</em>) &#8211; <p>mapping of user input to function result.
+The first item in the value tuple is returned, the rest is passed to
+out.
+Defaults to::
+{</p>
+<blockquote>
+<div>&#8216;yes&#8217;: (True, out.fg(&#8216;green&#8217;), &#8216;Yes&#8217;),
+&#8216;no&#8217;: (False, out.fg(&#8216;red&#8217;), &#8216;No&#8217;),</div></blockquote>
+<p>}</p>
+</li>
+<li><strong>default_answer</strong> &#8211; returned if there is no input
+(user just hits enter). Defaults to True if responses is unset,
+unused otherwise.</li>
+<li><strong>limit</strong> &#8211; number of allowed tries.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.formatter.Formatter">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.formatter.</tt><tt class="descname">Formatter</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#Formatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.Formatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Base Formatter class: All formatters should be subclasses of this.</p>
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.Formatter.ask">
+<tt class="descname">ask</tt><big>(</big><em>question</em>, <em>responses=None</em>, <em>default_answer=None</em>, <em>limit=3</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#Formatter.ask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.Formatter.ask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.Formatter.end">
+<tt class="descname">end</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#Formatter.end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.Formatter.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called at the end, normally for summary information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.Formatter.format">
+<tt class="descname">format</tt><big>(</big><em>op</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#Formatter.format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.Formatter.format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats an op. Subclasses must define this method</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.Formatter.iuse_strip">
+<tt class="descname">iuse_strip</tt><big>(</big><em>flags</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#Formatter.iuse_strip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.Formatter.iuse_strip" title="Permalink to this definition">¶</a></dt>
+<dd><p>helper for stripping IUSE default chars</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.formatter.use_expand_filter">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.formatter.</tt><tt class="descname">use_expand_filter</tt><big>(</big><em>use_expand</em>, <em>use_expand_hidden</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#use_expand_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.use_expand_filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.formatter.BasicFormatter">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.formatter.</tt><tt class="descname">BasicFormatter</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#BasicFormatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.BasicFormatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.ebuild.formatter.Formatter" title="pkgcore.ebuild.formatter.Formatter"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.ebuild.formatter.Formatter</span></tt></a></p>
+<p>A basic formatter, intended for scripts</p>
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.BasicFormatter.ask">
+<tt class="descname">ask</tt><big>(</big><em>question</em>, <em>responses=None</em>, <em>default_answer=None</em>, <em>limit=3</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.formatter.BasicFormatter.ask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.BasicFormatter.end">
+<tt class="descname">end</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.formatter.BasicFormatter.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called at the end, normally for summary information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.BasicFormatter.format">
+<tt class="descname">format</tt><big>(</big><em>op</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#BasicFormatter.format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.BasicFormatter.format" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.BasicFormatter.iuse_strip">
+<tt class="descname">iuse_strip</tt><big>(</big><em>flags</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.formatter.BasicFormatter.iuse_strip" title="Permalink to this definition">¶</a></dt>
+<dd><p>helper for stripping IUSE default chars</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.formatter.PkgcoreFormatter">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.formatter.</tt><tt class="descname">PkgcoreFormatter</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#PkgcoreFormatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.PkgcoreFormatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.ebuild.formatter.Formatter" title="pkgcore.ebuild.formatter.Formatter"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.ebuild.formatter.Formatter</span></tt></a></p>
+<p>The original pkgcore output</p>
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.PkgcoreFormatter.ask">
+<tt class="descname">ask</tt><big>(</big><em>question</em>, <em>responses=None</em>, <em>default_answer=None</em>, <em>limit=3</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.formatter.PkgcoreFormatter.ask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.PkgcoreFormatter.end">
+<tt class="descname">end</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.formatter.PkgcoreFormatter.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called at the end, normally for summary information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.PkgcoreFormatter.format">
+<tt class="descname">format</tt><big>(</big><em>op</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#PkgcoreFormatter.format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.PkgcoreFormatter.format" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.PkgcoreFormatter.iuse_strip">
+<tt class="descname">iuse_strip</tt><big>(</big><em>flags</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.formatter.PkgcoreFormatter.iuse_strip" title="Permalink to this definition">¶</a></dt>
+<dd><p>helper for stripping IUSE default chars</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.formatter.CountingFormatter">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.formatter.</tt><tt class="descname">CountingFormatter</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#CountingFormatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.CountingFormatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.ebuild.formatter.Formatter" title="pkgcore.ebuild.formatter.Formatter"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.ebuild.formatter.Formatter</span></tt></a></p>
+<p>Subclass for formatters that count packages</p>
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.CountingFormatter.ask">
+<tt class="descname">ask</tt><big>(</big><em>question</em>, <em>responses=None</em>, <em>default_answer=None</em>, <em>limit=3</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.formatter.CountingFormatter.ask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.CountingFormatter.end">
+<tt class="descname">end</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#CountingFormatter.end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.CountingFormatter.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.CountingFormatter.format">
+<tt class="descname">format</tt><big>(</big><em>op</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.formatter.CountingFormatter.format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats an op. Subclasses must define this method</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.CountingFormatter.iuse_strip">
+<tt class="descname">iuse_strip</tt><big>(</big><em>flags</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.formatter.CountingFormatter.iuse_strip" title="Permalink to this definition">¶</a></dt>
+<dd><p>helper for stripping IUSE default chars</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.CountingFormatter.visit_op">
+<tt class="descname">visit_op</tt><big>(</big><em>op_type</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#CountingFormatter.visit_op"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.CountingFormatter.visit_op" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.formatter.PortageFormatter">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.formatter.</tt><tt class="descname">PortageFormatter</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#PortageFormatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.PortageFormatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.ebuild.formatter.CountingFormatter" title="pkgcore.ebuild.formatter.CountingFormatter"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.ebuild.formatter.CountingFormatter</span></tt></a></p>
+<p>Portage formatter</p>
+<p>A Formatter designed to resemble Portage&#8217;s output
+as much as much as possible.</p>
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.PortageFormatter.ask">
+<tt class="descname">ask</tt><big>(</big><em>question</em>, <em>responses=None</em>, <em>default_answer=None</em>, <em>limit=3</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.formatter.PortageFormatter.ask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.PortageFormatter.end">
+<tt class="descname">end</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#PortageFormatter.end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.PortageFormatter.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.PortageFormatter.format">
+<tt class="descname">format</tt><big>(</big><em>op</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#PortageFormatter.format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.PortageFormatter.format" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.PortageFormatter.format_use">
+<tt class="descname">format_use</tt><big>(</big><em>attr</em>, <em>selectable</em>, <em>choice</em>, <em>oldselectable=None</em>, <em>oldchoice=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#PortageFormatter.format_use"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.PortageFormatter.format_use" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the current selection from a set of flags to a formatter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>attr</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; the name of the setting.</li>
+<li><strong>selectable</strong> (<em>set of strings</em>) &#8211; the possible values.</li>
+<li><strong>choice</strong> (<em>set of strings</em>) &#8211; the chosen values.</li>
+<li><strong>oldselectable</strong> (<em>set of strings</em>) &#8211; the values possible in the previous version.</li>
+<li><strong>oldchoice</strong> (<em>set of strings</em>) &#8211; the previously chosen values.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.PortageFormatter.iuse_strip">
+<tt class="descname">iuse_strip</tt><big>(</big><em>flags</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.formatter.PortageFormatter.iuse_strip" title="Permalink to this definition">¶</a></dt>
+<dd><p>helper for stripping IUSE default chars</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.PortageFormatter.visit_op">
+<tt class="descname">visit_op</tt><big>(</big><em>op_type</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.formatter.PortageFormatter.visit_op" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.formatter.PaludisFormatter">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.formatter.</tt><tt class="descname">PaludisFormatter</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#PaludisFormatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.PaludisFormatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.ebuild.formatter.CountingFormatter" title="pkgcore.ebuild.formatter.CountingFormatter"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.ebuild.formatter.CountingFormatter</span></tt></a></p>
+<p>Paludis formatter</p>
+<p>A Formatter designed to resemble Paludis&#8217; output
+as much as much as possible.</p>
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.PaludisFormatter.ask">
+<tt class="descname">ask</tt><big>(</big><em>question</em>, <em>responses=None</em>, <em>default_answer=None</em>, <em>limit=3</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.formatter.PaludisFormatter.ask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.PaludisFormatter.end">
+<tt class="descname">end</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.formatter.PaludisFormatter.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.PaludisFormatter.format">
+<tt class="descname">format</tt><big>(</big><em>op</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#PaludisFormatter.format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.PaludisFormatter.format" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.PaludisFormatter.iuse_strip">
+<tt class="descname">iuse_strip</tt><big>(</big><em>flags</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.formatter.PaludisFormatter.iuse_strip" title="Permalink to this definition">¶</a></dt>
+<dd><p>helper for stripping IUSE default chars</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.formatter.PaludisFormatter.visit_op">
+<tt class="descname">visit_op</tt><big>(</big><em>op_type</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.formatter.PaludisFormatter.visit_op" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.formatter.basic_factory">
+<tt class="descclassname">pkgcore.ebuild.formatter.</tt><tt class="descname">basic_factory</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.formatter.basic_factory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.formatter.pkgcore_factory">
+<tt class="descclassname">pkgcore.ebuild.formatter.</tt><tt class="descname">pkgcore_factory</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.formatter.pkgcore_factory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.formatter.portage_factory">
+<tt class="descclassname">pkgcore.ebuild.formatter.</tt><tt class="descname">portage_factory</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.formatter.portage_factory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.formatter.paludis_factory">
+<tt class="descclassname">pkgcore.ebuild.formatter.</tt><tt class="descname">paludis_factory</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.formatter.paludis_factory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.formatter.portage_verbose_factory">
+<tt class="descclassname">pkgcore.ebuild.formatter.</tt><tt class="descname">portage_verbose_factory</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/formatter.html#portage_verbose_factory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.formatter.portage_verbose_factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Version of portage-formatter that is always in verbose mode.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.filter_env.html"
+                        title="previous chapter">pkgcore.ebuild.filter_env</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.misc.html"
+                        title="next chapter">pkgcore.ebuild.misc</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.misc.html" title="pkgcore.ebuild.misc"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.filter_env.html" title="pkgcore.ebuild.filter_env"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

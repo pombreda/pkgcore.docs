@@ -1,0 +1,236 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.repository.util &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.repository.virtual" href="pkgcore.repository.virtual.html" />
+    <link rel="prev" title="pkgcore.repository.syncable" href="pkgcore.repository.syncable.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.repository.virtual.html" title="pkgcore.repository.virtual"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.repository.syncable.html" title="pkgcore.repository.syncable"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.repository.util">
+<span id="pkgcore-repository-util"></span><h1>pkgcore.repository.util<a class="headerlink" href="#module-pkgcore.repository.util" title="Permalink to this headline">¶</a></h1>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.repository.util.RepositoryGroup" title="pkgcore.repository.util.RepositoryGroup"><tt class="xref py py-obj docutils literal"><span class="pre">RepositoryGroup</span></tt></a>(repositories[,&nbsp;combined])</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.repository.util.SimpleTree" title="pkgcore.repository.util.SimpleTree"><tt class="xref py py-obj docutils literal"><span class="pre">SimpleTree</span></tt></a>(cpv_dict[,&nbsp;pkg_klass,&nbsp;livefs,&nbsp;frozen])</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="pkgcore.repository.util.SimpleTree">
+<em class="property">class </em><tt class="descclassname">pkgcore.repository.util.</tt><tt class="descname">SimpleTree</tt><big>(</big><em>cpv_dict</em>, <em>pkg_klass=None</em>, <em>livefs=False</em>, <em>frozen=True</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/repository/util.html#SimpleTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.repository.util.SimpleTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pkgcore.repository.prototype.html#pkgcore.repository.prototype.tree" title="pkgcore.repository.prototype.tree"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.repository.prototype.tree</span></tt></a></p>
+<dl class="attribute">
+<dt id="pkgcore.repository.util.SimpleTree.default_visibility_limiters">
+<tt class="descname">default_visibility_limiters</tt><a class="headerlink" href="#pkgcore.repository.util.SimpleTree.default_visibility_limiters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.repository.util.SimpleTree.get_operations">
+<tt class="descname">get_operations</tt><big>(</big><em>observer=None</em><big>)</big><a class="headerlink" href="#pkgcore.repository.util.SimpleTree.get_operations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.repository.util.SimpleTree.has_match">
+<tt class="descname">has_match</tt><big>(</big><em>atom</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.repository.util.SimpleTree.has_match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.repository.util.SimpleTree.itermatch">
+<tt class="descname">itermatch</tt><big>(</big><em>restrict</em>, <em>restrict_solutions=None</em>, <em>sorter=None</em>, <em>pkg_klass_override=None</em>, <em>force=None</em>, <em>yield_none=False</em><big>)</big><a class="headerlink" href="#pkgcore.repository.util.SimpleTree.itermatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>generator that yields packages match a restriction.</p>
+<dl class="docutils">
+<dt>:type restrict <span class="classifier-delimiter">:</span> <span class="classifier">L{pkgcore.restrictions.packages.PackageRestriction}</span></dt>
+<dd>instance</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>restrict</strong> &#8211; restriction to search via</li>
+<li><strong>restrict_solutions</strong> &#8211; cnf collapsed list of the restrict.
+Don&#8217;t play with it unless you know what you&#8217;re doing</li>
+<li><strong>sorter</strong> &#8211; callable to do sorting during searching-
+if sorting the results, use this instead of sorting externally.</li>
+<li><strong>yield_none</strong> &#8211; if True then itermatch will yield None for every
+non-matching package. This is meant for use in combination with
+C{twisted.task.cooperate} or other async uses where itermatch
+should not wait many (wallclock) seconds between yielding
+packages. If you override this method you should yield
+None in long-running loops, strictly calling it for every package
+is not necessary.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.repository.util.SimpleTree.match">
+<tt class="descname">match</tt><big>(</big><em>atom</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.repository.util.SimpleTree.match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.repository.util.SimpleTree.notify_add_package">
+<tt class="descname">notify_add_package</tt><big>(</big><em>pkg</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/repository/util.html#SimpleTree.notify_add_package"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.repository.util.SimpleTree.notify_add_package" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.repository.util.SimpleTree.notify_remove_package">
+<tt class="descname">notify_remove_package</tt><big>(</big><em>pkg</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/repository/util.html#SimpleTree.notify_remove_package"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.repository.util.SimpleTree.notify_remove_package" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.repository.util.SimpleTree.operations">
+<tt class="descname">operations</tt><a class="headerlink" href="#pkgcore.repository.util.SimpleTree.operations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.repository.util.SimpleTree.operations_kls">
+<tt class="descname">operations_kls</tt><a class="headerlink" href="#pkgcore.repository.util.SimpleTree.operations_kls" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#pkgcore.repository.util.SimpleTree.operations" title="pkgcore.repository.util.SimpleTree.operations"><tt class="xref py py-class docutils literal"><span class="pre">operations</span></tt></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.repository.util.RepositoryGroup">
+<em class="property">class </em><tt class="descclassname">pkgcore.repository.util.</tt><tt class="descname">RepositoryGroup</tt><big>(</big><em>repositories</em>, <em>combined=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/repository/util.html#RepositoryGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.repository.util.RepositoryGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="classmethod">
+<dt id="pkgcore.repository.util.RepositoryGroup.change_repos">
+<em class="property">classmethod </em><tt class="descname">change_repos</tt><big>(</big><em>repositories</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/repository/util.html#RepositoryGroup.change_repos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.repository.util.RepositoryGroup.change_repos" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.repository.util.RepositoryGroup.has_match">
+<tt class="descname">has_match</tt><a class="headerlink" href="#pkgcore.repository.util.RepositoryGroup.has_match" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to combined.has_match</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.repository.util.RepositoryGroup.itermatch">
+<tt class="descname">itermatch</tt><a class="headerlink" href="#pkgcore.repository.util.RepositoryGroup.itermatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to combined.itermatch</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.repository.util.RepositoryGroup.match">
+<tt class="descname">match</tt><a class="headerlink" href="#pkgcore.repository.util.RepositoryGroup.match" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to combined.match</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.repository.syncable.html"
+                        title="previous chapter">pkgcore.repository.syncable</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.repository.virtual.html"
+                        title="next chapter">pkgcore.repository.virtual</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.repository.virtual.html" title="pkgcore.repository.virtual"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.repository.syncable.html" title="pkgcore.repository.syncable"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

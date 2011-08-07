@@ -1,0 +1,295 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.operations.repo &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.os_data" href="pkgcore.os_data.html" />
+    <link rel="prev" title="pkgcore.operations.observer" href="pkgcore.operations.observer.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.os_data.html" title="pkgcore.os_data"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.operations.observer.html" title="pkgcore.operations.observer"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.operations.repo">
+<span id="pkgcore-operations-repo"></span><h1>pkgcore.operations.repo<a class="headerlink" href="#module-pkgcore.operations.repo" title="Permalink to this headline">¶</a></h1>
+<p>repository modifications (installing, removing, replacing)</p>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.operations.repo.base" title="pkgcore.operations.repo.base"><tt class="xref py py-obj docutils literal"><span class="pre">base</span></tt></a>(repo,&nbsp;observer)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.operations.repo.install" title="pkgcore.operations.repo.install"><tt class="xref py py-obj docutils literal"><span class="pre">install</span></tt></a>(repo,&nbsp;pkg,&nbsp;observer)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.operations.repo.operations" title="pkgcore.operations.repo.operations"><tt class="xref py py-obj docutils literal"><span class="pre">operations</span></tt></a>(repository[,&nbsp;disable_overrides,&nbsp;...])</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.operations.repo.operations_proxy" title="pkgcore.operations.repo.operations_proxy"><tt class="xref py py-obj docutils literal"><span class="pre">operations_proxy</span></tt></a>(repository,&nbsp;*args,&nbsp;**kwds)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.operations.repo.replace" title="pkgcore.operations.repo.replace"><tt class="xref py py-obj docutils literal"><span class="pre">replace</span></tt></a>(repo,&nbsp;oldpkg,&nbsp;newpkg,&nbsp;observer)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.operations.repo.uninstall" title="pkgcore.operations.repo.uninstall"><tt class="xref py py-obj docutils literal"><span class="pre">uninstall</span></tt></a>(repo,&nbsp;pkg,&nbsp;observer)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Exceptions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.operations.repo.Failure" title="pkgcore.operations.repo.Failure"><tt class="xref py py-obj docutils literal"><span class="pre">Failure</span></tt></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="exception">
+<dt id="pkgcore.operations.repo.Failure">
+<em class="property">exception </em><tt class="descclassname">pkgcore.operations.repo.</tt><tt class="descname">Failure</tt><a class="reference internal" href="../_modules/pkgcore/operations/repo.html#Failure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.repo.Failure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<dl class="attribute">
+<dt id="pkgcore.operations.repo.Failure.args">
+<tt class="descname">args</tt><a class="headerlink" href="#pkgcore.operations.repo.Failure.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.operations.repo.Failure.message">
+<tt class="descname">message</tt><a class="headerlink" href="#pkgcore.operations.repo.Failure.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.operations.repo.base">
+<em class="property">class </em><tt class="descclassname">pkgcore.operations.repo.</tt><tt class="descname">base</tt><big>(</big><em>repo</em>, <em>observer</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/repo.html#base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.repo.base" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="pkgcore.operations.repo.base.finalize_data">
+<tt class="descname">finalize_data</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/repo.html#base.finalize_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.repo.base.finalize_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.repo.base.finish">
+<tt class="descname">finish</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/repo.html#base.finish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.repo.base.finish" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.repo.base.start">
+<tt class="descname">start</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/repo.html#base.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.repo.base.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.operations.repo.install">
+<em class="property">class </em><tt class="descclassname">pkgcore.operations.repo.</tt><tt class="descname">install</tt><big>(</big><em>repo</em>, <em>pkg</em>, <em>observer</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/repo.html#install"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.repo.install" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.operations.repo.base" title="pkgcore.operations.repo.base"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.operations.repo.base</span></tt></a></p>
+<dl class="method">
+<dt id="pkgcore.operations.repo.install.add_data">
+<tt class="descname">add_data</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/repo.html#install.add_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.repo.install.add_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.repo.install.finalize_data">
+<tt class="descname">finalize_data</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.repo.install.finalize_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.repo.install.finish">
+<tt class="descname">finish</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.repo.install.finish" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.repo.install.start">
+<tt class="descname">start</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.repo.install.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.operations.repo.uninstall">
+<em class="property">class </em><tt class="descclassname">pkgcore.operations.repo.</tt><tt class="descname">uninstall</tt><big>(</big><em>repo</em>, <em>pkg</em>, <em>observer</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/repo.html#uninstall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.repo.uninstall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.operations.repo.base" title="pkgcore.operations.repo.base"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.operations.repo.base</span></tt></a></p>
+<dl class="method">
+<dt id="pkgcore.operations.repo.uninstall.finalize_data">
+<tt class="descname">finalize_data</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.repo.uninstall.finalize_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.repo.uninstall.finish">
+<tt class="descname">finish</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.repo.uninstall.finish" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.repo.uninstall.remove_data">
+<tt class="descname">remove_data</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/repo.html#uninstall.remove_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.repo.uninstall.remove_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.repo.uninstall.start">
+<tt class="descname">start</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.repo.uninstall.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.operations.repo.replace">
+<em class="property">class </em><tt class="descclassname">pkgcore.operations.repo.</tt><tt class="descname">replace</tt><big>(</big><em>repo</em>, <em>oldpkg</em>, <em>newpkg</em>, <em>observer</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/repo.html#replace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.repo.replace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.operations.repo.install" title="pkgcore.operations.repo.install"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.operations.repo.install</span></tt></a>, <a class="reference internal" href="#pkgcore.operations.repo.uninstall" title="pkgcore.operations.repo.uninstall"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.operations.repo.uninstall</span></tt></a></p>
+<dl class="method">
+<dt id="pkgcore.operations.repo.replace.add_data">
+<tt class="descname">add_data</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.repo.replace.add_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.repo.replace.finalize_data">
+<tt class="descname">finalize_data</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.repo.replace.finalize_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.repo.replace.finish">
+<tt class="descname">finish</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.repo.replace.finish" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.repo.replace.remove_data">
+<tt class="descname">remove_data</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.repo.replace.remove_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.operations.repo.replace.start">
+<tt class="descname">start</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.repo.replace.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.operations.repo.operations">
+<em class="property">class </em><tt class="descclassname">pkgcore.operations.repo.</tt><tt class="descname">operations</tt><big>(</big><em>repository</em>, <em>disable_overrides=()</em>, <em>enable_overrides=()</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/repo.html#operations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.repo.operations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pkgcore.operations.html#pkgcore.operations.base" title="pkgcore.operations.base"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.operations.base</span></tt></a></p>
+<dl class="method">
+<dt id="pkgcore.operations.repo.operations.supports">
+<tt class="descname">supports</tt><big>(</big><em>operation_name=None</em>, <em>raw=False</em><big>)</big><a class="headerlink" href="#pkgcore.operations.repo.operations.supports" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.operations.repo.operations_proxy">
+<em class="property">class </em><tt class="descclassname">pkgcore.operations.repo.</tt><tt class="descname">operations_proxy</tt><big>(</big><em>repository</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/repo.html#operations_proxy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.repo.operations_proxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.operations.repo.operations" title="pkgcore.operations.repo.operations"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.operations.repo.operations</span></tt></a></p>
+<dl class="method">
+<dt id="pkgcore.operations.repo.operations_proxy.supports">
+<tt class="descname">supports</tt><big>(</big><em>operation_name=None</em>, <em>raw=False</em><big>)</big><a class="headerlink" href="#pkgcore.operations.repo.operations_proxy.supports" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.operations.observer.html"
+                        title="previous chapter">pkgcore.operations.observer</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.os_data.html"
+                        title="next chapter">pkgcore.os_data</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.os_data.html" title="pkgcore.os_data"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.operations.observer.html" title="pkgcore.operations.observer"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,212 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.config &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.config.basics" href="pkgcore.config.basics.html" />
+    <link rel="prev" title="pkgcore.chksum.errors" href="pkgcore.chksum.errors.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.config.basics.html" title="pkgcore.config.basics"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.chksum.errors.html" title="pkgcore.chksum.errors"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.config">
+<span id="pkgcore-config"></span><h1>pkgcore.config<a class="headerlink" href="#module-pkgcore.config" title="Permalink to this headline">¶</a></h1>
+<p>configuration subsystem</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.config.configurable" title="pkgcore.config.configurable"><tt class="xref py py-obj docutils literal"><span class="pre">configurable</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<td>Decorator version of ConfigHint.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.config.load_config" title="pkgcore.config.load_config"><tt class="xref py py-obj docutils literal"><span class="pre">load_config</span></tt></a>([user_conf_file,&nbsp;...])</td>
+<td>the main entry point for any code looking to use pkgcore.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.config.ConfigHint" title="pkgcore.config.ConfigHint"><tt class="xref py py-obj docutils literal"><span class="pre">ConfigHint</span></tt></a>([types,&nbsp;positional,&nbsp;required,&nbsp;...])</td>
+<td>hint for introspection supplying overrides</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="pkgcore.config.ConfigHint">
+<em class="property">class </em><tt class="descclassname">pkgcore.config.</tt><tt class="descname">ConfigHint</tt><big>(</big><em>types=None</em>, <em>positional=None</em>, <em>required=None</em>, <em>doc=None</em>, <em>typename=None</em>, <em>allow_unknowns=False</em>, <em>authorative=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config.html#ConfigHint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.ConfigHint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>hint for introspection supplying overrides</p>
+<dl class="attribute">
+<dt id="pkgcore.config.ConfigHint.allow_unknowns">
+<tt class="descname">allow_unknowns</tt><a class="headerlink" href="#pkgcore.config.ConfigHint.allow_unknowns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.config.ConfigHint.authorative">
+<tt class="descname">authorative</tt><a class="headerlink" href="#pkgcore.config.ConfigHint.authorative" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.config.ConfigHint.clone">
+<tt class="descname">clone</tt><big>(</big><em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config.html#ConfigHint.clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.ConfigHint.clone" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.config.ConfigHint.doc">
+<tt class="descname">doc</tt><a class="headerlink" href="#pkgcore.config.ConfigHint.doc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.config.ConfigHint.positional">
+<tt class="descname">positional</tt><a class="headerlink" href="#pkgcore.config.ConfigHint.positional" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.config.ConfigHint.required">
+<tt class="descname">required</tt><a class="headerlink" href="#pkgcore.config.ConfigHint.required" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.config.ConfigHint.typename">
+<tt class="descname">typename</tt><a class="headerlink" href="#pkgcore.config.ConfigHint.typename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.config.ConfigHint.types">
+<tt class="descname">types</tt><a class="headerlink" href="#pkgcore.config.ConfigHint.types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.config.configurable">
+<tt class="descclassname">pkgcore.config.</tt><tt class="descname">configurable</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config.html#configurable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.configurable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator version of ConfigHint.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.config.load_config">
+<tt class="descclassname">pkgcore.config.</tt><tt class="descname">load_config</tt><big>(</big><em>user_conf_file='/home/ferringb/.pkgcore.conf'</em>, <em>system_conf_file='/etc/pkgcore.conf'</em>, <em>debug=False</em>, <em>prepend_sources=()</em>, <em>skip_config_files=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config.html#load_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.load_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>the main entry point for any code looking to use pkgcore.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>user_conf_file</strong> &#8211; file to attempt to load, else defaults to trying to
+load portage 2 style configs (/etc/make.conf, /etc/make.profile)</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">L{pkgcore.config.central.ConfigManager} instance
+representing the system config.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.chksum.errors.html"
+                        title="previous chapter">pkgcore.chksum.errors</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.config.basics.html"
+                        title="next chapter">pkgcore.config.basics</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.config.basics.html" title="pkgcore.config.basics"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.chksum.errors.html" title="pkgcore.chksum.errors"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

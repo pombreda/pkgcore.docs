@@ -1,0 +1,381 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.scripts.pconfig &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.scripts.pconfig</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># Copyright: 2006 Marien Zwart &lt;marienz@gentoo.org&gt;</span>
+<span class="c"># License: BSD/GPL2</span>
+
+<span class="sd">&quot;&quot;&quot;Configuration querying utility.&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;get_classes&quot;</span><span class="p">,</span> <span class="s">&quot;dump&quot;</span><span class="p">,</span> <span class="s">&quot;dump_main&quot;</span><span class="p">,</span> <span class="s">&quot;classes&quot;</span><span class="p">,</span> <span class="s">&quot;classes_main&quot;</span><span class="p">,</span>
+    <span class="s">&quot;uncollapsable&quot;</span><span class="p">,</span> <span class="s">&quot;uncollapsable_main&quot;</span><span class="p">,</span>
+    <span class="s">&quot;describe_class&quot;</span><span class="p">,</span> <span class="s">&quot;describe_class_main&quot;</span><span class="p">,</span>
+    <span class="s">&quot;configurables&quot;</span><span class="p">,</span> <span class="s">&quot;configurables_main&quot;</span><span class="p">,</span>
+    <span class="s">&quot;dump_uncollapsed&quot;</span><span class="p">,</span> <span class="s">&quot;dump_uncollapsed_main&quot;</span>
+<span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">traceback</span>
+
+<span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">errors</span><span class="p">,</span> <span class="n">basics</span>
+<span class="kn">from</span> <span class="nn">pkgcore.plugin</span> <span class="kn">import</span> <span class="n">get_plugins</span>
+<span class="kn">from</span> <span class="nn">pkgcore.util</span> <span class="kn">import</span> <span class="n">commandline</span>
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">currying</span>
+
+<span class="k">def</span> <span class="nf">dump_section</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">first_prefix</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    &#39;</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;# typename of this section: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">name</span><span class="p">,))</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;class </span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">callable</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
+                                <span class="n">config</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">callable</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">default</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;default true;&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()):</span>
+        <span class="n">typename</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">typename</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">allow_unknowns</span><span class="p">:</span>
+                <span class="n">typename</span> <span class="o">=</span> <span class="s">&#39;str&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;no type set for </span><span class="si">%s</span><span class="s"> (</span><span class="si">%r</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">))</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;# type: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">typename</span><span class="p">,))</span>
+        <span class="k">if</span> <span class="n">typename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;lazy_refs&#39;</span><span class="p">):</span>
+            <span class="n">typename</span> <span class="o">=</span> <span class="n">typename</span><span class="p">[</span><span class="mi">5</span><span class="p">:]</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">collapse</span><span class="p">()</span> <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">val</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">typename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;lazy_ref&#39;</span><span class="p">):</span>
+            <span class="n">typename</span> <span class="o">=</span> <span class="n">typename</span><span class="p">[</span><span class="mi">5</span><span class="p">:]</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">collapse</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">typename</span> <span class="o">==</span> <span class="s">&#39;str&#39;</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s"> </span><span class="si">%r</span><span class="s">;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">typename</span> <span class="o">==</span> <span class="s">&#39;bool&#39;</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">bool</span><span class="p">(</span><span class="n">val</span><span class="p">)))</span>
+        <span class="k">elif</span> <span class="n">typename</span> <span class="o">==</span> <span class="s">&#39;list&#39;</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">;&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="n">key</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="k">for</span> <span class="n">string</span> <span class="ow">in</span> <span class="n">val</span><span class="p">)))</span>
+        <span class="k">elif</span> <span class="n">typename</span> <span class="o">==</span> <span class="s">&#39;callable&#39;</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span> <span class="n">val</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">typename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;ref:&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">val</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s"> {&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,))</span>
+                <span class="n">dump_section</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;};&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s"> </span><span class="si">%r</span><span class="s">;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">typename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;refs:&#39;</span><span class="p">):</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">autoline</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,))</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">subconf</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">subconf</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">autoline</span> <span class="o">=</span> <span class="bp">True</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39; {&#39;</span><span class="p">)</span>
+                    <span class="n">dump_section</span><span class="p">(</span><span class="n">subconf</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">autoline</span> <span class="o">=</span> <span class="bp">False</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;}&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39; </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">subconf</span><span class="o">.</span><span class="n">name</span><span class="p">,))</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">autoline</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;;&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;# </span><span class="si">%s</span><span class="s"> = </span><span class="si">%r</span><span class="s"> of unknown type </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">typename</span><span class="p">))</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">first_prefix</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="get_classes"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pconfig.html#pkgcore.scripts.pconfig.get_classes">[docs]</a><span class="k">def</span> <span class="nf">get_classes</span><span class="p">(</span><span class="n">configs</span><span class="p">):</span>
+    <span class="c"># Not particularly efficient (doesn&#39;t memoize already visited configs)</span>
+    <span class="n">classes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">configs</span><span class="p">:</span>
+        <span class="n">classes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">callable</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
+                               <span class="n">config</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">callable</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">typename</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">typename</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">typename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;ref:&#39;</span><span class="p">):</span>
+                <span class="n">classes</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">get_classes</span><span class="p">((</span><span class="n">val</span><span class="p">,)))</span>
+            <span class="k">elif</span> <span class="n">typename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;refs:&#39;</span><span class="p">):</span>
+                <span class="n">classes</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">get_classes</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">typename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;lazy_refs&#39;</span><span class="p">):</span>
+                <span class="n">classes</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">get_classes</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">collapse</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">val</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">typename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;lazy_ref&#39;</span><span class="p">):</span>
+                <span class="n">classes</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">get_classes</span><span class="p">((</span><span class="n">val</span><span class="o">.</span><span class="n">collapse</span><span class="p">(),)))</span>
+    <span class="k">return</span> <span class="n">classes</span>
+
+</div>
+<span class="n">shared_options</span> <span class="o">=</span> <span class="p">(</span><span class="n">commandline</span><span class="o">.</span><span class="n">mk_argparser</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">add_help</span><span class="o">=</span><span class="bp">False</span><span class="p">),)</span>
+<span class="n">argparse_parser</span> <span class="o">=</span> <span class="n">commandline</span><span class="o">.</span><span class="n">mk_argparser</span><span class="p">(</span><span class="n">suppress</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="n">shared_options</span><span class="p">)</span>
+<span class="n">subparsers</span> <span class="o">=</span> <span class="n">argparse_parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s">&quot;configuration related subcommands&quot;</span><span class="p">)</span>
+<span class="n">classes</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;classes&quot;</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="n">shared_options</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&quot;list all classes referenced by the config&quot;</span><span class="p">)</span>
+<span class="nd">@classes.bind_main_func</span>
+<div class="viewcode-block" id="classes_main"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pconfig.html#pkgcore.scripts.pconfig.classes_main">[docs]</a><span class="k">def</span> <span class="nf">classes_main</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;List all classes referenced by the config.&quot;&quot;&quot;</span>
+    <span class="n">configmanager</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">config</span>
+    <span class="n">sections</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">configmanager</span><span class="o">.</span><span class="n">sections</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sections</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">configmanager</span><span class="o">.</span><span class="n">collapse_named_section</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">CollapseInheritOnly</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="k">for</span> <span class="n">classname</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">get_classes</span><span class="p">(</span><span class="n">sections</span><span class="p">)):</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">classname</span><span class="p">)</span>
+
+</div>
+<span class="n">describe_class</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;describe_class&quot;</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="n">shared_options</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&quot;describe the arguments a class needs, how to use it in a config&quot;</span><span class="p">)</span>
+<span class="n">describe_class</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;target_class&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store&#39;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">currying</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">commandline</span><span class="o">.</span><span class="n">python_namespace_type</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;The class to inspect and output details about&quot;</span><span class="p">)</span>
+<span class="nd">@describe_class.bind_main_func</span>
+<div class="viewcode-block" id="describe_class_main"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pconfig.html#pkgcore.scripts.pconfig.describe_class_main">[docs]</a><span class="k">def</span> <span class="nf">describe_class_main</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Describe the arguments a class needs.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">type_obj</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">ConfigType</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">target_class</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">TypeDefinitionError</span><span class="p">:</span>
+        <span class="n">err</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;Not a valid type!&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="n">write_type</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">type_obj</span><span class="p">)</span>
+</div>
+<span class="k">def</span> <span class="nf">write_type</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">type_obj</span><span class="p">):</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;typename is </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">type_obj</span><span class="o">.</span><span class="n">name</span><span class="p">,))</span>
+    <span class="k">if</span> <span class="n">type_obj</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">type_obj</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">):</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">wrap</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">type_obj</span><span class="o">.</span><span class="n">allow_unknowns</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;values not listed are handled as strings&#39;</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">typename</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">type_obj</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()):</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">typename</span><span class="p">),</span> <span class="n">autoline</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">type_obj</span><span class="o">.</span><span class="n">required</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39; (required)&#39;</span><span class="p">,</span> <span class="n">autoline</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+
+<span class="n">uncollapsable</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;uncollapsable&quot;</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="n">shared_options</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&quot;Show configuration objects that could not be collapsed/instantiated&quot;</span><span class="p">)</span>
+<span class="nd">@uncollapsable.bind_main_func</span>
+<div class="viewcode-block" id="uncollapsable_main"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pconfig.html#pkgcore.scripts.pconfig.uncollapsable_main">[docs]</a><span class="k">def</span> <span class="nf">uncollapsable_main</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Show things that could not be collapsed.&quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">config</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">sections</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">collapse_named_section</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">CollapseInheritOnly</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+
+</div>
+<span class="n">dump</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;dump&quot;</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="n">shared_options</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&#39;Dump the entire configuration.  The format used is similar &#39;</span>
+        <span class="s">&#39;to the ini-like default format, but do not rely on this to always &#39;</span>
+        <span class="s">&#39;write a loadable config. There may be quoting issues.  With a &#39;</span>
+        <span class="s">&#39;typename argument only that type is dumped.&#39;</span><span class="p">)</span>
+<span class="n">dump</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;typename&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&quot;?&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;if specified, limit output to just config directives of this type&quot;</span>
+        <span class="s">&quot;.  If left off, all types are shown&quot;</span><span class="p">)</span>
+<span class="nd">@dump.bind_main_func</span>
+<div class="viewcode-block" id="dump_main"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pconfig.html#pkgcore.scripts.pconfig.dump_main">[docs]</a><span class="k">def</span> <span class="nf">dump_main</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Dump the entire configuration.&quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">config</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">typename</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">sections</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">typename</span><span class="p">)</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">collapse_named_section</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">CollapseInheritOnly</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%r</span><span class="s"> {&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
+        <span class="n">dump_section</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;}&#39;</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+
+</div>
+<span class="n">configurables</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;configurables&quot;</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="n">shared_options</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;List registered configurables (may not be complete).  &#39;</span>
+        <span class="s">&#39;With a typename argument only configurables of that type are listed.&#39;</span><span class="p">))</span>
+<span class="n">configurables</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;typename&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;?&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;If specified, only output configurables of that type; else output &quot;</span>
+    <span class="s">&quot;all configurables&quot;</span><span class="p">)</span>
+<span class="nd">@configurables.bind_main_func</span>
+<div class="viewcode-block" id="configurables_main"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pconfig.html#pkgcore.scripts.pconfig.configurables_main">[docs]</a><span class="k">def</span> <span class="nf">configurables_main</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;List registered configurables.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">configurable</span> <span class="ow">in</span> <span class="n">get_plugins</span><span class="p">(</span><span class="s">&#39;configurable&#39;</span><span class="p">):</span>
+        <span class="n">type_obj</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">ConfigType</span><span class="p">(</span><span class="n">configurable</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">typename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">type_obj</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">options</span><span class="o">.</span><span class="n">typename</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">bold</span><span class="p">,</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">configurable</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span> <span class="n">configurable</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+        <span class="n">write_type</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">type_obj</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_dump_uncollapsed_section</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">section</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write a single section.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;named section </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">section</span><span class="p">,))</span>
+        <span class="k">return</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">section</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="n">kind</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="s">&#39;repr&#39;</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;# type: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">kind</span><span class="p">,))</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s">&#39;list&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">((</span>
+                    <span class="n">key</span> <span class="o">+</span> <span class="s">&#39;.prepend&#39;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">key</span> <span class="o">+</span> <span class="s">&#39;.append&#39;</span><span class="p">),</span> <span class="n">value</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">val</span><span class="p">:</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                        <span class="nb">repr</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="s">&#39; = &#39;</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">val</span><span class="p">))</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;refs&#39;</span><span class="p">,</span> <span class="s">&#39;str&#39;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">((</span>
+                    <span class="n">key</span> <span class="o">+</span> <span class="s">&#39;.prepend&#39;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">key</span> <span class="o">+</span> <span class="s">&#39;.append&#39;</span><span class="p">),</span> <span class="n">value</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">val</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="s">&#39; = &#39;</span><span class="p">,</span> <span class="n">autoline</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s">&#39;str&#39;</span><span class="p">:</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">first_prefix</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    &#39;</span><span class="p">)</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">subnr</span><span class="p">,</span> <span class="n">subsection</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+                            <span class="n">subname</span> <span class="o">=</span> <span class="s">&#39;nested section </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">subnr</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,)</span>
+                            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">subname</span><span class="p">)</span>
+                            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;=&#39;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">subname</span><span class="p">))</span>
+                            <span class="n">_dump_uncollapsed_section</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">subsection</span><span class="p">)</span>
+                            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+                    <span class="k">finally</span><span class="p">:</span>
+                        <span class="n">out</span><span class="o">.</span><span class="n">first_prefix</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="k">continue</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%r</span><span class="s"> = &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,),</span> <span class="n">autoline</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s">&#39;callable&#39;</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s">&#39;bool&#39;</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s">&#39;ref&#39;</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">first_prefix</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;    &#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+                <span class="n">_dump_uncollapsed_section</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">first_prefix</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">err</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;unsupported type </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">kind</span><span class="p">,))</span>
+
+<span class="n">dump_uncollapsed</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;dump-uncollapsed&quot;</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="n">shared_options</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&quot;dump the configuration in a raw, uncollapsed form.&quot;</span>
+        <span class="s">&quot;Not directly usable as a configuration file, mainly used for inspection&quot;</span><span class="p">)</span>
+<span class="nd">@dump_uncollapsed.bind_main_func</span>
+<div class="viewcode-block" id="dump_uncollapsed_main"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pconfig.html#pkgcore.scripts.pconfig.dump_uncollapsed_main">[docs]</a><span class="k">def</span> <span class="nf">dump_uncollapsed_main</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;dump the configuration in a raw, uncollapsed form.</span>
+<span class="sd">    Not directly usable as a configuration file, mainly used for inspection</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;&#39;&#39;# Warning:</span>
+<span class="s"># Do not copy this output to a configuration file directly,</span>
+<span class="s"># because the types you see here are only guesses.</span>
+<span class="s"># A value used as &quot;list&quot; in the collapsed config will often</span>
+<span class="s"># show up as &quot;string&quot; here and may need to be converted</span>
+<span class="s"># (for example from space-separated to comma-separated)</span>
+<span class="s"># to work in a config file with a different format.</span>
+<span class="s">&#39;&#39;&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">source</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">configs</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s">&#39;Source </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">bold</span><span class="p">,</span> <span class="s">&#39;*&#39;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">bold</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">bold</span><span class="p">,</span> <span class="s">&#39;*&#39;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">section</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()):</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;=&#39;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+            <span class="n">_dump_uncollapsed_section</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">section</span><span class="p">)</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

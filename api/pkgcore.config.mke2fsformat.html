@@ -1,0 +1,163 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.config.mke2fsformat &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.const" href="pkgcore.const.html" />
+    <link rel="prev" title="pkgcore.config.errors" href="pkgcore.config.errors.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.const.html" title="pkgcore.const"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.config.errors.html" title="pkgcore.config.errors"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.config.mke2fsformat">
+<span id="pkgcore-config-mke2fsformat"></span><h1>pkgcore.config.mke2fsformat<a class="headerlink" href="#module-pkgcore.config.mke2fsformat" title="Permalink to this headline">¶</a></h1>
+<p>Parse a mke2fs.conf(5) style configuration file.</p>
+<p>Example of the supported format (not a complete config):</p>
+<div class="highlight-python"><pre># this is a comment.
+# this is a config section.
+[metadata]
+    # strings may be quoted or unquoted. semicolon terminator.
+    type = cache
+    class = pkgcore.cache.metadata.database
+    # true, yes or 1 for boolean True (case-insensitive).
+    readonly = true
+    location = /usr/portage/
+
+
+# this needs to be quoted because it has a space in it
+[livefs domain]
+    # this could be unquoted.
+    type = "domain"
+    package.keywords = "/etc/portage/package.keywords"
+    default = yes
+    # this is a section reference, with a nested anonymous section.
+    repositories = {
+        type = repo
+        class = pkgcore.ebuild.repository.tree
+        location = /usr/portage
+        # this is also a section reference, but instead of a nested section
+        # we refer to the named metadata section above
+        cache = metadata
+    }
+    fetcher = {
+        type = fetcher
+        distdir = /usr/portage/distfiles
+    }</pre>
+</div>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.config.mke2fsformat.config_from_file" title="pkgcore.config.mke2fsformat.config_from_file"><tt class="xref py py-obj docutils literal"><span class="pre">config_from_file</span></tt></a>(file_obj)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="pkgcore.config.mke2fsformat.config_from_file">
+<tt class="descclassname">pkgcore.config.mke2fsformat.</tt><tt class="descname">config_from_file</tt><big>(</big><em>file_obj</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/mke2fsformat.html#config_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.mke2fsformat.config_from_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.config.errors.html"
+                        title="previous chapter">pkgcore.config.errors</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.const.html"
+                        title="next chapter">pkgcore.const</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.const.html" title="pkgcore.const"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.config.errors.html" title="pkgcore.config.errors"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

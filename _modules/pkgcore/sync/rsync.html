@@ -1,0 +1,314 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.sync.rsync &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.sync.rsync</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2006-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;rsync_syncer&quot;</span><span class="p">,</span> <span class="s">&quot;rsync_timestamp_syncer&quot;</span><span class="p">,)</span>
+
+<span class="kn">from</span> <span class="nn">pkgcore.sync</span> <span class="kn">import</span> <span class="n">base</span>
+<span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">ConfigHint</span>
+<span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
+
+<span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
+    <span class="s">&#39;os&#39;</span><span class="p">,</span>
+    <span class="s">&#39;socket&#39;</span><span class="p">,</span>
+    <span class="s">&#39;errno&#39;</span><span class="p">,</span>
+    <span class="s">&#39;snakeoil.osutils:pjoin&#39;</span><span class="p">,</span>
+    <span class="s">&#39;time&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<div class="viewcode-block" id="rsync_syncer"><a class="viewcode-back" href="../../../api/pkgcore.sync.rsync.html#pkgcore.sync.rsync.rsync_syncer">[docs]</a><span class="k">class</span> <span class="nc">rsync_syncer</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">ExternalSyncer</span><span class="p">):</span>
+
+    <span class="n">default_excludes</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;/distfiles&quot;</span><span class="p">,</span> <span class="s">&quot;/local&quot;</span><span class="p">,</span> <span class="s">&quot;/packages&quot;</span><span class="p">]</span>
+    <span class="n">default_includes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">default_timeout</span> <span class="o">=</span> <span class="mi">180</span>
+    <span class="n">default_opts</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;--recursive&quot;</span><span class="p">,</span>
+        <span class="s">&quot;--delete-delay&quot;</span><span class="p">,</span>
+        <span class="s">&quot;--perms&quot;</span><span class="p">,</span>
+        <span class="s">&quot;--times&quot;</span><span class="p">,</span>
+        <span class="s">&quot;--force&quot;</span><span class="p">,</span>
+        <span class="s">&quot;--safe-links&quot;</span><span class="p">,</span>
+        <span class="s">&quot;--whole-file&quot;</span><span class="p">]</span> <span class="c"># this one probably shouldn&#39;t be a default.</span>
+
+    <span class="n">default_retries</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">binary</span> <span class="o">=</span> <span class="s">&quot;rsync&quot;</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="rsync_syncer.parse_uri"><a class="viewcode-back" href="../../../api/pkgcore.sync.rsync.html#pkgcore.sync.rsync.rsync_syncer.parse_uri">[docs]</a>    <span class="k">def</span> <span class="nf">parse_uri</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">raw_uri</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">raw_uri</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;rsync://&quot;</span><span class="p">)</span> <span class="ow">and</span> \
+            <span class="ow">not</span> <span class="n">raw_uri</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;rsync+&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">base</span><span class="o">.</span><span class="n">uri_exception</span><span class="p">(</span><span class="n">raw_uri</span><span class="p">,</span>
+                <span class="s">&quot;doesn&#39;t start with rsync:// nor rsync+&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">raw_uri</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;rsync://&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="n">raw_uri</span>
+
+        <span class="n">proto</span> <span class="o">=</span> <span class="n">raw_uri</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">proto</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">proto</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;+&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">cls</span><span class="o">.</span><span class="n">require_binary</span><span class="p">(</span><span class="n">proto</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">proto</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">&quot;rsync:</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">proto</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</div>
+    <span class="n">pkgcore_config_type</span> <span class="o">=</span> <span class="n">ConfigHint</span><span class="p">({</span><span class="s">&#39;basedir&#39;</span><span class="p">:</span><span class="s">&#39;str&#39;</span><span class="p">,</span> <span class="s">&#39;uri&#39;</span><span class="p">:</span><span class="s">&#39;str&#39;</span><span class="p">,</span>
+        <span class="s">&#39;timeout&#39;</span><span class="p">:</span><span class="s">&#39;str&#39;</span><span class="p">,</span> <span class="s">&#39;compress&#39;</span><span class="p">:</span><span class="s">&#39;bool&#39;</span><span class="p">,</span> <span class="s">&#39;excludes&#39;</span><span class="p">:</span><span class="s">&#39;list&#39;</span><span class="p">,</span>
+        <span class="s">&#39;includes&#39;</span><span class="p">:</span><span class="s">&#39;list&#39;</span><span class="p">,</span> <span class="s">&#39;retries&#39;</span><span class="p">:</span><span class="s">&#39;str&#39;</span><span class="p">,</span> <span class="s">&#39;extra_opts&#39;</span><span class="p">:</span><span class="s">&#39;list&#39;</span><span class="p">,</span>
+        <span class="s">&#39;proxy&#39;</span><span class="p">:</span><span class="s">&#39;str&#39;</span><span class="p">},</span>
+        <span class="n">typename</span><span class="o">=</span><span class="s">&#39;syncer&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basedir</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">default_timeout</span><span class="p">,</span>
+        <span class="n">compress</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">excludes</span><span class="o">=</span><span class="p">(),</span> <span class="n">includes</span><span class="o">=</span><span class="p">(),</span>
+        <span class="n">retries</span><span class="o">=</span><span class="n">default_retries</span><span class="p">,</span> <span class="n">proxy</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+        <span class="n">extra_opts</span><span class="o">=</span><span class="p">()):</span>
+
+        <span class="n">uri</span> <span class="o">=</span> <span class="n">uri</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rsh</span><span class="p">,</span> <span class="n">uri</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+        <span class="n">base</span><span class="o">.</span><span class="n">ExternalSyncer</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basedir</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">default_verbosity</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hostname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_hostname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uri</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rsh</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rsh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">require_binary</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsh</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_opts</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extra_opts</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">compress</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;--compress&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;--timeout=</span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">timeout</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">excludes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_excludes</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">excludes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">includes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_includes</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">includes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">retries</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">retries</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_proxy</span> <span class="o">=</span> <span class="n">proxy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_proxy</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sets_env</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;RSYNC_PROXY&#39;</span><span class="p">:</span><span class="n">proxy</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_ipv6</span> <span class="o">=</span> <span class="s">&quot;--ipv6&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">opts</span> <span class="ow">or</span> <span class="s">&quot;-6&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">opts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_ipv6</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_ipv6</span> <span class="ow">and</span> <span class="n">socket</span><span class="o">.</span><span class="n">has_ipv6</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="rsync_syncer.parse_hostname"><a class="viewcode-back" href="../../../api/pkgcore.sync.rsync.html#pkgcore.sync.rsync.rsync_syncer.parse_hostname">[docs]</a>    <span class="k">def</span> <span class="nf">parse_hostname</span><span class="p">(</span><span class="n">uri</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">uri</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s">&quot;rsync://&quot;</span><span class="p">):]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;@&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</div>
+    <span class="k">def</span> <span class="nf">_get_ips</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_proxy</span><span class="p">:</span>
+            <span class="c"># If we&#39;re using a proxy, name resolution is best left to the proxy</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">hostname</span>
+            <span class="k">return</span>
+
+        <span class="n">af_fam</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_ipv6</span><span class="p">:</span>
+            <span class="n">af_fam</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">AF_INET6</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ipaddr</span> <span class="ow">in</span> <span class="n">socket</span><span class="o">.</span><span class="n">getaddrinfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hostname</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">af_fam</span><span class="p">,</span>
+                <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">ipaddr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">socket</span><span class="o">.</span><span class="n">AF_INET6</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="s">&quot;[</span><span class="si">%s</span><span class="s">]&quot;</span> <span class="o">%</span> <span class="n">ipaddr</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">ipaddr</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">base</span><span class="o">.</span><span class="n">syncer_exception</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hostname</span><span class="p">,</span> <span class="n">af_fam</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+
+    <span class="k">def</span> <span class="nf">_sync</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbosity</span><span class="p">,</span> <span class="n">output_fd</span><span class="p">):</span>
+        <span class="n">fd_pipes</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="n">output_fd</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="n">output_fd</span><span class="p">}</span>
+        <span class="n">opts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">opts</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rsh</span><span class="p">:</span>
+            <span class="n">opts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;-e&quot;</span><span class="p">)</span>
+            <span class="n">opts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsh</span><span class="p">)</span>
+        <span class="n">opts</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="s">&quot;--exclude=</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">excludes</span><span class="p">)</span>
+        <span class="n">opts</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="s">&quot;--include=</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">includes</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbosity</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">opts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;--quiet&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbosity</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">opts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;--stats&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbosity</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">opts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;-v&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">verbosity</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">opts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;-v&quot;</span><span class="p">)</span>
+
+        <span class="c"># zip limits to the shortest iterable.</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">for</span> <span class="n">count</span><span class="p">,</span> <span class="n">ip</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">retries</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ips</span><span class="p">()):</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">binary_path</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">uri</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hostname</span><span class="p">,</span> <span class="n">ip</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">basedir</span><span class="p">]</span> <span class="o">+</span> <span class="n">opts</span>
+
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spawn</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">fd_pipes</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">True</span>
+            <span class="k">elif</span> <span class="n">ret</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c"># syntax error.</span>
+                <span class="k">raise</span> <span class="n">base</span><span class="o">.</span><span class="n">syncer_exception</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="s">&quot;syntax error&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ret</span> <span class="o">==</span> <span class="mi">11</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">base</span><span class="o">.</span><span class="n">syncer_exception</span><span class="p">(</span><span class="s">&quot;rsync returned error code of &quot;</span>
+                    <span class="s">&quot;11; this is an out of space exit code&quot;</span><span class="p">)</span>
+           <span class="c"># need to do something here instead of just restarting...</span>
+           <span class="c"># else:</span>
+           <span class="c">#     print ret</span>
+        <span class="k">raise</span> <span class="n">base</span><span class="o">.</span><span class="n">syncer_exception</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="s">&quot;all attempts failed&quot;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="rsync_timestamp_syncer"><a class="viewcode-back" href="../../../api/pkgcore.sync.rsync.html#pkgcore.sync.rsync.rsync_timestamp_syncer">[docs]</a><span class="k">class</span> <span class="nc">rsync_timestamp_syncer</span><span class="p">(</span><span class="n">rsync_syncer</span><span class="p">):</span>
+
+    <span class="n">forcable</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">forward_sync_delay</span> <span class="o">=</span> <span class="mi">25</span> <span class="o">*</span> <span class="mi">60</span> <span class="c"># 25 minutes</span>
+    <span class="n">negative_sync_delay</span> <span class="o">=</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span> <span class="c"># 60 minutes</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">rsync_syncer</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_timestamp</span><span class="p">()</span>
+
+<div class="viewcode-block" id="rsync_timestamp_syncer.current_timestamp"><a class="viewcode-back" href="../../../api/pkgcore.sync.rsync.html#pkgcore.sync.rsync.rsync_timestamp_syncer.current_timestamp">[docs]</a>    <span class="k">def</span> <span class="nf">current_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param path: override the default path for the timestamp to read</span>
+<span class="sd">        :return: string of the timestamp data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basedir</span><span class="p">,</span> <span class="s">&quot;metadata&quot;</span><span class="p">,</span> <span class="s">&quot;timestamp.chk&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">date</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s">&#39;+&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">orig_date</span> <span class="o">=</span> <span class="n">date</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">mktime</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s">&quot;%a, </span><span class="si">%d</span><span class="s"> %b %Y %H:%M:%S &quot;</span><span class="p">))</span>
+            <span class="c"># add the hour/minute offset.</span>
+            <span class="n">date</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
+            <span class="k">return</span> <span class="n">date</span>
+        <span class="k">except</span> <span class="ne">IOError</span><span class="p">,</span> <span class="n">oe</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">oe</span><span class="o">.</span><span class="n">errno</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">,</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOTDIR</span><span class="p">):</span>
+                <span class="k">raise</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="c"># malformed timestamp.</span>
+            <span class="k">return</span> <span class="bp">None</span>
+</div>
+    <span class="k">def</span> <span class="nf">_sync</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbosity</span><span class="p">,</span> <span class="n">output_fd</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="n">doit</span> <span class="o">=</span> <span class="n">force</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_timestamp</span> <span class="ow">is</span> <span class="bp">None</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">doit</span><span class="p">:</span>
+                <span class="n">basedir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basedir</span>
+                <span class="n">uri</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uri</span>
+                <span class="n">new_timestamp</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basedir</span><span class="p">,</span> <span class="s">&quot;metadata&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;.tmp.timestamp.chk&quot;</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">basedir</span> <span class="o">=</span> <span class="n">new_timestamp</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">uri</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uri</span><span class="p">,</span> <span class="s">&quot;metadata&quot;</span><span class="p">,</span> <span class="s">&quot;timestamp.chk&quot;</span><span class="p">)</span>
+                    <span class="n">ret</span> <span class="o">=</span> <span class="n">rsync_syncer</span><span class="o">.</span><span class="n">_sync</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbosity</span><span class="p">,</span> <span class="n">output_fd</span><span class="p">)</span>
+                <span class="k">finally</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">basedir</span> <span class="o">=</span> <span class="n">basedir</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">uri</span> <span class="o">=</span> <span class="n">uri</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">ret</span><span class="p">:</span>
+                    <span class="n">doit</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_timestamp</span><span class="p">(</span><span class="n">new_timestamp</span><span class="p">)</span> <span class="o">-</span> \
+                        <span class="bp">self</span><span class="o">.</span><span class="n">last_timestamp</span>
+                    <span class="k">if</span> <span class="n">delta</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">doit</span> <span class="o">=</span> <span class="n">delta</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward_sync_delay</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">doit</span> <span class="o">=</span> <span class="n">delta</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sync_delay</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">doit</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">True</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">rsync_syncer</span><span class="o">.</span><span class="n">_sync</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbosity</span><span class="p">,</span> <span class="n">output_fd</span><span class="p">)</span>
+            <span class="c"># force a reset of the timestamp.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_timestamp</span><span class="p">()</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ret</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">ret</span>
+            <span class="c"># ensure the timestamp is back to the old.</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basedir</span><span class="p">,</span> <span class="s">&quot;metadata&quot;</span><span class="p">,</span> <span class="s">&quot;timestamp.chk&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_timestamp</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">open</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basedir</span><span class="p">,</span> <span class="s">&quot;metadata&quot;</span><span class="p">,</span> <span class="s">&quot;timestamp.chk&quot;</span><span class="p">),</span>
+                        <span class="s">&quot;w&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">&quot;%a, </span><span class="si">%d</span><span class="s"> %b %Y %H:%M:%S +0000&quot;</span><span class="p">,</span>
+                            <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_timestamp</span><span class="p">)))</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+                <span class="c"># don&#39;t care...</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

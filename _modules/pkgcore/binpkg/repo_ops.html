@@ -1,0 +1,238 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.binpkg.repo_ops &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.binpkg.repo_ops</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2006-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Binpkg repository operations for modification, maintenance, etc.</span>
+
+<span class="sd">This modules specific operation implementations- said operations are</span>
+<span class="sd">derivatives of :py:mod:`pkgcore.operations.repo` classes.</span>
+
+<span class="sd">Generally speaking you only need to dig through this module if you&#39;re</span>
+<span class="sd">trying to modify a binpkg repository operation- changing how it installs,</span>
+<span class="sd">or changing how it uninstalls, or adding a new operation (cleaning/cache regen for example).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;install&quot;</span><span class="p">,</span> <span class="s">&quot;uninstall&quot;</span><span class="p">,</span> <span class="s">&quot;replace&quot;</span><span class="p">,</span> <span class="s">&quot;operations&quot;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">errno</span>
+
+<span class="kn">from</span> <span class="nn">pkgcore.operations</span> <span class="kn">import</span> <span class="n">repo</span> <span class="k">as</span> <span class="n">repo_interfaces</span>
+<span class="kn">from</span> <span class="nn">pkgcore.fs</span> <span class="kn">import</span> <span class="n">tar</span>
+<span class="kn">from</span> <span class="nn">pkgcore.binpkg</span> <span class="kn">import</span> <span class="n">xpak</span>
+<span class="kn">from</span> <span class="nn">pkgcore.ebuild.conditionals</span> <span class="kn">import</span> <span class="n">stringify_boolean</span>
+
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">osutils</span><span class="p">,</span> <span class="n">klass</span>
+<span class="kn">from</span> <span class="nn">pkgcore.util.bzip2</span> <span class="kn">import</span> <span class="n">compress</span>
+<span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span><span class="p">,</span> <span class="n">unlink_if_exists</span>
+<span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
+<span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span> <span class="s">&quot;pkgcore.log:logger&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">discern_loc</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s">&#39;.tbz2&#39;</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">pkg</span><span class="o">.</span><span class="n">category</span><span class="p">,</span>
+        <span class="s">&quot;</span><span class="si">%s</span><span class="s">-</span><span class="si">%s%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">package</span><span class="p">,</span> <span class="n">pkg</span><span class="o">.</span><span class="n">fullver</span><span class="p">,</span> <span class="n">extension</span><span class="p">))</span>
+
+
+<span class="n">_metadata_rewrites</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&quot;depends&quot;</span><span class="p">:</span><span class="s">&quot;DEPEND&quot;</span><span class="p">,</span> <span class="s">&quot;rdepends&quot;</span><span class="p">:</span><span class="s">&quot;RDEPEND&quot;</span><span class="p">,</span> <span class="s">&quot;post_rdepends&quot;</span><span class="p">:</span><span class="s">&quot;PDEPEND&quot;</span><span class="p">,</span>
+    <span class="s">&quot;use&quot;</span><span class="p">:</span><span class="s">&quot;USE&quot;</span><span class="p">,</span> <span class="s">&quot;eapi_obj&quot;</span><span class="p">:</span><span class="s">&quot;EAPI&quot;</span><span class="p">,</span> <span class="s">&quot;CONTENTS&quot;</span><span class="p">:</span><span class="s">&quot;contents&quot;</span><span class="p">,</span> <span class="s">&quot;provides&quot;</span><span class="p">:</span><span class="s">&quot;PROVIDE&quot;</span><span class="p">}</span>
+
+<span class="k">def</span> <span class="nf">generate_attr_dict</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">portage_compatible</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">pkg</span><span class="o">.</span><span class="n">tracked_attributes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s">&quot;contents&quot;</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s">&#39;environment&#39;</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s">&#39;environment.bz2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compress</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">bytes_fileobj</span><span class="p">()</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s">&#39;provides&#39;</span><span class="p">:</span>
+            <span class="n">versionless_provides</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">b</span><span class="p">:</span> <span class="n">b</span><span class="o">.</span><span class="n">key</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">stringify_boolean</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">versionless_provides</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="s">&#39;eapi_obj&#39;</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">magic</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="n">d</span><span class="p">[</span><span class="n">_metadata_rewrites</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="o">.</span><span class="n">upper</span><span class="p">())]</span> <span class="o">=</span> <span class="n">s</span>
+    <span class="n">d</span><span class="p">[</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">-</span><span class="si">%s</span><span class="s">.ebuild&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">package</span><span class="p">,</span> <span class="n">pkg</span><span class="o">.</span><span class="n">fullver</span><span class="p">)]</span> <span class="o">=</span> \
+        <span class="n">pkg</span><span class="o">.</span><span class="n">ebuild</span><span class="o">.</span><span class="n">text_fileobj</span><span class="p">()</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="c"># this shouldn&#39;t be necessary post portage 2.2.</span>
+    <span class="c"># till then, their code requires redundant data,</span>
+    <span class="c"># so we&#39;ve got this.</span>
+    <span class="k">if</span> <span class="n">portage_compatible</span><span class="p">:</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;CATEGORY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">category</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;PF&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">PF</span>
+    <span class="k">return</span> <span class="n">d</span>
+
+
+<div class="viewcode-block" id="install"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.repo_ops.html#pkgcore.binpkg.repo_ops.install">[docs]</a><span class="k">class</span> <span class="nc">install</span><span class="p">(</span><span class="n">repo_interfaces</span><span class="o">.</span><span class="n">install</span><span class="p">):</span>
+
+    <span class="nd">@klass.steal_docs</span><span class="p">(</span><span class="n">repo_interfaces</span><span class="o">.</span><span class="n">install</span><span class="p">)</span>
+<div class="viewcode-block" id="install.add_data"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.repo_ops.html#pkgcore.binpkg.repo_ops.install.add_data">[docs]</a>    <span class="k">def</span> <span class="nf">add_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">observer</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="bp">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">observer</span><span class="o">.</span><span class="n">phase_start</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">observer</span><span class="o">.</span><span class="n">phase_end</span>
+        <span class="n">pkg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_pkg</span>
+        <span class="n">final_path</span> <span class="o">=</span> <span class="n">discern_loc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">extension</span><span class="p">)</span>
+        <span class="n">tmp_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">final_path</span><span class="p">),</span>
+            <span class="s">&quot;.tmp.</span><span class="si">%i</span><span class="s">.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">(),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">final_path</span><span class="p">)))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tmp_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_path</span> <span class="o">=</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">final_path</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">osutils</span><span class="o">.</span><span class="n">ensure_dirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="mo">0755</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">repo_interfaces</span><span class="o">.</span><span class="n">Failure</span><span class="p">(</span><span class="s">&quot;failed creating directory </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">start</span><span class="p">(</span><span class="s">&quot;generating tarball: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">tmp_path</span><span class="p">)</span>
+            <span class="n">tar</span><span class="o">.</span><span class="n">write_set</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">contents</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">compressor</span><span class="o">=</span><span class="s">&#39;bz2&#39;</span><span class="p">)</span>
+            <span class="n">end</span><span class="p">(</span><span class="s">&quot;tarball created&quot;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+            <span class="n">start</span><span class="p">(</span><span class="s">&quot;writing Xpak&quot;</span><span class="p">)</span>
+            <span class="c"># ok... got a tarball.  now add xpak.</span>
+            <span class="n">xpak</span><span class="o">.</span><span class="n">Xpak</span><span class="o">.</span><span class="n">write_xpak</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">generate_attr_dict</span><span class="p">(</span><span class="n">pkg</span><span class="p">))</span>
+            <span class="n">end</span><span class="p">(</span><span class="s">&quot;wrote Xpak&quot;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+            <span class="c"># ok... we tagged the xpak on.</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mo">0644</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">unlink_if_exists</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">),</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;failed removing </span><span class="si">%r</span><span class="s">: </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+            <span class="k">raise</span>
+        <span class="k">return</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="install.finalize_data"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.repo_ops.html#pkgcore.binpkg.repo_ops.install.finalize_data">[docs]</a>    <span class="k">def</span> <span class="nf">finalize_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmp_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+</div></div>
+<div class="viewcode-block" id="uninstall"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.repo_ops.html#pkgcore.binpkg.repo_ops.uninstall">[docs]</a><span class="k">class</span> <span class="nc">uninstall</span><span class="p">(</span><span class="n">repo_interfaces</span><span class="o">.</span><span class="n">uninstall</span><span class="p">):</span>
+
+    <span class="nd">@klass.steal_docs</span><span class="p">(</span><span class="n">repo_interfaces</span><span class="o">.</span><span class="n">uninstall</span><span class="p">)</span>
+<div class="viewcode-block" id="uninstall.remove_data"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.repo_ops.html#pkgcore.binpkg.repo_ops.uninstall.remove_data">[docs]</a>    <span class="k">def</span> <span class="nf">remove_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">True</span>
+</div>
+    <span class="nd">@klass.steal_docs</span><span class="p">(</span><span class="n">repo_interfaces</span><span class="o">.</span><span class="n">uninstall</span><span class="p">)</span>
+<div class="viewcode-block" id="uninstall.finalize_data"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.repo_ops.html#pkgcore.binpkg.repo_ops.uninstall.finalize_data">[docs]</a>    <span class="k">def</span> <span class="nf">finalize_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">discern_loc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_pkg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">extension</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+</div></div>
+<div class="viewcode-block" id="replace"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.repo_ops.html#pkgcore.binpkg.repo_ops.replace">[docs]</a><span class="k">class</span> <span class="nc">replace</span><span class="p">(</span><span class="n">install</span><span class="p">,</span> <span class="n">uninstall</span><span class="p">,</span> <span class="n">repo_interfaces</span><span class="o">.</span><span class="n">replace</span><span class="p">):</span>
+
+    <span class="nd">@klass.steal_docs</span><span class="p">(</span><span class="n">repo_interfaces</span><span class="o">.</span><span class="n">replace</span><span class="p">)</span>
+<div class="viewcode-block" id="replace.finalize_data"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.repo_ops.html#pkgcore.binpkg.repo_ops.replace.finalize_data">[docs]</a>    <span class="k">def</span> <span class="nf">finalize_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># we just invoke install finalize_data, since it atomically</span>
+        <span class="c"># transfers the new pkg in</span>
+        <span class="n">install</span><span class="o">.</span><span class="n">finalize_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+</div></div>
+<div class="viewcode-block" id="operations"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.repo_ops.html#pkgcore.binpkg.repo_ops.operations">[docs]</a><span class="k">class</span> <span class="nc">operations</span><span class="p">(</span><span class="n">repo_interfaces</span><span class="o">.</span><span class="n">operations</span><span class="p">):</span>
+
+
+    <span class="k">def</span> <span class="nf">_cmd_install</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">install</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_cmd_uninstall</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">uninstall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_cmd_replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

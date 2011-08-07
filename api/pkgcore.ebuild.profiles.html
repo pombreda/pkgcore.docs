@@ -1,0 +1,586 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.ebuild.profiles &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.ebuild.repo_objs" href="pkgcore.ebuild.repo_objs.html" />
+    <link rel="prev" title="pkgcore.ebuild.processor" href="pkgcore.ebuild.processor.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.repo_objs.html" title="pkgcore.ebuild.repo_objs"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.processor.html" title="pkgcore.ebuild.processor"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.ebuild.profiles">
+<span id="pkgcore-ebuild-profiles"></span><h1>pkgcore.ebuild.profiles<a class="headerlink" href="#module-pkgcore.ebuild.profiles" title="Permalink to this headline">¶</a></h1>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.profiles.AliasedVirtuals" title="pkgcore.ebuild.profiles.AliasedVirtuals"><tt class="xref py py-obj docutils literal"><span class="pre">AliasedVirtuals</span></tt></a>(virtuals,&nbsp;repo,&nbsp;*overrides)</td>
+<td>repository generated from a profiles default virtuals</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.profiles.EmptyRootNode" title="pkgcore.ebuild.profiles.EmptyRootNode"><tt class="xref py py-obj docutils literal"><span class="pre">EmptyRootNode</span></tt></a>(path)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.profiles.OnDiskProfile" title="pkgcore.ebuild.profiles.OnDiskProfile"><tt class="xref py py-obj docutils literal"><span class="pre">OnDiskProfile</span></tt></a>(basepath,&nbsp;profile[,&nbsp;...])</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.profiles.PkgProvided" title="pkgcore.ebuild.profiles.PkgProvided"><tt class="xref py py-obj docutils literal"><span class="pre">PkgProvided</span></tt></a>(*a,&nbsp;**kwds)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.profiles.ProfileNode" title="pkgcore.ebuild.profiles.ProfileNode"><tt class="xref py py-obj docutils literal"><span class="pre">ProfileNode</span></tt></a>(path)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.profiles.UserProfile" title="pkgcore.ebuild.profiles.UserProfile"><tt class="xref py py-obj docutils literal"><span class="pre">UserProfile</span></tt></a>(user_path,&nbsp;parent_path,&nbsp;...[,&nbsp;...])</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Exceptions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.profiles.ProfileError" title="pkgcore.ebuild.profiles.ProfileError"><tt class="xref py py-obj docutils literal"><span class="pre">ProfileError</span></tt></a>(path,&nbsp;filename,&nbsp;error)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="exception">
+<dt id="pkgcore.ebuild.profiles.ProfileError">
+<em class="property">exception </em><tt class="descclassname">pkgcore.ebuild.profiles.</tt><tt class="descname">ProfileError</tt><big>(</big><em>path</em>, <em>filename</em>, <em>error</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/profiles.html#ProfileError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.profiles.ProfileError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.ProfileError.args">
+<tt class="descname">args</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.ProfileError.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.ProfileError.message">
+<tt class="descname">message</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.ProfileError.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.profiles.ProfileNode">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.profiles.</tt><tt class="descname">ProfileNode</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/profiles.html#ProfileNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.profiles.ProfileNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.ProfileNode.eapi">
+<tt class="descname">eapi</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.ProfileNode.eapi" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to eapi_obj.magic</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.ProfileNode.eapi_atom">
+<tt class="descname">eapi_atom</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.ProfileNode.eapi_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to eapi_obj.atom_kls</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.profiles.EmptyRootNode">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.profiles.</tt><tt class="descname">EmptyRootNode</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/profiles.html#EmptyRootNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.profiles.EmptyRootNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.ebuild.profiles.ProfileNode" title="pkgcore.ebuild.profiles.ProfileNode"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.ebuild.profiles.ProfileNode</span></tt></a></p>
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.EmptyRootNode.eapi">
+<tt class="descname">eapi</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.EmptyRootNode.eapi" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to eapi_obj.magic</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.EmptyRootNode.eapi_atom">
+<tt class="descname">eapi_atom</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.EmptyRootNode.eapi_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to eapi_obj.atom_kls</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.profiles.OnDiskProfile">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.profiles.</tt><tt class="descname">OnDiskProfile</tt><big>(</big><em>basepath</em>, <em>profile</em>, <em>load_profile_base=True</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/profiles.html#OnDiskProfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.profiles.OnDiskProfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pkgcore.ebuild.profiles.ProfileStack</span></tt></p>
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.OnDiskProfile.arch">
+<tt class="descname">arch</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.OnDiskProfile.arch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.OnDiskProfile.bashrc">
+<tt class="descname">bashrc</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.OnDiskProfile.bashrc" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to bashrcs</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.OnDiskProfile.deprecated">
+<tt class="descname">deprecated</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.OnDiskProfile.deprecated" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.profiles.OnDiskProfile.from_abspath">
+<em class="property">classmethod </em><tt class="descname">from_abspath</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/profiles.html#OnDiskProfile.from_abspath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.profiles.OnDiskProfile.from_abspath" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pkgcore.ebuild.profiles.OnDiskProfile.split_abspath">
+<em class="property">static </em><tt class="descname">split_abspath</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/profiles.html#OnDiskProfile.split_abspath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.profiles.OnDiskProfile.split_abspath" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.OnDiskProfile.use_expand">
+<tt class="descname">use_expand</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.OnDiskProfile.use_expand" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.OnDiskProfile.use_expand_hidden">
+<tt class="descname">use_expand_hidden</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.OnDiskProfile.use_expand_hidden" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.profiles.UserProfile">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.profiles.</tt><tt class="descname">UserProfile</tt><big>(</big><em>user_path</em>, <em>parent_path</em>, <em>parent_profile</em>, <em>load_profiles_base=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/profiles.html#UserProfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.profiles.UserProfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.ebuild.profiles.OnDiskProfile" title="pkgcore.ebuild.profiles.OnDiskProfile"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.ebuild.profiles.OnDiskProfile</span></tt></a></p>
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.UserProfile.arch">
+<tt class="descname">arch</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.UserProfile.arch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.UserProfile.bashrc">
+<tt class="descname">bashrc</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.UserProfile.bashrc" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to bashrcs</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.UserProfile.deprecated">
+<tt class="descname">deprecated</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.UserProfile.deprecated" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.profiles.UserProfile.from_abspath">
+<em class="property">classmethod </em><tt class="descname">from_abspath</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.profiles.UserProfile.from_abspath" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pkgcore.ebuild.profiles.UserProfile.split_abspath">
+<em class="property">static </em><tt class="descname">split_abspath</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.profiles.UserProfile.split_abspath" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.UserProfile.use_expand">
+<tt class="descname">use_expand</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.UserProfile.use_expand" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.UserProfile.use_expand_hidden">
+<tt class="descname">use_expand_hidden</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.UserProfile.use_expand_hidden" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.profiles.PkgProvided">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.profiles.</tt><tt class="descname">PkgProvided</tt><big>(</big><em>*a</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/profiles.html#PkgProvided"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pkgcore.ebuild.ebuild_src.html#pkgcore.ebuild.ebuild_src.base" title="pkgcore.ebuild.ebuild_src.base"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.ebuild.ebuild_src.base</span></tt></a></p>
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.P">
+<tt class="descname">P</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.P" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.PF">
+<tt class="descname">PF</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.PF" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.PN">
+<tt class="descname">PN</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.PN" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to package</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.PR">
+<tt class="descname">PR</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.PR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.add_format_triggers">
+<tt class="descname">add_format_triggers</tt><big>(</big><em>op_inst</em>, <em>format_op_inst</em>, <em>engine_inst</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.add_format_triggers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.category">
+<tt class="descname">category</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.category" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.cpvstr">
+<tt class="descname">cpvstr</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.cpvstr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.data">
+<tt class="descname">data</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.defined_phases">
+<tt class="descname">defined_phases</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.defined_phases" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.depends">
+<tt class="descname">depends</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.depends" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.description">
+<tt class="descname">description</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.eapi">
+<tt class="descname">eapi</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.eapi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.eapi_obj">
+<tt class="descname">eapi_obj</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.eapi_obj" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.ebuild">
+<tt class="descname">ebuild</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.ebuild" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.fetchables">
+<tt class="descname">fetchables</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.fetchables" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.fullver">
+<tt class="descname">fullver</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.fullver" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.homepage">
+<tt class="descname">homepage</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.homepage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.iuse">
+<tt class="descname">iuse</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.iuse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.key">
+<tt class="descname">key</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.license">
+<tt class="descname">license</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.license" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.operations">
+<tt class="descname">operations</tt><big>(</big><em>domain</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.operations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.package">
+<tt class="descname">package</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.package" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.path">
+<tt class="descname">path</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.post_rdepends">
+<tt class="descname">post_rdepends</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.post_rdepends" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.properties">
+<tt class="descname">properties</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.provides">
+<tt class="descname">provides</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.provides" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.rdepends">
+<tt class="descname">rdepends</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.rdepends" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.release_cached_data">
+<tt class="descname">release_cached_data</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.release_cached_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.repo">
+<tt class="descname">repo</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.repo" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to _parent._parent_repo</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.required_use">
+<tt class="descname">required_use</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.required_use" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.restrict">
+<tt class="descname">restrict</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.restrict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.revision">
+<tt class="descname">revision</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.revision" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.slot">
+<tt class="descname">slot</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.slot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.slotted_atom">
+<tt class="descname">slotted_atom</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.slotted_atom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.unversioned">
+<em class="property">classmethod </em><tt class="descname">unversioned</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.unversioned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.unversioned_atom">
+<tt class="descname">unversioned_atom</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.unversioned_atom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.use">
+<tt class="descname">use</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.use" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.version">
+<tt class="descname">version</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.versioned">
+<em class="property">classmethod </em><tt class="descname">versioned</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.versioned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.PkgProvided.versioned_atom">
+<tt class="descname">versioned_atom</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.PkgProvided.versioned_atom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.profiles.AliasedVirtuals">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.profiles.</tt><tt class="descname">AliasedVirtuals</tt><big>(</big><em>virtuals</em>, <em>repo</em>, <em>*overrides</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/profiles.html#AliasedVirtuals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.profiles.AliasedVirtuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pkgcore.repository.virtual.tree</span></tt></p>
+<p>repository generated from a profiles default virtuals</p>
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.AliasedVirtuals.default_visibility_limiters">
+<tt class="descname">default_visibility_limiters</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.AliasedVirtuals.default_visibility_limiters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.AliasedVirtuals.factory_kls">
+<tt class="descname">factory_kls</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.AliasedVirtuals.factory_kls" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">factory</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.profiles.AliasedVirtuals.get_operations">
+<tt class="descname">get_operations</tt><big>(</big><em>observer=None</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.profiles.AliasedVirtuals.get_operations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.profiles.AliasedVirtuals.has_match">
+<tt class="descname">has_match</tt><big>(</big><em>atom</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.profiles.AliasedVirtuals.has_match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.profiles.AliasedVirtuals.itermatch">
+<tt class="descname">itermatch</tt><big>(</big><em>restrict</em>, <em>restrict_solutions=None</em>, <em>sorter=None</em>, <em>pkg_klass_override=None</em>, <em>force=None</em>, <em>yield_none=False</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.profiles.AliasedVirtuals.itermatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>generator that yields packages match a restriction.</p>
+<dl class="docutils">
+<dt>:type restrict <span class="classifier-delimiter">:</span> <span class="classifier">L{pkgcore.restrictions.packages.PackageRestriction}</span></dt>
+<dd>instance</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>restrict</strong> &#8211; restriction to search via</li>
+<li><strong>restrict_solutions</strong> &#8211; cnf collapsed list of the restrict.
+Don&#8217;t play with it unless you know what you&#8217;re doing</li>
+<li><strong>sorter</strong> &#8211; callable to do sorting during searching-
+if sorting the results, use this instead of sorting externally.</li>
+<li><strong>yield_none</strong> &#8211; if True then itermatch will yield None for every
+non-matching package. This is meant for use in combination with
+C{twisted.task.cooperate} or other async uses where itermatch
+should not wait many (wallclock) seconds between yielding
+packages. If you override this method you should yield
+None in long-running loops, strictly calling it for every package
+is not necessary.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.profiles.AliasedVirtuals.match">
+<tt class="descname">match</tt><big>(</big><em>atom</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.profiles.AliasedVirtuals.match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.profiles.AliasedVirtuals.notify_add_package">
+<tt class="descname">notify_add_package</tt><big>(</big><em>pkg</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.profiles.AliasedVirtuals.notify_add_package" title="Permalink to this definition">¶</a></dt>
+<dd><p>internal function,</p>
+<p>notify the repository that a pkg is being addeded to it</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.profiles.AliasedVirtuals.notify_remove_package">
+<tt class="descname">notify_remove_package</tt><big>(</big><em>pkg</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.profiles.AliasedVirtuals.notify_remove_package" title="Permalink to this definition">¶</a></dt>
+<dd><p>internal function,</p>
+<p>notify the repository that a pkg it provides is being removed</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.AliasedVirtuals.operations">
+<tt class="descname">operations</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.AliasedVirtuals.operations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.AliasedVirtuals.operations_kls">
+<tt class="descname">operations_kls</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.AliasedVirtuals.operations_kls" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#pkgcore.ebuild.profiles.AliasedVirtuals.operations" title="pkgcore.ebuild.profiles.AliasedVirtuals.operations"><tt class="xref py py-class docutils literal"><span class="pre">operations</span></tt></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.processor.html"
+                        title="previous chapter">pkgcore.ebuild.processor</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.repo_objs.html"
+                        title="next chapter">pkgcore.ebuild.repo_objs</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.repo_objs.html" title="pkgcore.ebuild.repo_objs"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.processor.html" title="pkgcore.ebuild.processor"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

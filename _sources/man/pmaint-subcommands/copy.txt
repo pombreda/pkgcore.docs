@@ -1,0 +1,34 @@
+.. _`pmaint copy manpage`:
+
+===========
+pmaint copy
+===========
+
+synopsis
+========
+
+pmaint copy [-h] [--version] [--debug] [--color BOOLEAN] [--add-config SECTION KEY VALUE] [--new-config SECTION KEY VALUE] [--empty-config] [--source-repo SOURCE_REPO] [-i] target_repo query [query ...]
+
+DESCRIPTION
+===========
+
+copy binpkgs between repositories; primarily useful for quickpkging a livefs pkg
+
+positional arguments
+====================
+
+:target_repo:  repository to add packages to
+:query:        packages matching any of these restrictions will be selected for copying
+
+optional arguments
+==================
+
+-h, --help                                 show this help message and exit
+--version                                  show program's version number and exit
+--debug                                    Enable debugging checks
+--color BOOLEAN                            Enable or disable color support.
+--add-config <SECTION KEY VALUE>             modify an existing configuration section.
+--new-config <SECTION KEY VALUE>             add a new configuration section.
+--empty-config, --config-empty             Do not load user/system configuration.
+--source-repo SOURCE_REPO, -s SOURCE_REPO  copy strictly from the supplied repository; else it copies from wherever a match is found
+-i, --ignore-existing                      if a matching pkg already exists in the target, don't update it

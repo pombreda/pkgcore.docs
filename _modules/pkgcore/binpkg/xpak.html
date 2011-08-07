@@ -1,0 +1,365 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.binpkg.xpak &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.binpkg.xpak</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2006-2007 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">XPAK container support</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;MalformedXpak&quot;</span><span class="p">,</span> <span class="s">&quot;Xpak&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">struct_compat</span> <span class="k">as</span> <span class="n">struct</span>
+<span class="kn">from</span> <span class="nn">snakeoil.mappings</span> <span class="kn">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">autoconvert_py3k_methods_metaclass</span>
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">klass</span><span class="p">,</span> <span class="n">compatibility</span>
+<span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
+<span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span> <span class="s">&quot;os&quot;</span><span class="p">,</span> <span class="s">&quot;errno&quot;</span><span class="p">)</span>
+
+<span class="c">#</span>
+<span class="c"># format is:</span>
+<span class="c"># XPAKPACKIIIIDDDD[index][data]XPAKSTOPOOOOSTOP</span>
+<span class="c"># first; all ints/longs are big endian</span>
+<span class="c"># meanwhile, 8 byte format magic</span>
+<span class="c"># 4 bytes of index len,</span>
+<span class="c"># 4 bytes of data len</span>
+<span class="c"># index items: 4 bytes (len of the key name), then that length of key data</span>
+<span class="c">#   finally, 2 longs; relative offset from data block start, length of the data</span>
+<span class="c">#   repeats till index is full processed</span>
+<span class="c"># for data, just a big blob; offsets into it are determined via the index</span>
+<span class="c">#   table.</span>
+<span class="c"># finally, trailing magic, 4 bytes (positive) of the # of bytes to seek to</span>
+<span class="c">#   reach the end of the magic, and &#39;STOP&#39;.  offset is relative to EOS for Xpak</span>
+<span class="c">#</span>
+
+<div class="viewcode-block" id="MalformedXpak"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.xpak.html#pkgcore.binpkg.xpak.MalformedXpak">[docs]</a><span class="k">class</span> <span class="nc">MalformedXpak</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="ne">Exception</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;xpak as malformed: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">msg</span><span class="p">,))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span>
+
+</div>
+<div class="viewcode-block" id="Xpak"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.xpak.html#pkgcore.binpkg.xpak.Xpak">[docs]</a><span class="k">class</span> <span class="nc">Xpak</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;_source&quot;</span><span class="p">,</span> <span class="s">&quot;_source_is_path&quot;</span><span class="p">,</span> <span class="s">&quot;xpak_start&quot;</span><span class="p">,</span> <span class="s">&quot;_keys_dict&quot;</span><span class="p">)</span>
+
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">autoconvert_py3k_methods_metaclass</span>
+
+    <span class="n">trailer_pre_magic</span> <span class="o">=</span> <span class="s">&quot;XPAKSTOP&quot;</span>
+    <span class="n">trailer_post_magic</span> <span class="o">=</span> <span class="s">&quot;STOP&quot;</span>
+    <span class="n">trailer</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">Struct</span><span class="p">(</span><span class="s">&quot;&gt;</span><span class="si">%i</span><span class="s">sL</span><span class="si">%i</span><span class="s">s&quot;</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">trailer_pre_magic</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">trailer_post_magic</span><span class="p">)))</span>
+
+    <span class="n">header_pre_magic</span> <span class="o">=</span> <span class="s">&quot;XPAKPACK&quot;</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">Struct</span><span class="p">(</span><span class="s">&quot;&gt;</span><span class="si">%i</span><span class="s">sLL&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">header_pre_magic</span><span class="p">),))</span>
+
+    <span class="k">if</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">is_py3k</span><span class="p">:</span>
+        <span class="n">trailer_post_magic</span> <span class="o">=</span> <span class="n">trailer_post_magic</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&quot;ascii&quot;</span><span class="p">)</span>
+        <span class="n">trailer_pre_magic</span> <span class="o">=</span> <span class="n">trailer_pre_magic</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&quot;ascii&quot;</span><span class="p">)</span>
+        <span class="n">header_pre_magic</span> <span class="o">=</span> <span class="n">header_pre_magic</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&quot;ascii&quot;</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_source_is_path</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="o">=</span> <span class="n">source</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xpak_start</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="c"># keys_dict becomes an ordereddict after _load_offsets; reason for</span>
+        <span class="c"># it is so that reads are serialized.</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_fd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># we do this annoying little dance to avoid having a couple</span>
+        <span class="c"># hundred fds open if they&#39;re accessing a lot of binpkgs</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source_is_path</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_source</span><span class="p">,</span> <span class="s">&quot;rb&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Xpak.write_xpak"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.xpak.html#pkgcore.binpkg.xpak.Xpak.write_xpak">[docs]</a>    <span class="k">def</span> <span class="nf">write_xpak</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">target_source</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        write an xpak dict to disk; overwriting an xpak if it exists</span>
+<span class="sd">        :param target_source: string path, or</span>
+<span class="sd">            L{snakeoil.data_source.base} derivative</span>
+<span class="sd">        :param data: mapping instance to write into the xpak.</span>
+<span class="sd">        :return: xpak instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">old_xpak</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span><span class="n">target_source</span><span class="p">)</span>
+            <span class="c"># force access</span>
+            <span class="n">old_xpak</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">old_xpak</span><span class="o">.</span><span class="n">xpak_start</span>
+            <span class="n">source_is_path</span> <span class="o">=</span> <span class="n">old_xpak</span><span class="o">.</span><span class="n">_source_is_path</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">MalformedXpak</span><span class="p">,</span> <span class="ne">IOError</span><span class="p">):</span>
+            <span class="n">source_is_path</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_source</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">source_is_path</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">start</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">lstat</span><span class="p">(</span><span class="n">target_source</span><span class="p">)</span><span class="o">.</span><span class="n">st_size</span>
+                <span class="k">except</span> <span class="ne">OSError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
+                        <span class="k">raise</span>
+                    <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">f</span> <span class="o">=</span> <span class="n">target_source</span><span class="o">.</span><span class="n">bytes_fileobj</span><span class="p">(</span><span class="n">writable</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
+        <span class="n">new_index</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">cur_pos</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">unicode</span><span class="p">):</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf8&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">unicode</span><span class="p">):</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+            <span class="n">new_index</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s">&quot;&gt;L</span><span class="si">%i</span><span class="s">sLL&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">),</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">key</span><span class="p">,</span> <span class="n">cur_pos</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)))</span>
+            <span class="n">new_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+            <span class="n">cur_pos</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">source_is_path</span><span class="p">:</span>
+            <span class="c"># rb+ required since A) binary, B) w truncates from the getgo</span>
+            <span class="n">handle</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">target_source</span><span class="p">,</span> <span class="s">&quot;r+b&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">handle</span> <span class="o">=</span> <span class="n">target_source</span><span class="o">.</span><span class="n">bytes_fileobj</span><span class="p">(</span><span class="n">writable</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="n">joiner</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">is_py3k</span><span class="p">:</span>
+            <span class="c"># can&#39;t do str.join(bytes), thus this.</span>
+            <span class="c"># written this way since the py3k translator doesn&#39;t allow us to</span>
+            <span class="c"># just do b&#39;&#39;</span>
+            <span class="n">joiner</span> <span class="o">=</span> <span class="n">joiner</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+        <span class="n">new_index</span> <span class="o">=</span> <span class="n">joiner</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">new_index</span><span class="p">)</span>
+        <span class="n">new_data</span> <span class="o">=</span> <span class="n">joiner</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">new_data</span><span class="p">)</span>
+
+        <span class="n">handle</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">cls</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">header_pre_magic</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_index</span><span class="p">),</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">new_data</span><span class="p">))</span>
+
+        <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s">&quot;&gt;</span><span class="si">%i</span><span class="s">s</span><span class="si">%i</span><span class="s">s&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_index</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_data</span><span class="p">)),</span>
+            <span class="n">new_index</span><span class="p">,</span> <span class="n">new_data</span><span class="p">))</span>
+
+        <span class="c"># the +8 is for the longs for new_index/new_data</span>
+        <span class="n">cls</span><span class="o">.</span><span class="n">trailer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">trailer_pre_magic</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">new_index</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_data</span><span class="p">)</span> <span class="o">+</span> <span class="n">cls</span><span class="o">.</span><span class="n">trailer</span><span class="o">.</span><span class="n">size</span> <span class="o">+</span> <span class="mi">8</span><span class="p">,</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">trailer_post_magic</span><span class="p">)</span>
+        <span class="n">handle</span><span class="o">.</span><span class="n">truncate</span><span class="p">()</span>
+        <span class="n">handle</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">Xpak</span><span class="p">(</span><span class="n">target_source</span><span class="p">)</span>
+</div>
+    <span class="nd">@klass.jit_attr</span>
+<div class="viewcode-block" id="Xpak.keys_dict"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.xpak.html#pkgcore.binpkg.xpak.Xpak.keys_dict">[docs]</a>    <span class="k">def</span> <span class="nf">keys_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fd</span>
+        <span class="n">index_start</span><span class="p">,</span> <span class="n">index_len</span><span class="p">,</span> <span class="n">data_len</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_magic</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+        <span class="n">data_start</span> <span class="o">=</span> <span class="n">index_start</span> <span class="o">+</span> <span class="n">index_len</span>
+        <span class="n">keys_dict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">index_len</span><span class="p">:</span>
+            <span class="n">key_len</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s">&quot;&gt;L&quot;</span><span class="p">,</span> <span class="n">fd</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">key_len</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">is_py3k</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;ascii&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">!=</span> <span class="n">key_len</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MalformedXpak</span><span class="p">(</span>
+                    <span class="s">&quot;tried reading key </span><span class="si">%i</span><span class="s"> of len </span><span class="si">%i</span><span class="s">, but hit EOF&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                        <span class="nb">len</span><span class="p">(</span><span class="n">keys_dict</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">key_len</span><span class="p">))</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">offset</span><span class="p">,</span> <span class="n">data_len</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s">&quot;&gt;LL&quot;</span><span class="p">,</span> <span class="n">fd</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">8</span><span class="p">))</span>
+            <span class="k">except</span> <span class="n">struct</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MalformedXpak</span><span class="p">(</span>
+                    <span class="s">&quot;key </span><span class="si">%i</span><span class="s">, tried reading data offset/len but hit EOF&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                        <span class="nb">len</span><span class="p">(</span><span class="n">keys_dict</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">keys_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">data_start</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="n">data_len</span><span class="p">,</span>
+                <span class="n">compatibility</span><span class="o">.</span><span class="n">is_py3k</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;environment&quot;</span><span class="p">))</span>
+            <span class="n">index_len</span> <span class="o">-=</span> <span class="p">(</span><span class="n">key_len</span> <span class="o">+</span> <span class="mi">12</span><span class="p">)</span> <span class="c"># 12 for key_len, offset, data_len longs</span>
+
+        <span class="k">return</span> <span class="n">keys_dict</span>
+</div>
+    <span class="k">def</span> <span class="nf">_check_magic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd</span><span class="p">):</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="o">-</span><span class="mi">16</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pre</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">post</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trailer</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pre</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trailer_pre_magic</span> <span class="ow">or</span> <span class="n">post</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trailer_post_magic</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MalformedXpak</span><span class="p">(</span>
+                    <span class="s">&quot;not an xpak segment, trailer didn&#39;t match: </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fd</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">struct</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MalformedXpak</span><span class="p">(</span>
+                <span class="s">&quot;not an xpak segment, failed parsing trailer: </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fd</span><span class="p">)</span>
+
+        <span class="c"># this is a bit daft, but the format seems to intentionally</span>
+        <span class="c"># have an off by 8 in the offset address. presumably cause the</span>
+        <span class="c"># header was added after the fact, either way we go +8 to</span>
+        <span class="c"># check the header magic.</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">size</span> <span class="o">+</span> <span class="mi">8</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xpak_start</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pre</span><span class="p">,</span> <span class="n">index_len</span><span class="p">,</span> <span class="n">data_len</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pre</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header_pre_magic</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MalformedXpak</span><span class="p">(</span>
+                    <span class="s">&quot;not an xpak segment, header didn&#39;t match: </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fd</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">struct</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MalformedXpak</span><span class="p">(</span>
+                <span class="s">&quot;not an xpak segment, failed parsing header: </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fd</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">xpak_start</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">index_len</span><span class="p">,</span> <span class="n">data_len</span>
+
+<div class="viewcode-block" id="Xpak.keys"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.xpak.html#pkgcore.binpkg.xpak.Xpak.keys">[docs]</a>    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="Xpak.values"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.xpak.html#pkgcore.binpkg.xpak.Xpak.values">[docs]</a>    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">itervalues</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="Xpak.items"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.xpak.html#pkgcore.binpkg.xpak.Xpak.items">[docs]</a>    <span class="k">def</span> <span class="nf">items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
+</div>
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys_dict</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys_dict</span>
+
+    <span class="k">def</span> <span class="nf">__nonzero__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys_dict</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys_dict</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Xpak.iterkeys"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.xpak.html#pkgcore.binpkg.xpak.Xpak.iterkeys">[docs]</a>    <span class="k">def</span> <span class="nf">iterkeys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys_dict</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Xpak.itervalues"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.xpak.html#pkgcore.binpkg.xpak.Xpak.itervalues">[docs]</a>    <span class="k">def</span> <span class="nf">itervalues</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fd</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_data</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="o">*</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys_dict</span><span class="o">.</span><span class="n">itervalues</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="Xpak.iteritems"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.xpak.html#pkgcore.binpkg.xpak.Xpak.iteritems">[docs]</a>    <span class="k">def</span> <span class="nf">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># note that it&#39;s an OrderedDict, so this works.</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fd</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_data</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="o">*</span><span class="n">v</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys_dict</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
+</div>
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fd</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">keys_dict</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keys_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="k">return</span> <span class="n">val</span>
+
+<div class="viewcode-block" id="Xpak.get"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.xpak.html#pkgcore.binpkg.xpak.Xpak.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">default</span>
+</div>
+<div class="viewcode-block" id="Xpak.pop"><a class="viewcode-back" href="../../../api/pkgcore.binpkg.xpak.html#pkgcore.binpkg.xpak.Xpak.pop">[docs]</a>    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">):</span>
+        <span class="c"># faster then the exception form...</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">l</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;pop accepts 1 or 2 args only&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys_dict</span><span class="p">:</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">l</span><span class="p">:</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">o</span>
+</div>
+    <span class="k">def</span> <span class="nf">_get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">data_len</span><span class="p">,</span> <span class="n">needs_decoding</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="c"># optimization for file objs; they cache tell position, but</span>
+        <span class="c"># pass through all seek calls (nice, eh?) so we rely on that</span>
+        <span class="c"># for cutting down on uneeded seeks; userland comparison being</span>
+        <span class="c"># far cheaper then an actual syscall seek</span>
+        <span class="k">if</span> <span class="n">fd</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span> <span class="o">!=</span> <span class="n">offset</span><span class="p">:</span>
+            <span class="n">fd</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">fd</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span> <span class="o">==</span> <span class="n">offset</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">data_len</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">==</span> <span class="n">data_len</span>
+        <span class="k">if</span> <span class="n">needs_decoding</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">r</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

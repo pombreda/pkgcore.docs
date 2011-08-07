@@ -1,0 +1,184 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.ebuild.overlay_repository &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.ebuild.overlay_repository</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2006-2007 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">implementation of the standard PORTDIR + PORTDIR_OVERLAY repository stacking</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;OverlayRepo&quot;</span><span class="p">,)</span>
+
+<span class="kn">from</span> <span class="nn">pkgcore.repository</span> <span class="kn">import</span> <span class="n">prototype</span><span class="p">,</span> <span class="n">multiplex</span>
+<span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">ConfigHint</span><span class="p">,</span> <span class="n">errors</span>
+<span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">repository</span>
+<span class="kn">from</span> <span class="nn">pkgcore.ebuild.repo_objs</span> <span class="kn">import</span> <span class="n">OverlayedLicenses</span>
+
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
+
+<div class="viewcode-block" id="OverlayRepo"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.overlay_repository.html#pkgcore.ebuild.overlay_repository.OverlayRepo">[docs]</a><span class="k">class</span> <span class="nc">OverlayRepo</span><span class="p">(</span><span class="n">prototype</span><span class="o">.</span><span class="n">tree</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Collapse multiple trees into one.</span>
+
+<span class="sd">    Eclass dir is shared, the first package leftmost returned.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">pkgcore_config_type</span> <span class="o">=</span> <span class="n">ConfigHint</span><span class="p">({</span><span class="s">&#39;trees&#39;</span><span class="p">:</span> <span class="s">&#39;refs:repo&#39;</span><span class="p">},</span> <span class="n">typename</span><span class="o">=</span><span class="s">&#39;repo&#39;</span><span class="p">)</span>
+
+    <span class="n">configured</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">configurables</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;domain&quot;</span><span class="p">,</span> <span class="s">&quot;settings&quot;</span><span class="p">,)</span>
+    <span class="n">configure</span> <span class="o">=</span> <span class="n">repository</span><span class="o">.</span><span class="n">ConfiguredTree</span>
+
+    <span class="n">operations_kls</span> <span class="o">=</span> <span class="n">multiplex</span><span class="o">.</span><span class="n">operations</span>
+
+    <span class="c"># sucks a bit, need to work something better out here</span>
+    <span class="n">format_magic</span> <span class="o">=</span> <span class="s">&quot;ebuild_src&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trees</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param trees: L{pkgcore.ebuild.repository.UnconfiguredTree} instances</span>
+<span class="sd">            to combine.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">trees</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">trees</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">InstantiationError</span><span class="p">(</span>
+                <span class="s">&quot;Must specify at least two pathes to ebuild trees to overlay&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">trees</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">trees</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rv_trees</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">trees</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_version_owners</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">prototype</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">licenses</span> <span class="o">=</span> <span class="n">OverlayedLicenses</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">licenses</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">trees</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="s">&#39;licenses&#39;</span><span class="p">)])</span>
+
+    <span class="k">def</span> <span class="nf">_get_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">category</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">updates</span> <span class="o">=</span> <span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">categories</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">category</span><span class="p">)</span> <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">)</span>
+            <span class="n">updates</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">updates</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">updates</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">category</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">updates</span> <span class="o">=</span> <span class="p">[</span><span class="n">tree</span><span class="o">.</span><span class="n">categories</span> <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">updates</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">_get_packages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="p">):</span>
+        <span class="n">updates</span> <span class="o">=</span> <span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">packages</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">category</span><span class="p">)</span> <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">)</span>
+        <span class="n">updates</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">updates</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">updates</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">category</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">updates</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">_get_versions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">catpkg</span><span class="p">):</span>
+        <span class="n">ver_owners</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">fails</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rv_trees</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rv_trees</span><span class="p">:</span>
+            <span class="n">new_vers</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">versions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">catpkg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">new_vers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">ver_owners</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">v</span><span class="p">,</span> <span class="n">tree</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">new_vers</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fails</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">fails</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rv_trees</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">catpkg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_version_owners</span><span class="p">[</span><span class="n">catpkg</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">ver_owners</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">ver_owners</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_internal_gen_candidates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">candidates</span><span class="p">,</span> <span class="n">sorter</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">cp</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">cp</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">versions</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">versions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cp</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">sorter</span><span class="p">(</span><span class="n">repo</span><span class="p">[</span><span class="n">cp</span> <span class="o">+</span> <span class="p">(</span><span class="n">ver</span><span class="p">,)]</span>
+                <span class="k">for</span> <span class="n">ver</span><span class="p">,</span> <span class="n">repo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_owners</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cp</span><span class="p">,</span> <span class="p">())):</span>
+                <span class="k">yield</span> <span class="n">pkg</span>
+
+    <span class="k">def</span> <span class="nf">_visibility_limiters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">default_visibility_limiters</span><span class="p">]</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,221 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.fetch &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.fetch.base" href="pkgcore.fetch.base.html" />
+    <link rel="prev" title="pkgcore.ebuild.triggers" href="pkgcore.ebuild.triggers.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.fetch.base.html" title="pkgcore.fetch.base"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.triggers.html" title="pkgcore.ebuild.triggers"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.fetch">
+<span id="pkgcore-fetch"></span><h1>pkgcore.fetch<a class="headerlink" href="#module-pkgcore.fetch" title="Permalink to this headline">¶</a></h1>
+<p>functionality related to downloading files</p>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.fetch.default_mirror" title="pkgcore.fetch.default_mirror"><tt class="xref py py-obj docutils literal"><span class="pre">default_mirror</span></tt></a>(mirrors,&nbsp;mirror_name)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fetch.fetchable" title="pkgcore.fetch.fetchable"><tt class="xref py py-obj docutils literal"><span class="pre">fetchable</span></tt></a>(filename[,&nbsp;uri,&nbsp;chksums])</td>
+<td>class representing uri sources for a file and chksum information.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fetch.mirror" title="pkgcore.fetch.mirror"><tt class="xref py py-obj docutils literal"><span class="pre">mirror</span></tt></a>(mirrors,&nbsp;mirror_name)</td>
+<td>uri source representing a mirror tier</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fetch.uri_list" title="pkgcore.fetch.uri_list"><tt class="xref py py-obj docutils literal"><span class="pre">uri_list</span></tt></a>(filename)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="pkgcore.fetch.fetchable">
+<em class="property">class </em><tt class="descclassname">pkgcore.fetch.</tt><tt class="descname">fetchable</tt><big>(</big><em>filename</em>, <em>uri=()</em>, <em>chksums=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fetch.html#fetchable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fetch.fetchable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>class representing uri sources for a file and chksum information.</p>
+<dl class="attribute">
+<dt id="pkgcore.fetch.fetchable.chksums">
+<tt class="descname">chksums</tt><a class="headerlink" href="#pkgcore.fetch.fetchable.chksums" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fetch.fetchable.filename">
+<tt class="descname">filename</tt><a class="headerlink" href="#pkgcore.fetch.fetchable.filename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fetch.fetchable.uri">
+<tt class="descname">uri</tt><a class="headerlink" href="#pkgcore.fetch.fetchable.uri" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.fetch.mirror">
+<em class="property">class </em><tt class="descclassname">pkgcore.fetch.</tt><tt class="descname">mirror</tt><big>(</big><em>mirrors</em>, <em>mirror_name</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fetch.html#mirror"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fetch.mirror" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>uri source representing a mirror tier</p>
+<dl class="attribute">
+<dt id="pkgcore.fetch.mirror.mirror_name">
+<tt class="descname">mirror_name</tt><a class="headerlink" href="#pkgcore.fetch.mirror.mirror_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fetch.mirror.mirrors">
+<tt class="descname">mirrors</tt><a class="headerlink" href="#pkgcore.fetch.mirror.mirrors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.fetch.default_mirror">
+<em class="property">class </em><tt class="descclassname">pkgcore.fetch.</tt><tt class="descname">default_mirror</tt><big>(</big><em>mirrors</em>, <em>mirror_name</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fetch.html#default_mirror"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fetch.default_mirror" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.fetch.mirror" title="pkgcore.fetch.mirror"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.fetch.mirror</span></tt></a></p>
+<dl class="attribute">
+<dt id="pkgcore.fetch.default_mirror.mirror_name">
+<tt class="descname">mirror_name</tt><a class="headerlink" href="#pkgcore.fetch.default_mirror.mirror_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fetch.default_mirror.mirrors">
+<tt class="descname">mirrors</tt><a class="headerlink" href="#pkgcore.fetch.default_mirror.mirrors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.fetch.uri_list">
+<em class="property">class </em><tt class="descclassname">pkgcore.fetch.</tt><tt class="descname">uri_list</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fetch.html#uri_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fetch.uri_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="pkgcore.fetch.uri_list.add_mirror">
+<tt class="descname">add_mirror</tt><big>(</big><em>mirror_inst</em>, <em>suburi=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fetch.html#uri_list.add_mirror"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fetch.uri_list.add_mirror" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.fetch.uri_list.add_uri">
+<tt class="descname">add_uri</tt><big>(</big><em>uri</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fetch.html#uri_list.add_uri"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fetch.uri_list.add_uri" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fetch.uri_list.filename">
+<tt class="descname">filename</tt><a class="headerlink" href="#pkgcore.fetch.uri_list.filename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.fetch.uri_list.finalize">
+<tt class="descname">finalize</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/fetch.html#uri_list.finalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fetch.uri_list.finalize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.fetch.uri_list.visit_mirrors">
+<tt class="descname">visit_mirrors</tt><big>(</big><em>invert=False</em>, <em>treat_default_as_mirror=True</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fetch.html#uri_list.visit_mirrors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fetch.uri_list.visit_mirrors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.triggers.html"
+                        title="previous chapter">pkgcore.ebuild.triggers</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.fetch.base.html"
+                        title="next chapter">pkgcore.fetch.base</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.fetch.base.html" title="pkgcore.fetch.base"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.triggers.html" title="pkgcore.ebuild.triggers"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

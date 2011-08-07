@@ -1,0 +1,247 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.fs.ops &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.fs.tar" href="pkgcore.fs.tar.html" />
+    <link rel="prev" title="pkgcore.fs.livefs" href="pkgcore.fs.livefs.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.fs.tar.html" title="pkgcore.fs.tar"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.fs.livefs.html" title="pkgcore.fs.livefs"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.fs.ops">
+<span id="pkgcore-fs-ops"></span><h1>pkgcore.fs.ops<a class="headerlink" href="#module-pkgcore.fs.ops" title="Permalink to this headline">¶</a></h1>
+<p>default fs ops.</p>
+<p>Shouldn&#8217;t be accessed directly for the most part, use
+L{pkgcore.plugins} to get at these ops.</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.fs.ops.default_copyfile" title="pkgcore.fs.ops.default_copyfile"><tt class="xref py py-obj docutils literal"><span class="pre">default_copyfile</span></tt></a>(obj[,&nbsp;mkdirs])</td>
+<td>copy a L{fs obj&lt;pkgcore.fs.fs.fsBase&gt;} to its stated location.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fs.ops.default_ensure_perms" title="pkgcore.fs.ops.default_ensure_perms"><tt class="xref py py-obj docutils literal"><span class="pre">default_ensure_perms</span></tt></a>(d1[,&nbsp;d2])</td>
+<td>Enforce a fs objects attributes on the livefs.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fs.ops.default_mkdir" title="pkgcore.fs.ops.default_mkdir"><tt class="xref py py-obj docutils literal"><span class="pre">default_mkdir</span></tt></a>(d)</td>
+<td>mkdir for a fsDir object</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fs.ops.merge_contents" title="pkgcore.fs.ops.merge_contents"><tt class="xref py py-obj docutils literal"><span class="pre">merge_contents</span></tt></a>(cset[,&nbsp;offset,&nbsp;callback])</td>
+<td>merge a L{pkgcore.fs.contents.contentsSet} instance to the livefs</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fs.ops.unmerge_contents" title="pkgcore.fs.ops.unmerge_contents"><tt class="xref py py-obj docutils literal"><span class="pre">unmerge_contents</span></tt></a>(cset[,&nbsp;offset,&nbsp;callback])</td>
+<td>unmerge a L{pkgcore.fs.contents.contentsSet} instance to the livefs</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="pkgcore.fs.ops.merge_contents">
+<tt class="descclassname">pkgcore.fs.ops.</tt><tt class="descname">merge_contents</tt><big>(</big><em>cset</em>, <em>offset=None</em>, <em>callback=&lt;function &lt;lambda&gt; at 0x32ebc80&gt;</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/ops.html#merge_contents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.ops.merge_contents" title="Permalink to this definition">¶</a></dt>
+<dd><p>merge a L{pkgcore.fs.contents.contentsSet} instance to the livefs</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cset</strong> &#8211; L{pkgcore.fs.contents.contentsSet} instance</li>
+<li><strong>offset</strong> &#8211; if not None, offset to prefix all locations with.
+Think of it as target dir.</li>
+<li><strong>callback</strong> &#8211; callable to report each entry being merged</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises OSError:</th><td class="field-body"><p class="first">see L{default_copyfile} and L{default_mkdir}</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True, or an exception is thrown on failure
+(OSError, although see default_copyfile for specifics).</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.fs.ops.unmerge_contents">
+<tt class="descclassname">pkgcore.fs.ops.</tt><tt class="descname">unmerge_contents</tt><big>(</big><em>cset</em>, <em>offset=None</em>, <em>callback=&lt;function &lt;lambda&gt; at 0x32ebd70&gt;</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/ops.html#unmerge_contents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.ops.unmerge_contents" title="Permalink to this definition">¶</a></dt>
+<dd><p>unmerge a L{pkgcore.fs.contents.contentsSet} instance to the livefs</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cset</strong> &#8211; L{pkgcore.fs.contents.contentsSet} instance</li>
+<li><strong>offset</strong> &#8211; if not None, offset to prefix all locations with.
+Think of it as target dir.</li>
+<li><strong>callback</strong> &#8211; callable to report each entry being unmerged</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises OSError:</th><td class="field-body"><p class="first">see L{default_copyfile} and L{default_mkdir}</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True, or an exception is thrown on failure
+(OSError, although see default_copyfile for specifics).</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.fs.ops.default_ensure_perms">
+<tt class="descclassname">pkgcore.fs.ops.</tt><tt class="descname">default_ensure_perms</tt><big>(</big><em>d1</em>, <em>d2=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/ops.html#default_ensure_perms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.ops.default_ensure_perms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enforce a fs objects attributes on the livefs.</p>
+<p>Attributes enforced are permissions, mtime, uid, gid.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d2</strong> &#8211; if not None, an fs object for what&#8217;s on the livefs now</td>
+</tr>
+<tr class="field"><th class="field-name">Raises OSError:</th><td class="field-body">if fs object attributes can&#8217;t be enforced</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">True on success, else an exception is thrown</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.fs.ops.default_copyfile">
+<tt class="descclassname">pkgcore.fs.ops.</tt><tt class="descname">default_copyfile</tt><big>(</big><em>obj</em>, <em>mkdirs=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/ops.html#default_copyfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.ops.default_copyfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>copy a L{fs obj&lt;pkgcore.fs.fs.fsBase&gt;} to its stated location.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>obj</strong> &#8211; L{pkgcore.fs.fs.fsBase} instance, exempting fsDir</td>
+</tr>
+</tbody>
+</table>
+<p>:raise OSError:, for non file objs, Exception (this needs to be fixed
+:return: true if success, else an exception is thrown</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.fs.ops.default_mkdir">
+<tt class="descclassname">pkgcore.fs.ops.</tt><tt class="descname">default_mkdir</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/ops.html#default_mkdir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.ops.default_mkdir" title="Permalink to this definition">¶</a></dt>
+<dd><p>mkdir for a fsDir object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> &#8211; L{pkgcore.fs.fs.fsDir} instance</td>
+</tr>
+<tr class="field"><th class="field-name">Raises OSError:</th><td class="field-body">if can&#8217;t complete</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">true if success, else an exception is thrown</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.fs.livefs.html"
+                        title="previous chapter">pkgcore.fs.livefs</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.fs.tar.html"
+                        title="next chapter">pkgcore.fs.tar</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.fs.tar.html" title="pkgcore.fs.tar"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.fs.livefs.html" title="pkgcore.fs.livefs"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

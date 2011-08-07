@@ -1,0 +1,176 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.config &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.config</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2005-2010 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># Copyright: 2006 Marien Zwart &lt;marienz@gentoo.org&gt;</span>
+<span class="c"># License: BSD/GPL2</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">configuration subsystem</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;ConfigHint&quot;</span><span class="p">,</span> <span class="s">&quot;configurable&quot;</span><span class="p">,</span> <span class="s">&quot;load_config&quot;</span><span class="p">)</span>
+
+<span class="c"># keep these imports as minimal as possible; access to</span>
+<span class="c"># pkgcore.config isn&#39;t uncommon, thus don&#39;t trigger till</span>
+<span class="c"># actually needed</span>
+<span class="kn">from</span> <span class="nn">pkgcore.const</span> <span class="kn">import</span> <span class="n">SYSTEM_CONF_FILE</span><span class="p">,</span> <span class="n">USER_CONF_FILE</span>
+
+<div class="viewcode-block" id="ConfigHint"><a class="viewcode-back" href="../../api/pkgcore.config.html#pkgcore.config.ConfigHint">[docs]</a><span class="k">class</span> <span class="nc">ConfigHint</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;hint for introspection supplying overrides&quot;&quot;&quot;</span>
+
+    <span class="c"># be aware this is used in clone</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s">&quot;types&quot;</span><span class="p">,</span> <span class="s">&quot;positional&quot;</span><span class="p">,</span> <span class="s">&quot;required&quot;</span><span class="p">,</span> <span class="s">&quot;typename&quot;</span><span class="p">,</span> <span class="s">&quot;allow_unknowns&quot;</span><span class="p">,</span>
+        <span class="s">&quot;doc&quot;</span><span class="p">,</span> <span class="s">&quot;authorative&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">types</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">typename</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">allow_unknowns</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">authorative</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">types</span> <span class="o">=</span> <span class="n">types</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">positional</span> <span class="o">=</span> <span class="n">positional</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="n">required</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">typename</span> <span class="o">=</span> <span class="n">typename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allow_unknowns</span> <span class="o">=</span> <span class="n">allow_unknowns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">doc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">authorative</span> <span class="o">=</span> <span class="n">authorative</span>
+
+<div class="viewcode-block" id="ConfigHint.clone"><a class="viewcode-back" href="../../api/pkgcore.config.html#pkgcore.config.ConfigHint.clone">[docs]</a>    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="n">new_kwds</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__slots__</span><span class="p">:</span>
+            <span class="n">new_kwds</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwds</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">kwds</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;unknown type overrides: </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">kwds</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">(</span><span class="o">**</span><span class="n">new_kwds</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="configurable"><a class="viewcode-back" href="../../api/pkgcore.config.html#pkgcore.config.configurable">[docs]</a><span class="k">def</span> <span class="nf">configurable</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Decorator version of ConfigHint.&quot;&quot;&quot;</span>
+    <span class="n">hint</span> <span class="o">=</span> <span class="n">ConfigHint</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">original</span><span class="p">):</span>
+        <span class="n">original</span><span class="o">.</span><span class="n">pkgcore_config_type</span> <span class="o">=</span> <span class="n">hint</span>
+        <span class="k">return</span> <span class="n">original</span>
+    <span class="k">return</span> <span class="n">decorator</span>
+
+</div>
+<div class="viewcode-block" id="load_config"><a class="viewcode-back" href="../../api/pkgcore.config.html#pkgcore.config.load_config">[docs]</a><span class="k">def</span> <span class="nf">load_config</span><span class="p">(</span><span class="n">user_conf_file</span><span class="o">=</span><span class="n">USER_CONF_FILE</span><span class="p">,</span>
+                <span class="n">system_conf_file</span><span class="o">=</span><span class="n">SYSTEM_CONF_FILE</span><span class="p">,</span>
+                <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">prepend_sources</span><span class="o">=</span><span class="p">(),</span> <span class="n">skip_config_files</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    the main entry point for any code looking to use pkgcore.</span>
+
+<span class="sd">    :param user_conf_file: file to attempt to load, else defaults to trying to</span>
+<span class="sd">        load portage 2 style configs (/etc/make.conf, /etc/make.profile)</span>
+
+<span class="sd">    :return: L{pkgcore.config.central.ConfigManager} instance</span>
+<span class="sd">        representing the system config.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">central</span><span class="p">,</span> <span class="n">cparser</span>
+    <span class="kn">from</span> <span class="nn">pkgcore.plugin</span> <span class="kn">import</span> <span class="n">get_plugins</span>
+    <span class="kn">import</span> <span class="nn">os</span>
+
+    <span class="n">configs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">prepend_sources</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_config_files</span><span class="p">:</span>
+        <span class="n">have_system_conf</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">system_conf_file</span><span class="p">)</span>
+        <span class="n">have_user_conf</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">user_conf_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">have_system_conf</span> <span class="ow">or</span> <span class="n">have_user_conf</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">have_user_conf</span><span class="p">:</span>
+                <span class="n">configs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cparser</span><span class="o">.</span><span class="n">config_from_file</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">user_conf_file</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="n">have_system_conf</span><span class="p">:</span>
+                <span class="n">configs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">cparser</span><span class="o">.</span><span class="n">config_from_file</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">system_conf_file</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># make.conf...</span>
+            <span class="kn">from</span> <span class="nn">pkgcore.ebuild.portage_conf</span> <span class="kn">import</span> <span class="n">config_from_make_conf</span>
+            <span class="n">configs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">config_from_make_conf</span><span class="p">())</span>
+    <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">get_plugins</span><span class="p">(</span><span class="s">&#39;global_config&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">central</span><span class="o">.</span><span class="n">ConfigManager</span><span class="p">(</span><span class="n">configs</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

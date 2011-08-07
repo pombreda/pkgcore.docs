@@ -1,0 +1,493 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>snakeoil.data_source &mdash; snakeoil v-trunk documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '-trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="snakeoil v-trunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="snakeoil.demandload" href="snakeoil.demandload.html" />
+    <link rel="prev" title="snakeoil.currying" href="snakeoil.currying.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.demandload.html" title="snakeoil.demandload"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.currying.html" title="snakeoil.currying"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-snakeoil.data_source">
+<span id="snakeoil-data-source"></span><h1>snakeoil.data_source<a class="headerlink" href="#module-snakeoil.data_source" title="Permalink to this headline">¶</a></h1>
+<p>A far more minimal form of file protocol encapsulation location and encoding into it</p>
+<p>The primary use for data_source&#8217;s is to encapsulate the following issues into a single object:</p>
+<ul class="simple">
+<li>is the data actually on disk (thus can I use more efficient ops against the file?).</li>
+<li>what is the preferred encoding?</li>
+<li>py3k compatibility concerns (bytes versus text file handles)</li>
+</ul>
+<p>Note that under py2k, <a class="reference internal" href="#snakeoil.data_source.text_data_source" title="snakeoil.data_source.text_data_source"><tt class="xref py py-class docutils literal"><span class="pre">text_data_source</span></tt></a> and <a class="reference internal" href="#snakeoil.data_source.bytes_data_source" title="snakeoil.data_source.bytes_data_source"><tt class="xref py py-class docutils literal"><span class="pre">bytes_data_source</span></tt></a> are
+just aliases of <a class="reference internal" href="#snakeoil.data_source.data_source" title="snakeoil.data_source.data_source"><tt class="xref py py-class docutils literal"><span class="pre">data_source</span></tt></a>; under py3k however they are seperate classes
+doing necessary conversion steps for bytes/text requests.  Use the appropriate one-
+it&#8217;ll save yourself a headache when dealing with py2k/py3k compatibility in the same
+codebase.</p>
+<p>Finally, note that all file like handles returned from <cite>test_fileobj()</cite> and <cite>bytes_fileobj()</cite>
+have a required additional attribute- <em>exceptions</em>, either a single Exception class, or a
+tuple of Exception classes that can be thrown by that file handle during usage.</p>
+<p>This requirement exists purely to allow the consuming code to avoid having to know anything
+about the backing of the file like object.</p>
+<p>The proper way to use such a filehandle is as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">snakeoil.data_source</span> <span class="kn">import</span> <span class="n">data_source</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">source</span> <span class="o">=</span> <span class="n">data_source</span><span class="p">(</span><span class="s">&quot;It&#39;s a fez. I wear a fez now. Fezes are cool.&quot;</span><span class="p">,</span> <span class="n">mutable</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">handle</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">text_fileobj</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;You graffitied the oldest cliff face in the universe.&quot;</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="gr">TypeError</span>:
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># if this where a normal file, it would be an IOError- it&#39;s impossible to guess the</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># correct exception to intercept, so instead we rely on the handle telling us what</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># we should catch;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>  <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;You wouldn&#39;t answer your phone.&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">except</span> <span class="n">handle</span><span class="o">.</span><span class="n">exceptions</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+<span class="gp">... </span>  <span class="k">print</span> <span class="s">&quot;we caught the exception.&quot;</span>
+<span class="go">we caught the exception.</span>
+</pre></div>
+</div>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#snakeoil.data_source.base" title="snakeoil.data_source.base"><tt class="xref py py-obj docutils literal"><span class="pre">base</span></tt></a></td>
+<td>base data_source class; implementations of the protocol are advised</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.data_source.bytes_data_source" title="snakeoil.data_source.bytes_data_source"><tt class="xref py py-obj docutils literal"><span class="pre">bytes_data_source</span></tt></a></td>
+<td>base class encapsulating a purely virtual data source lacking an on disk location.</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.data_source.data_source" title="snakeoil.data_source.data_source"><tt class="xref py py-obj docutils literal"><span class="pre">data_source</span></tt></a>(data[,&nbsp;mutable])</td>
+<td>base class encapsulating a purely virtual data source lacking an on disk location.</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.data_source.invokable_data_source" title="snakeoil.data_source.invokable_data_source"><tt class="xref py py-obj docutils literal"><span class="pre">invokable_data_source</span></tt></a>(data)</td>
+<td>data source that takes a callable instead of the actual data item</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.data_source.local_source" title="snakeoil.data_source.local_source"><tt class="xref py py-obj docutils literal"><span class="pre">local_source</span></tt></a>(path[,&nbsp;mutable,&nbsp;encoding])</td>
+<td>locally accessible data source</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.data_source.text_data_source" title="snakeoil.data_source.text_data_source"><tt class="xref py py-obj docutils literal"><span class="pre">text_data_source</span></tt></a></td>
+<td>base class encapsulating a purely virtual data source lacking an on disk location.</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="snakeoil.data_source.base">
+<em class="property">class </em><tt class="descclassname">snakeoil.data_source.</tt><tt class="descname">base</tt><a class="reference internal" href="../_modules/snakeoil/data_source.html#base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.data_source.base" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>base data_source class; implementations of the protocol are advised
+to derive from this.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><strong>path</strong> &#8211; If None, no local path is available- else it&#8217;s the ondisk path to
+the data</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="snakeoil.data_source.base.bytes_fileobj">
+<tt class="descname">bytes_fileobj</tt><big>(</big><em>writable=False</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/data_source.html#base.bytes_fileobj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.data_source.base.bytes_fileobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a bytes level filehandle for for this data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>writable</strong> &#8211; whether or not we need to write to the handle</td>
+</tr>
+<tr class="field"><th class="field-name">Raise :</th><td class="field-body">TypeError if immutable and write is requested</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">file handle like object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.data_source.base.get_bytes_fileobj">
+<tt class="descname">get_bytes_fileobj</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#snakeoil.data_source.base.get_bytes_fileobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>deprecated; use bytes_fileobj directed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.data_source.base.get_fileobj">
+<tt class="descname">get_fileobj</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#snakeoil.data_source.base.get_fileobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>deprecated; use get_text_fileobj instead</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.data_source.base.get_text_fileobj">
+<tt class="descname">get_text_fileobj</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#snakeoil.data_source.base.get_text_fileobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>deprecated; use text_fileobj directly</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.data_source.base.text_fileobj">
+<tt class="descname">text_fileobj</tt><big>(</big><em>writable=False</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/data_source.html#base.text_fileobj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.data_source.base.text_fileobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a text level filehandle for for this data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>writable</strong> &#8211; whether or not we need to write to the handle</td>
+</tr>
+<tr class="field"><th class="field-name">Raise :</th><td class="field-body">TypeError if immutable and write is requested</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">file handle like object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="snakeoil.data_source.data_source">
+<em class="property">class </em><tt class="descclassname">snakeoil.data_source.</tt><tt class="descname">data_source</tt><big>(</big><em>data</em>, <em>mutable=False</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/data_source.html#data_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.data_source.data_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#snakeoil.data_source.base" title="snakeoil.data_source.base"><tt class="xref py py-class docutils literal"><span class="pre">snakeoil.data_source.base</span></tt></a></p>
+<p>base class encapsulating a purely virtual data source lacking an on disk location.</p>
+<p>Whether this be due to transformation steps necessary (pulling the data out of
+an archive for example), or the data being generated on the fly, this classes&#8217;s
+derivatives <a class="reference internal" href="#snakeoil.data_source.text_data_source" title="snakeoil.data_source.text_data_source"><tt class="xref py py-class docutils literal"><span class="pre">text_data_source</span></tt></a> and <a class="reference internal" href="#snakeoil.data_source.bytes_data_source" title="snakeoil.data_source.bytes_data_source"><tt class="xref py py-class docutils literal"><span class="pre">bytes_data_source</span></tt></a> are
+likely what you should be using for direct creation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> &#8211; the raw data.  should either be a string or bytes depending on your
+derivative</li>
+<li><strong>path</strong> &#8211; note that path is None for this class- no on disk location available.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="snakeoil.data_source.data_source.bytes_fileobj">
+<tt class="descname">bytes_fileobj</tt><big>(</big><em>writable=False</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/data_source.html#data_source.bytes_fileobj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.data_source.data_source.bytes_fileobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a bytes level filehandle for for this data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>writable</strong> &#8211; whether or not we need to write to the handle</td>
+</tr>
+<tr class="field"><th class="field-name">Raise :</th><td class="field-body">TypeError if immutable and write is requested</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">file handle like object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.data_source.data_source.get_bytes_fileobj">
+<tt class="descname">get_bytes_fileobj</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#snakeoil.data_source.data_source.get_bytes_fileobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>deprecated; use bytes_fileobj directed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.data_source.data_source.get_fileobj">
+<tt class="descname">get_fileobj</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#snakeoil.data_source.data_source.get_fileobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>deprecated; use get_text_fileobj instead</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.data_source.data_source.get_text_fileobj">
+<tt class="descname">get_text_fileobj</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#snakeoil.data_source.data_source.get_text_fileobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>deprecated; use text_fileobj directly</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.data_source.data_source.text_fileobj">
+<tt class="descname">text_fileobj</tt><big>(</big><em>writable=False</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/data_source.html#data_source.text_fileobj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.data_source.data_source.text_fileobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a text level filehandle for for this data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>writable</strong> &#8211; whether or not we need to write to the handle</td>
+</tr>
+<tr class="field"><th class="field-name">Raise :</th><td class="field-body">TypeError if immutable and write is requested</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">file handle like object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="snakeoil.data_source.local_source">
+<em class="property">class </em><tt class="descclassname">snakeoil.data_source.</tt><tt class="descname">local_source</tt><big>(</big><em>path</em>, <em>mutable=False</em>, <em>encoding=None</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/data_source.html#local_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.data_source.local_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#snakeoil.data_source.base" title="snakeoil.data_source.base"><tt class="xref py py-class docutils literal"><span class="pre">snakeoil.data_source.base</span></tt></a></p>
+<p>locally accessible data source</p>
+<p>Literally a file on disk.</p>
+<dl class="method">
+<dt id="snakeoil.data_source.local_source.bytes_fileobj">
+<tt class="descname">bytes_fileobj</tt><big>(</big><em>writable=False</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/data_source.html#local_source.bytes_fileobj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.data_source.local_source.bytes_fileobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a bytes level filehandle for for this data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>writable</strong> &#8211; whether or not we need to write to the handle</td>
+</tr>
+<tr class="field"><th class="field-name">Raise :</th><td class="field-body">TypeError if immutable and write is requested</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">file handle like object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.data_source.local_source.get_bytes_fileobj">
+<tt class="descname">get_bytes_fileobj</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#snakeoil.data_source.local_source.get_bytes_fileobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>deprecated; use bytes_fileobj directed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.data_source.local_source.get_fileobj">
+<tt class="descname">get_fileobj</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#snakeoil.data_source.local_source.get_fileobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>deprecated; use get_text_fileobj instead</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.data_source.local_source.get_path">
+<tt class="descname">get_path</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/snakeoil/data_source.html#local_source.get_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.data_source.local_source.get_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>deprecated getter to access <tt class="docutils literal"><span class="pre">path</span></tt> attribute; access <tt class="docutils literal"><span class="pre">path</span></tt>
+directly instead``</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.data_source.local_source.get_text_fileobj">
+<tt class="descname">get_text_fileobj</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#snakeoil.data_source.local_source.get_text_fileobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>deprecated; use text_fileobj directly</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.data_source.local_source.text_fileobj">
+<tt class="descname">text_fileobj</tt><big>(</big><em>writable=False</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/data_source.html#local_source.text_fileobj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.data_source.local_source.text_fileobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a text level filehandle for for this data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>writable</strong> &#8211; whether or not we need to write to the handle</td>
+</tr>
+<tr class="field"><th class="field-name">Raise :</th><td class="field-body">TypeError if immutable and write is requested</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">file handle like object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.data_source.text_data_source">
+<tt class="descclassname">snakeoil.data_source.</tt><tt class="descname">text_data_source</tt><a class="reference internal" href="../_modules/snakeoil/data_source.html#text_data_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.data_source.text_data_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#snakeoil.data_source.data_source" title="snakeoil.data_source.data_source"><tt class="xref py py-class docutils literal"><span class="pre">data_source</span></tt></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.data_source.bytes_data_source">
+<tt class="descclassname">snakeoil.data_source.</tt><tt class="descname">bytes_data_source</tt><a class="reference internal" href="../_modules/snakeoil/data_source.html#bytes_data_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.data_source.bytes_data_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#snakeoil.data_source.data_source" title="snakeoil.data_source.data_source"><tt class="xref py py-class docutils literal"><span class="pre">data_source</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="snakeoil.data_source.invokable_data_source">
+<em class="property">class </em><tt class="descclassname">snakeoil.data_source.</tt><tt class="descname">invokable_data_source</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/data_source.html#invokable_data_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.data_source.invokable_data_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#snakeoil.data_source.data_source" title="snakeoil.data_source.data_source"><tt class="xref py py-class docutils literal"><span class="pre">snakeoil.data_source.data_source</span></tt></a></p>
+<p>data source that takes a callable instead of the actual data item</p>
+<p>The callable takes a single argument- a boolean, True if a text fileobj
+is requested, False if None</p>
+<p>Note that this instance is explicitly readonly.</p>
+<dl class="method">
+<dt id="snakeoil.data_source.invokable_data_source.bytes_fileobj">
+<tt class="descname">bytes_fileobj</tt><big>(</big><em>writable=False</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/data_source.html#invokable_data_source.bytes_fileobj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.data_source.invokable_data_source.bytes_fileobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a bytes level filehandle for for this data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>writable</strong> &#8211; whether or not we need to write to the handle</td>
+</tr>
+<tr class="field"><th class="field-name">Raise :</th><td class="field-body">TypeError if immutable and write is requested</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">file handle like object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.data_source.invokable_data_source.get_bytes_fileobj">
+<tt class="descname">get_bytes_fileobj</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#snakeoil.data_source.invokable_data_source.get_bytes_fileobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>deprecated; use bytes_fileobj directed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.data_source.invokable_data_source.get_fileobj">
+<tt class="descname">get_fileobj</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#snakeoil.data_source.invokable_data_source.get_fileobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>deprecated; use get_text_fileobj instead</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.data_source.invokable_data_source.get_text_fileobj">
+<tt class="descname">get_text_fileobj</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#snakeoil.data_source.invokable_data_source.get_text_fileobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>deprecated; use text_fileobj directly</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.data_source.invokable_data_source.text_fileobj">
+<tt class="descname">text_fileobj</tt><big>(</big><em>writable=False</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/data_source.html#invokable_data_source.text_fileobj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.data_source.invokable_data_source.text_fileobj" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a text level filehandle for for this data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>writable</strong> &#8211; whether or not we need to write to the handle</td>
+</tr>
+<tr class="field"><th class="field-name">Raise :</th><td class="field-body">TypeError if immutable and write is requested</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">file handle like object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="snakeoil.data_source.invokable_data_source.wrap_function">
+<em class="property">classmethod </em><tt class="descname">wrap_function</tt><big>(</big><em>invokable</em>, <em>returns_text=True</em>, <em>returns_handle=False</em>, <em>encoding_hint=None</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/data_source.html#invokable_data_source.wrap_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.data_source.invokable_data_source.wrap_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to automatically convert a function that returns text or bytes into appropriate
+callable</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>invokable</strong> &#8211; a callable that returns either text, or bytes, taking no args</li>
+<li><strong>returns_text</strong> &#8211; True if the data returned is text/basestring, False if Not</li>
+<li><strong>returns_handle</strong> &#8211; True if the object returned is a handle, False if not.  Note that returns_text
+still has meaning here- returns_text indicates what sort of data the handle returns from read
+invocations.</li>
+<li><strong>encoding_hint</strong> &#8211; the preferred encoding to use for encoding</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">invokable_data_source instance</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="snakeoil.currying.html"
+                        title="previous chapter">snakeoil.currying</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="snakeoil.demandload.html"
+                        title="next chapter">snakeoil.demandload</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.demandload.html" title="snakeoil.demandload"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.currying.html" title="snakeoil.currying"
+             >previous</a> |</li>
+        <li><a href="../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

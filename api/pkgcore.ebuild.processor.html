@@ -1,0 +1,498 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.ebuild.processor &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.ebuild.profiles" href="pkgcore.ebuild.profiles.html" />
+    <link rel="prev" title="pkgcore.ebuild.portage_conf" href="pkgcore.ebuild.portage_conf.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.profiles.html" title="pkgcore.ebuild.profiles"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.portage_conf.html" title="pkgcore.ebuild.portage_conf"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.ebuild.processor">
+<span id="pkgcore-ebuild-processor"></span><h1>pkgcore.ebuild.processor<a class="headerlink" href="#module-pkgcore.ebuild.processor" title="Permalink to this headline">¶</a></h1>
+<p>low level ebuild processor.</p>
+<p>This basically is a coprocessor that controls a bash daemon for actual
+ebuild execution. Via this, the bash side can reach into the python
+side (and vice versa), enabling remote trees (piping data from python
+side into bash side for example).</p>
+<p>A couple of processors are left lingering while pkgcore is running for
+the purpose of avoiding spawning overhead, this (and the general
+design) reduces regen time by over 40% compared to portage-2.1</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.processor.expected_ebuild_env" title="pkgcore.ebuild.processor.expected_ebuild_env"><tt class="xref py py-obj docutils literal"><span class="pre">expected_ebuild_env</span></tt></a>(pkg[,&nbsp;d,&nbsp;...])</td>
+<td>setup expected ebuild vars</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.processor.release_ebuild_processor" title="pkgcore.ebuild.processor.release_ebuild_processor"><tt class="xref py py-obj docutils literal"><span class="pre">release_ebuild_processor</span></tt></a>(ebp)</td>
+<td>the inverse of request_ebuild_processor.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.processor.request_ebuild_processor" title="pkgcore.ebuild.processor.request_ebuild_processor"><tt class="xref py py-obj docutils literal"><span class="pre">request_ebuild_processor</span></tt></a>([userpriv,&nbsp;...])</td>
+<td>request an ebuild_processor instance, creating a new one if needed.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.processor.EbuildProcessor" title="pkgcore.ebuild.processor.EbuildProcessor"><tt class="xref py py-obj docutils literal"><span class="pre">EbuildProcessor</span></tt></a>(userpriv,&nbsp;sandbox,&nbsp;fakeroot,&nbsp;...)</td>
+<td>abstraction of a running ebuild.sh instance.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Exceptions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.processor.UnhandledCommand" title="pkgcore.ebuild.processor.UnhandledCommand"><tt class="xref py py-obj docutils literal"><span class="pre">UnhandledCommand</span></tt></a>([line])</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="pkgcore.ebuild.processor.request_ebuild_processor">
+<tt class="descclassname">pkgcore.ebuild.processor.</tt><tt class="descname">request_ebuild_processor</tt><big>(</big><em>userpriv=False</em>, <em>sandbox=None</em>, <em>fakeroot=False</em>, <em>save_file=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#request_ebuild_processor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.request_ebuild_processor" title="Permalink to this definition">¶</a></dt>
+<dd><p>request an ebuild_processor instance, creating a new one if needed.</p>
+<p>Note that fakeroot processes are B{never} reused due to the fact
+the fakeroot env becomes localized to the pkg it&#8217;s handling.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">L{EbuildProcessor}</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>userpriv</strong> &#8211; should the processor be deprived to
+L{pkgcore.os_data.portage_gid} and L{pkgcore.os_data.portage_uid}?</li>
+<li><strong>sandbox</strong> &#8211; should the processor be sandboxed?</li>
+<li><strong>fakeroot</strong> &#8211; should the processor be fakerooted?  This option is
+mutually exclusive to sandbox, and requires save_file to be set.</li>
+<li><strong>save_file</strong> &#8211; location to store fakeroot state dumps</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.processor.release_ebuild_processor">
+<tt class="descclassname">pkgcore.ebuild.processor.</tt><tt class="descname">release_ebuild_processor</tt><big>(</big><em>ebp</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#release_ebuild_processor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.release_ebuild_processor" title="Permalink to this definition">¶</a></dt>
+<dd><p>the inverse of request_ebuild_processor.</p>
+<p>Any processor requested via request_ebuild_processor B{must} be released
+via this function once it&#8217;s no longer in use.
+This includes fakerooted processors.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ebp</strong> &#8211; L{EbuildProcessor} instance</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">boolean indicating release results- if the processor isn&#8217;t known
+as active, False is returned.
+If a processor isn&#8217;t known as active, this means either calling
+error or an internal error.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.processor.</tt><tt class="descname">EbuildProcessor</tt><big>(</big><em>userpriv</em>, <em>sandbox</em>, <em>fakeroot</em>, <em>save_file</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>abstraction of a running ebuild.sh instance.</p>
+<p>Contains the env, functions, etc that ebuilds expect.</p>
+<dl class="method">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.expect">
+<tt class="descname">expect</tt><big>(</big><em>want</em>, <em>async=False</em>, <em>flush=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor.expect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.expect" title="Permalink to this definition">¶</a></dt>
+<dd><p>read from the daemon, check if the returned string is expected.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>want</strong> &#8211; string we&#8217;re expecting</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">boolean, was what was read == want?</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.fakerooted">
+<tt class="descname">fakerooted</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor.fakerooted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.fakerooted" title="Permalink to this definition">¶</a></dt>
+<dd><p>is this instance fakerooted?</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.generic_handler">
+<tt class="descname">generic_handler</tt><big>(</big><em>additional_commands=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor.generic_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.generic_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>internal event handler responding to the running processor&#8217;s requests.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>additional_commands</strong> (<em>mapping from string to callable.</em>) &#8211; Extra command handlers.
+Command names cannot have spaces.
+The callable is called with the processor as first arg, and
+remaining string (None if no remaining fragment) as second arg.
+If you need to split the args to command, whitespace splitting
+falls to your func.</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">Raises UnhandledCommand:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">thrown when an unknown command is encountered.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.get_keys">
+<tt class="descname">get_keys</tt><big>(</big><em>package_inst</em>, <em>eclass_cache</em>, <em>preload_eclasses=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor.get_keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.get_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>request the metadata be regenerated from an ebuild</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>package_inst</strong> &#8211; L{pkgcore.ebuild.ebuild_src.package} instance
+to regenerate</li>
+<li><strong>eclass_cache</strong> &#8211; L{pkgcore.ebuild.eclass_cache} instance to use
+for eclass access</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dict when successful, None when failed</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.is_alive">
+<tt class="descname">is_alive</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor.is_alive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.is_alive" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns if it&#8217;s known if the processor has been shutdown.</p>
+<p>Currently doesn&#8217;t check to ensure the pid is still running,
+yet it should.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.lock">
+<tt class="descname">lock</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor.lock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.lock" title="Permalink to this definition">¶</a></dt>
+<dd><p>lock the processor.  Currently doesn&#8217;t block any access, but will</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.locked">
+<tt class="descname">locked</tt><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.locked" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to processing_lock</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.onetime">
+<tt class="descname">onetime</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor.onetime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.onetime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is this instance going to be discarded after usage (fakerooted)?</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.preload_eclasses">
+<tt class="descname">preload_eclasses</tt><big>(</big><em>cache</em>, <em>async=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor.preload_eclasses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.preload_eclasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preload an eclass stack&#8217;s eclasses into a bash functions</p>
+<p>Avoids the cost of going to disk on inherit. Preloading eutils
+(which is heaviliy inherited) speeds up regen times for
+example.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ec_file</strong> &#8211; filepath of eclass to preload</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">boolean, True for success</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.prep_phase">
+<tt class="descname">prep_phase</tt><big>(</big><em>phase</em>, <em>env</em>, <em>sandbox=None</em>, <em>logging=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor.prep_phase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.prep_phase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function, to initialize the processor for a phase.</p>
+<p>Used to combine multiple calls into one, leaving the processor
+in a state where all that remains is a call start_processing
+call, then generic_handler event loop.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>phase</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; phase to prep for</li>
+<li><strong>env</strong> &#8211; mapping of the environment to prep the processor with</li>
+<li><strong>sandbox</strong> &#8211; should the sandbox be enabled?</li>
+<li><strong>logging</strong> &#8211; None, or a filepath to log the output from the
+processor to</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True for success, False for everything else</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.read">
+<tt class="descname">read</tt><big>(</big><em>lines=1</em>, <em>ignore_killed=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>read data from the daemon.  Shouldn&#8217;t be called except internally</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.readlines">
+<tt class="descname">readlines</tt><big>(</big><em>lines</em>, <em>ignore_killed=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor.readlines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.readlines" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.sandbox_summary">
+<tt class="descname">sandbox_summary</tt><big>(</big><em>move_log=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor.sandbox_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.sandbox_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>if the instance is sandboxed, print the sandbox access summary</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>move_log</strong> &#8211; location to move the sandbox log to if a failure
+occured</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.sandboxed">
+<tt class="descname">sandboxed</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor.sandboxed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.sandboxed" title="Permalink to this definition">¶</a></dt>
+<dd><p>is this instance sandboxed?</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.send_env">
+<tt class="descname">send_env</tt><big>(</big><em>env_dict</em>, <em>async=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor.send_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.send_env" title="Permalink to this definition">¶</a></dt>
+<dd><p>transfer the ebuild&#8217;s desired env (env_dict) to the running daemon</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>env_dict</strong> (<em>mapping with string keys and values.</em>) &#8211; the bash env.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.set_logfile">
+<tt class="descname">set_logfile</tt><big>(</big><em>logfile=''</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor.set_logfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.set_logfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the logfile (location to log to).</p>
+<p>Relevant only when the daemon is sandbox&#8217;d,</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>logfile</strong> &#8211; filepath to log to</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.set_sandbox_state">
+<tt class="descname">set_sandbox_state</tt><big>(</big><em>state</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor.set_sandbox_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.set_sandbox_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>tell the daemon whether to enable the sandbox, or disable it
+:param state: boolean, if True enable sandbox</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.shutdown_processor">
+<tt class="descname">shutdown_processor</tt><big>(</big><em>ignore_keyboard_interrupt=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor.shutdown_processor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.shutdown_processor" title="Permalink to this definition">¶</a></dt>
+<dd><p>tell the daemon to shut itself down, and mark this instance as dead</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.unlock">
+<tt class="descname">unlock</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor.unlock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.unlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>unlock the processor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.userprived">
+<tt class="descname">userprived</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor.userprived"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.userprived" title="Permalink to this definition">¶</a></dt>
+<dd><p>is this instance userprived?</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.processor.EbuildProcessor.write">
+<tt class="descname">write</tt><big>(</big><em>string</em>, <em>flush=True</em>, <em>disable_runtime_exceptions=False</em>, <em>append_newline=True</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#EbuildProcessor.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.EbuildProcessor.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>send something to the bash side.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>string</strong> &#8211; string to write to the bash processor.
+All strings written are automatically n terminated.</li>
+<li><strong>flush</strong> &#8211; boolean controlling whether the data is flushed
+immediately.  Disabling flush is useful when dumping large
+amounts of data.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pkgcore.ebuild.processor.UnhandledCommand">
+<em class="property">exception </em><tt class="descclassname">pkgcore.ebuild.processor.</tt><tt class="descname">UnhandledCommand</tt><big>(</big><em>line=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#UnhandledCommand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.UnhandledCommand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pkgcore.ebuild.processor.ProcessingInterruption</span></tt></p>
+<dl class="attribute">
+<dt id="pkgcore.ebuild.processor.UnhandledCommand.args">
+<tt class="descname">args</tt><a class="headerlink" href="#pkgcore.ebuild.processor.UnhandledCommand.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.processor.UnhandledCommand.message">
+<tt class="descname">message</tt><a class="headerlink" href="#pkgcore.ebuild.processor.UnhandledCommand.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.processor.expected_ebuild_env">
+<tt class="descclassname">pkgcore.ebuild.processor.</tt><tt class="descname">expected_ebuild_env</tt><big>(</big><em>pkg</em>, <em>d=None</em>, <em>env_source_override=None</em>, <em>depends=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#expected_ebuild_env"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.expected_ebuild_env" title="Permalink to this definition">¶</a></dt>
+<dd><p>setup expected ebuild vars</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>d</strong> &#8211; if None, generates a dict, else modifies a passed in mapping</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">mapping</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.portage_conf.html"
+                        title="previous chapter">pkgcore.ebuild.portage_conf</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.profiles.html"
+                        title="next chapter">pkgcore.ebuild.profiles</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.profiles.html" title="pkgcore.ebuild.profiles"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.portage_conf.html" title="pkgcore.ebuild.portage_conf"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

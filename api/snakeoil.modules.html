@@ -1,0 +1,210 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>snakeoil.modules &mdash; snakeoil v-trunk documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '-trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="snakeoil v-trunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="snakeoil.obj" href="snakeoil.obj.html" />
+    <link rel="prev" title="snakeoil.mappings" href="snakeoil.mappings.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.obj.html" title="snakeoil.obj"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.mappings.html" title="snakeoil.mappings"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-snakeoil.modules">
+<span id="snakeoil-modules"></span><h1>snakeoil.modules<a class="headerlink" href="#module-snakeoil.modules" title="Permalink to this headline">¶</a></h1>
+<p>dynamic import functionality</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#snakeoil.modules.load_any" title="snakeoil.modules.load_any"><tt class="xref py py-obj docutils literal"><span class="pre">load_any</span></tt></a>(name)</td>
+<td>load an attribute or a module from a namespace</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.modules.load_attribute" title="snakeoil.modules.load_attribute"><tt class="xref py py-obj docutils literal"><span class="pre">load_attribute</span></tt></a>(name)</td>
+<td>load an attribute from a module</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.modules.load_module" title="snakeoil.modules.load_module"><tt class="xref py py-obj docutils literal"><span class="pre">load_module</span></tt></a>(name)</td>
+<td>load a module</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Exceptions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#snakeoil.modules.FailedImport" title="snakeoil.modules.FailedImport"><tt class="xref py py-obj docutils literal"><span class="pre">FailedImport</span></tt></a>(trg,&nbsp;e)</td>
+<td>Raised when a requested target cannot be imported</td>
+</tr>
+</tbody>
+</table>
+<dl class="exception">
+<dt id="snakeoil.modules.FailedImport">
+<em class="property">exception </em><tt class="descclassname">snakeoil.modules.</tt><tt class="descname">FailedImport</tt><big>(</big><em>trg</em>, <em>e</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/modules.html#FailedImport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.modules.FailedImport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.ImportError</span></tt></p>
+<p>Raised when a requested target cannot be imported</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="snakeoil.modules.load_module">
+<tt class="descclassname">snakeoil.modules.</tt><tt class="descname">load_module</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/modules.html#load_module"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.modules.load_module" title="Permalink to this definition">¶</a></dt>
+<dd><p>load a module</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; python dotted namespace path of the module to import</td>
+</tr>
+<tr class="field"><th class="field-name">Raise :</th><td class="field-body">FailedImport if importing fails</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">imported module</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="snakeoil.modules.load_attribute">
+<tt class="descclassname">snakeoil.modules.</tt><tt class="descname">load_attribute</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/modules.html#load_attribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.modules.load_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>load an attribute from a module</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; python dotted namespace path of the attribute to load from a
+module for example, <tt class="docutils literal"><span class="pre">snakeoil.modules.load_module</span></tt> would return
+<a class="reference internal" href="#snakeoil.modules.load_module" title="snakeoil.modules.load_module"><tt class="xref py py-func docutils literal"><span class="pre">load_module()</span></tt></a></td>
+</tr>
+<tr class="field"><th class="field-name">Raise :</th><td class="field-body">FailedImport if importing fails, or the requested attribute cannot
+be found</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">attribute resolved from <cite>name</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="snakeoil.modules.load_any">
+<tt class="descclassname">snakeoil.modules.</tt><tt class="descname">load_any</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/modules.html#load_any"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.modules.load_any" title="Permalink to this definition">¶</a></dt>
+<dd><p>load an attribute or a module from a namespace</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; python dotted namespace path of the object to load from a
+module for example, <tt class="docutils literal"><span class="pre">snakeoil.modules.load_module</span></tt> would return
+<a class="reference internal" href="#snakeoil.modules.load_module" title="snakeoil.modules.load_module"><tt class="xref py py-func docutils literal"><span class="pre">load_module()</span></tt></a>, and <tt class="docutils literal"><span class="pre">snakeoil.modules</span></tt> would return <cite>modules</cite></td>
+</tr>
+<tr class="field"><th class="field-name">Raise :</th><td class="field-body">FailedImport if importing fails, or the requested attribute cannot
+be found</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">object resolved from <cite>name</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="snakeoil.mappings.html"
+                        title="previous chapter">snakeoil.mappings</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="snakeoil.obj.html"
+                        title="next chapter">snakeoil.obj</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.obj.html" title="snakeoil.obj"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.mappings.html" title="snakeoil.mappings"
+             >previous</a> |</li>
+        <li><a href="../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

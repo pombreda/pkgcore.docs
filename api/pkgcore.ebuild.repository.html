@@ -1,0 +1,461 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.ebuild.repository &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.ebuild.resolver" href="pkgcore.ebuild.resolver.html" />
+    <link rel="prev" title="pkgcore.ebuild.repo_objs" href="pkgcore.ebuild.repo_objs.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.resolver.html" title="pkgcore.ebuild.resolver"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.repo_objs.html" title="pkgcore.ebuild.repo_objs"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.ebuild.repository">
+<span id="pkgcore-ebuild-repository"></span><h1>pkgcore.ebuild.repository<a class="headerlink" href="#module-pkgcore.ebuild.repository" title="Permalink to this headline">¶</a></h1>
+<p>ebuild repository, specific to gentoo ebuild trees (whether cvs or rsync)</p>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.repository.ConfiguredTree" title="pkgcore.ebuild.repository.ConfiguredTree"><tt class="xref py py-obj docutils literal"><span class="pre">ConfiguredTree</span></tt></a>(raw_repo,&nbsp;domain,&nbsp;domain_settings)</td>
+<td>wrapper around a L{UnconfiguredTree} binding build/configuration data (USE)</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.repository.SlavedTree" title="pkgcore.ebuild.repository.SlavedTree"><tt class="xref py py-obj docutils literal"><span class="pre">SlavedTree</span></tt></a>(parent_repo,&nbsp;*args,&nbsp;**kwds)</td>
+<td>repository that pulls repo metadata from a parent repo; mirrors</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.repository.UnconfiguredTree" title="pkgcore.ebuild.repository.UnconfiguredTree"><tt class="xref py py-obj docutils literal"><span class="pre">UnconfiguredTree</span></tt></a>(location[,&nbsp;cache,&nbsp;...])</td>
+<td>raw implementation supporting standard ebuild tree.</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="pkgcore.ebuild.repository.UnconfiguredTree">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.repository.</tt><tt class="descname">UnconfiguredTree</tt><big>(</big><em>location</em>, <em>cache=()</em>, <em>eclass_cache=None</em>, <em>default_mirrors=None</em>, <em>sync=None</em>, <em>override_repo_id=None</em>, <em>ignore_paludis_versioning=False</em>, <em>allow_missing_manifests=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/repository.html#UnconfiguredTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.repository.UnconfiguredTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pkgcore.repository.syncable.html#pkgcore.repository.syncable.tree_mixin" title="pkgcore.repository.syncable.tree_mixin"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.repository.syncable.tree_mixin</span></tt></a>, <a class="reference internal" href="pkgcore.repository.prototype.html#pkgcore.repository.prototype.tree" title="pkgcore.repository.prototype.tree"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.repository.prototype.tree</span></tt></a></p>
+<p>raw implementation supporting standard ebuild tree.</p>
+<p>return packages don&#8217;t have USE configuration bound to them.</p>
+<dl class="attribute">
+<dt id="pkgcore.ebuild.repository.UnconfiguredTree.configure">
+<tt class="descname">configure</tt><a class="headerlink" href="#pkgcore.ebuild.repository.UnconfiguredTree.configure" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#pkgcore.ebuild.repository.ConfiguredTree" title="pkgcore.ebuild.repository.ConfiguredTree"><tt class="xref py py-class docutils literal"><span class="pre">ConfiguredTree</span></tt></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.repository.UnconfiguredTree.default_visibility_limiters">
+<tt class="descname">default_visibility_limiters</tt><a class="headerlink" href="#pkgcore.ebuild.repository.UnconfiguredTree.default_visibility_limiters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.UnconfiguredTree.get_operations">
+<tt class="descname">get_operations</tt><big>(</big><em>observer=None</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.UnconfiguredTree.get_operations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.UnconfiguredTree.has_match">
+<tt class="descname">has_match</tt><big>(</big><em>atom</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.UnconfiguredTree.has_match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.UnconfiguredTree.itermatch">
+<tt class="descname">itermatch</tt><big>(</big><em>restrict</em>, <em>restrict_solutions=None</em>, <em>sorter=None</em>, <em>pkg_klass_override=None</em>, <em>force=None</em>, <em>yield_none=False</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.UnconfiguredTree.itermatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>generator that yields packages match a restriction.</p>
+<dl class="docutils">
+<dt>:type restrict <span class="classifier-delimiter">:</span> <span class="classifier">L{pkgcore.restrictions.packages.PackageRestriction}</span></dt>
+<dd>instance</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>restrict</strong> &#8211; restriction to search via</li>
+<li><strong>restrict_solutions</strong> &#8211; cnf collapsed list of the restrict.
+Don&#8217;t play with it unless you know what you&#8217;re doing</li>
+<li><strong>sorter</strong> &#8211; callable to do sorting during searching-
+if sorting the results, use this instead of sorting externally.</li>
+<li><strong>yield_none</strong> &#8211; if True then itermatch will yield None for every
+non-matching package. This is meant for use in combination with
+C{twisted.task.cooperate} or other async uses where itermatch
+should not wait many (wallclock) seconds between yielding
+packages. If you override this method you should yield
+None in long-running loops, strictly calling it for every package
+is not necessary.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.UnconfiguredTree.match">
+<tt class="descname">match</tt><big>(</big><em>atom</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.UnconfiguredTree.match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.UnconfiguredTree.notify_add_package">
+<tt class="descname">notify_add_package</tt><big>(</big><em>pkg</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.UnconfiguredTree.notify_add_package" title="Permalink to this definition">¶</a></dt>
+<dd><p>internal function,</p>
+<p>notify the repository that a pkg is being addeded to it</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.UnconfiguredTree.notify_remove_package">
+<tt class="descname">notify_remove_package</tt><big>(</big><em>pkg</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.UnconfiguredTree.notify_remove_package" title="Permalink to this definition">¶</a></dt>
+<dd><p>internal function,</p>
+<p>notify the repository that a pkg it provides is being removed</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.repository.UnconfiguredTree.operations">
+<tt class="descname">operations</tt><a class="headerlink" href="#pkgcore.ebuild.repository.UnconfiguredTree.operations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.repository.UnconfiguredTree.operations_kls">
+<tt class="descname">operations_kls</tt><a class="headerlink" href="#pkgcore.ebuild.repository.UnconfiguredTree.operations_kls" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#pkgcore.ebuild.repository.UnconfiguredTree.operations" title="pkgcore.ebuild.repository.UnconfiguredTree.operations"><tt class="xref py py-class docutils literal"><span class="pre">operations</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.UnconfiguredTree.rebind">
+<tt class="descname">rebind</tt><big>(</big><em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/repository.html#UnconfiguredTree.rebind"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.repository.UnconfiguredTree.rebind" title="Permalink to this definition">¶</a></dt>
+<dd><p>generate a new tree instance with the same location using new keywords.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kwds</strong> &#8211; see __init__ for valid values</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.repository.UnconfiguredTree.repo_id">
+<tt class="descname">repo_id</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/repository.html#UnconfiguredTree.repo_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.repository.UnconfiguredTree.repo_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.UnconfiguredTree.sync">
+<tt class="descname">sync</tt><big>(</big><em>status_obj=None</em>, <em>force=False</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.UnconfiguredTree.sync" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.repository.UnconfiguredTree.syncable">
+<tt class="descname">syncable</tt><a class="headerlink" href="#pkgcore.ebuild.repository.UnconfiguredTree.syncable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.repository.SlavedTree">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.repository.</tt><tt class="descname">SlavedTree</tt><big>(</big><em>parent_repo</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/repository.html#SlavedTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.repository.SlavedTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.ebuild.repository.UnconfiguredTree" title="pkgcore.ebuild.repository.UnconfiguredTree"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.ebuild.repository.UnconfiguredTree</span></tt></a></p>
+<p>repository that pulls repo metadata from a parent repo; mirrors
+being the main metadata pulled at this point</p>
+<dl class="attribute">
+<dt id="pkgcore.ebuild.repository.SlavedTree.configure">
+<tt class="descname">configure</tt><a class="headerlink" href="#pkgcore.ebuild.repository.SlavedTree.configure" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#pkgcore.ebuild.repository.ConfiguredTree" title="pkgcore.ebuild.repository.ConfiguredTree"><tt class="xref py py-class docutils literal"><span class="pre">ConfiguredTree</span></tt></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.repository.SlavedTree.default_visibility_limiters">
+<tt class="descname">default_visibility_limiters</tt><a class="headerlink" href="#pkgcore.ebuild.repository.SlavedTree.default_visibility_limiters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.SlavedTree.get_operations">
+<tt class="descname">get_operations</tt><big>(</big><em>observer=None</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.SlavedTree.get_operations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.SlavedTree.has_match">
+<tt class="descname">has_match</tt><big>(</big><em>atom</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.SlavedTree.has_match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.SlavedTree.itermatch">
+<tt class="descname">itermatch</tt><big>(</big><em>restrict</em>, <em>restrict_solutions=None</em>, <em>sorter=None</em>, <em>pkg_klass_override=None</em>, <em>force=None</em>, <em>yield_none=False</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.SlavedTree.itermatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>generator that yields packages match a restriction.</p>
+<dl class="docutils">
+<dt>:type restrict <span class="classifier-delimiter">:</span> <span class="classifier">L{pkgcore.restrictions.packages.PackageRestriction}</span></dt>
+<dd>instance</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>restrict</strong> &#8211; restriction to search via</li>
+<li><strong>restrict_solutions</strong> &#8211; cnf collapsed list of the restrict.
+Don&#8217;t play with it unless you know what you&#8217;re doing</li>
+<li><strong>sorter</strong> &#8211; callable to do sorting during searching-
+if sorting the results, use this instead of sorting externally.</li>
+<li><strong>yield_none</strong> &#8211; if True then itermatch will yield None for every
+non-matching package. This is meant for use in combination with
+C{twisted.task.cooperate} or other async uses where itermatch
+should not wait many (wallclock) seconds between yielding
+packages. If you override this method you should yield
+None in long-running loops, strictly calling it for every package
+is not necessary.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.SlavedTree.match">
+<tt class="descname">match</tt><big>(</big><em>atom</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.SlavedTree.match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.SlavedTree.notify_add_package">
+<tt class="descname">notify_add_package</tt><big>(</big><em>pkg</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.SlavedTree.notify_add_package" title="Permalink to this definition">¶</a></dt>
+<dd><p>internal function,</p>
+<p>notify the repository that a pkg is being addeded to it</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.SlavedTree.notify_remove_package">
+<tt class="descname">notify_remove_package</tt><big>(</big><em>pkg</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.SlavedTree.notify_remove_package" title="Permalink to this definition">¶</a></dt>
+<dd><p>internal function,</p>
+<p>notify the repository that a pkg it provides is being removed</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.repository.SlavedTree.operations">
+<tt class="descname">operations</tt><a class="headerlink" href="#pkgcore.ebuild.repository.SlavedTree.operations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.repository.SlavedTree.operations_kls">
+<tt class="descname">operations_kls</tt><a class="headerlink" href="#pkgcore.ebuild.repository.SlavedTree.operations_kls" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#pkgcore.ebuild.repository.SlavedTree.operations" title="pkgcore.ebuild.repository.SlavedTree.operations"><tt class="xref py py-class docutils literal"><span class="pre">operations</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.SlavedTree.rebind">
+<tt class="descname">rebind</tt><big>(</big><em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.SlavedTree.rebind" title="Permalink to this definition">¶</a></dt>
+<dd><p>generate a new tree instance with the same location using new keywords.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kwds</strong> &#8211; see __init__ for valid values</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.repository.SlavedTree.repo_id">
+<tt class="descname">repo_id</tt><a class="headerlink" href="#pkgcore.ebuild.repository.SlavedTree.repo_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.SlavedTree.sync">
+<tt class="descname">sync</tt><big>(</big><em>status_obj=None</em>, <em>force=False</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.SlavedTree.sync" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.repository.SlavedTree.syncable">
+<tt class="descname">syncable</tt><a class="headerlink" href="#pkgcore.ebuild.repository.SlavedTree.syncable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.repository.ConfiguredTree">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.repository.</tt><tt class="descname">ConfiguredTree</tt><big>(</big><em>raw_repo</em>, <em>domain</em>, <em>domain_settings</em>, <em>fetcher=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/repository.html#ConfiguredTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.repository.ConfiguredTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pkgcore.repository.configured.html#pkgcore.repository.configured.tree" title="pkgcore.repository.configured.tree"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.repository.configured.tree</span></tt></a></p>
+<p>wrapper around a L{UnconfiguredTree} binding build/configuration data (USE)</p>
+<dl class="attribute">
+<dt id="pkgcore.ebuild.repository.ConfiguredTree.default_visibility_limiters">
+<tt class="descname">default_visibility_limiters</tt><a class="headerlink" href="#pkgcore.ebuild.repository.ConfiguredTree.default_visibility_limiters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.ConfiguredTree.get_operations">
+<tt class="descname">get_operations</tt><big>(</big><em>observer=None</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.ConfiguredTree.get_operations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.ConfiguredTree.has_match">
+<tt class="descname">has_match</tt><big>(</big><em>atom</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.ConfiguredTree.has_match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.ConfiguredTree.itermatch">
+<tt class="descname">itermatch</tt><big>(</big><em>restrict</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.ConfiguredTree.itermatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>generator that yields packages match a restriction.</p>
+<dl class="docutils">
+<dt>:type restrict <span class="classifier-delimiter">:</span> <span class="classifier">L{pkgcore.restrictions.packages.PackageRestriction}</span></dt>
+<dd>instance</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>restrict</strong> &#8211; restriction to search via</li>
+<li><strong>restrict_solutions</strong> &#8211; cnf collapsed list of the restrict.
+Don&#8217;t play with it unless you know what you&#8217;re doing</li>
+<li><strong>sorter</strong> &#8211; callable to do sorting during searching-
+if sorting the results, use this instead of sorting externally.</li>
+<li><strong>yield_none</strong> &#8211; if True then itermatch will yield None for every
+non-matching package. This is meant for use in combination with
+C{twisted.task.cooperate} or other async uses where itermatch
+should not wait many (wallclock) seconds between yielding
+packages. If you override this method you should yield
+None in long-running loops, strictly calling it for every package
+is not necessary.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.ConfiguredTree.match">
+<tt class="descname">match</tt><big>(</big><em>atom</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.ConfiguredTree.match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.ConfiguredTree.notify_add_package">
+<tt class="descname">notify_add_package</tt><big>(</big><em>pkg</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.ConfiguredTree.notify_add_package" title="Permalink to this definition">¶</a></dt>
+<dd><p>internal function,</p>
+<p>notify the repository that a pkg is being addeded to it</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.ConfiguredTree.notify_remove_package">
+<tt class="descname">notify_remove_package</tt><big>(</big><em>pkg</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.ConfiguredTree.notify_remove_package" title="Permalink to this definition">¶</a></dt>
+<dd><p>internal function,</p>
+<p>notify the repository that a pkg it provides is being removed</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.repository.ConfiguredTree.operations">
+<tt class="descname">operations</tt><a class="headerlink" href="#pkgcore.ebuild.repository.ConfiguredTree.operations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.repository.ConfiguredTree.operations_kls">
+<tt class="descname">operations_kls</tt><a class="headerlink" href="#pkgcore.ebuild.repository.ConfiguredTree.operations_kls" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">operations_proxy</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.repository.ConfiguredTree.package_class">
+<tt class="descname">package_class</tt><big>(</big><em>pkg</em>, <em>*a</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.repository.ConfiguredTree.package_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.repo_objs.html"
+                        title="previous chapter">pkgcore.ebuild.repo_objs</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.resolver.html"
+                        title="next chapter">pkgcore.ebuild.resolver</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.resolver.html" title="pkgcore.ebuild.resolver"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.repo_objs.html" title="pkgcore.ebuild.repo_objs"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

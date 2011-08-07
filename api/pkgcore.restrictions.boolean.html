@@ -1,0 +1,373 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.restrictions.boolean &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.restrictions.delegated" href="pkgcore.restrictions.delegated.html" />
+    <link rel="prev" title="pkgcore.restrictions" href="pkgcore.restrictions.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.restrictions.delegated.html" title="pkgcore.restrictions.delegated"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.restrictions.html" title="pkgcore.restrictions"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.restrictions.boolean">
+<span id="pkgcore-restrictions-boolean"></span><h1>pkgcore.restrictions.boolean<a class="headerlink" href="#module-pkgcore.restrictions.boolean" title="Permalink to this headline">¶</a></h1>
+<p>Boolean combinations of restrictions.</p>
+<p>This module provides classes that can be used to combine arbitrary
+collections of restrictions in AND, NAND, OR, NOR, XOR, XNOR style
+operations.</p>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.restrictions.boolean.AndRestriction" title="pkgcore.restrictions.boolean.AndRestriction"><tt class="xref py py-obj docutils literal"><span class="pre">AndRestriction</span></tt></a>(*restrictions,&nbsp;**kwds)</td>
+<td>Boolean AND grouping of restrictions.  negation is a NAND</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.restrictions.boolean.OrRestriction" title="pkgcore.restrictions.boolean.OrRestriction"><tt class="xref py py-obj docutils literal"><span class="pre">OrRestriction</span></tt></a>(*restrictions,&nbsp;**kwds)</td>
+<td>Boolean OR grouping of restrictions.</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="pkgcore.restrictions.boolean.AndRestriction">
+<em class="property">class </em><tt class="descclassname">pkgcore.restrictions.boolean.</tt><tt class="descname">AndRestriction</tt><big>(</big><em>*restrictions</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/restrictions/boolean.html#AndRestriction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.restrictions.boolean.AndRestriction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pkgcore.restrictions.boolean.base</span></tt></p>
+<p>Boolean AND grouping of restrictions.  negation is a NAND</p>
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.AndRestriction.add_restriction">
+<tt class="descname">add_restriction</tt><big>(</big><em>*new_restrictions</em><big>)</big><a class="headerlink" href="#pkgcore.restrictions.boolean.AndRestriction.add_restriction" title="Permalink to this definition">¶</a></dt>
+<dd><p>add an more restriction(s)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_restrictions</strong> &#8211; if node_type is enforced,
+restrictions must be of that type.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.AndRestriction.change_restrictions">
+<tt class="descname">change_restrictions</tt><big>(</big><em>*restrictions</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.restrictions.boolean.AndRestriction.change_restrictions" title="Permalink to this definition">¶</a></dt>
+<dd><p>return a new instance of self.__class__, using supplied restrictions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.AndRestriction.cnf_solutions">
+<tt class="descname">cnf_solutions</tt><big>(</big><em>full_solution_expansion=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/restrictions/boolean.html#AndRestriction.cnf_solutions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.restrictions.boolean.AndRestriction.cnf_solutions" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns solutions in CNF (conjunctive normalized form) of this instance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_solution_expansion</strong> &#8211; controls whether to expand everything
+(break apart atoms for example); this isn&#8217;t likely what you want</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.AndRestriction.dnf_solutions">
+<tt class="descname">dnf_solutions</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/restrictions/boolean.html#AndRestriction.dnf_solutions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.restrictions.boolean.AndRestriction.dnf_solutions" title="Permalink to this definition">¶</a></dt>
+<dd><p>list form of L{iter_dnf_solutions}, see iter_dnf_solutions for args</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.AndRestriction.evaluate_conditionals">
+<tt class="descname">evaluate_conditionals</tt><big>(</big><em>parent_cls</em>, <em>parent_seq</em>, <em>enabled</em>, <em>tristate_locked=None</em>, <em>force_collapse=False</em><big>)</big><a class="headerlink" href="#pkgcore.restrictions.boolean.AndRestriction.evaluate_conditionals" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.AndRestriction.finalize">
+<tt class="descname">finalize</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.restrictions.boolean.AndRestriction.finalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>finalize the restriction instance, disallowing adding restrictions.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.AndRestriction.force_False">
+<tt class="descname">force_False</tt><big>(</big><em>pkg</em>, <em>*vals</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/restrictions/boolean.html#AndRestriction.force_False"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.restrictions.boolean.AndRestriction.force_False" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.AndRestriction.force_True">
+<tt class="descname">force_True</tt><big>(</big><em>pkg</em>, <em>*vals</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/restrictions/boolean.html#AndRestriction.force_True"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.restrictions.boolean.AndRestriction.force_True" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.AndRestriction.intersect">
+<tt class="descname">intersect</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#pkgcore.restrictions.boolean.AndRestriction.intersect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.AndRestriction.iter_cnf_solutions">
+<tt class="descname">iter_cnf_solutions</tt><big>(</big><em>full_solution_expansion=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/restrictions/boolean.html#AndRestriction.iter_cnf_solutions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.restrictions.boolean.AndRestriction.iter_cnf_solutions" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns solutions in CNF (conjunctive normalized form) of this instance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_solution_expansion</strong> &#8211; controls whether to expand everything
+(break apart atoms for example); this isn&#8217;t likely what you want</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.AndRestriction.iter_dnf_solutions">
+<tt class="descname">iter_dnf_solutions</tt><big>(</big><em>full_solution_expansion=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/restrictions/boolean.html#AndRestriction.iter_dnf_solutions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.restrictions.boolean.AndRestriction.iter_dnf_solutions" title="Permalink to this definition">¶</a></dt>
+<dd><p>generater yielding DNF (disjunctive normalized form) of this instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_solution_expansion</strong> &#8211; controls whether to expand everything
+(break apart atoms for example); this isn&#8217;t likely what you want</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.AndRestriction.match">
+<tt class="descname">match</tt><big>(</big><em>vals</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/restrictions/boolean.html#AndRestriction.match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.restrictions.boolean.AndRestriction.match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.restrictions.boolean.AndRestriction.negate">
+<tt class="descname">negate</tt><a class="headerlink" href="#pkgcore.restrictions.boolean.AndRestriction.negate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.restrictions.boolean.AndRestriction.restrictions">
+<tt class="descname">restrictions</tt><a class="headerlink" href="#pkgcore.restrictions.boolean.AndRestriction.restrictions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.restrictions.boolean.AndRestriction.type">
+<tt class="descname">type</tt><a class="headerlink" href="#pkgcore.restrictions.boolean.AndRestriction.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.restrictions.boolean.OrRestriction">
+<em class="property">class </em><tt class="descclassname">pkgcore.restrictions.boolean.</tt><tt class="descname">OrRestriction</tt><big>(</big><em>*restrictions</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/restrictions/boolean.html#OrRestriction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.restrictions.boolean.OrRestriction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pkgcore.restrictions.boolean.base</span></tt></p>
+<p>Boolean OR grouping of restrictions.</p>
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.OrRestriction.add_restriction">
+<tt class="descname">add_restriction</tt><big>(</big><em>*new_restrictions</em><big>)</big><a class="headerlink" href="#pkgcore.restrictions.boolean.OrRestriction.add_restriction" title="Permalink to this definition">¶</a></dt>
+<dd><p>add an more restriction(s)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_restrictions</strong> &#8211; if node_type is enforced,
+restrictions must be of that type.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.OrRestriction.change_restrictions">
+<tt class="descname">change_restrictions</tt><big>(</big><em>*restrictions</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.restrictions.boolean.OrRestriction.change_restrictions" title="Permalink to this definition">¶</a></dt>
+<dd><p>return a new instance of self.__class__, using supplied restrictions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.OrRestriction.cnf_solutions">
+<tt class="descname">cnf_solutions</tt><big>(</big><em>full_solution_expansion=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/restrictions/boolean.html#OrRestriction.cnf_solutions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.restrictions.boolean.OrRestriction.cnf_solutions" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns alist in CNF (conjunctive normalized form) for of this instance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_solution_expansion</strong> &#8211; controls whether to expand everything
+(break apart atoms for example); this isn&#8217;t likely what you want</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.OrRestriction.dnf_solutions">
+<tt class="descname">dnf_solutions</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/restrictions/boolean.html#OrRestriction.dnf_solutions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.restrictions.boolean.OrRestriction.dnf_solutions" title="Permalink to this definition">¶</a></dt>
+<dd><p>see dnf_solutions, iterates yielding DNF solutions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.OrRestriction.evaluate_conditionals">
+<tt class="descname">evaluate_conditionals</tt><big>(</big><em>parent_cls</em>, <em>parent_seq</em>, <em>enabled</em>, <em>tristate_locked=None</em>, <em>force_collapse=False</em><big>)</big><a class="headerlink" href="#pkgcore.restrictions.boolean.OrRestriction.evaluate_conditionals" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.OrRestriction.finalize">
+<tt class="descname">finalize</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.restrictions.boolean.OrRestriction.finalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>finalize the restriction instance, disallowing adding restrictions.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.OrRestriction.force_False">
+<tt class="descname">force_False</tt><big>(</big><em>pkg</em>, <em>*vals</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/restrictions/boolean.html#OrRestriction.force_False"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.restrictions.boolean.OrRestriction.force_False" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.OrRestriction.force_True">
+<tt class="descname">force_True</tt><big>(</big><em>pkg</em>, <em>*vals</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/restrictions/boolean.html#OrRestriction.force_True"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.restrictions.boolean.OrRestriction.force_True" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.OrRestriction.intersect">
+<tt class="descname">intersect</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#pkgcore.restrictions.boolean.OrRestriction.intersect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.OrRestriction.iter_cnf_solutions">
+<tt class="descname">iter_cnf_solutions</tt><big>(</big><em>*a</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.restrictions.boolean.OrRestriction.iter_cnf_solutions" title="Permalink to this definition">¶</a></dt>
+<dd><p>iterate over the cnf solution</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.OrRestriction.iter_dnf_solutions">
+<tt class="descname">iter_dnf_solutions</tt><big>(</big><em>full_solution_expansion=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/restrictions/boolean.html#OrRestriction.iter_dnf_solutions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.restrictions.boolean.OrRestriction.iter_dnf_solutions" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns a list in DNF (disjunctive normalized form) for of this instance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_solution_expansion</strong> &#8211; controls whether to expand everything
+(break apart atoms for example); this isn&#8217;t likely what you want</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.restrictions.boolean.OrRestriction.match">
+<tt class="descname">match</tt><big>(</big><em>vals</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/restrictions/boolean.html#OrRestriction.match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.restrictions.boolean.OrRestriction.match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.restrictions.boolean.OrRestriction.negate">
+<tt class="descname">negate</tt><a class="headerlink" href="#pkgcore.restrictions.boolean.OrRestriction.negate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.restrictions.boolean.OrRestriction.restrictions">
+<tt class="descname">restrictions</tt><a class="headerlink" href="#pkgcore.restrictions.boolean.OrRestriction.restrictions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.restrictions.boolean.OrRestriction.type">
+<tt class="descname">type</tt><a class="headerlink" href="#pkgcore.restrictions.boolean.OrRestriction.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.restrictions.html"
+                        title="previous chapter">pkgcore.restrictions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.restrictions.delegated.html"
+                        title="next chapter">pkgcore.restrictions.delegated</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.restrictions.delegated.html" title="pkgcore.restrictions.delegated"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.restrictions.html" title="pkgcore.restrictions"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

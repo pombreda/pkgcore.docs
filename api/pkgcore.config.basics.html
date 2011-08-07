@@ -1,0 +1,346 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.config.basics &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.config.central" href="pkgcore.config.central.html" />
+    <link rel="prev" title="pkgcore.config" href="pkgcore.config.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.config.central.html" title="pkgcore.config.central"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.config.html" title="pkgcore.config"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.config.basics">
+<span id="pkgcore-config-basics"></span><h1>pkgcore.config.basics<a class="headerlink" href="#module-pkgcore.config.basics" title="Permalink to this headline">¶</a></h1>
+<p>configuration subsystem primitives</p>
+<p>all callables can/may throw a
+L{configuration exception&lt;pkgcore.config.errors.ConfigurationError&gt;}</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.config.basics.bool_parser" title="pkgcore.config.basics.bool_parser"><tt class="xref py py-obj docutils literal"><span class="pre">bool_parser</span></tt></a>(string)</td>
+<td>convert a string to a boolean</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.config.basics.convert_asis" title="pkgcore.config.basics.convert_asis"><tt class="xref py py-obj docutils literal"><span class="pre">convert_asis</span></tt></a>(central,&nbsp;value,&nbsp;arg_type)</td>
+<td>&#8220;Conversion&#8221; func assuming the types are already correct.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.config.basics.convert_hybrid" title="pkgcore.config.basics.convert_hybrid"><tt class="xref py py-obj docutils literal"><span class="pre">convert_hybrid</span></tt></a>(central,&nbsp;value,&nbsp;arg_type)</td>
+<td>Automagically switch between L{convert_string} and L{convert_asis}.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.config.basics.convert_string" title="pkgcore.config.basics.convert_string"><tt class="xref py py-obj docutils literal"><span class="pre">convert_string</span></tt></a>(central,&nbsp;value,&nbsp;arg_type)</td>
+<td>Conversion func for a string-based DictConfigSection.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.config.basics.int_parser" title="pkgcore.config.basics.int_parser"><tt class="xref py py-obj docutils literal"><span class="pre">int_parser</span></tt></a>(string)</td>
+<td>convert a string to a integer</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.config.basics.list_parser" title="pkgcore.config.basics.list_parser"><tt class="xref py py-obj docutils literal"><span class="pre">list_parser</span></tt></a>(string)</td>
+<td>split on whitespace honoring quoting for new tokens</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.config.basics.parse_config_file" title="pkgcore.config.basics.parse_config_file"><tt class="xref py py-obj docutils literal"><span class="pre">parse_config_file</span></tt></a>(path,&nbsp;parser)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.config.basics.section_alias" title="pkgcore.config.basics.section_alias"><tt class="xref py py-obj docutils literal"><span class="pre">section_alias</span></tt></a>(target,&nbsp;typename)</td>
+<td>Build a ConfigSection that instantiates a named reference.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.config.basics.str_parser" title="pkgcore.config.basics.str_parser"><tt class="xref py py-obj docutils literal"><span class="pre">str_parser</span></tt></a>(string)</td>
+<td>yank leading/trailing whitespace and quotation, along with newlines</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.config.basics.ConfigSection" title="pkgcore.config.basics.ConfigSection"><tt class="xref py py-obj docutils literal"><span class="pre">ConfigSection</span></tt></a></td>
+<td>Single Config section, returning typed values from a key.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.config.basics.ConfigType" title="pkgcore.config.basics.ConfigType"><tt class="xref py py-obj docutils literal"><span class="pre">ConfigType</span></tt></a>(func_obj)</td>
+<td>A configurable type.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.config.basics.DictConfigSection" title="pkgcore.config.basics.DictConfigSection"><tt class="xref py py-obj docutils literal"><span class="pre">DictConfigSection</span></tt></a>(conversion_func,&nbsp;source_dict)</td>
+<td>Turns a dict and a conversion function into a ConfigSection.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.config.basics.FakeIncrementalDictConfigSection" title="pkgcore.config.basics.FakeIncrementalDictConfigSection"><tt class="xref py py-obj docutils literal"><span class="pre">FakeIncrementalDictConfigSection</span></tt></a>(...)</td>
+<td>Turns a dict and a conversion function into a ConfigSection.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.config.basics.LazyNamedSectionRef" title="pkgcore.config.basics.LazyNamedSectionRef"><tt class="xref py py-obj docutils literal"><span class="pre">LazyNamedSectionRef</span></tt></a>(central,&nbsp;typename,&nbsp;name)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.config.basics.LazySectionRef" title="pkgcore.config.basics.LazySectionRef"><tt class="xref py py-obj docutils literal"><span class="pre">LazySectionRef</span></tt></a>(central,&nbsp;typename)</td>
+<td>Abstract base class for lazy-loaded section references.</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="pkgcore.config.basics.ConfigType">
+<em class="property">class </em><tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">ConfigType</tt><big>(</big><em>func_obj</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#ConfigType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.ConfigType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A configurable type.</p>
+<dl class="docutils">
+<dt>&#64;ivar name: string specifying the protocol the instantiated object</dt>
+<dd>conforms to.</dd>
+</dl>
+<p>&#64;ivar callable: callable used to instantiate this type.
+&#64;ivar types: dict mapping key names to type strings.
+&#64;ivar positional: container holding positional arguments.
+&#64;ivar required: container holding required arguments.
+&#64;ivar allow_unknowns: controls whether unknown settings should error.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.config.basics.LazySectionRef">
+<em class="property">class </em><tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">LazySectionRef</tt><big>(</big><em>central</em>, <em>typename</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#LazySectionRef"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.LazySectionRef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Abstract base class for lazy-loaded section references.</p>
+<dl class="method">
+<dt id="pkgcore.config.basics.LazySectionRef.collapse">
+<tt class="descname">collapse</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#LazySectionRef.collapse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.LazySectionRef.collapse" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;returns: L{pkgcore.config.central.CollapsedConfig}.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.config.basics.LazySectionRef.instantiate">
+<tt class="descname">instantiate</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#LazySectionRef.instantiate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.LazySectionRef.instantiate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method returning the instantiated section.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.config.basics.LazyNamedSectionRef">
+<em class="property">class </em><tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">LazyNamedSectionRef</tt><big>(</big><em>central</em>, <em>typename</em>, <em>name</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#LazyNamedSectionRef"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.LazyNamedSectionRef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.config.basics.LazySectionRef" title="pkgcore.config.basics.LazySectionRef"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.config.basics.LazySectionRef</span></tt></a></p>
+<dl class="method">
+<dt id="pkgcore.config.basics.LazyNamedSectionRef.collapse">
+<tt class="descname">collapse</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.config.basics.LazyNamedSectionRef.collapse" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;returns: L{pkgcore.config.central.CollapsedConfig}.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.config.basics.LazyNamedSectionRef.instantiate">
+<tt class="descname">instantiate</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.config.basics.LazyNamedSectionRef.instantiate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method returning the instantiated section.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.config.basics.ConfigSection">
+<em class="property">class </em><tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">ConfigSection</tt><a class="reference internal" href="../_modules/pkgcore/config/basics.html#ConfigSection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.ConfigSection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Single Config section, returning typed values from a key.</p>
+<p>Not much of an object this, if we were using zope.interface it&#8217;d
+be an Interface.</p>
+<dl class="method">
+<dt id="pkgcore.config.basics.ConfigSection.get_value">
+<tt class="descname">get_value</tt><big>(</big><em>central</em>, <em>name</em>, <em>arg_type</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#ConfigSection.get_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.ConfigSection.get_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a setting, converted to the requested type.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.config.basics.ConfigSection.keys">
+<tt class="descname">keys</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#ConfigSection.keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.ConfigSection.keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of keys.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.config.basics.DictConfigSection">
+<em class="property">class </em><tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">DictConfigSection</tt><big>(</big><em>conversion_func</em>, <em>source_dict</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#DictConfigSection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.DictConfigSection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.config.basics.ConfigSection" title="pkgcore.config.basics.ConfigSection"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.config.basics.ConfigSection</span></tt></a></p>
+<p>Turns a dict and a conversion function into a ConfigSection.</p>
+<dl class="method">
+<dt id="pkgcore.config.basics.DictConfigSection.get_value">
+<tt class="descname">get_value</tt><big>(</big><em>central</em>, <em>name</em>, <em>arg_type</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#DictConfigSection.get_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.DictConfigSection.get_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.config.basics.DictConfigSection.keys">
+<tt class="descname">keys</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#DictConfigSection.keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.DictConfigSection.keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.config.basics.FakeIncrementalDictConfigSection">
+<em class="property">class </em><tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">FakeIncrementalDictConfigSection</tt><big>(</big><em>conversion_func</em>, <em>source_dict</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#FakeIncrementalDictConfigSection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.FakeIncrementalDictConfigSection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.config.basics.ConfigSection" title="pkgcore.config.basics.ConfigSection"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.config.basics.ConfigSection</span></tt></a></p>
+<p>Turns a dict and a conversion function into a ConfigSection.</p>
+<dl class="method">
+<dt id="pkgcore.config.basics.FakeIncrementalDictConfigSection.get_value">
+<tt class="descname">get_value</tt><big>(</big><em>central</em>, <em>name</em>, <em>arg_type</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#FakeIncrementalDictConfigSection.get_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.FakeIncrementalDictConfigSection.get_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.config.basics.FakeIncrementalDictConfigSection.keys">
+<tt class="descname">keys</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#FakeIncrementalDictConfigSection.keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.FakeIncrementalDictConfigSection.keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.config.basics.convert_string">
+<tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">convert_string</tt><big>(</big><em>central</em>, <em>value</em>, <em>arg_type</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#convert_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.convert_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conversion func for a string-based DictConfigSection.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.config.basics.convert_asis">
+<tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">convert_asis</tt><big>(</big><em>central</em>, <em>value</em>, <em>arg_type</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#convert_asis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.convert_asis" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#8220;Conversion&#8221; func assuming the types are already correct.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.config.basics.convert_hybrid">
+<tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">convert_hybrid</tt><big>(</big><em>central</em>, <em>value</em>, <em>arg_type</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#convert_hybrid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.convert_hybrid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automagically switch between L{convert_string} and L{convert_asis}.</p>
+<p>L{convert_asis} is used for arg_type str and if value is not a basestring.
+L{convert_string} is used for the rest.</p>
+<p>Be careful about handing in escaped strings: they are not
+unescaped (for arg_type str).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.config.basics.section_alias">
+<tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">section_alias</tt><big>(</big><em>target</em>, <em>typename</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#section_alias"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.section_alias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a ConfigSection that instantiates a named reference.</p>
+<p>Because of central&#8217;s caching our instantiated value will be
+identical to our target&#8217;s.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.config.basics.list_parser">
+<tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">list_parser</tt><big>(</big><em>string</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#list_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.list_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>split on whitespace honoring quoting for new tokens</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.config.basics.str_parser">
+<tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">str_parser</tt><big>(</big><em>string</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#str_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.str_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>yank leading/trailing whitespace and quotation, along with newlines</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.config.basics.bool_parser">
+<tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">bool_parser</tt><big>(</big><em>string</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#bool_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.bool_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>convert a string to a boolean</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.config.basics.int_parser">
+<tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">int_parser</tt><big>(</big><em>string</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#int_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.int_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>convert a string to a integer</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.config.basics.parse_config_file">
+<tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">parse_config_file</tt><big>(</big><em>path</em>, <em>parser</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#parse_config_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.parse_config_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.config.html"
+                        title="previous chapter">pkgcore.config</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.config.central.html"
+                        title="next chapter">pkgcore.config.central</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.config.central.html" title="pkgcore.config.central"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.config.html" title="pkgcore.config"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

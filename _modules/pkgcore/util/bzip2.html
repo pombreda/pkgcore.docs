@@ -1,0 +1,160 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.util.bzip2 &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.util.bzip2</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2006 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">bzip2 decompression/compression</span>
+
+<span class="sd">where possible, this module defers to cpython bz2 module- if it&#39;s not available,</span>
+<span class="sd">it results to executing bzip2 with tempfile arguments to do decompression</span>
+<span class="sd">and compression.</span>
+
+<span class="sd">Should use this module unless its absolutely critical that bz2 module be used</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;compress&quot;</span><span class="p">,</span> <span class="s">&quot;decompress&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
+<span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
+    <span class="s">&#39;tempfile&#39;</span><span class="p">,</span>
+    <span class="s">&#39;pkgcore.spawn:find_binary,spawn_get_output&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">process_compress</span><span class="p">(</span><span class="n">in_data</span><span class="p">,</span> <span class="n">compress_level</span><span class="o">=</span><span class="mi">9</span><span class="p">):</span>
+    <span class="n">fd</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">fd</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryFile</span><span class="p">(</span><span class="s">&quot;w+&quot;</span><span class="p">)</span>
+    <span class="n">fd</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">in_data</span><span class="p">)</span>
+    <span class="n">fd</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="n">fd</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ret</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">spawn_get_output</span><span class="p">(</span>
+            <span class="p">[</span><span class="s">&quot;bzip2&quot;</span><span class="p">,</span> <span class="s">&quot;-</span><span class="si">%i</span><span class="s">c&quot;</span> <span class="o">%</span> <span class="n">compress_level</span><span class="p">],</span>
+            <span class="n">fd_pipes</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="n">fd</span><span class="o">.</span><span class="n">fileno</span><span class="p">()},</span> <span class="n">split_lines</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;failed compressing the data&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">fd</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">process_decompress</span><span class="p">(</span><span class="n">in_data</span><span class="p">):</span>
+    <span class="n">fd</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">fd</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryFile</span><span class="p">(</span><span class="s">&quot;wb+&quot;</span><span class="p">)</span>
+    <span class="n">fd</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">in_data</span><span class="p">)</span>
+    <span class="n">fd</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="n">fd</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ret</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">spawn_get_output</span><span class="p">(</span>
+            <span class="p">[</span><span class="s">&quot;bzip2&quot;</span><span class="p">,</span> <span class="s">&quot;-dc&quot;</span><span class="p">],</span> <span class="n">fd_pipes</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="n">fd</span><span class="o">.</span><span class="n">fileno</span><span class="p">()},</span> <span class="n">split_lines</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;failed decompressing the data&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">fd</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="c"># Unused import</span>
+<span class="c"># pylint: disable-msg=W0611</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">bz2</span> <span class="kn">import</span> <span class="n">compress</span><span class="p">,</span> <span class="n">decompress</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="c"># We need this because if we are not native then TarFile.bz2open will fail</span>
+    <span class="c"># (and some code needs to be able to check that).</span>
+    <span class="n">native</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="c"># trigger it to throw a CommandNotFound if missing</span>
+    <span class="n">find_binary</span><span class="p">(</span><span class="s">&quot;bzip2&quot;</span><span class="p">)</span>
+    <span class="n">compress</span> <span class="o">=</span> <span class="n">process_compress</span>
+    <span class="n">decompress</span> <span class="o">=</span> <span class="n">process_decompress</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">native</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

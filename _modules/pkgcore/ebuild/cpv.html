@@ -1,0 +1,512 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.ebuild.cpv &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.ebuild.cpv</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2005 Jason Stubbs &lt;jstubbs@gentoo.org&gt;</span>
+<span class="c"># Copyright: 2005-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD</span>
+
+
+<span class="sd">&quot;&quot;&quot;gentoo ebuild specific base package class&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;CPV&quot;</span><span class="p">,</span> <span class="s">&quot;versioned_CPV&quot;</span><span class="p">,</span> <span class="s">&quot;unversioned_CPV&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">izip</span>
+<span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="nb">all</span><span class="p">,</span> <span class="nb">cmp</span><span class="p">,</span> <span class="n">is_py3k</span>
+<span class="kn">from</span> <span class="nn">snakeoil.klass</span> <span class="kn">import</span> <span class="n">inject_richcmp_methods_from_cmp</span>
+<span class="kn">from</span> <span class="nn">pkgcore.ebuild.errors</span> <span class="kn">import</span> <span class="n">InvalidCPV</span>
+
+<span class="kn">from</span> <span class="nn">pkgcore.package</span> <span class="kn">import</span> <span class="n">base</span>
+<span class="c"># do this to break the cycle.</span>
+<span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span><span class="p">,</span> <span class="n">demand_compile_regexp</span>
+<span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span> <span class="s">&quot;pkgcore.ebuild:atom&quot;</span><span class="p">)</span>
+
+<span class="n">demand_compile_regexp</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span> <span class="s">&#39;suffix_regexp&#39;</span><span class="p">,</span>
+    <span class="s">&#39;^(alpha|beta|rc|pre|p)(</span><span class="se">\\</span><span class="s">d*)$&#39;</span><span class="p">)</span>
+<span class="n">suffix_value</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;pre&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="s">&quot;p&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&quot;alpha&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="s">&quot;beta&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="s">&quot;rc&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">}</span>
+
+<span class="c"># while the package section looks fugly, there is a reason for it-</span>
+<span class="c"># to prevent version chunks from showing up in the package</span>
+
+
+<span class="n">demand_compile_regexp</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span> <span class="s">&#39;isvalid_version_re&#39;</span><span class="p">,</span>
+    <span class="s">&quot;^(?:cvs</span><span class="se">\\</span><span class="s">.)?(?:</span><span class="se">\\</span><span class="s">d+)(?:</span><span class="se">\\</span><span class="s">.</span><span class="se">\\</span><span class="s">d+)*[a-z]?&quot;</span>
+    <span class="s">&quot;(?:_(p(?:re)?|beta|alpha|rc)</span><span class="se">\\</span><span class="s">d*)*$&quot;</span><span class="p">)</span>
+
+<span class="n">demand_compile_regexp</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span> <span class="s">&#39;isvalid_cat_re&#39;</span><span class="p">,</span>
+    <span class="s">&quot;^(?:[a-zA-Z0-9][-a-zA-Z0-9+._]*(?:/(?!$))?)+$&quot;</span><span class="p">)</span>
+
+<span class="n">demand_compile_regexp</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span> <span class="s">&#39;_pkg_re&#39;</span><span class="p">,</span>
+    <span class="c">#empty string is fine, means a -- was encounter.</span>
+    <span class="s">&quot;^[a-zA-Z0-9+_]+$&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">isvalid_pkg_name</span><span class="p">(</span><span class="n">chunks</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">chunks</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="c"># this means a leading -</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="n">mf</span> <span class="o">=</span> <span class="n">_pkg_re</span><span class="o">.</span><span class="n">match</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="ow">not</span> <span class="n">s</span> <span class="ow">or</span> <span class="n">mf</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">if</span> <span class="n">chunks</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">chunks</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="c"># not allowed.</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">return</span> <span class="bp">True</span>
+
+<span class="k">def</span> <span class="nf">isvalid_rev</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">s</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;r&#39;</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">_native_CPV</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    base ebuild package class</span>
+
+<span class="sd">    @ivar category: str category</span>
+<span class="sd">    @ivar package: str package</span>
+<span class="sd">    @ivar key: strkey (cat/pkg)</span>
+<span class="sd">    @ivar version: str version</span>
+<span class="sd">    @ivar revision: int revision</span>
+<span class="sd">    @ivar versioned_atom: atom matching this exact version</span>
+<span class="sd">    @ivar unversioned_atom: atom matching all versions of this package</span>
+<span class="sd">    @cvar _get_attr: mapping of attr:callable to generate attributes on the fly</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;__weakref__&quot;</span><span class="p">,</span> <span class="s">&quot;cpvstr&quot;</span><span class="p">,</span> <span class="s">&quot;key&quot;</span><span class="p">,</span> <span class="s">&quot;category&quot;</span><span class="p">,</span> <span class="s">&quot;package&quot;</span><span class="p">,</span>
+        <span class="s">&quot;version&quot;</span><span class="p">,</span> <span class="s">&quot;revision&quot;</span><span class="p">,</span> <span class="s">&quot;fullver&quot;</span><span class="p">)</span>
+
+    <span class="c"># if native is being used, forget trying to reuse strings.</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Can be called with one string or with three string args.</span>
+
+<span class="sd">        If called with one arg that is the cpv string. (See L{parser}</span>
+<span class="sd">        for allowed syntax).</span>
+
+<span class="sd">        If called with three args they are the category, package and</span>
+<span class="sd">        version components of the cpv string respectively.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">versioned</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">had_versioned</span> <span class="o">=</span> <span class="s">&#39;versioned&#39;</span> <span class="ow">in</span> <span class="n">kwds</span>
+        <span class="k">if</span> <span class="n">had_versioned</span><span class="p">:</span>
+            <span class="n">versioned</span> <span class="o">=</span> <span class="n">kwds</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;versioned&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kwds</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;versioned is the only allowed kwds: </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">kwds</span><span class="p">,))</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">l</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">cpvstr</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">had_versioned</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;single arguement invocation requires versioned kwd; </span><span class="si">%r</span><span class="s">&quot;</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">cpvstr</span><span class="p">,))</span>
+        <span class="k">elif</span> <span class="n">l</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">a</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;all args must be strings, got </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="p">,))</span>
+            <span class="n">cpvstr</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">-</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">a</span>
+            <span class="n">versioned</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;CPV takes 1 arg (cpvstr), or 3 (cat, pkg, ver):&quot;</span>
+                <span class="s">&quot; got </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="p">,))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cpvstr</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cpvstr</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">categories</span><span class="p">,</span> <span class="n">pkgver</span>  <span class="o">=</span> <span class="n">cpvstr</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="c"># occurs if the rsplit yields only one item</span>
+            <span class="k">raise</span> <span class="n">InvalidCPV</span><span class="p">(</span><span class="n">cpvstr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isvalid_cat_re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">categories</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">InvalidCPV</span><span class="p">(</span><span class="n">cpvstr</span><span class="p">)</span>
+        <span class="n">sf</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span>
+        <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;category&#39;</span><span class="p">,</span> <span class="n">categories</span><span class="p">)</span>
+        <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;cpvstr&#39;</span><span class="p">,</span> <span class="n">cpvstr</span><span class="p">)</span>
+        <span class="n">pkg_chunks</span> <span class="o">=</span> <span class="n">pkgver</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;-&quot;</span><span class="p">)</span>
+        <span class="n">lpkg_chunks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pkg_chunks</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">versioned</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">lpkg_chunks</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidCPV</span><span class="p">(</span><span class="n">cpvstr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">isvalid_rev</span><span class="p">(</span><span class="n">pkg_chunks</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="n">lpkg_chunks</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="c"># needs at least (&#39;pkg&#39;, &#39;ver&#39;, &#39;rev&#39;)</span>
+                    <span class="k">raise</span> <span class="n">InvalidCPV</span><span class="p">(</span><span class="n">cpvstr</span><span class="p">)</span>
+                <span class="n">rev</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pkg_chunks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">:])</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">rev</span><span class="p">:</span>
+                    <span class="n">rev</span> <span class="o">=</span> <span class="bp">None</span>
+                    <span class="c"># reset the stored cpvstr to drop -r0+</span>
+                    <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;cpvstr&#39;</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">categories</span><span class="p">,</span>
+                        <span class="s">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pkg_chunks</span><span class="p">)))</span>
+                <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;revision&#39;</span><span class="p">,</span> <span class="n">rev</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;revision&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">isvalid_version_re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pkg_chunks</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="k">raise</span> <span class="n">InvalidCPV</span><span class="p">(</span><span class="n">cpvstr</span><span class="p">)</span>
+            <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;version&#39;</span><span class="p">,</span> <span class="n">pkg_chunks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">revision</span><span class="p">:</span>
+                <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;fullver&#39;</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">-r</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">revision</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;fullver&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">isvalid_pkg_name</span><span class="p">(</span><span class="n">pkg_chunks</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">InvalidCPV</span><span class="p">(</span><span class="n">cpvstr</span><span class="p">)</span>
+            <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;package&#39;</span><span class="p">,</span> <span class="s">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pkg_chunks</span><span class="p">))</span>
+            <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;key&#39;</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">categories</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">package</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">isvalid_pkg_name</span><span class="p">(</span><span class="n">pkg_chunks</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">InvalidCPV</span><span class="p">(</span><span class="n">cpvstr</span><span class="p">)</span>
+            <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;revision&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;fullver&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;version&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;key&#39;</span><span class="p">,</span> <span class="n">cpvstr</span><span class="p">)</span>
+            <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;package&#39;</span><span class="p">,</span> <span class="s">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pkg_chunks</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cpvstr</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&#39;&lt;</span><span class="si">%s</span><span class="s"> cpvstr=</span><span class="si">%s</span><span class="s"> @</span><span class="si">%#8x</span><span class="s">&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;cpvstr&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">,</span> <span class="n">ae</span><span class="p">:</span>
+            <span class="k">raise</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;cpvstr&#39;</span><span class="p">,</span> <span class="s">&#39;None&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__cmp__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpvstr</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">cpvstr</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mi">0</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">category</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">category</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">category</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">category</span><span class="p">):</span>
+                <span class="k">return</span> <span class="nb">cmp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">category</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">category</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">package</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">package</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">package</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">package</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">cmp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">package</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">package</span><span class="p">)</span>
+
+            <span class="c"># note I chucked out valueerror, none checks on versions</span>
+            <span class="c"># passed in. I suck, I know.</span>
+            <span class="c"># ~harring</span>
+            <span class="c"># fails in doing comparison of unversioned atoms against</span>
+            <span class="c"># versioned atoms</span>
+            <span class="k">return</span> <span class="n">native_ver_cmp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">revision</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+                              <span class="n">other</span><span class="o">.</span><span class="n">revision</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+
+
+<span class="k">def</span> <span class="nf">native_ver_cmp</span><span class="p">(</span><span class="n">ver1</span><span class="p">,</span> <span class="n">rev1</span><span class="p">,</span> <span class="n">ver2</span><span class="p">,</span> <span class="n">rev2</span><span class="p">):</span>
+
+    <span class="c"># If the versions are the same, comparing revisions will suffice.</span>
+    <span class="k">if</span> <span class="n">ver1</span> <span class="o">==</span> <span class="n">ver2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">cmp</span><span class="p">(</span><span class="n">rev1</span><span class="p">,</span> <span class="n">rev2</span><span class="p">)</span>
+
+    <span class="c"># Split up the versions into dotted strings and lists of suffixes.</span>
+    <span class="n">parts1</span> <span class="o">=</span> <span class="n">ver1</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;_&quot;</span><span class="p">)</span>
+    <span class="n">parts2</span> <span class="o">=</span> <span class="n">ver2</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;_&quot;</span><span class="p">)</span>
+
+    <span class="c"># If the dotted strings are equal, we can skip doing a detailed comparison.</span>
+    <span class="k">if</span> <span class="n">parts1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">parts2</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+
+        <span class="c"># First split up the dotted strings into their components.</span>
+        <span class="n">ver_parts1</span> <span class="o">=</span> <span class="n">parts1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">)</span>
+        <span class="n">ver_parts2</span> <span class="o">=</span> <span class="n">parts2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">)</span>
+
+        <span class="c"># And check if CVS ebuilds come into play. If there is only</span>
+        <span class="c"># one it wins by default. Otherwise any CVS component can</span>
+        <span class="c"># be ignored.</span>
+        <span class="k">if</span> <span class="n">ver_parts1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;cvs&quot;</span> <span class="ow">and</span> <span class="n">ver_parts2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;cvs&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">ver_parts1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;cvs&quot;</span> <span class="ow">and</span> <span class="n">ver_parts2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;cvs&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">ver_parts1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;cvs&quot;</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">ver_parts1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">ver_parts2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c"># Pull out any letter suffix on the final components and keep</span>
+        <span class="c"># them for later.</span>
+        <span class="n">letters</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ver_parts</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ver_parts1</span><span class="p">,</span> <span class="n">ver_parts2</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">ver_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isalpha</span><span class="p">():</span>
+                <span class="n">letters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="n">ver_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+                <span class="n">ver_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">ver_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># Using -1 simplifies comparisons later</span>
+                <span class="n">letters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c"># OPT: Pull length calculation out of the loop</span>
+        <span class="n">ver_parts1_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ver_parts1</span><span class="p">)</span>
+        <span class="n">ver_parts2_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ver_parts2</span><span class="p">)</span>
+        <span class="n">len_list</span> <span class="o">=</span> <span class="p">(</span><span class="n">ver_parts1_len</span><span class="p">,</span> <span class="n">ver_parts2_len</span><span class="p">)</span>
+
+        <span class="c"># Iterate through the components</span>
+        <span class="k">for</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">izip</span><span class="p">(</span><span class="n">ver_parts1</span><span class="p">,</span> <span class="n">ver_parts2</span><span class="p">):</span>
+
+            <span class="c"># If the string components are equal, the numerical</span>
+            <span class="c"># components will be equal too.</span>
+            <span class="k">if</span> <span class="n">v1</span> <span class="o">==</span> <span class="n">v2</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c"># If one of the components begins with a &quot;0&quot; then they</span>
+            <span class="c"># are compared as floats so that 1.1 &gt; 1.02; else ints.</span>
+            <span class="k">if</span> <span class="n">v1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;0&quot;</span> <span class="ow">and</span> <span class="n">v2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;0&quot;</span><span class="p">:</span>
+                <span class="n">v1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span>
+                <span class="n">v2</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># handle the 0.060 == 0.060 case.</span>
+                <span class="n">v1</span> <span class="o">=</span> <span class="n">v1</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&quot;0&quot;</span><span class="p">)</span>
+                <span class="n">v2</span> <span class="o">=</span> <span class="n">v2</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&quot;0&quot;</span><span class="p">)</span>
+
+            <span class="c"># If they are not equal, the higher value wins.</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="nb">cmp</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">c</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">c</span>
+
+        <span class="k">if</span> <span class="n">ver_parts1_len</span> <span class="o">&gt;</span> <span class="n">ver_parts2_len</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">ver_parts2_len</span> <span class="o">&gt;</span> <span class="n">ver_parts1_len</span><span class="p">:</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="c"># The dotted components were equal. Let&#39;s compare any single</span>
+        <span class="c"># letter suffixes.</span>
+        <span class="k">if</span> <span class="n">letters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">letters</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="nb">cmp</span><span class="p">(</span><span class="n">letters</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">letters</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="c"># The dotted components were equal, so remove them from our lists</span>
+    <span class="c"># leaving only suffixes.</span>
+    <span class="k">del</span> <span class="n">parts1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">del</span> <span class="n">parts2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c"># OPT: Pull length calculation out of the loop</span>
+    <span class="n">parts1_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts1</span><span class="p">)</span>
+    <span class="n">parts2_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts2</span><span class="p">)</span>
+
+    <span class="c"># Iterate through the suffixes</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">parts1_len</span><span class="p">,</span> <span class="n">parts2_len</span><span class="p">)):</span>
+
+        <span class="c"># If we&#39;re at the end of one of our lists, we need to use</span>
+        <span class="c"># the next suffix from the other list to decide who wins.</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">parts1_len</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">suffix_regexp</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">parts2</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">suffix_value</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="n">val</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">cmp</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">cmp</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="s">&quot;0&quot;</span><span class="o">+</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">parts2_len</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">suffix_regexp</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">parts1</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">suffix_value</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="n">val</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">cmp</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">cmp</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="s">&quot;0&quot;</span><span class="o">+</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># If the string values are equal, no need to parse them.</span>
+        <span class="c"># Continue on to the next.</span>
+        <span class="k">if</span> <span class="n">parts1</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="n">parts2</span><span class="p">[</span><span class="n">x</span><span class="p">]:</span>
+            <span class="k">continue</span>
+
+        <span class="c"># Match against our regular expression to make a split between</span>
+        <span class="c"># &quot;beta&quot; and &quot;1&quot; in &quot;beta1&quot;</span>
+        <span class="n">match1</span> <span class="o">=</span> <span class="n">suffix_regexp</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">parts1</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
+        <span class="n">match2</span> <span class="o">=</span> <span class="n">suffix_regexp</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">parts2</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
+
+        <span class="c"># If our int&#39;ified suffix names are different, use that as the basis</span>
+        <span class="c"># for comparison.</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="nb">cmp</span><span class="p">(</span><span class="n">suffix_value</span><span class="p">[</span><span class="n">match1</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)],</span> <span class="n">suffix_value</span><span class="p">[</span><span class="n">match2</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="n">c</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">c</span>
+
+        <span class="c"># Otherwise use the digit as the basis for comparison.</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="nb">cmp</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="s">&quot;0&quot;</span><span class="o">+</span><span class="n">match1</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="s">&quot;0&quot;</span><span class="o">+</span><span class="n">match2</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">c</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">c</span>
+
+    <span class="c"># Our versions had different strings but ended up being equal.</span>
+    <span class="c"># The revision holds the final difference.</span>
+    <span class="k">return</span> <span class="nb">cmp</span><span class="p">(</span><span class="n">rev1</span><span class="p">,</span> <span class="n">rev2</span><span class="p">)</span>
+
+<span class="n">fake_cat</span> <span class="o">=</span> <span class="s">&quot;fake&quot;</span>
+<span class="n">fake_pkg</span> <span class="o">=</span> <span class="s">&quot;pkg&quot;</span>
+<span class="k">def</span> <span class="nf">cpy_ver_cmp</span><span class="p">(</span><span class="n">ver1</span><span class="p">,</span> <span class="n">rev1</span><span class="p">,</span> <span class="n">ver2</span><span class="p">,</span> <span class="n">rev2</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">ver1</span> <span class="o">==</span> <span class="n">ver2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">cmp</span><span class="p">(</span><span class="n">rev1</span><span class="p">,</span> <span class="n">rev2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ver1</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">ver1</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">ver2</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">ver2</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="nb">cmp</span><span class="p">(</span><span class="n">cpy_CPV</span><span class="p">(</span><span class="n">fake_cat</span><span class="p">,</span> <span class="n">fake_pkg</span><span class="p">,</span> <span class="n">ver1</span><span class="p">,</span> <span class="n">versioned</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">ver1</span><span class="p">)),</span>
+            <span class="n">cpy_CPV</span><span class="p">(</span><span class="n">fake_cat</span><span class="p">,</span> <span class="n">fake_pkg</span><span class="p">,</span> <span class="n">ver2</span><span class="p">,</span> <span class="n">versioned</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">ver2</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">c</span>
+    <span class="k">return</span> <span class="nb">cmp</span><span class="p">(</span><span class="n">rev1</span><span class="p">,</span> <span class="n">rev2</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">mk_cpv_cls</span><span class="p">(</span><span class="n">base_cls</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">CPV</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="n">base_cls</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        base ebuild package class</span>
+
+<span class="sd">        @ivar category: str category</span>
+<span class="sd">        @ivar package: str package</span>
+<span class="sd">        @ivar key: strkey (cat/pkg)</span>
+<span class="sd">        @ivar version: str version</span>
+<span class="sd">        @ivar revision: int revision</span>
+<span class="sd">        @ivar versioned_atom: atom matching this exact version</span>
+<span class="sd">        @ivar unversioned_atom: atom matching all versions of this package</span>
+<span class="sd">        @cvar _get_attr: mapping of attr:callable to generate attributes on the fly</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+        <span class="n">inject_richcmp_methods_from_cmp</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+<span class="c">#       __metaclass__ = WeakInstMeta</span>
+
+<span class="c">#       __inst_caching__ = True</span>
+
+        <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s">&#39;&lt;</span><span class="si">%s</span><span class="s"> cpvstr=</span><span class="si">%s</span><span class="s"> @</span><span class="si">%#8x</span><span class="s">&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;cpvstr&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+                <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+        <span class="c"># for some insane reason, py3k doesn&#39;t pick up the __hash__... add it</span>
+        <span class="c"># manually.</span>
+        <span class="n">__hash__</span> <span class="o">=</span> <span class="n">base_cls</span><span class="o">.</span><span class="n">__hash__</span>
+
+        <span class="nd">@property</span>
+        <span class="k">def</span> <span class="nf">versioned_atom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="s">&quot;=</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpvstr</span><span class="p">)</span>
+
+        <span class="nd">@property</span>
+        <span class="k">def</span> <span class="nf">unversioned_atom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="nd">@classmethod</span>
+        <span class="k">def</span> <span class="nf">versioned</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">versioned</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="nd">@classmethod</span>
+        <span class="k">def</span> <span class="nf">unversioned</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">versioned</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cpvstr</span><span class="p">,),</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">CPV</span>
+
+<span class="n">native_CPV</span> <span class="o">=</span> <span class="n">mk_cpv_cls</span><span class="p">(</span><span class="n">_native_CPV</span><span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="c"># No name in module</span>
+    <span class="c"># pylint: disable-msg=E0611</span>
+    <span class="kn">from</span> <span class="nn">pkgcore.ebuild._cpv</span> <span class="kn">import</span> <span class="n">CPV</span> <span class="k">as</span> <span class="n">cpy_CPV</span>
+    <span class="n">CPV_base</span> <span class="o">=</span> <span class="n">cpy_CPV</span>
+    <span class="n">ver_cmp</span> <span class="o">=</span> <span class="n">cpy_ver_cmp</span>
+    <span class="n">cpy_builtin</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">cpy_CPV</span> <span class="o">=</span> <span class="n">CPV</span> <span class="o">=</span> <span class="n">mk_cpv_cls</span><span class="p">(</span><span class="n">cpy_CPV</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">ver_cmp</span> <span class="o">=</span> <span class="n">native_ver_cmp</span>
+    <span class="n">cpy_builtin</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">CPV</span> <span class="o">=</span> <span class="n">CPV_base</span> <span class="o">=</span> <span class="n">native_CPV</span>
+
+<span class="k">def</span> <span class="nf">unversioned_CPV</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">CPV</span><span class="o">.</span><span class="n">unversioned</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">versioned_CPV</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">CPV</span><span class="o">.</span><span class="n">versioned</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+<span class="n">versioned_CPV</span> <span class="o">=</span> <span class="n">CPV</span><span class="o">.</span><span class="n">versioned</span>
+<span class="n">unversioned_CPV</span> <span class="o">=</span> <span class="n">CPV</span><span class="o">.</span><span class="n">unversioned</span>
+
+<span class="k">class</span> <span class="nc">versioned_CPV_cls</span><span class="p">(</span><span class="n">CPV</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">CPV</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">versioned</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,254 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>snakeoil.compatibility &mdash; snakeoil v-trunk documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '-trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="snakeoil v-trunk documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for snakeoil.compatibility</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2006-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: BSD/GPL2</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Compatibility functionality for python 2.4 through 3.2</span>
+
+<span class="sd">For those of us still supporting older python versions, we&#39;re in a bit of a</span>
+<span class="sd">bind- we&#39;d *love* to use the newer python functions but cannot without</span>
+<span class="sd">abandoning support for the versions we target.</span>
+
+<span class="sd">This module exists to ease compatibility across multiple python versions</span>
+<span class="sd">via indirection, and fallback implementationsso that a select subset of</span>
+<span class="sd">newer python functionality is usable in older python versions.  Additionally,</span>
+<span class="sd">functionality that has been moved in py3k and isn&#39;t translated by 2to3 is</span>
+<span class="sd">accessible via this module.</span>
+
+<span class="sd">An example would be python2.4 users wanting access to the :py:func:`any`</span>
+<span class="sd">or :py:func:`all` functions- they&#39;re only available in python2.5 however</span>
+<span class="sd">the following code will work regardless if the python versions is 2.4, 2.6,</span>
+<span class="sd">or 3.2:</span>
+
+<span class="sd">&gt;&gt;&gt; from snakeoil.compatibility import any, all</span>
+<span class="sd">&gt;&gt;&gt; print all(True for x in (1 ,2))</span>
+<span class="sd">True</span>
+<span class="sd">&gt;&gt;&gt; print all(0 == (x % 2) for x in (0, 1))</span>
+<span class="sd">False</span>
+<span class="sd">&gt;&gt;&gt; print any(1 == (x % 2) for x in (0, 1))</span>
+<span class="sd">True</span>
+
+<span class="sd">The module is designed such that if there is a builtin version of</span>
+<span class="sd">the target functionality available, it will always prefer that.  Essentially,</span>
+<span class="sd">you&#39;ll get the cpython version of any/all for python 2.5 and up, and the fallback</span>
+<span class="sd">implementation for python 2.4 alone.</span>
+
+<span class="sd">For easing py3k compatibility:</span>
+
+<span class="sd">* :py:data:`is_py3k` is a boolean you can rely on to indicate if you&#39;re running py2k</span>
+<span class="sd">   or py3k</span>
+<span class="sd">* :py:data:`is_py3k_like` is a boolean you can rely on to indicate if you&#39;re not running</span>
+<span class="sd">  py3k, but will encounter py3k behaviour- primarily useful for instances where backports</span>
+<span class="sd">  of py3k bits into py2.6 and py2.7 have broken previous stdlib behaviour.</span>
+<span class="sd">* :py:func:`intern` is accessible from here</span>
+<span class="sd">* :py:func:`sorted_cmp`, :py:func:`sort_cmp`, :py:func:`cmp` are available for easing</span>
+<span class="sd">  compatibility across py2k/py3k for comparison and sorting args; these implementations by</span>
+<span class="sd">  default defer to the builtins whenever they&#39;re available, only kicking in when needed.</span>
+<span class="sd">* :py:func:`force_bytes` is useful for if you know you&#39;ll need a bytes string under py3k,</span>
+<span class="sd">  but cannot force a minimal python version of 2.6 to get that syntax.  Essentially instead of</span>
+<span class="sd">  writing b&#39;content&#39;, you would write force_bytes(&quot;content&quot;).  Under py3k, you get a bytes object,</span>
+<span class="sd">  under py2k you get a plain old string w/ minimal overhead.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;all&quot;</span><span class="p">,</span> <span class="s">&quot;any&quot;</span><span class="p">,</span> <span class="s">&quot;is_py3k&quot;</span><span class="p">,</span> <span class="s">&quot;is_py3k_like&quot;</span><span class="p">,</span> <span class="s">&quot;next&quot;</span><span class="p">,</span>
+    <span class="s">&quot;intern&quot;</span><span class="p">,</span> <span class="s">&quot;cmp&quot;</span><span class="p">,</span> <span class="s">&quot;sorted_cmp&quot;</span><span class="p">,</span> <span class="s">&quot;sort_cmp&quot;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+
+
+<span class="k">def</span> <span class="nf">native_any</span><span class="p">(</span><span class="n">iterable</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">x</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+    <span class="k">return</span> <span class="bp">False</span>
+
+<span class="k">def</span> <span class="nf">native_all</span><span class="p">(</span><span class="n">iterable</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">return</span> <span class="bp">True</span>
+
+<span class="c"># figure out if we&#39;re jython or not...</span>
+<span class="n">is_jython</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="s">&#39;getPlatform&#39;</span><span class="p">):</span>
+    <span class="n">is_jython</span> <span class="o">=</span> <span class="s">&#39;java&#39;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">getPlatform</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+
+<span class="c"># using variable before assignment</span>
+<span class="c"># pylint: disable-msg=E0601</span>
+
+<span class="n">is_py3k</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">version</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">3</span>
+<span class="n">is_py3k_like</span> <span class="o">=</span> <span class="n">is_py3k</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">version</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="mf">2.7</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">__builtin__</span> <span class="kn">import</span> <span class="nb">any</span><span class="p">,</span> <span class="nb">all</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">snakeoil._compatibility</span> <span class="kn">import</span> <span class="nb">any</span><span class="p">,</span> <span class="nb">all</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="nb">any</span><span class="p">,</span> <span class="nb">all</span> <span class="o">=</span> <span class="n">native_any</span><span class="p">,</span> <span class="n">native_all</span>
+
+<span class="k">def</span> <span class="nf">sorted_key_from_cmp</span><span class="p">(</span><span class="n">cmp_func</span><span class="p">,</span> <span class="n">key_func</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">_key_proxy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+        <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;_obj&#39;</span><span class="p">,)</span>
+
+        <span class="k">if</span> <span class="n">key_func</span><span class="p">:</span> <span class="c"># done this way for speed reasons.</span>
+            <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">key_convert</span><span class="o">=</span><span class="n">key_func</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span> <span class="o">=</span> <span class="n">key_convert</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span> <span class="o">=</span> <span class="n">obj</span>
+
+        <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">_cmp_func</span><span class="o">=</span><span class="n">cmp_func</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">_cmp_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_obj</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="n">_key_proxy</span>
+
+
+<span class="k">if</span> <span class="n">is_py3k</span><span class="p">:</span>
+    <span class="c"># yes this is heinous.  this is whay they recommended in the python</span>
+    <span class="c"># docs for porting however...</span>
+    <span class="k">def</span> <span class="nf">raw_cmp</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">a</span> <span class="o">&gt;</span> <span class="n">b</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">a</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">)</span>
+
+<div class="viewcode-block" id="cmp"><a class="viewcode-back" href="../../api/snakeoil.compatibility.html#snakeoil.compatibility.cmp">[docs]</a>    <span class="k">def</span> <span class="nf">cmp</span><span class="p">(</span><span class="n">obj1</span><span class="p">,</span> <span class="n">obj2</span><span class="p">,</span> <span class="nb">cmp</span><span class="o">=</span><span class="n">raw_cmp</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj1</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">obj2</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mi">0</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">obj2</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">raw_cmp</span><span class="p">(</span><span class="n">obj1</span><span class="p">,</span> <span class="n">obj2</span><span class="p">)</span>
+</div>
+    <span class="nb">intern</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">intern</span>
+    <span class="kn">from</span> <span class="nn">__builtin__</span> <span class="kn">import</span> <span class="nb">next</span>
+
+    <span class="k">def</span> <span class="nf">sorted_cmp</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">,</span>
+            <span class="n">key</span><span class="o">=</span><span class="n">sorted_key_from_cmp</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">key_func</span><span class="o">=</span><span class="n">key</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">sort_cmp</span><span class="p">(</span><span class="n">list_inst</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="n">list_inst</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">,</span>
+            <span class="n">key</span><span class="o">=</span><span class="n">sorted_key_from_cmp</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">key_func</span><span class="o">=</span><span class="n">key</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">force_bytes</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+
+<span class="k">else</span><span class="p">:</span>
+    <span class="c"># note that 2to3 screws this up... non issue however, since</span>
+    <span class="c"># this codepath won&#39;t be executed.</span>
+    <span class="kn">from</span> <span class="nn">__builtin__</span> <span class="kn">import</span> <span class="nb">cmp</span><span class="p">,</span> <span class="nb">intern</span>
+    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="n">iterable</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="n">iterable</span><span class="o">.</span><span class="n">next</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> is not an iterator&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">iterable</span><span class="p">,))</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">sorted_cmp</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="nb">cmp</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">sort_cmp</span><span class="p">(</span><span class="n">list_inst</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">list_inst</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="nb">cmp</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
+
+    <span class="n">force_bytes</span> <span class="o">=</span> <span class="nb">str</span>
+
+<span class="k">def</span> <span class="nf">native_is_disjoint</span><span class="p">(</span><span class="n">src_set</span><span class="p">,</span> <span class="n">sequence</span><span class="p">):</span>
+    <span class="k">return</span> <span class="ow">not</span> <span class="n">src_set</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">sequence</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="nb">set</span><span class="p">(),</span> <span class="s">&#39;isdisjoint&#39;</span><span class="p">):</span>
+    <span class="c"># python2.6 and up.</span>
+    <span class="k">def</span> <span class="nf">is_disjoint</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">instance</span><span class="o">.</span><span class="n">isdisjoint</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">is_disjoint</span> <span class="o">=</span> <span class="n">native_is_disjoint</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

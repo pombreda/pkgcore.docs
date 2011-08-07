@@ -1,0 +1,414 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.resolver.state &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.resolver.state</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2006-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;plan_state&quot;</span><span class="p">,</span> <span class="s">&quot;base_op_state&quot;</span><span class="p">,</span> <span class="s">&quot;add_op&quot;</span><span class="p">,</span> <span class="s">&quot;add_hardref_op&quot;</span><span class="p">,</span>
+    <span class="s">&quot;add_backref_op&quot;</span><span class="p">,</span> <span class="s">&quot;remove_op&quot;</span><span class="p">,</span> <span class="s">&quot;replace_op&quot;</span><span class="p">,</span> <span class="s">&quot;blocker_base_op&quot;</span><span class="p">,</span>
+    <span class="s">&quot;incref_forward_block_op&quot;</span><span class="p">,</span> <span class="s">&quot;incref_forward_block_op&quot;</span><span class="p">,</span> <span class="s">&quot;decref_forward_block_op&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="kn">from</span> <span class="nn">snakeoil.containers</span> <span class="kn">import</span> <span class="n">RefCountingSet</span>
+<span class="kn">from</span> <span class="nn">pkgcore.resolver.pigeonholes</span> <span class="kn">import</span> <span class="n">PigeonHoledSlots</span>
+
+
+<div class="viewcode-block" id="plan_state"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.plan_state">[docs]</a><span class="k">class</span> <span class="nc">plan_state</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">PigeonHoledSlots</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plan</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pkg_choices</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rev_blockers</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blockers_refcnt</span> <span class="o">=</span> <span class="n">RefCountingSet</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">match_atom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">find_atom_matches</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vdb_filter</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forced_restrictions</span> <span class="o">=</span> <span class="n">RefCountingSet</span><span class="p">()</span>
+
+<div class="viewcode-block" id="plan_state.add_blocker"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.plan_state.add_blocker">[docs]</a>    <span class="k">def</span> <span class="nf">add_blocker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choices</span><span class="p">,</span> <span class="n">blocker</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;adds blocker, returning any packages blocked&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">incref_forward_block_op</span><span class="p">(</span><span class="n">choices</span><span class="p">,</span> <span class="n">blocker</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_remove_pkg_blockers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choices</span><span class="p">):</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rev_blockers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">choices</span><span class="p">,</span> <span class="p">())</span>
+        <span class="c"># walk a copy- it&#39;s possible it&#39;ll change under foot</span>
+        <span class="k">for</span> <span class="n">blocker</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">l</span><span class="p">[:]:</span>
+            <span class="n">decref_forward_block_op</span><span class="p">(</span><span class="n">choices</span><span class="p">,</span> <span class="n">blocker</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+<div class="viewcode-block" id="plan_state.backtrack"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.plan_state.backtrack">[docs]</a>    <span class="k">def</span> <span class="nf">backtrack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_pos</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">state_pos</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plan</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plan</span><span class="p">)</span> <span class="o">==</span> <span class="n">state_pos</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c"># track exactly how many reversions we&#39;ve done-</span>
+        <span class="c"># since we do a single slicing of plan, if an exception occurs</span>
+        <span class="c"># before finishing we need to prune what has been finished,</span>
+        <span class="c"># and just that.</span>
+        <span class="n">reversion_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">reversion_count</span><span class="p">,</span> <span class="n">change</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+                <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plan</span><span class="p">[</span><span class="n">state_pos</span><span class="p">:])):</span>
+                <span class="n">change</span><span class="o">.</span><span class="n">revert</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">reversion_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plan</span><span class="p">)</span> <span class="o">-</span> <span class="n">reversion_count</span> <span class="o">==</span> <span class="n">state_pos</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">reversion_count</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plan</span><span class="p">[:</span><span class="o">-</span><span class="n">reversion_count</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="plan_state.iter_ops"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.plan_state.iter_ops">[docs]</a>    <span class="k">def</span> <span class="nf">iter_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">return_livefs</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="n">iterable</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plan</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">internal</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">return_livefs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">iterable</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">y</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">iterable</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">y</span><span class="o">.</span><span class="n">pkg</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">livefs</span> <span class="ow">or</span> <span class="n">y</span><span class="o">.</span><span class="n">desc</span> <span class="o">==</span> <span class="s">&#39;remove&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="plan_state.ops"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.plan_state.ops">[docs]</a>    <span class="k">def</span> <span class="nf">ops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">livefs</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">only_real</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_ops</span><span class="p">(</span><span class="n">livefs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">only_real</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">pkg</span><span class="o">.</span><span class="n">package_is_real</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ops_sequence</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plan</span><span class="p">[</span><span class="nb">slice</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="plan_state.current_state"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.plan_state.current_state">[docs]</a>    <span class="k">def</span> <span class="nf">current_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plan</span><span class="p">)</span>
+
+</div></div>
+<span class="k">class</span> <span class="nc">ops_sequence</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sequence</span><span class="p">,</span> <span class="n">is_livefs</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ops</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">sequence</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_livefs</span> <span class="o">=</span> <span class="n">is_livefs</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ops</span><span class="o">.</span><span class="n">__getitem__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ops</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ops</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__nonzeroo__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ops</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">run_sanity_checks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">plan_op</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">plan_op</span><span class="o">.</span><span class="n">desc</span> <span class="o">==</span> <span class="s">&#39;remove&#39;</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">pkg_ops</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">get_pkg_operations</span><span class="p">(</span><span class="n">plan_op</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="n">observer</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pkg_ops</span><span class="o">.</span><span class="n">supports</span><span class="p">(</span><span class="s">&quot;sanity_check&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">pkg_ops</span><span class="o">.</span><span class="n">sanity_check</span><span class="p">():</span>
+                    <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+
+<div class="viewcode-block" id="base_op_state"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.base_op_state">[docs]</a><span class="k">class</span> <span class="nc">base_op_state</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;pkg&quot;</span><span class="p">,</span> <span class="s">&quot;force&quot;</span><span class="p">,</span> <span class="s">&quot;choices&quot;</span><span class="p">)</span>
+    <span class="n">internal</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choices</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="n">choices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span> <span class="o">=</span> <span class="n">pkg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">force</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="s">&#39; forced&#39;</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">desc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&#39;&lt;</span><span class="si">%s</span><span class="s"> choices=</span><span class="si">%r</span><span class="s"> pkg=</span><span class="si">%r</span><span class="s"> force=</span><span class="si">%s</span><span class="s"> @#</span><span class="si">%x</span><span class="s">&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">,</span>
+            <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="add_op"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.add_op">[docs]</a><span class="k">class</span> <span class="nc">add_op</span><span class="p">(</span><span class="n">base_op_state</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">desc</span> <span class="o">=</span> <span class="s">&quot;add&quot;</span>
+
+<div class="viewcode-block" id="add_op.apply"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.add_op.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">fill_slotting</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">l</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">l</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">pkg_choices</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">plan</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="add_op.revert"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.add_op.revert">[docs]</a>    <span class="k">def</span> <span class="nf">revert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">remove_slotting</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">plan</span><span class="o">.</span><span class="n">pkg_choices</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">]</span>
+
+</div></div>
+<div class="viewcode-block" id="add_hardref_op"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.add_hardref_op">[docs]</a><span class="k">class</span> <span class="nc">add_hardref_op</span><span class="p">(</span><span class="n">base_op_state</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;restriction&#39;</span><span class="p">,)</span>
+    <span class="n">desc</span> <span class="o">=</span> <span class="s">&quot;hardref&quot;</span>
+    <span class="n">internal</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">force</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">choices</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">pkg</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">restriction</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">restriction</span> <span class="o">=</span> <span class="n">restriction</span>
+
+<div class="viewcode-block" id="add_hardref_op.apply"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.add_hardref_op.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">plan</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">forced_restrictions</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">restriction</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="add_hardref_op.revert"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.add_hardref_op.revert">[docs]</a>    <span class="k">def</span> <span class="nf">revert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">forced_restrictions</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">restriction</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="add_backref_op"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.add_backref_op">[docs]</a><span class="k">class</span> <span class="nc">add_backref_op</span><span class="p">(</span><span class="n">base_op_state</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">desc</span> <span class="o">=</span> <span class="s">&quot;backref&quot;</span>
+    <span class="n">internal</span> <span class="o">=</span> <span class="bp">True</span>
+
+<div class="viewcode-block" id="add_backref_op.apply"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.add_backref_op.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">plan</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="add_backref_op.revert"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.add_backref_op.revert">[docs]</a>    <span class="k">def</span> <span class="nf">revert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+</div></div>
+<div class="viewcode-block" id="remove_op"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.remove_op">[docs]</a><span class="k">class</span> <span class="nc">remove_op</span><span class="p">(</span><span class="n">base_op_state</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">desc</span> <span class="o">=</span> <span class="s">&quot;remove&quot;</span>
+
+<div class="viewcode-block" id="remove_op.apply"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.remove_op.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">remove_slotting</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">)</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">_remove_pkg_blockers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">plan</span><span class="o">.</span><span class="n">pkg_choices</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">]</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">plan</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">vdb_filter</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="remove_op.revert"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.remove_op.revert">[docs]</a>    <span class="k">def</span> <span class="nf">revert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">fill_slotting</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">pkg_choices</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">vdb_filter</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="replace_op"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.replace_op">[docs]</a><span class="k">class</span> <span class="nc">replace_op</span><span class="p">(</span><span class="n">base_op_state</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;old_pkg&quot;</span><span class="p">,</span> <span class="s">&quot;old_choices&quot;</span><span class="p">)</span>
+    <span class="n">desc</span> <span class="o">=</span> <span class="s">&quot;replace&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="n">base_op_state</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">old_pkg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_choices</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
+
+<div class="viewcode-block" id="replace_op.apply"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.replace_op.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
+        <span class="n">revert_point</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">current_state</span>
+        <span class="n">old</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">get_conflicting_slot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">)</span>
+        <span class="c"># probably should just convert to an add...</span>
+        <span class="k">assert</span> <span class="n">old</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">remove_slotting</span><span class="p">(</span><span class="n">old</span><span class="p">)</span>
+        <span class="n">old_choices</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">pkg_choices</span><span class="p">[</span><span class="n">old</span><span class="p">]</span>
+        <span class="c"># assertion for my own sanity...</span>
+        <span class="k">assert</span> <span class="n">revert_point</span> <span class="o">==</span> <span class="n">plan</span><span class="o">.</span><span class="n">current_state</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">_remove_pkg_blockers</span><span class="p">(</span><span class="n">old_choices</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">fill_slotting</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">l</span><span class="p">:</span>
+            <span class="c"># revert... limiter.</span>
+            <span class="n">l2</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">fill_slotting</span><span class="p">(</span><span class="n">old</span><span class="p">)</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">backtrack</span><span class="p">(</span><span class="n">revert_point</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">l2</span>
+            <span class="k">return</span> <span class="n">l</span>
+
+        <span class="c"># wipe olds blockers.</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">old_pkg</span> <span class="o">=</span> <span class="n">old</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">old_choices</span> <span class="o">=</span> <span class="n">old_choices</span>
+        <span class="k">del</span> <span class="n">plan</span><span class="o">.</span><span class="n">pkg_choices</span><span class="p">[</span><span class="n">old</span><span class="p">]</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">pkg_choices</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">plan</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">vdb_filter</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">old</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="replace_op.revert"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.replace_op.revert">[docs]</a>    <span class="k">def</span> <span class="nf">revert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
+        <span class="c"># far simpler, since the apply op generates multiple ops on it&#39;s own.</span>
+        <span class="c"># all we have to care about is swap.</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">remove_slotting</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">fill_slotting</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">old_pkg</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">l</span><span class="p">,</span> <span class="s">&quot;reverting a replace op </span><span class="si">%r</span><span class="s">, got </span><span class="si">%r</span><span class="s"> from slotting&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">plan</span><span class="o">.</span><span class="n">pkg_choices</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">]</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">pkg_choices</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">old_pkg</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_choices</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">vdb_filter</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">old_pkg</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="s">&#39; forced&#39;</span>
+        <span class="k">return</span> <span class="s">&quot;replace: </span><span class="si">%s</span><span class="s"> with </span><span class="si">%s%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">old_pkg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&#39;&lt;</span><span class="si">%s</span><span class="s"> old choices=</span><span class="si">%r</span><span class="s"> new choices=</span><span class="si">%r</span><span class="s"> old_pkg=</span><span class="si">%r</span><span class="s"> new_pkg=</span><span class="si">%r</span><span class="s"> &#39;</span> \
+            <span class="s">&#39;force=</span><span class="si">%s</span><span class="s"> @#</span><span class="si">%x</span><span class="s">&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_choices</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_pkg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="blocker_base_op"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.blocker_base_op">[docs]</a><span class="k">class</span> <span class="nc">blocker_base_op</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;choices&quot;</span><span class="p">,</span> <span class="s">&quot;blocker&quot;</span><span class="p">,</span> <span class="s">&quot;key&quot;</span><span class="p">)</span>
+    <span class="n">desc</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">internal</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choices</span><span class="p">,</span> <span class="n">blocker</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">blocker</span><span class="o">.</span><span class="n">key</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="n">choices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blocker</span> <span class="o">=</span> <span class="n">blocker</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">: key </span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s"> from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">blocker</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&#39;&lt;</span><span class="si">%s</span><span class="s"> choices=</span><span class="si">%r</span><span class="s"> blocker=</span><span class="si">%r</span><span class="s"> key=</span><span class="si">%r</span><span class="s"> @#</span><span class="si">%x</span><span class="s">&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocker</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span>
+            <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="incref_forward_block_op"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.incref_forward_block_op">[docs]</a><span class="k">class</span> <span class="nc">incref_forward_block_op</span><span class="p">(</span><span class="n">blocker_base_op</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+<div class="viewcode-block" id="incref_forward_block_op.apply"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.incref_forward_block_op.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">plan</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocker</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">plan</span><span class="o">.</span><span class="n">blockers_refcnt</span><span class="p">:</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">add_limiter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blocker</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">rev_blockers</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blocker</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">))</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">blockers_refcnt</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blocker</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">l</span>
+</div>
+<div class="viewcode-block" id="incref_forward_block_op.revert"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.incref_forward_block_op.revert">[docs]</a>    <span class="k">def</span> <span class="nf">revert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">rev_blockers</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">]</span>
+        <span class="n">l</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">blocker</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">l</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">plan</span><span class="o">.</span><span class="n">rev_blockers</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">]</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">blockers_refcnt</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blocker</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocker</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">plan</span><span class="o">.</span><span class="n">blockers_refcnt</span><span class="p">:</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">remove_limiter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blocker</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="decref_forward_block_op"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.decref_forward_block_op">[docs]</a><span class="k">class</span> <span class="nc">decref_forward_block_op</span><span class="p">(</span><span class="n">blocker_base_op</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+<div class="viewcode-block" id="decref_forward_block_op.apply"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.decref_forward_block_op.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">plan</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">blockers_refcnt</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blocker</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocker</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">plan</span><span class="o">.</span><span class="n">blockers_refcnt</span><span class="p">:</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">remove_limiter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blocker</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">rev_blockers</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">blocker</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">plan</span><span class="o">.</span><span class="n">rev_blockers</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">]:</span>
+            <span class="k">del</span> <span class="n">plan</span><span class="o">.</span><span class="n">rev_blockers</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="decref_forward_block_op.revert"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.decref_forward_block_op.revert">[docs]</a>    <span class="k">def</span> <span class="nf">revert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">rev_blockers</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blocker</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocker</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">plan</span><span class="o">.</span><span class="n">blockers_refcnt</span><span class="p">:</span>
+            <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">add_limiter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blocker</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">blockers_refcnt</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blocker</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

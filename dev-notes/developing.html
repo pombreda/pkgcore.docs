@@ -1,0 +1,188 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Checking the source out &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="Developer Notes" href="../dev-notes.html" />
+    <link rel="next" title="Ebuild EAPI" href="eapi.html" />
+    <link rel="prev" title="Config use and implementation notes" href="config.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="eapi.html" title="Ebuild EAPI"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="Config use and implementation notes"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../dev-notes.html" accesskey="U">Developer Notes</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="checking-the-source-out">
+<h1>Checking the source out<a class="headerlink" href="#checking-the-source-out" title="Permalink to this headline">¶</a></h1>
+<p>If you&#8217;re just installing pkgcore from a released tarball, skip this section.</p>
+<p>To get the current (development) code with history, install <a href="#id1"><span class="problematic" id="id2">git_</span></a>
+(<tt class="docutils literal"><span class="pre">emerge</span> <span class="pre">git</span></tt> on gentoo) and run:</p>
+<div class="highlight-python"><pre>git clone git://pkgcore.org/pkgcore</pre>
+</div>
+</div>
+<div class="section" id="installing-pkgcore">
+<h1>Installing pkgcore<a class="headerlink" href="#installing-pkgcore" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="set-pythonpath">
+<h2>Set PYTHONPATH<a class="headerlink" href="#set-pythonpath" title="Permalink to this headline">¶</a></h2>
+<p>If you only want to run scripts from pkgcore itself (the ones in its
+&#8220;bin&#8221; directory) you do not have to do anything with PYTHONPATH. If
+you want to use pkgcore from an interactive python interpreter session
+you do not have to do anything if you start the interpreter from the
+&#8220;root&#8221; of the pkgcore source tree. For other uses you probably want to
+set PYTHONPATH to include your pkgcore directory, so that python can
+find the pkgcore code. For example:</p>
+<div class="highlight-python"><pre>$ export PYTHONPATH="${PYTHONPATH}:/home/user/pkgcore/"</pre>
+</div>
+<p>Now test to see if it works:</p>
+<div class="highlight-python"><pre>$ python -c 'import pkgcore'</pre>
+</div>
+<p>Python will scan pkgcore, see the pkgcore directory in it (and that it has
+__init__.py), and use that.</p>
+</div>
+<div class="section" id="registering-plugins">
+<h2>Registering plugins<a class="headerlink" href="#registering-plugins" title="Permalink to this headline">¶</a></h2>
+<p>Pkgcore uses plugins for some basic functionality. You do not really
+have to do anything to get this working, but things are a bit faster
+if the plugin cache is up to date. This happens automatically if the
+cache is stale and the user running pkgcore may write there, but if
+pkgcore is installed somewhere system-wide and you only run it as user
+you can force a regeneration with:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># pplugincache</span>
+</pre></div>
+</div>
+<p>If you want to update plugin caches for something other than pkgcore&#8217;s
+core plugin registry, pass the package name as an argument.</p>
+</div>
+<div class="section" id="test-pkgcore">
+<h2>Test pkgcore<a class="headerlink" href="#test-pkgcore" title="Permalink to this headline">¶</a></h2>
+<p>Drop back to normal user, and try:</p>
+<div class="highlight-python"><pre>$ python
+&gt;&gt;&gt; import pkgcore.config
+&gt;&gt;&gt; from pkgcore.ebuild.atom import atom
+&gt;&gt;&gt; conf=pkgcore.config.load_config()
+&gt;&gt;&gt; tree=conf.get_default('domain').repos[1]
+&gt;&gt;&gt; pkg=max(tree.itermatch(atom("dev-util/diffball")))
+&gt;&gt;&gt; print pkg
+&gt;&gt;&gt; print pkg.depends
+&gt;=dev-libs/openssl-0.9.6j &gt;=sys-libs/zlib-1.1.4 &gt;=app-arch/bzip2-1.0.2</pre>
+</div>
+<p>At the time of writing the domain interface is in flux, so this example might
+fail for you. If it doesn&#8217;t work ask for assistance in #pkgcore on freenode,
+or email ferringb (at) gmail.com&#8217; with the traceback.</p>
+</div>
+<div class="section" id="build-extensions">
+<h2>Build extensions<a class="headerlink" href="#build-extensions" title="Permalink to this headline">¶</a></h2>
+<p>If you want to run pkgcore from its source directory but also want the
+extra speed from the compiled extension modules, compile them in place:</p>
+<div class="highlight-python"><pre>$ python setup.py build_ext -i</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Checking the source out</a></li>
+<li><a class="reference internal" href="#installing-pkgcore">Installing pkgcore</a><ul>
+<li><a class="reference internal" href="#set-pythonpath">Set PYTHONPATH</a></li>
+<li><a class="reference internal" href="#registering-plugins">Registering plugins</a></li>
+<li><a class="reference internal" href="#test-pkgcore">Test pkgcore</a></li>
+<li><a class="reference internal" href="#build-extensions">Build extensions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="config.html"
+                        title="previous chapter">Config use and implementation notes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="eapi.html"
+                        title="next chapter">Ebuild EAPI</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="eapi.html" title="Ebuild EAPI"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="Config use and implementation notes"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../dev-notes.html" >Developer Notes</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

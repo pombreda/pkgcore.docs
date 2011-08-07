@@ -1,0 +1,186 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.repository.misc &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.repository.multiplex" href="pkgcore.repository.multiplex.html" />
+    <link rel="prev" title="pkgcore.repository.errors" href="pkgcore.repository.errors.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.repository.multiplex.html" title="pkgcore.repository.multiplex"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.repository.errors.html" title="pkgcore.repository.errors"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.repository.misc">
+<span id="pkgcore-repository-misc"></span><h1>pkgcore.repository.misc<a class="headerlink" href="#module-pkgcore.repository.misc" title="Permalink to this headline">¶</a></h1>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.repository.misc.caching_repo" title="pkgcore.repository.misc.caching_repo"><tt class="xref py py-obj docutils literal"><span class="pre">caching_repo</span></tt></a>(db,&nbsp;strategy)</td>
+<td>repository wrapper that overrides match, returning</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.repository.misc.nodeps_repo" title="pkgcore.repository.misc.nodeps_repo"><tt class="xref py py-obj docutils literal"><span class="pre">nodeps_repo</span></tt></a>(repo)</td>
+<td>repository wrapper that returns wrapped pkgs via</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="pkgcore.repository.misc.nodeps_repo">
+<em class="property">class </em><tt class="descclassname">pkgcore.repository.misc.</tt><tt class="descname">nodeps_repo</tt><big>(</big><em>repo</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/repository/misc.html#nodeps_repo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.repository.misc.nodeps_repo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>repository wrapper that returns wrapped pkgs via
+L{MutatedPkg} that have their depends/rdepends/post_rdepends wiped</p>
+<dl class="method">
+<dt id="pkgcore.repository.misc.nodeps_repo.itermatch">
+<tt class="descname">itermatch</tt><big>(</big><em>*a</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/repository/misc.html#nodeps_repo.itermatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.repository.misc.nodeps_repo.itermatch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.repository.misc.nodeps_repo.match">
+<tt class="descname">match</tt><big>(</big><em>*a</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/repository/misc.html#nodeps_repo.match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.repository.misc.nodeps_repo.match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.repository.misc.caching_repo">
+<em class="property">class </em><tt class="descclassname">pkgcore.repository.misc.</tt><tt class="descname">caching_repo</tt><big>(</big><em>db</em>, <em>strategy</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/repository/misc.html#caching_repo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.repository.misc.caching_repo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>repository wrapper that overrides match, returning
+L{caching_iter} instances; itermatch is slaved to match,
+in other words iterating over the caching_iter.</p>
+<p>Main use for this is to cache results from query lookups;
+if matches restrict arg is in the cache, the caller gets a shared
+caching_iter sequence, which may already be fully loaded with pkg
+instances.</p>
+<p>This can boost random lookup time pretty nicely, while helping to
+hold instance in memory to avoid redoing work.</p>
+<p>Cost of this of course is that involved objects are forced to stay
+in memory till the cache is cleared.  General use, not usually what
+you want- if you&#8217;re making a lot of random queries that are duplicates
+(resolver does this for example), caching helps.</p>
+<dl class="method">
+<dt id="pkgcore.repository.misc.caching_repo.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/repository/misc.html#caching_repo.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.repository.misc.caching_repo.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.repository.misc.caching_repo.itermatch">
+<tt class="descname">itermatch</tt><big>(</big><em>restrict</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/repository/misc.html#caching_repo.itermatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.repository.misc.caching_repo.itermatch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.repository.misc.caching_repo.match">
+<tt class="descname">match</tt><big>(</big><em>restrict</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/repository/misc.html#caching_repo.match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.repository.misc.caching_repo.match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.repository.misc.caching_repo.operations_kls">
+<tt class="descname">operations_kls</tt><a class="headerlink" href="#pkgcore.repository.misc.caching_repo.operations_kls" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">operations_proxy</span></tt></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.repository.errors.html"
+                        title="previous chapter">pkgcore.repository.errors</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.repository.multiplex.html"
+                        title="next chapter">pkgcore.repository.multiplex</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.repository.multiplex.html" title="pkgcore.repository.multiplex"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.repository.errors.html" title="pkgcore.repository.errors"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

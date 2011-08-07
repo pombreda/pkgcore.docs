@@ -1,0 +1,349 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Getting Started &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="portage-differences">
+<h2>Portage Differences<a class="headerlink" href="#portage-differences" title="Permalink to this headline">¶</a></h2>
+<p>Currently portage handles all actions primarily through one script, emerge.
+pkgcore breaks this functionality down into 3 scripts: <tt class="docutils literal"><span class="pre">pmerge</span></tt>, <tt class="docutils literal"><span class="pre">pmaint</span></tt>,
+and <tt class="docutils literal"><span class="pre">pquery</span></tt>.</p>
+</div>
+<div class="section" id="pmerge">
+<h2>Pmerge<a class="headerlink" href="#pmerge" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">pmerge</span></tt> is fairly similar to <tt class="docutils literal"><span class="pre">emerge</span></tt> in most usage instances:</p>
+<div class="section" id="basic-usage">
+<h3>Basic Usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">pmerge</span> <span class="pre">-us</span> <span class="pre">world</span></tt></dt>
+<dd>Update world; don&#8217;t try to update dependencies for already installed
+packages.</dd>
+<dt><tt class="docutils literal"><span class="pre">pmerge</span> <span class="pre">-uDs</span> <span class="pre">world</span></tt></dt>
+<dd>Update world, trying to update all encountered dependencies/packages.</dd>
+<dt><tt class="docutils literal"><span class="pre">pmerge</span> <span class="pre">-p</span> <span class="pre">dev-vcs/git</span></tt></dt>
+<dd>Pretend to install git</dd>
+<dt><tt class="docutils literal"><span class="pre">pmerge</span> <span class="pre">-C</span> <span class="pre">\&lt;sys-kernel/gentoo-sources-2.6.19</span></tt></dt>
+<dd>Remove gentoo-sources less than 2.6.19</dd>
+<dt><tt class="docutils literal"><span class="pre">pmerge</span> <span class="pre">--clean</span></tt></dt>
+<dd><p class="first">Remove unused packages.</p>
+<p><strong>Warning:</strong> This can break your system if incorrectly used. Check with
+<tt class="docutils literal"><span class="pre">--pretend</span></tt> before running it.</p>
+<p>Additionally, it currently defaults to identifying only what&#8217;s required for
+world/system; installed packages don&#8217;t require their build depends to be
+satisfied. As such, <tt class="docutils literal"><span class="pre">--clean</span></tt> will identify them for removal if they&#8217;re not
+runtime depended upon.</p>
+<p class="last">If you want <tt class="docutils literal"><span class="pre">--clean</span></tt> to preserve your build depends, use the <tt class="docutils literal"><span class="pre">-B</span></tt>
+option.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">pmerge</span> <span class="pre">--ask</span> <span class="pre">--newuse</span></tt></dt>
+<dd>Scan installed packages for changed USE flags</dd>
+</dl>
+</div>
+<div class="section" id="sets">
+<h3>Sets<a class="headerlink" href="#sets" title="Permalink to this headline">¶</a></h3>
+<p>Available sets are dependent upon your configuration. The majority of users
+still use <tt class="docutils literal"><span class="pre">/etc/make.conf</span></tt> configuration, which has five default sets:</p>
+<p><tt class="docutils literal"><span class="pre">system</span></tt>, <tt class="docutils literal"><span class="pre">world</span></tt>, <tt class="docutils literal"><span class="pre">installed</span></tt>, <tt class="docutils literal"><span class="pre">version-installed</span></tt>, <tt class="docutils literal"><span class="pre">glsa</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">system</span></tt>, <tt class="docutils literal"><span class="pre">world</span></tt>:</p>
+<blockquote>
+<div>These two are the same as in portage.</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">version-installed</span></tt>:</p>
+<blockquote>
+<div><p><tt class="docutils literal"><span class="pre">versioned-installed</span></tt> is a set of all CPVs from the vdb. This is useful for
+<tt class="docutils literal"><span class="pre">--emptytree</span></tt>.</p>
+<dl class="docutils">
+<dt>Example:</dt>
+<dd>If you have <tt class="docutils literal"><span class="pre">app/foo-1</span></tt> and <tt class="docutils literal"><span class="pre">bar/dar-2</span></tt> installed (and just those),
+<tt class="docutils literal"><span class="pre">versioned-installed</span></tt> would be a set containing <tt class="docutils literal"><span class="pre">-app/foo-1</span></tt> and
+<tt class="docutils literal"><span class="pre">-bar/dar-2</span></tt>.</dd>
+</dl>
+</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">installed</span></tt>:</p>
+<blockquote>
+<div><p><tt class="docutils literal"><span class="pre">installed</span></tt> is an unversioned set, but is slotted. Unlike
+<tt class="docutils literal"><span class="pre">version-installed</span></tt>, <tt class="docutils literal"><span class="pre">installed</span></tt> can be used for &#8220;system update&#8221;. Using
+<tt class="docutils literal"><span class="pre">pmerge</span> <span class="pre">-us</span> <span class="pre">installed</span></tt> over <tt class="docutils literal"><span class="pre">pmerge</span> <span class="pre">-u</span> <span class="pre">-s</span> <span class="pre">system</span> <span class="pre">-s</span> <span class="pre">world</span></tt> also has the
+advantage that dependency-orphaned packages are updated.</p>
+<dl class="docutils">
+<dt>Example:</dt>
+<dd>If you had <tt class="docutils literal"><span class="pre">app/foo-1</span></tt> slot 1, <tt class="docutils literal"><span class="pre">app/foo-2</span></tt> slot 2, <tt class="docutils literal"><span class="pre">installed</span></tt> would
+be a set containing <tt class="docutils literal"><span class="pre">app/foo:1</span> <span class="pre">app/foo:2</span></tt>.</dd>
+</dl>
+</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">glsa</span></tt>:</p>
+<blockquote>
+<div>Packages that are vulnerable to security bugs, as specified in their
+appropriate Gentoo Linux Security Advisory (GLSA).</div></blockquote>
+</div>
+<div class="section" id="custom-sets">
+<h3>Custom Sets<a class="headerlink" href="#custom-sets" title="Permalink to this headline">¶</a></h3>
+<p>Doing this for a <tt class="docutils literal"><span class="pre">make.conf</span></tt> configuration is pretty simple. Just add a file
+to <tt class="docutils literal"><span class="pre">/etc/portage/sets</span></tt>, containing a list of atoms. The set name is the filename.</p>
+<p>Example: Making a kde set:</p>
+<div class="highlight-python"><pre>pquery 'kde-*/*' --no-version &gt; /etc/portage/sets/kde-set
+pmerge -uDs kde-set</pre>
+</div>
+</div>
+<div class="section" id="portage-equivalents">
+<h3>Portage Equivalents<a class="headerlink" href="#portage-equivalents" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="new-in-pkgcore">
+<h4>New in pkgcore:<a class="headerlink" href="#new-in-pkgcore" title="Permalink to this headline">¶</a></h4>
+<p><tt class="docutils literal"><span class="pre">--ignore-failures</span></tt>:</p>
+<blockquote>
+<div><p>Ignore resolution/build failures, skipping to the next step.  Think of it as
+the equivalent of <tt class="docutils literal"><span class="pre">--skipfirst</span></tt>, just without the commandline interruption.</p>
+<p>It goes without saying that this feature should be used with care. It is
+primarily useful for a long chain of non-critical updates, where a failure is
+not an issue.</p>
+<p>A good example of usage is if you want to build <tt class="docutils literal"><span class="pre">mozilla-firefox</span></tt> and
+<tt class="docutils literal"><span class="pre">openoffice</span></tt> overnight: both take a long while to build (including their
+dependencies), and the user is after getting as many packages built for the
+targets as possible, rather then having the 5th build out of 80 bail out
+without even attempting the other 75.</p>
+<p>Long term, this feature will likely be replaced with a more finely tuned
+option.</p>
+</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">--preload-vdb-state</span></tt>:</p>
+<blockquote>
+<div>This preloads the installed packages database, causing the resolver to work
+with a complete graph, disallowing actions that conflict with installed
+packages. If it&#8217;s disabled, it&#8217;s possible for the requested action to
+conflict with already installed dependencies that aren&#8217;t involved in the
+graph of the requested operation.</div></blockquote>
+</div>
+<div class="section" id="moved-in-pmerge">
+<h4>Moved, in pmerge:<a class="headerlink" href="#moved-in-pmerge" title="Permalink to this headline">¶</a></h4>
+<p><tt class="docutils literal"><span class="pre">--depclean</span></tt>:</p>
+<blockquote>
+<div><tt class="docutils literal"><span class="pre">--clean</span></tt></div></blockquote>
+<p><tt class="docutils literal"><span class="pre">--with-bdeps</span></tt>:</p>
+<blockquote>
+<div><tt class="docutils literal"><span class="pre">--with-built-depends</span></tt></div></blockquote>
+</div>
+<div class="section" id="moved-out-of-pmerge">
+<h4>Moved out of pmerge:<a class="headerlink" href="#moved-out-of-pmerge" title="Permalink to this headline">¶</a></h4>
+<p><tt class="docutils literal"><span class="pre">--regen</span></tt>:</p>
+<blockquote>
+<div>See <a class="reference internal" href="#regen">regen</a></div></blockquote>
+</div>
+<div class="section" id="no-equivalents">
+<h4>No equivalents:<a class="headerlink" href="#no-equivalents" title="Permalink to this headline">¶</a></h4>
+<p><tt class="docutils literal"><span class="pre">--info</span></tt>:</p>
+<blockquote>
+<div><tt class="docutils literal"><span class="pre">pconfig</span></tt> is the closest equivalent at the moment; it&#8217;s rather verbose.</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">--config</span></tt>:</p>
+<blockquote>
+<div>This may be implemented in <tt class="docutils literal"><span class="pre">pmaint</span></tt> in the future, possibly 0.4.x.</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">--prune</span></tt>:</p>
+<blockquote>
+<div><p>Currently not implemented; Portage&#8217;s implementation of it ignores slots,
+trying to force a max version for each package. This is problematic since it
+can remove needed slotted packages that are of a lesser version.</p>
+<p>Any package that requires slotting (automake for example) generally will
+be screwed up by <tt class="docutils literal"><span class="pre">emerge</span> <span class="pre">--prune</span></tt>&#8216;s behaviour.</p>
+<p>The long term intention is to implement this functionality safely.
+Effectively, to try to minimize the resolved dependency graph to the minimal
+number of packages involved.</p>
+</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">--resume</span></tt>, <tt class="docutils literal"><span class="pre">--skipfirst</span></tt>:</p>
+<blockquote>
+<div>Not yet implemented.</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">--metadata</span></tt>:</p>
+<blockquote>
+<div><p>Not implemented: pkgcore doesn&#8217;t need cache localization.</p>
+<p>If the user is after copying cache data around, pclone_cache can be used.</p>
+</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">--fetch-all-uri</span></tt>:</p>
+<blockquote>
+<div>Not yet implemented.</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">--buildpkg</span></tt>:</p>
+<blockquote>
+<div>Not yet implemented.</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">--getbinpkg</span></tt>, <tt class="docutils literal"><span class="pre">--getbinpkgonly</span></tt>:</p>
+<blockquote>
+<div><p>Remote Binhost v1 support will not be implemented in pkgcore, instead
+favoring the genpkgindex approach Ned Ludd (solar) has created.</p>
+<p>There are two main reasons for not implementing this:</p>
+<ul>
+<li><p class="first">The design of v1 allows for collisions in the package namespace; category is
+ignored. Furthermore, this collision isn&#8217;t easily detectable; pulling
+<tt class="docutils literal"><span class="pre">mysql-5.0</span></tt> from the server may get you <tt class="docutils literal"><span class="pre">virtual/mysql-5.0</span></tt> or
+<tt class="docutils literal"><span class="pre">dev-db/mysql-5.0</span></tt></p>
+</li>
+<li><p class="first">The design is god awfully slow. To get the metadata for a binpkg from an HTTP
+server, it requires (roughly) a HEAD request (tbz2 length), a ranged GET request
+to grab the last 16 bytes for the XPAK segment start, and another ranged
+request to pull the metadata.</p>
+<p>That&#8217;s per package. You can cache, but the roundtrips add up quickly.</p>
+</li>
+</ul>
+<p>The main reason why v1 support will not be added to pkgcore is the package
+namespace collision issue; as both of these issues will be addressed in v2
+pkgcore will go this route.</p>
+</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">--tree</span></tt>:</p>
+<blockquote>
+<div>This is formatter-dependent; it may be included in 0.4.</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">--verbose</span></tt>:</p>
+<blockquote>
+<div>Not yet implemented.</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">--alphabetical</span></tt>, <tt class="docutils literal"><span class="pre">--columns</span></tt>:</p>
+<blockquote>
+<div>These won&#8217;t be implemented in pkgcore.</div></blockquote>
+<p><tt class="docutils literal"><span class="pre">--changelog</span></tt>:</p>
+<blockquote>
+<div>At some point will be accessible via <tt class="docutils literal"><span class="pre">pquery</span></tt>.</div></blockquote>
+</div>
+</div>
+</div>
+<div class="section" id="searching">
+<h2>Searching<a class="headerlink" href="#searching" title="Permalink to this headline">¶</a></h2>
+<p>All searching in pkgcore is done through <tt class="docutils literal"><span class="pre">pquery</span></tt>. See <a class="reference external" href="pquery-usage.rst">pquery-usage</a> for how
+to use <tt class="docutils literal"><span class="pre">pquery</span></tt>.</p>
+</div>
+<div class="section" id="pmaint">
+<h2>Pmaint<a class="headerlink" href="#pmaint" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">pmaint</span></tt> is a repository maintainence tool. It has a number of subcommands
+(see below).</p>
+<p>Note: You should also refer to <tt class="docutils literal"><span class="pre">pmaint</span> <span class="pre">--help</span></tt> to determine which
+subcommands are available, because at some point, the subcommands for
+<tt class="docutils literal"><span class="pre">pmaint</span></tt> will be variable and dependent upon the repositories available,
+akin to how git/bzr&#8217;s command set changes depending on what plugins you&#8217;ve
+enabled.</p>
+<div class="section" id="regen">
+<h3>Regen<a class="headerlink" href="#regen" title="Permalink to this headline">¶</a></h3>
+<p>To regenerate the cache for a repo run <tt class="docutils literal"><span class="pre">pmaint</span> <span class="pre">regen</span> <span class="pre">&lt;repo-name&gt;</span> <span class="pre">-j</span>
+<span class="pre">&lt;#</span> <span class="pre">of</span> <span class="pre">processors&gt;</span></tt>. This scales pretty well, around .9x linear per processor,
+and at least through 4x for testing.</p>
+</div>
+<div class="section" id="syncing">
+<h3>Syncing<a class="headerlink" href="#syncing" title="Permalink to this headline">¶</a></h3>
+<p><tt class="docutils literal"><span class="pre">pmaint</span> <span class="pre">sync</span> <span class="pre">&lt;reponame&gt;</span></tt> will sync a repository. See the config document for
+syncing info. If no reponame is provided, it tries to sync all repositories.</p>
+</div>
+<div class="section" id="quickpkg">
+<h3>Quickpkg<a class="headerlink" href="#quickpkg" title="Permalink to this headline">¶</a></h3>
+<p><tt class="docutils literal"><span class="pre">pmaint</span> <span class="pre">copy</span> <span class="pre">-s</span> <span class="pre">vdb</span> <span class="pre">-t</span> <span class="pre">binpkg</span> <span class="pre">sys-apps/portage</span> <span class="pre">--force</span></tt> will make a binpkg
+(like quickpkg).</p>
+<p>Note: this is not a <tt class="docutils literal"><span class="pre">--buildpkg</span></tt> equivalent, as buildpkg grabs a package prior
+to any preinstall mangling, so a quickpkged binpkg&#8217;s contents can differ from a
+binpkg built with <tt class="docutils literal"><span class="pre">--buildpkg</span></tt>.</p>
+<p>To package up all installed packages as binpkgs:
+<tt class="docutils literal"><span class="pre">pmaint</span> <span class="pre">copy</span> <span class="pre">-s</span> <span class="pre">vdb</span> <span class="pre">-t</span> <span class="pre">binpkg</span> <span class="pre">'*'</span> <span class="pre">--force</span></tt></p>
+<p>Alternatively, to generate binpkgs only if they don&#8217;t exist:
+<tt class="docutils literal"><span class="pre">pmaint</span> <span class="pre">copy</span> <span class="pre">-s</span> <span class="pre">vdb</span> <span class="pre">-t</span> <span class="pre">binpkg</span> <span class="pre">'*'</span> <span class="pre">--force</span> <span class="pre">--ignore-existing</span></tt></p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Getting Started</a><ul>
+<li><a class="reference internal" href="#portage-differences">Portage Differences</a></li>
+<li><a class="reference internal" href="#pmerge">Pmerge</a><ul>
+<li><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
+<li><a class="reference internal" href="#sets">Sets</a></li>
+<li><a class="reference internal" href="#custom-sets">Custom Sets</a></li>
+<li><a class="reference internal" href="#portage-equivalents">Portage Equivalents</a><ul>
+<li><a class="reference internal" href="#new-in-pkgcore">New in pkgcore:</a></li>
+<li><a class="reference internal" href="#moved-in-pmerge">Moved, in pmerge:</a></li>
+<li><a class="reference internal" href="#moved-out-of-pmerge">Moved out of pmerge:</a></li>
+<li><a class="reference internal" href="#no-equivalents">No equivalents:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#searching">Searching</a></li>
+<li><a class="reference internal" href="#pmaint">Pmaint</a><ul>
+<li><a class="reference internal" href="#regen">Regen</a></li>
+<li><a class="reference internal" href="#syncing">Syncing</a></li>
+<li><a class="reference internal" href="#quickpkg">Quickpkg</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

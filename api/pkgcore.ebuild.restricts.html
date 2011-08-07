@@ -1,0 +1,180 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.ebuild.restricts &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.ebuild.conditionals" href="pkgcore.ebuild.conditionals.html" />
+    <link rel="prev" title="pkgcore.ebuild.atom" href="pkgcore.ebuild.atom.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.conditionals.html" title="pkgcore.ebuild.conditionals"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.atom.html" title="pkgcore.ebuild.atom"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.ebuild.restricts">
+<span id="pkgcore-ebuild-restricts"></span><h1>pkgcore.ebuild.restricts<a class="headerlink" href="#module-pkgcore.ebuild.restricts" title="Permalink to this headline">¶</a></h1>
+<p>atom version restrict</p>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.restricts.VersionMatch" title="pkgcore.ebuild.restricts.VersionMatch"><tt class="xref py py-obj docutils literal"><span class="pre">VersionMatch</span></tt></a>(operator,&nbsp;ver,&nbsp;**kwd[,&nbsp;rev,&nbsp;negate])</td>
+<td>package restriction implementing gentoo ebuild version comparison rules</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="pkgcore.ebuild.restricts.VersionMatch">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.restricts.</tt><tt class="descname">VersionMatch</tt><big>(</big><em>operator</em>, <em>ver</em>, <em>rev=None</em>, <em>negate=False</em>, <em>**kwd</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/restricts.html#VersionMatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.restricts.VersionMatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pkgcore.restrictions.restriction.html#pkgcore.restrictions.restriction.base" title="pkgcore.restrictions.restriction.base"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.restrictions.restriction.base</span></tt></a></p>
+<p>package restriction implementing gentoo ebuild version comparison rules</p>
+<p>any overriding of this class <em>must</em> maintain numerical order of
+self.vals, see intersect for reason why. vals also must be a tuple.</p>
+<dl class="attribute">
+<dt id="pkgcore.ebuild.restricts.VersionMatch.droprev">
+<tt class="descname">droprev</tt><a class="headerlink" href="#pkgcore.ebuild.restricts.VersionMatch.droprev" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.restricts.VersionMatch.force_False">
+<tt class="descname">force_False</tt><big>(</big><em>*arg</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.restricts.VersionMatch.force_False" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.restricts.VersionMatch.force_True">
+<tt class="descname">force_True</tt><big>(</big><em>*arg</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.restricts.VersionMatch.force_True" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.restricts.VersionMatch.intersect">
+<tt class="descname">intersect</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.restricts.VersionMatch.intersect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.restricts.VersionMatch.match">
+<tt class="descname">match</tt><big>(</big><em>pkginst</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/restricts.html#VersionMatch.match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.restricts.VersionMatch.match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.restricts.VersionMatch.negate">
+<tt class="descname">negate</tt><a class="headerlink" href="#pkgcore.ebuild.restricts.VersionMatch.negate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.restricts.VersionMatch.rev">
+<tt class="descname">rev</tt><a class="headerlink" href="#pkgcore.ebuild.restricts.VersionMatch.rev" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.restricts.VersionMatch.vals">
+<tt class="descname">vals</tt><a class="headerlink" href="#pkgcore.ebuild.restricts.VersionMatch.vals" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.restricts.VersionMatch.ver">
+<tt class="descname">ver</tt><a class="headerlink" href="#pkgcore.ebuild.restricts.VersionMatch.ver" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.atom.html"
+                        title="previous chapter">pkgcore.ebuild.atom</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.conditionals.html"
+                        title="next chapter">pkgcore.ebuild.conditionals</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.conditionals.html" title="pkgcore.ebuild.conditionals"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.atom.html" title="pkgcore.ebuild.atom"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

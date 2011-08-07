@@ -1,0 +1,165 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.scripts.filter_env &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.scripts.filter_env</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># Copyright: 2006 Marien Zwart &lt;marienz@gentoo.org&gt;</span>
+<span class="c"># License: BSD/GPL2</span>
+
+<span class="sd">&quot;&quot;&quot;Commandline interface to L{pkgcore.ebuild.filter_env}.&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;argparse_parser&quot;</span><span class="p">,</span> <span class="s">&quot;main&quot;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">pkgcore.util</span> <span class="kn">import</span> <span class="n">commandline</span>
+<span class="c"># ordering here matters; commandline does a trick to copy to avoid the heavy inspect load.</span>
+<span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">filter_env</span>
+<span class="kn">from</span> <span class="nn">pkgcore.log</span> <span class="kn">import</span> <span class="n">logger</span>
+
+<span class="n">argparse_parser</span> <span class="o">=</span> <span class="n">commandline</span><span class="o">.</span><span class="n">mk_argparser</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">argparse_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-V&#39;</span><span class="p">,</span> <span class="s">&#39;--var-match&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;Invert the filtering- instead of removing a var if it matches &quot;</span>
+    <span class="s">&quot;remove all vars that do not match&quot;</span><span class="p">)</span>
+<span class="n">argparse_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-F&#39;</span><span class="p">,</span> <span class="s">&#39;--func-match&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;Invert the filtering- instead of removing a function if it matches &quot;</span>
+    <span class="s">&quot;remove all functions that do not match&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">stdin_default</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">isatty</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Refusing to read from stdin since it&#39;s a TTY&quot;</span><span class="p">)</span>
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">)</span>
+
+<span class="n">argparse_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--input&#39;</span><span class="p">,</span> <span class="s">&#39;-i&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store&#39;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">argparse</span><span class="o">.</span><span class="n">FileType</span><span class="p">(),</span> <span class="n">default</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">DelayedValue</span><span class="p">(</span><span class="n">stdin_default</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;Filename to read the env from (uses stdin if omitted).&#39;</span><span class="p">)</span>
+<span class="n">argparse_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--funcs&#39;</span><span class="p">,</span> <span class="s">&#39;-f&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">ExtendCommaDelimited</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;commad seperated list of regexes to match function names against for filtering&quot;</span><span class="p">)</span>
+<span class="n">argparse_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--vars&#39;</span><span class="p">,</span> <span class="s">&#39;-v&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">ExtendCommaDelimited</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;commad seperated list of regexes to match variable names against for filtering&quot;</span><span class="p">)</span>
+<span class="n">argparse_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--print-vars&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;print just the global scope environment variables that match&quot;</span><span class="p">)</span>
+
+<span class="nd">@argparse_parser.bind_main_func</span>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../api/pkgcore.scripts.filter_env.html#pkgcore.scripts.filter_env.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">funcs</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;=== Funcs: None&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;=== Funcs:&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">thing</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">funcs</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">thing</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">vars</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;=== Vars: None&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;=== Vars:&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">thing</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">vars</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">thing</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;var_match: </span><span class="si">%r</span><span class="s">, func_match: </span><span class="si">%r</span><span class="s">&#39;</span><span class="p">,</span>
+                     <span class="n">options</span><span class="o">.</span><span class="n">var_match</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">func_match</span><span class="p">)</span>
+
+    <span class="n">stream</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">stream</span>
+    <span class="n">var_callback</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">print_vars</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">cStringIO</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="n">cStringIO</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+        <span class="n">var_matches</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">var_callback</span> <span class="o">=</span> <span class="n">var_matches</span><span class="o">.</span><span class="n">append</span>
+
+    <span class="c"># Hack: write to the stream directly.</span>
+    <span class="n">filter_env</span><span class="o">.</span><span class="n">main_run</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">options</span><span class="o">.</span><span class="n">vars</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">funcs</span><span class="p">,</span>
+                   <span class="n">options</span><span class="o">.</span><span class="n">var_match</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">func_match</span><span class="p">,</span>
+                   <span class="n">global_envvar_callback</span><span class="o">=</span><span class="n">var_callback</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">print_vars</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">var_matches</span><span class="p">):</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

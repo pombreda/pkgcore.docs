@@ -1,0 +1,189 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.fs.livefs &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.fs.ops" href="pkgcore.fs.ops.html" />
+    <link rel="prev" title="pkgcore.fs.fs" href="pkgcore.fs.fs.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.fs.ops.html" title="pkgcore.fs.ops"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.fs.fs.html" title="pkgcore.fs.fs"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.fs.livefs">
+<span id="pkgcore-fs-livefs"></span><h1>pkgcore.fs.livefs<a class="headerlink" href="#module-pkgcore.fs.livefs" title="Permalink to this headline">¶</a></h1>
+<p>interaction with the livefs: generating fs objects to represent the livefs.</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.fs.livefs.gen_obj" title="pkgcore.fs.livefs.gen_obj"><tt class="xref py py-obj docutils literal"><span class="pre">gen_obj</span></tt></a>(path[,&nbsp;stat,&nbsp;chksum_handlers,&nbsp;...])</td>
+<td>given a fs path, and an optional stat, create an appropriate fs obj.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fs.livefs.iter_scan" title="pkgcore.fs.livefs.iter_scan"><tt class="xref py py-obj docutils literal"><span class="pre">iter_scan</span></tt></a>(path[,&nbsp;offset,&nbsp;follow_symlinks])</td>
+<td>Recursively scan a path.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.fs.livefs.scan" title="pkgcore.fs.livefs.scan"><tt class="xref py py-obj docutils literal"><span class="pre">scan</span></tt></a>(*a,&nbsp;**kw)</td>
+<td>calls list(iter_scan(<a href="#id1"><span class="problematic" id="id2">*</span></a>a, <a href="#id3"><span class="problematic" id="id4">**</span></a>kw))</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="pkgcore.fs.livefs.gen_obj">
+<tt class="descclassname">pkgcore.fs.livefs.</tt><tt class="descname">gen_obj</tt><big>(</big><em>path</em>, <em>stat=None</em>, <em>chksum_handlers=None</em>, <em>real_location=None</em>, <em>stat_func=&lt;built-in function lstat&gt;</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/livefs.html#gen_obj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.livefs.gen_obj" title="Permalink to this definition">¶</a></dt>
+<dd><p>given a fs path, and an optional stat, create an appropriate fs obj.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>stat</strong> &#8211; stat object to reuse if available</li>
+<li><strong>real_location</strong> &#8211; real path to the object if path is the desired
+location, rather then existant location.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">Raises KeyError:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body"><p class="first">if no obj type matches the stat checks</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">L{pkgcore.fs.fs.fsBase} derivative</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.fs.livefs.scan">
+<tt class="descclassname">pkgcore.fs.livefs.</tt><tt class="descname">scan</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/livefs.html#scan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.livefs.scan" title="Permalink to this definition">¶</a></dt>
+<dd><p>calls list(iter_scan(<a href="#id5"><span class="problematic" id="id6">*</span></a>a, <a href="#id7"><span class="problematic" id="id8">**</span></a>kw))
+Look at iter_scan for valid args</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.fs.livefs.iter_scan">
+<tt class="descclassname">pkgcore.fs.livefs.</tt><tt class="descname">iter_scan</tt><big>(</big><em>path</em>, <em>offset=None</em>, <em>follow_symlinks=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/livefs.html#iter_scan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.livefs.iter_scan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively scan a path.</p>
+<p>Does not follow symlinks pointing at dirs, just merely yields an
+obj representing said symlink</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">an iterator of L{pkgcore.fs.fs.fsBase} objects.</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> &#8211; str path of what directory to scan in the livefs</li>
+<li><strong>offset</strong> &#8211; if not None, prefix to strip from each objects location.
+if offset is /tmp, /tmp/blah becomes /blah</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.fs.fs.html"
+                        title="previous chapter">pkgcore.fs.fs</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.fs.ops.html"
+                        title="next chapter">pkgcore.fs.ops</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.fs.ops.html" title="pkgcore.fs.ops"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.fs.fs.html" title="pkgcore.fs.fs"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

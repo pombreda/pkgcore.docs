@@ -1,0 +1,339 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.binpkg.remote &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.binpkg.repo_ops" href="pkgcore.binpkg.repo_ops.html" />
+    <link rel="prev" title="pkgcore.binpkg" href="pkgcore.binpkg.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.binpkg.repo_ops.html" title="pkgcore.binpkg.repo_ops"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.binpkg.html" title="pkgcore.binpkg"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.binpkg.remote">
+<span id="pkgcore-binpkg-remote"></span><h1>pkgcore.binpkg.remote<a class="headerlink" href="#module-pkgcore.binpkg.remote" title="Permalink to this headline">¶</a></h1>
+<p>remote binpkg support</p>
+<p>Currently this primarily just holds the Packages cache used for remote, and local
+binpkg repositories</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.binpkg.remote.write_index" title="pkgcore.binpkg.remote.write_index"><tt class="xref py py-obj docutils literal"><span class="pre">write_index</span></tt></a>(filepath,&nbsp;repo[,&nbsp;version])</td>
+<td>given a repository, serialize it&#8217;s packages contents to a PackagesCache backend.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.binpkg.remote.PackagesCacheV0" title="pkgcore.binpkg.remote.PackagesCacheV0"><tt class="xref py py-obj docutils literal"><span class="pre">PackagesCacheV0</span></tt></a>(location,&nbsp;*args,&nbsp;**kwds)</td>
+<td>Cache backend for writting binpkg Packages caches</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.binpkg.remote.PackagesCacheV1" title="pkgcore.binpkg.remote.PackagesCacheV1"><tt class="xref py py-obj docutils literal"><span class="pre">PackagesCacheV1</span></tt></a>(location,&nbsp;*args,&nbsp;**kwds)</td>
+<td>Cache backend for writting binpkg Packages caches in format version 1</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV0">
+<em class="property">class </em><tt class="descclassname">pkgcore.binpkg.remote.</tt><tt class="descname">PackagesCacheV0</tt><big>(</big><em>location</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/binpkg/remote.html#PackagesCacheV0"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pkgcore.cache.html#pkgcore.cache.bulk" title="pkgcore.cache.bulk"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.cache.bulk</span></tt></a></p>
+<p>Cache backend for writting binpkg Packages caches</p>
+<p>Note this follows version 0 semantics- not the most efficient, and
+doesn&#8217;t bundle  certain useful keys like RESTRICt</p>
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV0.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV0.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV0.commit">
+<tt class="descname">commit</tt><big>(</big><em>force=False</em><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV0.commit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV0.data">
+<tt class="descname">data</tt><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV0.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>InternalJitAttr object; basis of JIT cached attr access</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV0.deconstruct_eclasses">
+<em class="property">static </em><tt class="descname">deconstruct_eclasses</tt><big>(</big><em>eclass_dict</em><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV0.deconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>takes a dict, returns a string representing said dict</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV0.frozen">
+<tt class="descname">frozen</tt><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV0.frozen" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to readonly</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV0.has_key">
+<tt class="descname">has_key</tt><big>(</big><em>cpv</em><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV0.has_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV0.items">
+<tt class="descname">items</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV0.items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV0.iteritems">
+<tt class="descname">iteritems</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV0.iteritems" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV0.iterkeys">
+<tt class="descname">iterkeys</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV0.iterkeys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV0.keys">
+<tt class="descname">keys</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV0.keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV0.read_preamble">
+<tt class="descname">read_preamble</tt><big>(</big><em>handle</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/binpkg/remote.html#PackagesCacheV0.read_preamble"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV0.read_preamble" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV0.reconstruct_eclasses">
+<em class="property">static </em><tt class="descname">reconstruct_eclasses</tt><big>(</big><em>cpv</em>, <em>eclass_string</em><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV0.reconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn a string from L{serialize_eclasses} into a dict.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV0.set_sync_rate">
+<tt class="descname">set_sync_rate</tt><big>(</big><em>rate=0</em><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV0.set_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV0.update_from_repo">
+<tt class="descname">update_from_repo</tt><big>(</big><em>repo</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/binpkg/remote.html#PackagesCacheV0.update_from_repo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV0.update_from_repo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV0.update_from_xpak">
+<tt class="descname">update_from_xpak</tt><big>(</big><em>pkg</em>, <em>xpak</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/binpkg/remote.html#PackagesCacheV0.update_from_xpak"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV0.update_from_xpak" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV1">
+<em class="property">class </em><tt class="descclassname">pkgcore.binpkg.remote.</tt><tt class="descname">PackagesCacheV1</tt><big>(</big><em>location</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/binpkg/remote.html#PackagesCacheV1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.binpkg.remote.PackagesCacheV0" title="pkgcore.binpkg.remote.PackagesCacheV0"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.binpkg.remote.PackagesCacheV0</span></tt></a></p>
+<p>Cache backend for writting binpkg Packages caches in format version 1</p>
+<p>See <a class="reference internal" href="#pkgcore.binpkg.remote.PackagesCacheV0" title="pkgcore.binpkg.remote.PackagesCacheV0"><tt class="xref py py-class docutils literal"><span class="pre">PackagesCacheV0</span></tt></a> for usage information; this just writes
+a better ondisk format</p>
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV1.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV1.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV1.commit">
+<tt class="descname">commit</tt><big>(</big><em>force=False</em><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV1.commit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV1.data">
+<tt class="descname">data</tt><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV1.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>InternalJitAttr object; basis of JIT cached attr access</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV1.deconstruct_eclasses">
+<em class="property">static </em><tt class="descname">deconstruct_eclasses</tt><big>(</big><em>eclass_dict</em><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV1.deconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>takes a dict, returns a string representing said dict</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV1.frozen">
+<tt class="descname">frozen</tt><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV1.frozen" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to readonly</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV1.has_key">
+<tt class="descname">has_key</tt><big>(</big><em>cpv</em><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV1.has_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV1.items">
+<tt class="descname">items</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV1.items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV1.iteritems">
+<tt class="descname">iteritems</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV1.iteritems" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV1.iterkeys">
+<tt class="descname">iterkeys</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV1.iterkeys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV1.keys">
+<tt class="descname">keys</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV1.keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV1.read_preamble">
+<tt class="descname">read_preamble</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV1.read_preamble" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV1.reconstruct_eclasses">
+<em class="property">static </em><tt class="descname">reconstruct_eclasses</tt><big>(</big><em>cpv</em>, <em>eclass_string</em><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV1.reconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn a string from L{serialize_eclasses} into a dict.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV1.set_sync_rate">
+<tt class="descname">set_sync_rate</tt><big>(</big><em>rate=0</em><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV1.set_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV1.update_from_repo">
+<tt class="descname">update_from_repo</tt><big>(</big><em>repo</em><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV1.update_from_repo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.binpkg.remote.PackagesCacheV1.update_from_xpak">
+<tt class="descname">update_from_xpak</tt><big>(</big><em>pkg</em>, <em>xpak</em><big>)</big><a class="headerlink" href="#pkgcore.binpkg.remote.PackagesCacheV1.update_from_xpak" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.binpkg.remote.write_index">
+<tt class="descclassname">pkgcore.binpkg.remote.</tt><tt class="descname">write_index</tt><big>(</big><em>filepath</em>, <em>repo</em>, <em>version=-1</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/binpkg/remote.html#write_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.binpkg.remote.write_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>given a repository, serialize it&#8217;s packages contents to a PackagesCache backend.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filepath</strong> &#8211; path to write the cache to</li>
+<li><strong>repo</strong> &#8211; Repository instance to serialize</li>
+<li><strong>version</strong> &#8211; if set, this is the format version to use.  Defaults to the
+most recent (currently v1)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.binpkg.html"
+                        title="previous chapter">pkgcore.binpkg</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.binpkg.repo_ops.html"
+                        title="next chapter">pkgcore.binpkg.repo_ops</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.binpkg.repo_ops.html" title="pkgcore.binpkg.repo_ops"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.binpkg.html" title="pkgcore.binpkg"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

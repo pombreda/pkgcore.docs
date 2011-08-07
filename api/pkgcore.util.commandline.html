@@ -1,0 +1,667 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.util.commandline &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.util.file_type" href="pkgcore.util.file_type.html" />
+    <link rel="prev" title="pkgcore.util.bzip2" href="pkgcore.util.bzip2.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.util.file_type.html" title="pkgcore.util.file_type"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.util.bzip2.html" title="pkgcore.util.bzip2"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.util.commandline">
+<span id="pkgcore-util-commandline"></span><h1>pkgcore.util.commandline<a class="headerlink" href="#module-pkgcore.util.commandline" title="Permalink to this headline">¶</a></h1>
+<p>Utilities for writing commandline utilities.</p>
+<p>pkgcore scripts should use the L{OptionParser} subclass here for a
+consistent commandline &#8220;look and feel&#8221; (and it tries to make life a
+bit easier too). They will probably want to use L{main} from an C{if
+__name__ == &#8216;__main__&#8217;} block too: it will take care of things like
+consistent exception handling.</p>
+<p>See dev-notes/commandline.rst for more complete documentation.</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.util.commandline.main" title="pkgcore.util.commandline.main"><tt class="xref py py-obj docutils literal"><span class="pre">main</span></tt></a>(subcommands[,&nbsp;args,&nbsp;outfile,&nbsp;errfile,&nbsp;...])</td>
+<td>Function to use in an &#8220;if __name__ == &#8216;__main__&#8217;&#8221; block in a script.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.util.commandline.FormattingHandler" title="pkgcore.util.commandline.FormattingHandler"><tt class="xref py py-obj docutils literal"><span class="pre">FormattingHandler</span></tt></a>(formatter)</td>
+<td>Logging handler printing through a formatter.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.util.commandline.MySystemExit" title="pkgcore.util.commandline.MySystemExit"><tt class="xref py py-obj docutils literal"><span class="pre">MySystemExit</span></tt></a></td>
+<td>Subclass of SystemExit the tests can safely catch.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.util.commandline.Option" title="pkgcore.util.commandline.Option"><tt class="xref py py-obj docutils literal"><span class="pre">Option</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.util.commandline.OptionParser" title="pkgcore.util.commandline.OptionParser"><tt class="xref py py-obj docutils literal"><span class="pre">OptionParser</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<td>Our common OptionParser subclass.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.util.commandline.Values" title="pkgcore.util.commandline.Values"><tt class="xref py py-obj docutils literal"><span class="pre">Values</span></tt></a>([defaults])</td>
+<td>Values with an autoloaded config property.</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="pkgcore.util.commandline.FormattingHandler">
+<em class="property">class </em><tt class="descclassname">pkgcore.util.commandline.</tt><tt class="descname">FormattingHandler</tt><big>(</big><em>formatter</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/util/commandline.html#FormattingHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">logging.Handler</span></tt></p>
+<p>Logging handler printing through a formatter.</p>
+<dl class="method">
+<dt id="pkgcore.util.commandline.FormattingHandler.acquire">
+<tt class="descname">acquire</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.acquire" title="Permalink to this definition">¶</a></dt>
+<dd><p>Acquire the I/O thread lock.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.FormattingHandler.addFilter">
+<tt class="descname">addFilter</tt><big>(</big><em>filter</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.addFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the specified filter to this handler.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.FormattingHandler.close">
+<tt class="descname">close</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tidy up any resources used by the handler.</p>
+<p>This version removes the handler from an internal map of handlers,
+_handlers, which is used for handler lookup by name. Subclasses
+should ensure that this gets called from overridden close()
+methods.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.FormattingHandler.createLock">
+<tt class="descname">createLock</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.createLock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Acquire a thread lock for serializing access to the underlying I/O.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.FormattingHandler.emit">
+<tt class="descname">emit</tt><big>(</big><em>record</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/util/commandline.html#FormattingHandler.emit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.emit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.FormattingHandler.filter">
+<tt class="descname">filter</tt><big>(</big><em>record</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine if a record is loggable by consulting all the filters.</p>
+<p>The default is to allow the record to be logged; any filter can veto
+this and the record is then dropped. Returns a zero value if a record
+is to be dropped, else non-zero.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.FormattingHandler.flush">
+<tt class="descname">flush</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.flush" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure all logging output has been flushed.</p>
+<p>This version does nothing and is intended to be implemented by
+subclasses.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.FormattingHandler.format">
+<tt class="descname">format</tt><big>(</big><em>record</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format the specified record.</p>
+<p>If a formatter is set, use it. Otherwise, use the default formatter
+for the module.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.FormattingHandler.get_name">
+<tt class="descname">get_name</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.get_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.FormattingHandler.handle">
+<tt class="descname">handle</tt><big>(</big><em>record</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.handle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conditionally emit the specified logging record.</p>
+<p>Emission depends on filters which may have been added to the handler.
+Wrap the actual emission of the record with acquisition/release of
+the I/O thread lock. Returns whether the filter passed the record for
+emission.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.FormattingHandler.handleError">
+<tt class="descname">handleError</tt><big>(</big><em>record</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.handleError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle errors which occur during an emit() call.</p>
+<p>This method should be called from handlers when an exception is
+encountered during an emit() call. If raiseExceptions is false,
+exceptions get silently ignored. This is what is mostly wanted
+for a logging system - most users will not care about errors in
+the logging system, they are more interested in application errors.
+You could, however, replace this with a custom handler if you wish.
+The record which was being processed is passed in to this method.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.util.commandline.FormattingHandler.name">
+<tt class="descname">name</tt><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.FormattingHandler.release">
+<tt class="descname">release</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.release" title="Permalink to this definition">¶</a></dt>
+<dd><p>Release the I/O thread lock.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.FormattingHandler.removeFilter">
+<tt class="descname">removeFilter</tt><big>(</big><em>filter</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.removeFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove the specified filter from this handler.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.FormattingHandler.setFormatter">
+<tt class="descname">setFormatter</tt><big>(</big><em>fmt</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.setFormatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the formatter for this handler.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.FormattingHandler.setLevel">
+<tt class="descname">setLevel</tt><big>(</big><em>level</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.setLevel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the logging level of this handler.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.FormattingHandler.set_name">
+<tt class="descname">set_name</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.set_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.util.commandline.Values">
+<em class="property">class </em><tt class="descclassname">pkgcore.util.commandline.</tt><tt class="descname">Values</tt><big>(</big><em>defaults=None</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.Values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">optparse.Values</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Values with an autoloaded config property.</p>
+<p>If you do not want the config autoloaded you can set the _config
+attribute like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vals</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">get_default_values</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vals</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">my_custom_central</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">vals</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="pkgcore.util.commandline.Values.config">
+<tt class="descname">config</tt><a class="headerlink" href="#pkgcore.util.commandline.Values.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>InternalJitAttr object; basis of JIT cached attr access</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.util.commandline.Values.domain">
+<tt class="descname">domain</tt><a class="headerlink" href="#pkgcore.util.commandline.Values.domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>InternalJitAttr object; basis of JIT cached attr access</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.Values.ensure_value">
+<tt class="descname">ensure_value</tt><big>(</big><em>attr</em>, <em>value</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.Values.ensure_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.Values.get_pkgset">
+<tt class="descname">get_pkgset</tt><big>(</big><em>err</em>, <em>setname</em>, <em>config=None</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.Values.get_pkgset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.Values.load_config">
+<tt class="descname">load_config</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.Values.load_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override this if you need a different way of loading config.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.Values.load_domain">
+<tt class="descname">load_domain</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.Values.load_domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override this if you need to change the default domain logic.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.Values.read_file">
+<tt class="descname">read_file</tt><big>(</big><em>filename</em>, <em>mode='careful'</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.Values.read_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.Values.read_module">
+<tt class="descname">read_module</tt><big>(</big><em>modname</em>, <em>mode='careful'</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.Values.read_module" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.util.commandline.Option">
+<em class="property">class </em><tt class="descclassname">pkgcore.util.commandline.</tt><tt class="descname">Option</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.Option" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">optparse.Option</span></tt></p>
+<dl class="method">
+<dt id="pkgcore.util.commandline.Option.check_value">
+<tt class="descname">check_value</tt><big>(</big><em>opt</em>, <em>value</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.Option.check_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.Option.convert_value">
+<tt class="descname">convert_value</tt><big>(</big><em>opt</em>, <em>value</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.Option.convert_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.Option.get_opt_string">
+<tt class="descname">get_opt_string</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.Option.get_opt_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.Option.process">
+<tt class="descname">process</tt><big>(</big><em>opt</em>, <em>value</em>, <em>values</em>, <em>parser</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.Option.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.Option.take_action">
+<tt class="descname">take_action</tt><big>(</big><em>action</em>, <em>dest</em>, <em>opt</em>, <em>value</em>, <em>values</em>, <em>parser</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.Option.take_action" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.Option.takes_value">
+<tt class="descname">takes_value</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.Option.takes_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.util.commandline.OptionParser">
+<em class="property">class </em><tt class="descclassname">pkgcore.util.commandline.</tt><tt class="descname">OptionParser</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/optparse.html#optparse.OptionParser" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">optparse.OptionParser</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Our common OptionParser subclass.</p>
+<p>Adds some common options, makes options that get &#8220;append&#8221;ed
+default to an empty sequence instead of None, uses our custom
+Values class with the config property.</p>
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.add_option">
+<tt class="descname">add_option</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.add_option" title="Permalink to this definition">¶</a></dt>
+<dd><p>add_option(Option)
+add_option(opt_str, ..., kwarg=val, ...)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.add_option_group">
+<tt class="descname">add_option_group</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.add_option_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.add_options">
+<tt class="descname">add_options</tt><big>(</big><em>option_list</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.add_options" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.check_values">
+<tt class="descname">check_values</tt><big>(</big><em>values</em>, <em>args</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.check_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do some basic sanity checking.</p>
+<p>optparse defaults unset lists to None. An empty sequence is
+much more convenient (lets you use them in a for loop without
+a None check) so we fix those up (based on action &#8220;append&#8221;).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.destroy">
+<tt class="descname">destroy</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.destroy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Declare that you are done with this OptionParser.  This cleans up
+reference cycles so the OptionParser (and all objects referenced by
+it) can be garbage-collected promptly.  After calling destroy(), the
+OptionParser is unusable.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.disable_interspersed_args">
+<tt class="descname">disable_interspersed_args</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.disable_interspersed_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set parsing to stop on the first non-option. Use this if
+you have a command processor which runs another command that
+has options of its own and you want to make sure these options
+don&#8217;t get confused.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.enable_interspersed_args">
+<tt class="descname">enable_interspersed_args</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.enable_interspersed_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set parsing to not stop on the first non-option, allowing
+interspersing switches with command arguments. This is the
+default behavior. See also disable_interspersed_args() and the
+class documentation description of the attribute
+allow_interspersed_args.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.error">
+<tt class="descname">error</tt><big>(</big><em>msg</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.error" title="Permalink to this definition">¶</a></dt>
+<dd><p>error(msg : string)</p>
+<p>Print a usage message incorporating &#8216;msg&#8217; to stderr and exit.
+If you override this in a subclass, it should not return &#8211; it
+should either exit or raise an exception.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.exit">
+<tt class="descname">exit</tt><big>(</big><em>status=0</em>, <em>msg=None</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.exit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.expand_prog_name">
+<tt class="descname">expand_prog_name</tt><big>(</big><em>s</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.expand_prog_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.format_description">
+<tt class="descname">format_description</tt><big>(</big><em>formatter</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.format_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.format_epilog">
+<tt class="descname">format_epilog</tt><big>(</big><em>formatter</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.format_epilog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.format_help">
+<tt class="descname">format_help</tt><big>(</big><em>formatter=None</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.format_help" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.format_option_help">
+<tt class="descname">format_option_help</tt><big>(</big><em>formatter=None</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.format_option_help" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.get_default_values">
+<tt class="descname">get_default_values</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.get_default_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Slightly simplified copy of optparse code using our Values class.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.get_description">
+<tt class="descname">get_description</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.get_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.get_option">
+<tt class="descname">get_option</tt><big>(</big><em>opt_str</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.get_option" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.get_option_group">
+<tt class="descname">get_option_group</tt><big>(</big><em>opt_str</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.get_option_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.get_prog_name">
+<tt class="descname">get_prog_name</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.get_prog_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.get_usage">
+<tt class="descname">get_usage</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.get_usage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.get_version">
+<tt class="descname">get_version</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.get_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add pkgcore&#8217;s version to the version information.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.has_option">
+<tt class="descname">has_option</tt><big>(</big><em>opt_str</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.has_option" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.util.commandline.OptionParser.option_class">
+<tt class="descname">option_class</tt><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.option_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#pkgcore.util.commandline.Option" title="pkgcore.util.commandline.Option"><tt class="xref py py-class docutils literal"><span class="pre">Option</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.parse_args">
+<tt class="descname">parse_args</tt><big>(</big><em>args=None</em>, <em>values=None</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.parse_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extend optparse to clear the ref values -&gt; parser it adds.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.parse_atom">
+<tt class="descname">parse_atom</tt><big>(</big><em>arg</em>, <em>msg=None</em>, <em>eapi=-1</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.parse_atom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.parse_restrict">
+<tt class="descname">parse_restrict</tt><big>(</big><em>arg</em>, <em>msg=None</em>, <em>eapi=None</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.parse_restrict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.print_help">
+<tt class="descname">print_help</tt><big>(</big><em>file=None</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.print_help" title="Permalink to this definition">¶</a></dt>
+<dd><p>print_help(file : file = stdout)</p>
+<p>Print an extended help message, listing all options and any
+help text provided with them, to &#8216;file&#8217; (default stdout).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.print_usage">
+<tt class="descname">print_usage</tt><big>(</big><em>file=None</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.print_usage" title="Permalink to this definition">¶</a></dt>
+<dd><p>print_usage(file : file = stdout)</p>
+<p>Print the usage message for the current program (self.usage) to
+&#8216;file&#8217; (default stdout).  Any occurrence of the string &#8220;%prog&#8221; in
+self.usage is replaced with the name of the current program
+(basename of sys.argv[0]).  Does nothing if self.usage is empty
+or not defined.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.print_version">
+<tt class="descname">print_version</tt><big>(</big><em>file=None</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.print_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the version to a filelike (defaults to stdout).</p>
+<p>Overridden because the optparse one is a noop if self.version is false.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.remove_option">
+<tt class="descname">remove_option</tt><big>(</big><em>opt_str</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.remove_option" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.set_conflict_handler">
+<tt class="descname">set_conflict_handler</tt><big>(</big><em>handler</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.set_conflict_handler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.set_default">
+<tt class="descname">set_default</tt><big>(</big><em>dest</em>, <em>value</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.set_default" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.set_defaults">
+<tt class="descname">set_defaults</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.set_defaults" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.set_description">
+<tt class="descname">set_description</tt><big>(</big><em>description</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.set_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.set_process_default_values">
+<tt class="descname">set_process_default_values</tt><big>(</big><em>process</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.set_process_default_values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.util.commandline.OptionParser.set_usage">
+<tt class="descname">set_usage</tt><big>(</big><em>usage</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.set_usage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.util.commandline.OptionParser.values_class">
+<tt class="descname">values_class</tt><a class="headerlink" href="#pkgcore.util.commandline.OptionParser.values_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#pkgcore.util.commandline.Values" title="pkgcore.util.commandline.Values"><tt class="xref py py-class docutils literal"><span class="pre">Values</span></tt></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pkgcore.util.commandline.MySystemExit">
+<em class="property">exception </em><tt class="descclassname">pkgcore.util.commandline.</tt><tt class="descname">MySystemExit</tt><a class="headerlink" href="#pkgcore.util.commandline.MySystemExit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.SystemExit</span></tt></p>
+<p>Subclass of SystemExit the tests can safely catch.</p>
+<dl class="attribute">
+<dt id="pkgcore.util.commandline.MySystemExit.args">
+<tt class="descname">args</tt><a class="headerlink" href="#pkgcore.util.commandline.MySystemExit.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.util.commandline.MySystemExit.code">
+<tt class="descname">code</tt><a class="headerlink" href="#pkgcore.util.commandline.MySystemExit.code" title="Permalink to this definition">¶</a></dt>
+<dd><p>exception code</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.util.commandline.MySystemExit.message">
+<tt class="descname">message</tt><a class="headerlink" href="#pkgcore.util.commandline.MySystemExit.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.util.commandline.main">
+<tt class="descclassname">pkgcore.util.commandline.</tt><tt class="descname">main</tt><big>(</big><em>subcommands</em>, <em>args=None</em>, <em>outfile=None</em>, <em>errfile=None</em>, <em>script_name=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/util/commandline.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.util.commandline.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to use in an &#8220;if __name__ == &#8216;__main__&#8217;&#8221; block in a script.</p>
+<p>Takes one or more combinations of option parser and main func and
+runs them, taking care of exception handling and some other things.</p>
+<p>Any ConfigurationErrors raised from your function (by the config
+manager) are handled. Other exceptions are not (trigger a traceback).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>subcommands</strong> (<em>mapping of string =&gt; (OptionParser class, main func)</em>) &#8211; available commands.
+The keys are a subcommand name or None for other/unknown/no subcommand.
+The values are tuples of OptionParser subclasses and functions called
+as main_func(config, out, err) with a L{Values} instance, two
+L{snakeoil.formatters.Formatter} instances for output (stdout)
+and errors (stderr). It should return an integer used as
+exit status or None as synonym for 0.</li>
+<li><strong>args</strong> (<em>sequence of strings</em>) &#8211; arguments to parse, defaulting to C{sys.argv[1:]}.</li>
+<li><strong>outfile</strong> (<em>file-like object</em>) &#8211; File to use for stdout, defaults to C{sys.stdout}.</li>
+<li><strong>errfile</strong> (<em>file-like object</em>) &#8211; File to use for stderr, defaults to C{sys.stderr}.</li>
+<li><strong>script_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; basename of this script, defaults to the basename
+of C{sys.argv[0]}.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.util.bzip2.html"
+                        title="previous chapter">pkgcore.util.bzip2</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.util.file_type.html"
+                        title="next chapter">pkgcore.util.file_type</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.util.file_type.html" title="pkgcore.util.file_type"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.util.bzip2.html" title="pkgcore.util.bzip2"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

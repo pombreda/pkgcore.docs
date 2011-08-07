@@ -1,0 +1,604 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.ebuild.atom &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.ebuild.restricts" href="pkgcore.ebuild.restricts.html" />
+    <link rel="prev" title="pkgcore.ebuild" href="pkgcore.ebuild.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.restricts.html" title="pkgcore.ebuild.restricts"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.html" title="pkgcore.ebuild"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pkgcore-ebuild-atom">
+<h1>pkgcore.ebuild.atom<a class="headerlink" href="#pkgcore-ebuild-atom" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-pkgcore.ebuild.atom"></span><p>gentoo ebuild atom, should be generalized into an agnostic base</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.atom.generate_collapsed_restriction" title="pkgcore.ebuild.atom.generate_collapsed_restriction"><tt class="xref py py-obj docutils literal"><span class="pre">generate_collapsed_restriction</span></tt></a>(atoms[,&nbsp;negate])</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.atom.atom" title="pkgcore.ebuild.atom.atom"><tt class="xref py py-obj docutils literal"><span class="pre">atom</span></tt></a></td>
+<td>Currently implements gentoo ebuild atom parsing.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.atom.transitive_use_atom" title="pkgcore.ebuild.atom.transitive_use_atom"><tt class="xref py py-obj docutils literal"><span class="pre">transitive_use_atom</span></tt></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="pkgcore.ebuild.atom.atom">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.atom.</tt><tt class="descname">atom</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/atom.html#atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.atom.atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pkgcore.restrictions.boolean.html#pkgcore.restrictions.boolean.AndRestriction" title="pkgcore.restrictions.boolean.AndRestriction"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.restrictions.boolean.AndRestriction</span></tt></a></p>
+<p>Currently implements gentoo ebuild atom parsing.</p>
+<p>Should be converted into an agnostic dependency base.</p>
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.atom.add_restriction">
+<tt class="descname">add_restriction</tt><big>(</big><em>*new_restrictions</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.atom.add_restriction" title="Permalink to this definition">¶</a></dt>
+<dd><p>add an more restriction(s)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_restrictions</strong> &#8211; if node_type is enforced,
+restrictions must be of that type.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.atom.blocks">
+<tt class="descname">blocks</tt><a class="headerlink" href="#pkgcore.ebuild.atom.atom.blocks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.atom.blocks_strongly">
+<tt class="descname">blocks_strongly</tt><a class="headerlink" href="#pkgcore.ebuild.atom.atom.blocks_strongly" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.atom.blocks_temp_ignorable">
+<tt class="descname">blocks_temp_ignorable</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/atom.html#atom.blocks_temp_ignorable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.atom.atom.blocks_temp_ignorable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.atom.category">
+<tt class="descname">category</tt><a class="headerlink" href="#pkgcore.ebuild.atom.atom.category" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.atom.change_restrictions">
+<tt class="descname">change_restrictions</tt><big>(</big><em>*restrictions</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.atom.change_restrictions" title="Permalink to this definition">¶</a></dt>
+<dd><p>return a new instance of self.__class__, using supplied restrictions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.atom.cnf_solutions">
+<tt class="descname">cnf_solutions</tt><big>(</big><em>full_solution_expansion=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/atom.html#atom.cnf_solutions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.atom.atom.cnf_solutions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.atom.cpvstr">
+<tt class="descname">cpvstr</tt><a class="headerlink" href="#pkgcore.ebuild.atom.atom.cpvstr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.atom.dnf_solutions">
+<tt class="descname">dnf_solutions</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.atom.dnf_solutions" title="Permalink to this definition">¶</a></dt>
+<dd><p>list form of L{iter_dnf_solutions}, see iter_dnf_solutions for args</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.atom.atom.eapi0_atom">
+<em class="property">classmethod </em><tt class="descname">eapi0_atom</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.atom.eapi0_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>partial(func, <a href="#id1"><span class="problematic" id="id2">*</span></a>args, <a href="#id3"><span class="problematic" id="id4">**</span></a>keywords) - new function with partial application
+of the given arguments and keywords.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.atom.atom.eapi1_atom">
+<em class="property">classmethod </em><tt class="descname">eapi1_atom</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.atom.eapi1_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>partial(func, <a href="#id5"><span class="problematic" id="id6">*</span></a>args, <a href="#id7"><span class="problematic" id="id8">**</span></a>keywords) - new function with partial application
+of the given arguments and keywords.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.atom.atom.eapi2_atom">
+<em class="property">classmethod </em><tt class="descname">eapi2_atom</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.atom.eapi2_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>partial(func, <a href="#id9"><span class="problematic" id="id10">*</span></a>args, <a href="#id11"><span class="problematic" id="id12">**</span></a>keywords) - new function with partial application
+of the given arguments and keywords.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.atom.atom.eapi3_atom">
+<em class="property">classmethod </em><tt class="descname">eapi3_atom</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.atom.eapi3_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>partial(func, <a href="#id13"><span class="problematic" id="id14">*</span></a>args, <a href="#id15"><span class="problematic" id="id16">**</span></a>keywords) - new function with partial application
+of the given arguments and keywords.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.atom.atom.eapi4_atom">
+<em class="property">classmethod </em><tt class="descname">eapi4_atom</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.atom.eapi4_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>partial(func, <a href="#id17"><span class="problematic" id="id18">*</span></a>args, <a href="#id19"><span class="problematic" id="id20">**</span></a>keywords) - new function with partial application
+of the given arguments and keywords.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.atom.evaluate_conditionals">
+<tt class="descname">evaluate_conditionals</tt><big>(</big><em>parent_cls</em>, <em>parent_seq</em>, <em>enabled</em>, <em>tristate=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/atom.html#atom.evaluate_conditionals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.atom.atom.evaluate_conditionals" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.atom.finalize">
+<tt class="descname">finalize</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.atom.finalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>finalize the restriction instance, disallowing adding restrictions.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.atom.force_False">
+<tt class="descname">force_False</tt><big>(</big><em>pkg</em>, <em>*vals</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.atom.force_False" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.atom.force_True">
+<tt class="descname">force_True</tt><big>(</big><em>pkg</em>, <em>*vals</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.atom.force_True" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.atom.fullver">
+<tt class="descname">fullver</tt><a class="headerlink" href="#pkgcore.ebuild.atom.atom.fullver" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.atom.intersect">
+<tt class="descname">intersect</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.atom.intersect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.atom.intersects">
+<tt class="descname">intersects</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/atom.html#atom.intersects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.atom.atom.intersects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a passed in atom &#8220;intersects&#8221; this restriction&#8217;s atom.</p>
+<p>Two atoms &#8220;intersect&#8221; if a package can be constructed that
+matches both:</p>
+<blockquote>
+<div><ul class="simple">
+<li>if you query for just &#8220;dev-lang/python&#8221; it &#8220;intersects&#8221; both
+&#8220;dev-lang/python&#8221; and &#8220;&gt;=dev-lang/python-2.4&#8221;</li>
+<li>if you query for &#8220;=dev-lang/python-2.4&#8221; it &#8220;intersects&#8221;
+&#8220;&gt;=dev-lang/python-2.4&#8221; and &#8220;dev-lang/python&#8221; but not
+&#8220;&lt;dev-lang/python-2.3&#8221;</li>
+</ul>
+</div></blockquote>
+<p>USE and slot deps are also taken into account.</p>
+<p>The block/nonblock state of the atom is ignored.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.atom.is_simple">
+<tt class="descname">is_simple</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/atom.html#atom.is_simple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.atom.atom.is_simple" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.atom.iter_cnf_solutions">
+<tt class="descname">iter_cnf_solutions</tt><big>(</big><em>full_solution_expansion=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/atom.html#atom.iter_cnf_solutions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.atom.atom.iter_cnf_solutions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.atom.iter_dnf_solutions">
+<tt class="descname">iter_dnf_solutions</tt><big>(</big><em>full_solution_expansion=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/atom.html#atom.iter_dnf_solutions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.atom.atom.iter_dnf_solutions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.atom.key">
+<tt class="descname">key</tt><a class="headerlink" href="#pkgcore.ebuild.atom.atom.key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.atom.match">
+<tt class="descname">match</tt><big>(</big><em>vals</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.atom.match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.atom.negate_vers">
+<tt class="descname">negate_vers</tt><a class="headerlink" href="#pkgcore.ebuild.atom.atom.negate_vers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.atom.op">
+<tt class="descname">op</tt><a class="headerlink" href="#pkgcore.ebuild.atom.atom.op" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.atom.package">
+<tt class="descname">package</tt><a class="headerlink" href="#pkgcore.ebuild.atom.atom.package" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.atom.repo_id">
+<tt class="descname">repo_id</tt><a class="headerlink" href="#pkgcore.ebuild.atom.atom.repo_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.atom.restrictions">
+<tt class="descname">restrictions</tt><a class="headerlink" href="#pkgcore.ebuild.atom.atom.restrictions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.atom.revision">
+<tt class="descname">revision</tt><a class="headerlink" href="#pkgcore.ebuild.atom.atom.revision" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.atom.slot">
+<tt class="descname">slot</tt><a class="headerlink" href="#pkgcore.ebuild.atom.atom.slot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.atom.use">
+<tt class="descname">use</tt><a class="headerlink" href="#pkgcore.ebuild.atom.atom.use" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.atom.version">
+<tt class="descname">version</tt><a class="headerlink" href="#pkgcore.ebuild.atom.atom.version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.atom.</tt><tt class="descname">transitive_use_atom</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/atom.html#transitive_use_atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.ebuild.atom.atom" title="pkgcore.ebuild.atom.atom"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.ebuild.atom.atom</span></tt></a></p>
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.add_restriction">
+<tt class="descname">add_restriction</tt><big>(</big><em>*new_restrictions</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.add_restriction" title="Permalink to this definition">¶</a></dt>
+<dd><p>add an more restriction(s)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_restrictions</strong> &#8211; if node_type is enforced,
+restrictions must be of that type.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.blocks">
+<tt class="descname">blocks</tt><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.blocks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.blocks_strongly">
+<tt class="descname">blocks_strongly</tt><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.blocks_strongly" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.blocks_temp_ignorable">
+<tt class="descname">blocks_temp_ignorable</tt><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.blocks_temp_ignorable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.category">
+<tt class="descname">category</tt><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.category" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.change_restrictions">
+<tt class="descname">change_restrictions</tt><big>(</big><em>*restrictions</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.change_restrictions" title="Permalink to this definition">¶</a></dt>
+<dd><p>return a new instance of self.__class__, using supplied restrictions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.cnf_solutions">
+<tt class="descname">cnf_solutions</tt><big>(</big><em>full_solution_expansion=False</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.cnf_solutions" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns solutions in CNF (conjunctive normalized form) of this instance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_solution_expansion</strong> &#8211; controls whether to expand everything
+(break apart atoms for example); this isn&#8217;t likely what you want</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.convert_to_conditionals">
+<tt class="descname">convert_to_conditionals</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/atom.html#transitive_use_atom.convert_to_conditionals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.convert_to_conditionals" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.cpvstr">
+<tt class="descname">cpvstr</tt><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.cpvstr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.dnf_solutions">
+<tt class="descname">dnf_solutions</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.dnf_solutions" title="Permalink to this definition">¶</a></dt>
+<dd><p>list form of L{iter_dnf_solutions}, see iter_dnf_solutions for args</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.eapi0_atom">
+<em class="property">classmethod </em><tt class="descname">eapi0_atom</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.eapi0_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>partial(func, <a href="#id21"><span class="problematic" id="id22">*</span></a>args, <a href="#id23"><span class="problematic" id="id24">**</span></a>keywords) - new function with partial application
+of the given arguments and keywords.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.eapi1_atom">
+<em class="property">classmethod </em><tt class="descname">eapi1_atom</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.eapi1_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>partial(func, <a href="#id25"><span class="problematic" id="id26">*</span></a>args, <a href="#id27"><span class="problematic" id="id28">**</span></a>keywords) - new function with partial application
+of the given arguments and keywords.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.eapi2_atom">
+<em class="property">classmethod </em><tt class="descname">eapi2_atom</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.eapi2_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>partial(func, <a href="#id29"><span class="problematic" id="id30">*</span></a>args, <a href="#id31"><span class="problematic" id="id32">**</span></a>keywords) - new function with partial application
+of the given arguments and keywords.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.eapi3_atom">
+<em class="property">classmethod </em><tt class="descname">eapi3_atom</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.eapi3_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>partial(func, <a href="#id33"><span class="problematic" id="id34">*</span></a>args, <a href="#id35"><span class="problematic" id="id36">**</span></a>keywords) - new function with partial application
+of the given arguments and keywords.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.eapi4_atom">
+<em class="property">classmethod </em><tt class="descname">eapi4_atom</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.eapi4_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>partial(func, <a href="#id37"><span class="problematic" id="id38">*</span></a>args, <a href="#id39"><span class="problematic" id="id40">**</span></a>keywords) - new function with partial application
+of the given arguments and keywords.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.evaluate_conditionals">
+<tt class="descname">evaluate_conditionals</tt><big>(</big><em>parent_cls</em>, <em>parent_seq</em>, <em>enabled</em>, <em>tristate_filter=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/atom.html#transitive_use_atom.evaluate_conditionals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.evaluate_conditionals" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.finalize">
+<tt class="descname">finalize</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.finalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>finalize the restriction instance, disallowing adding restrictions.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.force_False">
+<tt class="descname">force_False</tt><big>(</big><em>pkg</em>, <em>*vals</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.force_False" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.force_True">
+<tt class="descname">force_True</tt><big>(</big><em>pkg</em>, <em>*vals</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.force_True" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.fullver">
+<tt class="descname">fullver</tt><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.fullver" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.intersect">
+<tt class="descname">intersect</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.intersect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.intersects">
+<tt class="descname">intersects</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.intersects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a passed in atom &#8220;intersects&#8221; this restriction&#8217;s atom.</p>
+<p>Two atoms &#8220;intersect&#8221; if a package can be constructed that
+matches both:</p>
+<blockquote>
+<div><ul class="simple">
+<li>if you query for just &#8220;dev-lang/python&#8221; it &#8220;intersects&#8221; both
+&#8220;dev-lang/python&#8221; and &#8220;&gt;=dev-lang/python-2.4&#8221;</li>
+<li>if you query for &#8220;=dev-lang/python-2.4&#8221; it &#8220;intersects&#8221;
+&#8220;&gt;=dev-lang/python-2.4&#8221; and &#8220;dev-lang/python&#8221; but not
+&#8220;&lt;dev-lang/python-2.3&#8221;</li>
+</ul>
+</div></blockquote>
+<p>USE and slot deps are also taken into account.</p>
+<p>The block/nonblock state of the atom is ignored.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.iter_cnf_solutions">
+<tt class="descname">iter_cnf_solutions</tt><big>(</big><em>full_solution_expansion=False</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.iter_cnf_solutions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.iter_dnf_solutions">
+<tt class="descname">iter_dnf_solutions</tt><big>(</big><em>full_solution_expansion=False</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.iter_dnf_solutions" title="Permalink to this definition">¶</a></dt>
+<dd><p>generater yielding DNF (disjunctive normalized form) of this instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_solution_expansion</strong> &#8211; controls whether to expand everything
+(break apart atoms for example); this isn&#8217;t likely what you want</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.key">
+<tt class="descname">key</tt><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.match">
+<tt class="descname">match</tt><big>(</big><em>vals</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.negate_vers">
+<tt class="descname">negate_vers</tt><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.negate_vers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.op">
+<tt class="descname">op</tt><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.op" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.package">
+<tt class="descname">package</tt><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.package" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.repo_id">
+<tt class="descname">repo_id</tt><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.repo_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.restrictions">
+<tt class="descname">restrictions</tt><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.restrictions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.revision">
+<tt class="descname">revision</tt><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.revision" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.slot">
+<tt class="descname">slot</tt><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.slot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.use">
+<tt class="descname">use</tt><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.use" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.atom.transitive_use_atom.version">
+<tt class="descname">version</tt><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom.version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.atom.generate_collapsed_restriction">
+<tt class="descclassname">pkgcore.ebuild.atom.</tt><tt class="descname">generate_collapsed_restriction</tt><big>(</big><em>atoms</em>, <em>negate=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/atom.html#generate_collapsed_restriction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.atom.generate_collapsed_restriction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.html"
+                        title="previous chapter">pkgcore.ebuild</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.restricts.html"
+                        title="next chapter">pkgcore.ebuild.restricts</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.restricts.html" title="pkgcore.ebuild.restricts"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.html" title="pkgcore.ebuild"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

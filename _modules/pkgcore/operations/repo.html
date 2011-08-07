@@ -1,0 +1,316 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.operations.repo &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="pkgcore.operations" href="../operations.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../operations.html" accesskey="U">pkgcore.operations</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.operations.repo</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2005-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">repository modifications (installing, removing, replacing)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;Failure&quot;</span><span class="p">,</span> <span class="s">&quot;base&quot;</span><span class="p">,</span> <span class="s">&quot;install&quot;</span><span class="p">,</span> <span class="s">&quot;uninstall&quot;</span><span class="p">,</span> <span class="s">&quot;replace&quot;</span><span class="p">,</span>
+    <span class="s">&quot;operations&quot;</span><span class="p">,</span> <span class="s">&quot;operations_proxy&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">snakeoil.dependant_methods</span> <span class="kn">import</span> <span class="n">ForcedDepends</span>
+<span class="kn">from</span> <span class="nn">snakeoil.weakrefs</span> <span class="kn">import</span> <span class="n">WeakRefFinalizer</span>
+<span class="kn">from</span> <span class="nn">snakeoil.currying</span> <span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">post_curry</span>
+<span class="kn">from</span> <span class="nn">pkgcore.operations</span> <span class="kn">import</span> <span class="n">base</span> <span class="k">as</span> <span class="n">operations_base</span>
+<span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
+<span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span> <span class="s">&quot;pkgcore.log:logger&quot;</span><span class="p">,</span>
+    <span class="s">&quot;pkgcore.operations:observer@observer_mod&quot;</span><span class="p">,</span>
+    <span class="s">&quot;pkgcore:sync&quot;</span><span class="p">,</span>
+    <span class="s">&quot;pkgcore.package.mutated:MutatedPkg&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">fake_lock</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="n">acquire_write_lock</span> <span class="o">=</span> <span class="n">acquire_read_lock</span> <span class="o">=</span> <span class="n">__init__</span>
+    <span class="n">release_read_lock</span> <span class="o">=</span> <span class="n">release_write_lock</span> <span class="o">=</span> <span class="n">__init__</span>
+
+
+<span class="k">class</span> <span class="nc">finalizer_base</span><span class="p">(</span><span class="n">WeakRefFinalizer</span><span class="p">,</span> <span class="n">ForcedDepends</span><span class="p">):</span>
+
+    <span class="k">pass</span>
+
+<div class="viewcode-block" id="Failure"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.Failure">[docs]</a><span class="k">class</span> <span class="nc">Failure</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="base"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.base">[docs]</a><span class="k">class</span> <span class="nc">base</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ForcedDepends</span>
+
+    <span class="n">stage_depends</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">observer</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repo</span> <span class="o">=</span> <span class="n">repo</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">underway</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observer</span> <span class="o">=</span> <span class="n">observer</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lock</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="s">&quot;lock&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lock</span> <span class="o">=</span> <span class="n">fake_lock</span><span class="p">()</span>
+
+<div class="viewcode-block" id="base.start"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.base.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">underway</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">acquire_write_lock</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="base.finalize_data"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.base.finalize_data">[docs]</a>    <span class="k">def</span> <span class="nf">finalize_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;finalize_data&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="base.finish"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.base.finish">[docs]</a>    <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">release_write_lock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">underway</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+</div></div>
+<div class="viewcode-block" id="install"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.install">[docs]</a><span class="k">class</span> <span class="nc">install</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
+
+    <span class="n">stage_depends</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;finish&#39;</span><span class="p">:</span> <span class="s">&#39;_notify_repo_add&#39;</span><span class="p">,</span>
+        <span class="s">&#39;_notify_repo_add&#39;</span><span class="p">:</span> <span class="s">&#39;finalize_data&#39;</span><span class="p">,</span>
+        <span class="s">&#39;finalize_data&#39;</span><span class="p">:</span> <span class="s">&#39;add_data&#39;</span><span class="p">,</span>
+        <span class="s">&#39;add_data&#39;</span><span class="p">:</span><span class="s">&#39;start&#39;</span><span class="p">}</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&quot;install&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="p">):</span>
+        <span class="n">base</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">observer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_pkg</span> <span class="o">=</span> <span class="n">pkg</span>
+
+    <span class="k">def</span> <span class="nf">_notify_repo_add</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">notify_add_package</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">new_pkg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+<div class="viewcode-block" id="install.add_data"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.install.add_data">[docs]</a>    <span class="k">def</span> <span class="nf">add_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;add_data&#39;</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_update_pkg_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contents</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_pkg</span> <span class="o">=</span> <span class="n">MutatedPkg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">new_pkg</span><span class="p">,</span>
+            <span class="p">{</span><span class="s">&quot;contents&quot;</span><span class="p">:</span><span class="n">contents</span><span class="p">})</span>
+
+</div>
+<div class="viewcode-block" id="uninstall"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.uninstall">[docs]</a><span class="k">class</span> <span class="nc">uninstall</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
+
+    <span class="n">stage_depends</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;finish&#39;</span><span class="p">:</span> <span class="s">&#39;_notify_repo_remove&#39;</span><span class="p">,</span>
+        <span class="s">&#39;_notify_repo_remove&#39;</span><span class="p">:</span> <span class="s">&#39;finalize_data&#39;</span><span class="p">,</span>
+        <span class="s">&#39;finalize_data&#39;</span><span class="p">:</span> <span class="s">&#39;remove_data&#39;</span><span class="p">,</span>
+        <span class="s">&#39;remove_data&#39;</span><span class="p">:</span><span class="s">&#39;start&#39;</span><span class="p">}</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&quot;uninstall&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="p">):</span>
+        <span class="n">base</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">observer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">old_pkg</span> <span class="o">=</span> <span class="n">pkg</span>
+
+    <span class="k">def</span> <span class="nf">_notify_repo_remove</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">notify_remove_package</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">old_pkg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+<div class="viewcode-block" id="uninstall.remove_data"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.uninstall.remove_data">[docs]</a>    <span class="k">def</span> <span class="nf">remove_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;remove_data&#39;</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="replace"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.replace">[docs]</a><span class="k">class</span> <span class="nc">replace</span><span class="p">(</span><span class="n">install</span><span class="p">,</span> <span class="n">uninstall</span><span class="p">):</span>
+
+    <span class="n">stage_depends</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;finish&#39;</span><span class="p">:</span> <span class="s">&#39;_notify_repo_add&#39;</span><span class="p">,</span>
+        <span class="s">&#39;_notify_repo_add&#39;</span><span class="p">:</span> <span class="s">&#39;finalize_data&#39;</span><span class="p">,</span>
+        <span class="s">&#39;finalize_data&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;add_data&#39;</span><span class="p">,</span> <span class="s">&#39;_notify_repo_remove&#39;</span><span class="p">),</span>
+        <span class="s">&#39;_notify_repo_remove&#39;</span><span class="p">:</span> <span class="s">&#39;remove_data&#39;</span><span class="p">,</span>
+        <span class="s">&#39;remove_data&#39;</span><span class="p">:</span> <span class="s">&#39;start&#39;</span><span class="p">,</span>
+        <span class="s">&#39;add_data&#39;</span><span class="p">:</span> <span class="s">&#39;start&#39;</span><span class="p">}</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&quot;replace&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">oldpkg</span><span class="p">,</span> <span class="n">newpkg</span><span class="p">,</span> <span class="n">observer</span><span class="p">):</span>
+        <span class="c"># yes there is duplicate initialization here.</span>
+        <span class="n">uninstall</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">oldpkg</span><span class="p">,</span> <span class="n">observer</span><span class="p">)</span>
+        <span class="n">install</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">newpkg</span><span class="p">,</span> <span class="n">observer</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="operations"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.operations">[docs]</a><span class="k">class</span> <span class="nc">operations</span><span class="p">(</span><span class="n">operations_base</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repository</span><span class="p">,</span> <span class="n">disable_overrides</span><span class="o">=</span><span class="p">(),</span> <span class="n">enable_overrides</span><span class="o">=</span><span class="p">()):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repo</span> <span class="o">=</span> <span class="n">repository</span>
+        <span class="n">operations_base</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disable_overrides</span><span class="p">,</span> <span class="n">enable_overrides</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_disabled_if_frozen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">frozen</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;disabling repo(</span><span class="si">%r</span><span class="s">) command(</span><span class="si">%r</span><span class="s">) due to repo being frozen&quot;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">frozen</span>
+
+    <span class="k">def</span> <span class="nf">_default_observer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">observer</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">observer</span> <span class="o">=</span> <span class="n">observer_mod</span><span class="o">.</span><span class="n">repo_observer</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">observer</span>
+
+    <span class="k">def</span> <span class="nf">_cmd_enabled_install</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmd_install</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default_observer</span><span class="p">(</span><span class="n">observer</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_cmd_enabled_uninstall</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmd_uninstall</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default_observer</span><span class="p">(</span><span class="n">observer</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_cmd_enabled_replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oldpkg</span><span class="p">,</span> <span class="n">newpkg</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmd_replace</span><span class="p">(</span><span class="n">oldpkg</span><span class="p">,</span> <span class="n">newpkg</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default_observer</span><span class="p">(</span><span class="n">observer</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_cmd_enabled_install_or_replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newpkg</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmd_install_or_replace</span><span class="p">(</span><span class="n">newpkg</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default_observer</span><span class="p">(</span><span class="n">observer</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_cmd_install_or_replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newpkg</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">newpkg</span><span class="o">.</span><span class="n">versioned_atom</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">install</span><span class="p">(</span><span class="n">newpkg</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="n">observer</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">newpkg</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="n">observer</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;install&quot;</span><span class="p">,</span> <span class="s">&quot;uninstall&quot;</span><span class="p">,</span> <span class="s">&quot;replace&quot;</span><span class="p">,</span> <span class="s">&quot;install_or_replace&quot;</span><span class="p">):</span>
+        <span class="nb">locals</span><span class="p">()[</span><span class="s">&quot;_cmd_check_support_</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">post_curry</span><span class="p">(</span>
+            <span class="n">_disabled_if_frozen</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+    <span class="k">del</span> <span class="n">x</span>
+
+    <span class="k">def</span> <span class="nf">_cmd_enabled_configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmd_configure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repository</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default_observer</span><span class="p">(</span><span class="n">observer</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_cmd_enabled_sync</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="c"># often enough, the syncer is a lazy_ref</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmd_sync</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_observer</span><span class="p">(</span><span class="n">observer</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_cmd_sync</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_syncer</span><span class="p">()</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">syncer</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_get_syncer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">syncer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">_syncer</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">syncer</span><span class="p">,</span> <span class="n">sync</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">syncer</span><span class="p">):</span>
+            <span class="n">syncer</span> <span class="o">=</span> <span class="n">syncer</span><span class="o">.</span><span class="n">instantiate</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">syncer</span>
+
+    <span class="k">def</span> <span class="nf">_cmd_check_support_sync</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> <span class="s">&#39;_syncer&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> \
+            <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_syncer</span><span class="p">()</span><span class="o">.</span><span class="n">disabled</span>
+
+</div>
+<div class="viewcode-block" id="operations_proxy"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.operations_proxy">[docs]</a><span class="k">class</span> <span class="nc">operations_proxy</span><span class="p">(</span><span class="n">operations</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repository</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repo</span> <span class="o">=</span> <span class="n">repository</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_target_attrs</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;_cmd_&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;_cmd_check_support_&quot;</span><span class="p">):</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proxy_op_support</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="ow">not</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;_cmd_enabled_&quot;</span><span class="p">):</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proxy_op</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
+        <span class="n">operations</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repository</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_target_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">raw_repo</span><span class="o">.</span><span class="n">operations</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_proxy_op</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">raw_repo</span><span class="o">.</span><span class="n">operations</span><span class="p">,</span> <span class="n">op_name</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+
+    <span class="n">_proxy_op_support</span> <span class="o">=</span> <span class="n">_proxy_op</span>
+
+    <span class="k">def</span> <span class="nf">_collect_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">raw_repo</span><span class="o">.</span><span class="n">operations</span><span class="o">.</span><span class="n">_collect_operations</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../operations.html" >pkgcore.operations</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

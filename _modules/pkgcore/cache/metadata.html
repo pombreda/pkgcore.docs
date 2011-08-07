@@ -1,0 +1,313 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.cache.metadata &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="pkgcore.cache" href="../cache.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../cache.html" accesskey="U">pkgcore.cache</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.cache.metadata</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2005-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># Copyright: 2006 Marien Zwart &lt;marienz@gentoo.org&gt;</span>
+<span class="c"># License: BSD/GPL2</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">cache backend designed for rsynced tree&#39;s pregenerated metadata.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;database&quot;</span><span class="p">,</span> <span class="s">&quot;paludis_flat_list&quot;</span><span class="p">,</span> <span class="s">&quot;protective_database&quot;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">errno</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">izip</span>
+<span class="kn">from</span> <span class="nn">pkgcore.cache</span> <span class="kn">import</span> <span class="n">flat_hash</span><span class="p">,</span> <span class="n">errors</span>
+<span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">ConfigHint</span>
+<span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">eclass_cache</span>
+<span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span>
+<span class="kn">from</span> <span class="nn">snakeoil.mappings</span> <span class="kn">import</span> <span class="n">ProtectedDict</span>
+
+
+<span class="c"># store the current key order *here*.</span>
+<div class="viewcode-block" id="database"><a class="viewcode-back" href="../../../api/pkgcore.cache.metadata.html#pkgcore.cache.metadata.database">[docs]</a><span class="k">class</span> <span class="nc">database</span><span class="p">(</span><span class="n">flat_hash</span><span class="o">.</span><span class="n">database</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compatibility with (older) portage-generated caches.</span>
+
+<span class="sd">    Autodetects per entry if it is a</span>
+<span class="sd">    L{flat_list&lt;pkgcore.cache.flat_hash.database&gt;} and flat_list</span>
+<span class="sd">    backends entry, and converts old (and incomplete) INHERITED field</span>
+<span class="sd">    to _eclasses_ as required.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">pkgcore_config_type</span> <span class="o">=</span> <span class="n">ConfigHint</span><span class="p">(</span>
+        <span class="p">{</span><span class="s">&#39;readonly&#39;</span><span class="p">:</span> <span class="s">&#39;bool&#39;</span><span class="p">,</span> <span class="s">&#39;location&#39;</span><span class="p">:</span> <span class="s">&#39;str&#39;</span><span class="p">,</span> <span class="s">&#39;label&#39;</span><span class="p">:</span> <span class="s">&#39;str&#39;</span><span class="p">,</span>
+        <span class="s">&#39;eclasses&#39;</span><span class="p">:</span><span class="s">&#39;ref:eclass_cache&#39;</span><span class="p">},</span>
+        <span class="n">required</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;location&#39;</span><span class="p">],</span>
+        <span class="n">positional</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;location&#39;</span><span class="p">],</span>
+        <span class="n">typename</span><span class="o">=</span><span class="s">&#39;cache&#39;</span><span class="p">)</span>
+
+
+    <span class="n">complete_eclass_entries</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="n">auxdbkeys_order</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;DEPEND&#39;</span><span class="p">,</span> <span class="s">&#39;RDEPEND&#39;</span><span class="p">,</span> <span class="s">&#39;SLOT&#39;</span><span class="p">,</span> <span class="s">&#39;SRC_URI&#39;</span><span class="p">,</span>
+        <span class="s">&#39;RESTRICT&#39;</span><span class="p">,</span>  <span class="s">&#39;HOMEPAGE&#39;</span><span class="p">,</span>  <span class="s">&#39;LICENSE&#39;</span><span class="p">,</span> <span class="s">&#39;DESCRIPTION&#39;</span><span class="p">,</span>
+        <span class="s">&#39;KEYWORDS&#39;</span><span class="p">,</span>  <span class="s">&#39;INHERITED&#39;</span><span class="p">,</span> <span class="s">&#39;IUSE&#39;</span><span class="p">,</span> <span class="s">&#39;REQUIRED_USE&#39;</span><span class="p">,</span>
+        <span class="s">&#39;PDEPEND&#39;</span><span class="p">,</span>   <span class="s">&#39;PROVIDE&#39;</span><span class="p">,</span> <span class="s">&#39;EAPI&#39;</span><span class="p">,</span> <span class="s">&#39;PROPERTIES&#39;</span><span class="p">,</span>
+        <span class="s">&#39;DEFINED_PHASES&#39;</span><span class="p">)</span>
+
+    <span class="c"># this is the old cache format, flat_list.  hardcoded, and must</span>
+    <span class="c"># remain that way.</span>
+    <span class="n">magic_line_count</span> <span class="o">=</span> <span class="mi">22</span>
+
+    <span class="n">autocommits</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ec</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;eclasses&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c">#import pdb;pdb.set_trace()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ec</span> <span class="o">=</span> <span class="n">eclass_cache</span><span class="o">.</span><span class="n">cache</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s">&quot;eclass&quot;</span><span class="p">),</span> <span class="n">location</span><span class="p">)</span>
+
+        <span class="n">config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;label&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mtime_in_entry</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;mtime_in_entry&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="n">location</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s">&#39;metadata&#39;</span><span class="p">,</span> <span class="s">&#39;cache&#39;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">database</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hardcoded_auxdbkeys_order</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">idx</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">auxdbkeys_order</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_known_keys</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hardcoded_auxdbkeys_processing</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_known_keys</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">or</span> <span class="bp">None</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">auxdbkeys_order</span><span class="p">)</span>
+
+    <span class="n">__init__</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">flat_hash</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">__init__</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+        <span class="s">&quot;@keyword location&quot;</span><span class="p">,</span> <span class="s">&quot;@param location&quot;</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_format_location</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="s">&quot;metadata&quot;</span><span class="p">,</span> <span class="s">&quot;cache&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cpv</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">flat_hash</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cpv</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s">&quot;_eclasses_&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s">&quot;INHERITED&quot;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s">&quot;_eclasses_&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="o">.</span><span class="n">get_eclass_data</span><span class="p">(</span>
+                    <span class="n">d</span><span class="p">[</span><span class="s">&quot;INHERITED&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+                <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s">&quot;INHERITED&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s">&quot;_eclasses_&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct_eclasses</span><span class="p">(</span><span class="n">cpv</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s">&quot;_eclasses_&quot;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">d</span>
+
+    <span class="k">def</span> <span class="nf">_parse_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">mtime</span><span class="p">):</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hardcoded_auxdbkeys_processing</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cdict_kls</span><span class="p">([(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="ow">in</span>
+            <span class="n">izip</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="k">if</span> <span class="n">key</span><span class="p">])</span>
+        <span class="c"># sadly, this is faster then doing a .next() and snagging the</span>
+        <span class="c"># exception</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">i</span><span class="p">:</span>
+            <span class="c"># if we reach here, then bad things occured.</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">GeneralCacheCorruption</span><span class="p">(</span>
+                <span class="s">&quot;wrong line count, requires </span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_line_count</span><span class="p">,))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mtime_used</span><span class="p">:</span> <span class="c"># and not self.mtime_in_entry:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s">&quot;_mtime_&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">long</span><span class="p">(</span><span class="n">mtime</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">d</span>
+
+    <span class="k">def</span> <span class="nf">_setitem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cpv</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">ProtectedDict</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+
+        <span class="c"># hack. proper solution is to make this a __setitem__ override, since</span>
+        <span class="c"># template.__setitem__ serializes _eclasses_, then we reconstruct it.</span>
+        <span class="n">eclasses</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;_eclasses_&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">eclasses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">eclasses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct_eclasses</span><span class="p">(</span><span class="n">cpv</span><span class="p">,</span> <span class="n">eclasses</span><span class="p">)</span>
+            <span class="n">values</span><span class="p">[</span><span class="s">&quot;INHERITED&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">eclasses</span><span class="p">)</span>
+
+        <span class="n">s</span> <span class="o">=</span> <span class="n">cpv</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">cpv</span><span class="p">[:</span><span class="n">s</span><span class="p">],</span><span class="s">&quot;.update.</span><span class="si">%i</span><span class="s">.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">(),</span> <span class="n">cpv</span><span class="p">[</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">:]))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">myf</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">IOError</span><span class="p">),</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span> <span class="o">==</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_dirs</span><span class="p">(</span><span class="n">cpv</span><span class="p">)</span>
+                    <span class="n">myf</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span><span class="s">&quot;w&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">IOError</span><span class="p">),</span><span class="n">e</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">CacheCorruption</span><span class="p">(</span><span class="n">cpv</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">CacheCorruption</span><span class="p">(</span><span class="n">cpv</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hardcoded_auxdbkeys_order</span><span class="p">:</span>
+            <span class="n">myf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">*</span> <span class="p">(</span><span class="n">idx</span> <span class="o">-</span> <span class="n">count</span><span class="p">),</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)))</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">idx</span>
+        <span class="n">myf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magic_line_count</span> <span class="o">-</span> <span class="n">count</span><span class="p">))</span>
+
+        <span class="n">myf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_mtime</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">eclasses</span><span class="p">)</span>
+
+        <span class="c">#update written.  now we move it.</span>
+        <span class="n">new_fp</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">cpv</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">new_fp</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">IOError</span><span class="p">),</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">CacheCorruption</span><span class="p">(</span><span class="n">cpv</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_mtime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">eclasses</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mtime_used</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_access</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">mtime</span><span class="o">=</span><span class="n">values</span><span class="p">[</span><span class="s">&quot;_mtime_&quot;</span><span class="p">])</span>
+
+</div>
+<div class="viewcode-block" id="paludis_flat_list"><a class="viewcode-back" href="../../../api/pkgcore.cache.metadata.html#pkgcore.cache.metadata.paludis_flat_list">[docs]</a><span class="k">class</span> <span class="nc">paludis_flat_list</span><span class="p">(</span><span class="n">database</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    (Hopefully) write a paludis specific form of flat_list format cache.</span>
+<span class="sd">    Not very well tested.</span>
+
+<span class="sd">    difference from a normal flat_list cache is that mtime is set to ebuild</span>
+<span class="sd">    for normal, for paludis it&#39;s max mtime of eclasses/ebuild involved.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">pkgcore_config_type</span> <span class="o">=</span> <span class="n">ConfigHint</span><span class="p">(</span>
+        <span class="p">{</span><span class="s">&#39;readonly&#39;</span><span class="p">:</span> <span class="s">&#39;bool&#39;</span><span class="p">,</span> <span class="s">&#39;location&#39;</span><span class="p">:</span> <span class="s">&#39;str&#39;</span><span class="p">,</span> <span class="s">&#39;label&#39;</span><span class="p">:</span> <span class="s">&#39;str&#39;</span><span class="p">},</span>
+        <span class="n">required</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;location&#39;</span><span class="p">],</span>
+        <span class="n">positional</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;location&#39;</span><span class="p">],</span>
+        <span class="n">typename</span><span class="o">=</span><span class="s">&#39;cache&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">):</span>
+        <span class="n">config</span><span class="p">[</span><span class="s">&#39;auxdbkeys&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">auxdbkeys_order</span>
+        <span class="n">database</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_mtime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">eclasses</span><span class="p">):</span>
+        <span class="n">mtime</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;_mtime_&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">eclasses</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_access</span><span class="p">(</span>
+                <span class="n">fp</span><span class="p">,</span>
+                <span class="n">mtime</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">mtime</span> <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">mtime</span> <span class="ow">in</span> <span class="n">eclasses</span><span class="o">.</span><span class="n">itervalues</span><span class="p">()),</span>
+                          <span class="n">mtime</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_access</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">mtime</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="protective_database"><a class="viewcode-back" href="../../../api/pkgcore.cache.metadata.html#pkgcore.cache.metadata.protective_database">[docs]</a><span class="k">class</span> <span class="nc">protective_database</span><span class="p">(</span><span class="n">database</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">_parse_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">mtime</span><span class="p">):</span>
+        <span class="c"># easy attempt first.</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">magic_line_count</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">flat_hash</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">_parse_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">mtime</span><span class="p">)</span>
+
+        <span class="c"># this one&#39;s interesting.</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cdict_kls</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="c"># yes, meant to iterate over a string.</span>
+            <span class="n">hashed</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">c</span><span class="o">.</span><span class="n">isalpha</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="s">&quot;=&quot;</span> <span class="ow">and</span> <span class="n">idx</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">hashed</span> <span class="o">=</span> <span class="bp">True</span>
+                        <span class="n">d</span><span class="p">[</span><span class="n">line</span><span class="p">[:</span><span class="n">idx</span><span class="p">]]</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+                    <span class="k">elif</span> <span class="n">c</span> <span class="o">==</span> <span class="s">&quot;_&quot;</span> <span class="ow">or</span> <span class="n">c</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                        <span class="k">continue</span>
+                    <span class="k">break</span>
+                <span class="k">elif</span> <span class="ow">not</span> <span class="n">c</span><span class="o">.</span><span class="n">isupper</span><span class="p">():</span>
+                    <span class="k">break</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">hashed</span><span class="p">:</span>
+                <span class="c"># non hashed.</span>
+                <span class="n">d</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hardcoded_auxdbkeys_order</span><span class="p">:</span>
+                    <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mtime_used</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s">&quot;_mtime_&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mtime</span>
+        <span class="k">return</span> <span class="n">d</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../cache.html" >pkgcore.cache</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

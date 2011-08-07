@@ -1,0 +1,148 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>resolver &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="Developer Notes" href="../dev-notes.html" />
+    <link rel="next" title="How to use guppy/heapy for tracking down memory usage" href="heapy.html" />
+    <link rel="prev" title="Python Code Guidelines" href="hacking.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="heapy.html" title="How to use guppy/heapy for tracking down memory usage"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="hacking.html" title="Python Code Guidelines"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../dev-notes.html" accesskey="U">Developer Notes</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="resolver">
+<h1>resolver<a class="headerlink" href="#resolver" title="Permalink to this headline">¶</a></h1>
+<p>Current design doesn&#8217;t coalesce- expects that each atom as it&#8217;s passed in
+specifies the dbs, which is how it does it&#8217;s update/empty-tree trickery.</p>
+<p>This isn&#8217;t optimal.  Need to flag specific atoms/matches as &#8220;upgrade if
+possible&#8221; or &#8220;empty tree if possible&#8221;, etc; via this, we get coalescing
+behaviour.  Specifically, if the targets are git[subversion] and subversion,
+we want both upgraded.  So when resolving git[subversion] and encountering
+dev-util/subversion, we should aim for upgrading it per the commandline request.</p>
+<p>Additional question- should we apply this coalescing awareness to intermediate atoms
+along the way resolution wise?  specifically, the cnf/dnf solutions, grabbing those
+and stating &#8220;yeah, collapse to these if possible since they&#8217;re likely required&#8221; ?</p>
+</div>
+<div class="section" id="resolver-redesign">
+<h1>resolver redesign<a class="headerlink" href="#resolver-redesign" title="Permalink to this headline">¶</a></h1>
+<p>Hate to say it, but should go back to a specific &#8216;resolve&#8217; method w/ the
+resolver plan object holding targets- reason being, we may have to backtrack
+the whole way.</p>
+</div>
+<div class="section" id="config-use-issues">
+<h1>config/use issues<a class="headerlink" href="#config-use-issues" title="Permalink to this headline">¶</a></h1>
+<p>need to find a way to clone a stack, getting a standalone config stack if
+possible for the resolver- specifically so it can do resets as needed, track
+what is involved (use dep forcing) w/out influencing preexisting access to
+that tree, nor being affected by said usage.</p>
+</div>
+<div class="section" id="hardlink-merge">
+<h1>hardlink merge<a class="headerlink" href="#hardlink-merge" title="Permalink to this headline">¶</a></h1>
+<p>no comments, just need to get around to it.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">resolver</a></li>
+<li><a class="reference internal" href="#resolver-redesign">resolver redesign</a></li>
+<li><a class="reference internal" href="#config-use-issues">config/use issues</a></li>
+<li><a class="reference internal" href="#hardlink-merge">hardlink merge</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="hacking.html"
+                        title="previous chapter">Python Code Guidelines</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="heapy.html"
+                        title="next chapter">How to use guppy/heapy for tracking down memory usage</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="heapy.html" title="How to use guppy/heapy for tracking down memory usage"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="hacking.html" title="Python Code Guidelines"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../dev-notes.html" >Developer Notes</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

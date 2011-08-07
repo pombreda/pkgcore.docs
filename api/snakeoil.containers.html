@@ -1,0 +1,493 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>snakeoil.containers &mdash; snakeoil v-trunk documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '-trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="snakeoil v-trunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="snakeoil.currying" href="snakeoil.currying.html" />
+    <link rel="prev" title="snakeoil.compatibility" href="snakeoil.compatibility.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.currying.html" title="snakeoil.currying"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.compatibility.html" title="snakeoil.compatibility"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-snakeoil.containers">
+<span id="snakeoil-containers"></span><h1>snakeoil.containers<a class="headerlink" href="#module-snakeoil.containers" title="Permalink to this headline">¶</a></h1>
+<p>Container classes and functionality for implementing them</p>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#snakeoil.containers.InvertedContains" title="snakeoil.containers.InvertedContains"><tt class="xref py py-obj docutils literal"><span class="pre">InvertedContains</span></tt></a></td>
+<td>Set that inverts all contains lookup results.</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.containers.LimitedChangeSet" title="snakeoil.containers.LimitedChangeSet"><tt class="xref py py-obj docutils literal"><span class="pre">LimitedChangeSet</span></tt></a>(initial_keys[,&nbsp;...])</td>
+<td>Set used to limit the number of times a key can be removed/added.</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.containers.ProtectedSet" title="snakeoil.containers.ProtectedSet"><tt class="xref py py-obj docutils literal"><span class="pre">ProtectedSet</span></tt></a>(orig_set)</td>
+<td>Wraps a set pushing all changes into a secondary set.</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.containers.RefCountingSet" title="snakeoil.containers.RefCountingSet"><tt class="xref py py-obj docutils literal"><span class="pre">RefCountingSet</span></tt></a>([iterable])</td>
+<td>Set implementation that implements refcounting for add/remove, removing the key only when it&#8217;s refcount is 0.</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.containers.SetMixin" title="snakeoil.containers.SetMixin"><tt class="xref py py-obj docutils literal"><span class="pre">SetMixin</span></tt></a></td>
+<td>Base class for implementing set classes</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Exceptions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">Unchangable</span></tt>(key)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="snakeoil.containers.InvertedContains">
+<em class="property">class </em><tt class="descclassname">snakeoil.containers.</tt><tt class="descname">InvertedContains</tt><a class="reference internal" href="../_modules/snakeoil/containers.html#InvertedContains"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.containers.InvertedContains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/stdtypes.html#set" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">set</span></tt></a></p>
+<p>Set that inverts all contains lookup results.</p>
+<p>Essentially, it&#8217;s a set class usable for blacklist containment testing.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">snakeoil.containers</span> <span class="kn">import</span> <span class="n">InvertedContains</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inverted</span> <span class="o">=</span> <span class="n">InvertedContains</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="mi">1</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">inverted</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="mi">11</span> <span class="ow">in</span> <span class="n">inverted</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inverted</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="mi">11</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">inverted</span>
+</pre></div>
+</div>
+<p>Please note it cannot be iterated over due to the essentially
+infinite series it represents.</p>
+<dl class="attribute">
+<dt id="snakeoil.containers.InvertedContains.add">
+<tt class="descname">add</tt><a class="headerlink" href="#snakeoil.containers.InvertedContains.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an element to a set.</p>
+<p>This has no effect if the element is already present.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.InvertedContains.clear">
+<tt class="descname">clear</tt><a class="headerlink" href="#snakeoil.containers.InvertedContains.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all elements from this set.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.InvertedContains.copy">
+<tt class="descname">copy</tt><a class="headerlink" href="#snakeoil.containers.InvertedContains.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a shallow copy of a set.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.InvertedContains.difference">
+<tt class="descname">difference</tt><a class="headerlink" href="#snakeoil.containers.InvertedContains.difference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the difference of two or more sets as a new set.</p>
+<p>(i.e. all elements that are in this set but not the others.)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.InvertedContains.difference_update">
+<tt class="descname">difference_update</tt><a class="headerlink" href="#snakeoil.containers.InvertedContains.difference_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all elements of another set from this set.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.InvertedContains.discard">
+<tt class="descname">discard</tt><a class="headerlink" href="#snakeoil.containers.InvertedContains.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove an element from a set if it is a member.</p>
+<p>If the element is not a member, do nothing.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.InvertedContains.intersection">
+<tt class="descname">intersection</tt><a class="headerlink" href="#snakeoil.containers.InvertedContains.intersection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the intersection of two or more sets as a new set.</p>
+<p>(i.e. elements that are common to all of the sets.)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.InvertedContains.intersection_update">
+<tt class="descname">intersection_update</tt><a class="headerlink" href="#snakeoil.containers.InvertedContains.intersection_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update a set with the intersection of itself and another.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.InvertedContains.isdisjoint">
+<tt class="descname">isdisjoint</tt><a class="headerlink" href="#snakeoil.containers.InvertedContains.isdisjoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if two sets have a null intersection.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.InvertedContains.issubset">
+<tt class="descname">issubset</tt><a class="headerlink" href="#snakeoil.containers.InvertedContains.issubset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report whether another set contains this set.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.InvertedContains.issuperset">
+<tt class="descname">issuperset</tt><a class="headerlink" href="#snakeoil.containers.InvertedContains.issuperset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report whether this set contains another set.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.InvertedContains.pop">
+<tt class="descname">pop</tt><a class="headerlink" href="#snakeoil.containers.InvertedContains.pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove and return an arbitrary set element.
+Raises KeyError if the set is empty.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.InvertedContains.remove">
+<tt class="descname">remove</tt><a class="headerlink" href="#snakeoil.containers.InvertedContains.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove an element from a set; it must be a member.</p>
+<p>If the element is not a member, raise a KeyError.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.InvertedContains.symmetric_difference">
+<tt class="descname">symmetric_difference</tt><a class="headerlink" href="#snakeoil.containers.InvertedContains.symmetric_difference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the symmetric difference of two sets as a new set.</p>
+<p>(i.e. all elements that are in exactly one of the sets.)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.InvertedContains.symmetric_difference_update">
+<tt class="descname">symmetric_difference_update</tt><a class="headerlink" href="#snakeoil.containers.InvertedContains.symmetric_difference_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update a set with the symmetric difference of itself and another.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.InvertedContains.union">
+<tt class="descname">union</tt><a class="headerlink" href="#snakeoil.containers.InvertedContains.union" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the union of sets as a new set.</p>
+<p>(i.e. all elements that are in either set.)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.InvertedContains.update">
+<tt class="descname">update</tt><a class="headerlink" href="#snakeoil.containers.InvertedContains.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update a set with the union of itself and others.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="snakeoil.containers.SetMixin">
+<em class="property">class </em><tt class="descclassname">snakeoil.containers.</tt><tt class="descname">SetMixin</tt><a class="reference internal" href="../_modules/snakeoil/containers.html#SetMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.containers.SetMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Base class for implementing set classes</p>
+<p>Subclasses must provide __init__, __iter__ and __contains__.</p>
+<p>Note that this is a stripped down base; it primarily implements the core
+math protocols, methods like symmetric_difference aren&#8217;t defined here.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="snakeoil.containers.LimitedChangeSet">
+<em class="property">class </em><tt class="descclassname">snakeoil.containers.</tt><tt class="descname">LimitedChangeSet</tt><big>(</big><em>initial_keys</em>, <em>unchangable_keys=None</em>, <em>key_validator=&lt;function &lt;lambda&gt; at 0x29e91b8&gt;</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/containers.html#LimitedChangeSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.containers.LimitedChangeSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#snakeoil.containers.SetMixin" title="snakeoil.containers.SetMixin"><tt class="xref py py-class docutils literal"><span class="pre">snakeoil.containers.SetMixin</span></tt></a></p>
+<p>Set used to limit the number of times a key can be removed/added.</p>
+<p>specifically deleting/adding a key only once per commit,
+optionally blocking changes to certain keys.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">snakeoil.containers</span> <span class="kn">import</span> <span class="n">LimitedChangeSet</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">myset</span> <span class="o">=</span> <span class="n">LimitedChangeSet</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">unchangable_keys</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="mi">1</span> <span class="ow">in</span> <span class="n">myset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">myset</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">myset</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> 
+<span class="gt">Traceback (most recent call last):</span>
+<span class="gr">Unchangable</span>: <span class="n">key &#39;1&#39; is unchangable</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">myset</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c"># remove it, so we can try adding it</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="mi">2</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">myset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">myset</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> 
+<span class="gt">Traceback (most recent call last):</span>
+<span class="gr">Unchangable</span>: <span class="n">key &#39;2&#39; is unchangable</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="snakeoil.containers.LimitedChangeSet.add">
+<tt class="descname">add</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/containers.html#LimitedChangeSet.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.containers.LimitedChangeSet.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an element to a set.</p>
+<p>This has no effect if the element is already present.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.containers.LimitedChangeSet.remove">
+<tt class="descname">remove</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/containers.html#LimitedChangeSet.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.containers.LimitedChangeSet.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove an element from a set; it must be a member.</p>
+<p>If the element is not a member, raise a KeyError.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="snakeoil.containers.ProtectedSet">
+<em class="property">class </em><tt class="descclassname">snakeoil.containers.</tt><tt class="descname">ProtectedSet</tt><big>(</big><em>orig_set</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/containers.html#ProtectedSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.containers.ProtectedSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#snakeoil.containers.SetMixin" title="snakeoil.containers.SetMixin"><tt class="xref py py-class docutils literal"><span class="pre">snakeoil.containers.SetMixin</span></tt></a></p>
+<p>Wraps a set pushing all changes into a secondary set.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">snakeoil.containers</span> <span class="kn">import</span> <span class="n">ProtectedSet</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">myset</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">protected</span> <span class="o">=</span> <span class="n">ProtectedSet</span><span class="p">(</span><span class="n">myset</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">protected</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="mi">4</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">myset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="mi">4</span> <span class="ow">in</span> <span class="n">protected</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="mi">2</span> <span class="ow">in</span> <span class="n">protected</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">myset</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="mi">2</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">protected</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="snakeoil.containers.RefCountingSet">
+<em class="property">class </em><tt class="descclassname">snakeoil.containers.</tt><tt class="descname">RefCountingSet</tt><big>(</big><em>iterable=None</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/containers.html#RefCountingSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.containers.RefCountingSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt></a></p>
+<p>Set implementation that implements refcounting for add/remove, removing the key only when it&#8217;s refcount is 0.</p>
+<p>This is particularly useful for essentially summing sequences that are a stream of additions/removals</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">snakeoil.containers</span> <span class="kn">import</span> <span class="n">RefCountingSet</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">myset</span> <span class="o">=</span> <span class="n">RefCountingSet</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">myset</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">myset</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="nb">list</span><span class="p">(</span><span class="n">myset</span><span class="p">)</span> <span class="o">==</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">myset</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="nb">list</span><span class="p">(</span><span class="n">myset</span><span class="p">)</span> <span class="o">==</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">myset</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="nb">list</span><span class="p">(</span><span class="n">myset</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="snakeoil.containers.RefCountingSet.add">
+<tt class="descname">add</tt><big>(</big><em>item</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/containers.html#RefCountingSet.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.containers.RefCountingSet.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an element to a set.</p>
+<p>This has no effect if the element is already present.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.RefCountingSet.clear">
+<tt class="descname">clear</tt><a class="headerlink" href="#snakeoil.containers.RefCountingSet.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.clear() -&gt; None.  Remove all items from D.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.RefCountingSet.copy">
+<tt class="descname">copy</tt><a class="headerlink" href="#snakeoil.containers.RefCountingSet.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.copy() -&gt; a shallow copy of D</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.containers.RefCountingSet.discard">
+<tt class="descname">discard</tt><big>(</big><em>item</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/containers.html#RefCountingSet.discard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.containers.RefCountingSet.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove an element from a set if it is a member.</p>
+<p>If the element is not a member, do nothing.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="snakeoil.containers.RefCountingSet.fromkeys">
+<em class="property">static </em><tt class="descname">fromkeys</tt><big>(</big><big>)</big><a class="headerlink" href="#snakeoil.containers.RefCountingSet.fromkeys" title="Permalink to this definition">¶</a></dt>
+<dd><p>dict.fromkeys(S[,v]) -&gt; New dict with keys from S and values equal to v.
+v defaults to None.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.RefCountingSet.get">
+<tt class="descname">get</tt><a class="headerlink" href="#snakeoil.containers.RefCountingSet.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.get(k[,d]) -&gt; D[k] if k in D, else d.  d defaults to None.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.RefCountingSet.has_key">
+<tt class="descname">has_key</tt><a class="headerlink" href="#snakeoil.containers.RefCountingSet.has_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.has_key(k) -&gt; True if D has a key k, else False</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.RefCountingSet.items">
+<tt class="descname">items</tt><a class="headerlink" href="#snakeoil.containers.RefCountingSet.items" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.items() -&gt; list of D&#8217;s (key, value) pairs, as 2-tuples</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.RefCountingSet.iteritems">
+<tt class="descname">iteritems</tt><a class="headerlink" href="#snakeoil.containers.RefCountingSet.iteritems" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.iteritems() -&gt; an iterator over the (key, value) items of D</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.RefCountingSet.iterkeys">
+<tt class="descname">iterkeys</tt><a class="headerlink" href="#snakeoil.containers.RefCountingSet.iterkeys" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.iterkeys() -&gt; an iterator over the keys of D</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.RefCountingSet.itervalues">
+<tt class="descname">itervalues</tt><a class="headerlink" href="#snakeoil.containers.RefCountingSet.itervalues" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.itervalues() -&gt; an iterator over the values of D</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.RefCountingSet.keys">
+<tt class="descname">keys</tt><a class="headerlink" href="#snakeoil.containers.RefCountingSet.keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.keys() -&gt; list of D&#8217;s keys</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.RefCountingSet.pop">
+<tt class="descname">pop</tt><a class="headerlink" href="#snakeoil.containers.RefCountingSet.pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.pop(k[,d]) -&gt; v, remove specified key and return the corresponding value.
+If key is not found, d is returned if given, otherwise KeyError is raised</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.RefCountingSet.popitem">
+<tt class="descname">popitem</tt><a class="headerlink" href="#snakeoil.containers.RefCountingSet.popitem" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.popitem() -&gt; (k, v), remove and return some (key, value) pair as a
+2-tuple; but raise KeyError if D is empty.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.containers.RefCountingSet.remove">
+<tt class="descname">remove</tt><big>(</big><em>item</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/containers.html#RefCountingSet.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.containers.RefCountingSet.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove an element from a set; it must be a member.</p>
+<p>If the element is not a member, raise a KeyError.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.RefCountingSet.setdefault">
+<tt class="descname">setdefault</tt><a class="headerlink" href="#snakeoil.containers.RefCountingSet.setdefault" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.setdefault(k[,d]) -&gt; D.get(k,d), also set D[k]=d if k not in D</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.containers.RefCountingSet.update">
+<tt class="descname">update</tt><big>(</big><em>items</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/containers.html#RefCountingSet.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.containers.RefCountingSet.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update a set with the union of itself and others.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.RefCountingSet.values">
+<tt class="descname">values</tt><a class="headerlink" href="#snakeoil.containers.RefCountingSet.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.values() -&gt; list of D&#8217;s values</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.RefCountingSet.viewitems">
+<tt class="descname">viewitems</tt><a class="headerlink" href="#snakeoil.containers.RefCountingSet.viewitems" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.viewitems() -&gt; a set-like object providing a view on D&#8217;s items</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.RefCountingSet.viewkeys">
+<tt class="descname">viewkeys</tt><a class="headerlink" href="#snakeoil.containers.RefCountingSet.viewkeys" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.viewkeys() -&gt; a set-like object providing a view on D&#8217;s keys</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="snakeoil.containers.RefCountingSet.viewvalues">
+<tt class="descname">viewvalues</tt><a class="headerlink" href="#snakeoil.containers.RefCountingSet.viewvalues" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.viewvalues() -&gt; an object providing a view on D&#8217;s values</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="snakeoil.compatibility.html"
+                        title="previous chapter">snakeoil.compatibility</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="snakeoil.currying.html"
+                        title="next chapter">snakeoil.currying</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.currying.html" title="snakeoil.currying"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.compatibility.html" title="snakeoil.compatibility"
+             >previous</a> |</li>
+        <li><a href="../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

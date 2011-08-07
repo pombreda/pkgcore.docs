@@ -1,0 +1,129 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.cache.errors &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="pkgcore.cache" href="../cache.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../cache.html" accesskey="U">pkgcore.cache</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.cache.errors</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2005 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">cache subsystem exceptions</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;CacheError&quot;</span><span class="p">,</span> <span class="s">&quot;InitializationError&quot;</span><span class="p">,</span> <span class="s">&quot;CacheCorruption&quot;</span><span class="p">,</span>
+    <span class="s">&quot;GeneralCacheCorruption&quot;</span><span class="p">,</span> <span class="s">&quot;ReadOnly&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CacheError"><a class="viewcode-back" href="../../../api/pkgcore.cache.errors.html#pkgcore.cache.errors.CacheError">[docs]</a><span class="k">class</span> <span class="nc">CacheError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="InitializationError"><a class="viewcode-back" href="../../../api/pkgcore.cache.errors.html#pkgcore.cache.errors.InitializationError">[docs]</a><span class="k">class</span> <span class="nc">InitializationError</span><span class="p">(</span><span class="n">CacheError</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">class_name</span><span class="p">,</span> <span class="n">error</span><span class="p">):</span>
+        <span class="n">CacheError</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;Creation of instance </span><span class="si">%s</span><span class="s"> failed due to </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                            <span class="p">(</span><span class="n">class_name</span><span class="p">,</span> <span class="n">error</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">class_name</span> <span class="o">=</span> <span class="n">error</span><span class="p">,</span> <span class="n">class_name</span>
+
+</div>
+<div class="viewcode-block" id="CacheCorruption"><a class="viewcode-back" href="../../../api/pkgcore.cache.errors.html#pkgcore.cache.errors.CacheCorruption">[docs]</a><span class="k">class</span> <span class="nc">CacheCorruption</span><span class="p">(</span><span class="n">CacheError</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">ex</span><span class="p">):</span>
+        <span class="n">CacheError</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> is corrupt: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">ex</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ex</span> <span class="o">=</span> <span class="n">key</span><span class="p">,</span> <span class="n">ex</span>
+
+</div>
+<div class="viewcode-block" id="GeneralCacheCorruption"><a class="viewcode-back" href="../../../api/pkgcore.cache.errors.html#pkgcore.cache.errors.GeneralCacheCorruption">[docs]</a><span class="k">class</span> <span class="nc">GeneralCacheCorruption</span><span class="p">(</span><span class="n">CacheError</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ex</span><span class="p">):</span>
+        <span class="n">CacheError</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;corruption detected: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ex</span><span class="p">,))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ex</span> <span class="o">=</span> <span class="n">ex</span>
+
+</div>
+<div class="viewcode-block" id="ReadOnly"><a class="viewcode-back" href="../../../api/pkgcore.cache.errors.html#pkgcore.cache.errors.ReadOnly">[docs]</a><span class="k">class</span> <span class="nc">ReadOnly</span><span class="p">(</span><span class="n">CacheError</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
+        <span class="n">CacheError</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;cache is non-modifiable </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">info</span><span class="p">,))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">info</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../cache.html" >pkgcore.cache</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

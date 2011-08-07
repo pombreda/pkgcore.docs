@@ -1,0 +1,160 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.config.domain &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="pkgcore.config" href="../config.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../config.html" accesskey="U">pkgcore.config</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.config.domain</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2006-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">base class to derive from for domain objects</span>
+
+<span class="sd">Bit empty at the moment</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;domain&quot;</span><span class="p">,)</span>
+
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">klass</span>
+<span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
+<span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
+    <span class="s">&quot;pkgcore.repository:multiplex,util@repo_utils&quot;</span><span class="p">,</span>
+    <span class="s">&quot;pkgcore.operations:domain@domain_ops&quot;</span><span class="p">,</span>
+
+<span class="p">)</span>
+
+<span class="c"># yes this is basically empty. will fill it out as the base is better</span>
+<span class="c"># identified.</span>
+
+<div class="viewcode-block" id="domain"><a class="viewcode-back" href="../../../api/pkgcore.config.domain.html#pkgcore.config.domain.domain">[docs]</a><span class="k">class</span> <span class="nc">domain</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="n">fetcher</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">_triggers</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_mk_nonconfig_triggers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">()</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="domain.triggers"><a class="viewcode-back" href="../../../api/pkgcore.config.domain.html#pkgcore.config.domain.domain.triggers">[docs]</a>    <span class="k">def</span> <span class="nf">triggers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">instantiate</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_triggers</span><span class="p">]</span>
+        <span class="n">l</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mk_nonconfig_triggers</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+</div>
+    <span class="nd">@klass.jit_attr</span>
+<div class="viewcode-block" id="domain.source_repositories"><a class="viewcode-back" href="../../../api/pkgcore.config.domain.html#pkgcore.config.domain.domain.source_repositories">[docs]</a>    <span class="k">def</span> <span class="nf">source_repositories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">repo_utils</span><span class="o">.</span><span class="n">RepositoryGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repos</span><span class="p">)</span>
+</div>
+    <span class="nd">@klass.jit_attr</span>
+<div class="viewcode-block" id="domain.installed_repositories"><a class="viewcode-back" href="../../../api/pkgcore.config.domain.html#pkgcore.config.domain.domain.installed_repositories">[docs]</a>    <span class="k">def</span> <span class="nf">installed_repositories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">repo_utils</span><span class="o">.</span><span class="n">RepositoryGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vdb</span><span class="p">)</span>
+</div>
+    <span class="n">all_repos</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&quot;source_repositories.combined&quot;</span><span class="p">)</span>
+    <span class="n">all_livefs_repos</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&quot;installed_repositories.combined&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="domain.get_pkg_operations"><a class="viewcode-back" href="../../../api/pkgcore.config.domain.html#pkgcore.config.domain.domain.get_pkg_operations">[docs]</a>    <span class="k">def</span> <span class="nf">get_pkg_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pkg</span><span class="o">.</span><span class="n">operations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="n">observer</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="domain.build_pkg"><a class="viewcode-back" href="../../../api/pkgcore.config.domain.html#pkgcore.config.domain.domain.build_pkg">[docs]</a>    <span class="k">def</span> <span class="nf">build_pkg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pkg_operations</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="n">observer</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">observer</span><span class="o">=</span><span class="n">observer</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="n">clean</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="domain.install_pkg"><a class="viewcode-back" href="../../../api/pkgcore.config.domain.html#pkgcore.config.domain.domain.install_pkg">[docs]</a>    <span class="k">def</span> <span class="nf">install_pkg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newpkg</span><span class="p">,</span> <span class="n">observer</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">domain_ops</span><span class="o">.</span><span class="n">install</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_livefs_repos</span><span class="p">,</span> <span class="n">newpkg</span><span class="p">,</span>
+            <span class="n">observer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">triggers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="domain.uninstall_pkg"><a class="viewcode-back" href="../../../api/pkgcore.config.domain.html#pkgcore.config.domain.domain.uninstall_pkg">[docs]</a>    <span class="k">def</span> <span class="nf">uninstall_pkg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">domain_ops</span><span class="o">.</span><span class="n">uninstall</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_livefs_repos</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triggers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="domain.replace_pkg"><a class="viewcode-back" href="../../../api/pkgcore.config.domain.html#pkgcore.config.domain.domain.replace_pkg">[docs]</a>    <span class="k">def</span> <span class="nf">replace_pkg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oldpkg</span><span class="p">,</span> <span class="n">newpkg</span><span class="p">,</span> <span class="n">observer</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">domain_ops</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_livefs_repos</span><span class="p">,</span> <span class="n">oldpkg</span><span class="p">,</span> <span class="n">newpkg</span><span class="p">,</span>
+            <span class="n">observer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">triggers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_get_tempspace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">None</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../config.html" >pkgcore.config</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

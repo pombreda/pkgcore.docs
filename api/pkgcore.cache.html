@@ -1,0 +1,273 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.cache &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.cache.errors" href="pkgcore.cache.errors.html" />
+    <link rel="prev" title="pkgcore.binpkg.xpak" href="pkgcore.binpkg.xpak.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.cache.errors.html" title="pkgcore.cache.errors"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.binpkg.xpak.html" title="pkgcore.binpkg.xpak"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.cache">
+<span id="pkgcore-cache"></span><h1>pkgcore.cache<a class="headerlink" href="#module-pkgcore.cache" title="Permalink to this headline">¶</a></h1>
+<p>cache subsystem, typically used for storing package metadata</p>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.cache.base" title="pkgcore.cache.base"><tt class="xref py py-obj docutils literal"><span class="pre">base</span></tt></a>([auxdbkeys,&nbsp;readonly])</td>
+<td>&#64;ivar autocommits: Controls whether the template commits every update,</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.cache.bulk" title="pkgcore.cache.bulk"><tt class="xref py py-obj docutils literal"><span class="pre">bulk</span></tt></a>(*args,&nbsp;**kwds)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="pkgcore.cache.base">
+<em class="property">class </em><tt class="descclassname">pkgcore.cache.</tt><tt class="descname">base</tt><big>(</big><em>auxdbkeys=None</em>, <em>readonly=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="docutils">
+<dt>&#64;ivar autocommits: Controls whether the template commits every update,</dt>
+<dd>or queues up updates.</dd>
+<dt>&#64;ivar complete_eclass_entries: Specifies if the cache backend stores full</dt>
+<dd>eclass data, or partial.</dd>
+<dt>&#64;ivar cleanse_keys: Boolean controlling whether the template should drop</dt>
+<dd>empty keys for storing.</dd>
+<dt>&#64;ivar serialize_eclasses: Boolean controlling whether the template should</dt>
+<dd>serialize eclass data itself, or leave it to the derivative.</dd>
+</dl>
+<dl class="method">
+<dt id="pkgcore.cache.base.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#base.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.cache.base.commit">
+<tt class="descname">commit</tt><big>(</big><em>force=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#base.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base.commit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pkgcore.cache.base.deconstruct_eclasses">
+<em class="property">static </em><tt class="descname">deconstruct_eclasses</tt><big>(</big><em>eclass_dict</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#base.deconstruct_eclasses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base.deconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>takes a dict, returns a string representing said dict</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.base.frozen">
+<tt class="descname">frozen</tt><a class="headerlink" href="#pkgcore.cache.base.frozen" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to readonly</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.cache.base.has_key">
+<tt class="descname">has_key</tt><big>(</big><em>cpv</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#base.has_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base.has_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.cache.base.items">
+<tt class="descname">items</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#base.items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base.items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.cache.base.iteritems">
+<tt class="descname">iteritems</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#base.iteritems"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base.iteritems" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.cache.base.iterkeys">
+<tt class="descname">iterkeys</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#base.iterkeys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base.iterkeys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.cache.base.keys">
+<tt class="descname">keys</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#base.keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base.keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pkgcore.cache.base.reconstruct_eclasses">
+<em class="property">static </em><tt class="descname">reconstruct_eclasses</tt><big>(</big><em>cpv</em>, <em>eclass_string</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#base.reconstruct_eclasses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base.reconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn a string from L{serialize_eclasses} into a dict.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.cache.base.set_sync_rate">
+<tt class="descname">set_sync_rate</tt><big>(</big><em>rate=0</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#base.set_sync_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base.set_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.cache.bulk">
+<em class="property">class </em><tt class="descclassname">pkgcore.cache.</tt><tt class="descname">bulk</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#bulk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.bulk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.cache.base" title="pkgcore.cache.base"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.cache.base</span></tt></a></p>
+<dl class="method">
+<dt id="pkgcore.cache.bulk.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.cache.bulk.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.cache.bulk.commit">
+<tt class="descname">commit</tt><big>(</big><em>force=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#bulk.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.bulk.commit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.bulk.data">
+<tt class="descname">data</tt><a class="reference internal" href="../_modules/pkgcore/cache.html#bulk.data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.bulk.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>InternalJitAttr object; basis of JIT cached attr access</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pkgcore.cache.bulk.deconstruct_eclasses">
+<em class="property">static </em><tt class="descname">deconstruct_eclasses</tt><big>(</big><em>eclass_dict</em><big>)</big><a class="headerlink" href="#pkgcore.cache.bulk.deconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>takes a dict, returns a string representing said dict</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.bulk.frozen">
+<tt class="descname">frozen</tt><a class="headerlink" href="#pkgcore.cache.bulk.frozen" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to readonly</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.cache.bulk.has_key">
+<tt class="descname">has_key</tt><big>(</big><em>cpv</em><big>)</big><a class="headerlink" href="#pkgcore.cache.bulk.has_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.cache.bulk.items">
+<tt class="descname">items</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.cache.bulk.items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.cache.bulk.iteritems">
+<tt class="descname">iteritems</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#bulk.iteritems"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.bulk.iteritems" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.cache.bulk.iterkeys">
+<tt class="descname">iterkeys</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#bulk.iterkeys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.bulk.iterkeys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.cache.bulk.keys">
+<tt class="descname">keys</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.cache.bulk.keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pkgcore.cache.bulk.reconstruct_eclasses">
+<em class="property">static </em><tt class="descname">reconstruct_eclasses</tt><big>(</big><em>cpv</em>, <em>eclass_string</em><big>)</big><a class="headerlink" href="#pkgcore.cache.bulk.reconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn a string from L{serialize_eclasses} into a dict.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.cache.bulk.set_sync_rate">
+<tt class="descname">set_sync_rate</tt><big>(</big><em>rate=0</em><big>)</big><a class="headerlink" href="#pkgcore.cache.bulk.set_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.binpkg.xpak.html"
+                        title="previous chapter">pkgcore.binpkg.xpak</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.cache.errors.html"
+                        title="next chapter">pkgcore.cache.errors</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.cache.errors.html" title="pkgcore.cache.errors"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.binpkg.xpak.html" title="pkgcore.binpkg.xpak"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,395 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.ebuild.restricts &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.ebuild.restricts</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2005-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD</span>
+
+<span class="c"># &quot;More than one statement on a single line&quot;</span>
+<span class="c"># pylint: disable-msg=C0321</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">atom version restrict</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;VersionMatch&quot;</span><span class="p">,)</span>
+
+<span class="kn">from</span> <span class="nn">pkgcore.restrictions</span> <span class="kn">import</span> <span class="n">packages</span><span class="p">,</span> <span class="n">restriction</span><span class="p">,</span> <span class="n">values</span>
+<span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">cpv</span><span class="p">,</span> <span class="n">errors</span>
+<span class="kn">from</span> <span class="nn">snakeoil.klass</span> <span class="kn">import</span> <span class="n">generic_equality</span>
+<span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="n">is_py3k</span>
+
+<span class="c"># TODO: change values.EqualityMatch so it supports le, lt, gt, ge, eq,</span>
+<span class="c"># ne ops, and convert this to it.</span>
+
+<div class="viewcode-block" id="VersionMatch"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.restricts.html#pkgcore.ebuild.restricts.VersionMatch">[docs]</a><span class="k">class</span> <span class="nc">VersionMatch</span><span class="p">(</span><span class="n">restriction</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    package restriction implementing gentoo ebuild version comparison rules</span>
+
+<span class="sd">    any overriding of this class *must* maintain numerical order of</span>
+<span class="sd">    self.vals, see intersect for reason why. vals also must be a tuple.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;ver&quot;</span><span class="p">,</span> <span class="s">&quot;rev&quot;</span><span class="p">,</span> <span class="s">&quot;vals&quot;</span><span class="p">,</span> <span class="s">&quot;droprev&quot;</span><span class="p">,</span> <span class="s">&quot;negate&quot;</span><span class="p">)</span>
+
+    <span class="n">__inst_caching__</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">generic_equality</span>
+    <span class="n">__attr_comparison__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;negate&#39;</span><span class="p">,</span> <span class="s">&#39;rev&#39;</span><span class="p">,</span> <span class="s">&#39;droprev&#39;</span><span class="p">,</span> <span class="s">&#39;vals&#39;</span><span class="p">)</span>
+
+    <span class="nb">type</span> <span class="o">=</span> <span class="n">packages</span><span class="o">.</span><span class="n">package_type</span>
+    <span class="n">attr</span> <span class="o">=</span> <span class="s">&quot;fullver&quot;</span>
+
+    <span class="n">_convert_op2str</span> <span class="o">=</span> <span class="p">{(</span><span class="o">-</span><span class="mi">1</span><span class="p">,):</span><span class="s">&quot;&lt;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="s">&quot;&lt;=&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,):</span><span class="s">&quot;=&quot;</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span><span class="s">&quot;&gt;=&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,):</span><span class="s">&quot;&gt;&quot;</span><span class="p">}</span>
+
+    <span class="n">_convert_str2op</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_convert_op2str</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()])</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_py3k</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operator</span><span class="p">,</span> <span class="n">ver</span><span class="p">,</span> <span class="n">rev</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">negate</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param operator: version comparison to do,</span>
+<span class="sd">            valid operators are (&#39;&lt;&#39;, &#39;&lt;=&#39;, &#39;=&#39;, &#39;&gt;=&#39;, &#39;&gt;&#39;, &#39;~&#39;)</span>
+<span class="sd">        :type operator: string</span>
+<span class="sd">        :param ver: version to base comparison on</span>
+<span class="sd">        :type ver: string</span>
+<span class="sd">        :param rev: revision to base comparison on</span>
+<span class="sd">        :type rev: None (no rev), or an int</span>
+<span class="sd">        :param negate: should the restriction results be negated;</span>
+<span class="sd">            currently forced to False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">kwd</span><span class="p">[</span><span class="s">&quot;negate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">sf</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span>
+        <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;ver&quot;</span><span class="p">,</span> <span class="n">ver</span><span class="p">)</span>
+        <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;rev&quot;</span><span class="p">,</span> <span class="n">rev</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">operator</span> <span class="o">!=</span> <span class="s">&quot;~&quot;</span> <span class="ow">and</span> <span class="n">operator</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_str2op</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">InvalidVersion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ver</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rev</span><span class="p">,</span>
+                                 <span class="s">&quot;invalid operator, &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">operator</span><span class="p">)</span>
+
+        <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;negate&quot;</span><span class="p">,</span> <span class="n">negate</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">operator</span> <span class="o">==</span> <span class="s">&quot;~&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ver</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s">&quot;for ~ op, version must be something other then None&quot;</span><span class="p">)</span>
+            <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;droprev&quot;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+            <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;vals&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;droprev&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+            <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;vals&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_str2op</span><span class="p">[</span><span class="n">operator</span><span class="p">])</span>
+
+<div class="viewcode-block" id="VersionMatch.match"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.restricts.html#pkgcore.ebuild.restricts.VersionMatch.match">[docs]</a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkginst</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">droprev</span><span class="p">:</span>
+            <span class="n">r1</span><span class="p">,</span> <span class="n">r2</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">r1</span><span class="p">,</span> <span class="n">r2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rev</span><span class="p">,</span> <span class="n">pkginst</span><span class="o">.</span><span class="n">revision</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">cpv</span><span class="o">.</span><span class="n">ver_cmp</span><span class="p">(</span><span class="n">pkginst</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">r2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ver</span><span class="p">,</span> <span class="n">r1</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span> \
+            <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">negate</span>
+</div>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_op2str</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negate</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="s">&quot;not &quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">droprev</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">rev</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&quot;ver </span><span class="si">%s%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ver</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s">&quot;ver-rev </span><span class="si">%s%s</span><span class="s"> </span><span class="si">%s</span><span class="s">-r</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ver</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rev</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_op2str</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="p">]</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ver</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rev</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s">&quot;-r</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rev</span><span class="p">,)</span>
+        <span class="k">return</span> <span class="s">&quot;&lt;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> negate=</span><span class="si">%s</span><span class="s"> droprrev=</span><span class="si">%s</span><span class="s"> @#x&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">negate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">droprev</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_convert_ops</span><span class="p">(</span><span class="n">inst</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">inst</span><span class="o">.</span><span class="n">negate</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">inst</span><span class="o">.</span><span class="n">droprev</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">inst</span><span class="o">.</span><span class="n">vals</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="n">vals</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">inst</span><span class="o">.</span><span class="n">vals</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="ow">is</span> <span class="n">other</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">droprev</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">droprev</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ver</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">ver</span> \
+                <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">rev</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">rev</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">False</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_ops</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">droprev</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ver</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rev</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">negate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="p">))</span>
+
+</div>
+<span class="k">class</span> <span class="nc">SlotDep</span><span class="p">(</span><span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">__instance_caching__</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">slots</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">StrExactMatch</span><span class="p">,</span> <span class="n">slots</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">OrRestriction</span><span class="p">(</span><span class="o">*</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <span class="s">&quot;slot&quot;</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">negate</span><span class="o">=</span><span class="n">kwds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;negate&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">CategoryDep</span><span class="p">(</span><span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">__instance_caching_</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">negate</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <span class="s">&quot;category&quot;</span><span class="p">,</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">StrExactMatch</span><span class="p">(</span><span class="n">category</span><span class="p">,</span> <span class="n">negate</span><span class="o">=</span><span class="n">negate</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">PackageDep</span><span class="p">(</span><span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">__instance_caching_</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">negate</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <span class="s">&quot;package&quot;</span><span class="p">,</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">StrExactMatch</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">negate</span><span class="o">=</span><span class="n">negate</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">RepositoryDep</span><span class="p">(</span><span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">__instance_caching__</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_id</span><span class="p">,</span> <span class="n">negate</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <span class="s">&quot;repo.repo_id&quot;</span><span class="p">,</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">StrExactMatch</span><span class="p">(</span><span class="n">repo_id</span><span class="p">),</span> <span class="n">negate</span><span class="o">=</span><span class="n">negate</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">StaticUseDep</span><span class="p">(</span><span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">__instance_caching__</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">false_use</span><span class="p">,</span> <span class="n">true_use</span><span class="p">):</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">false_use</span><span class="p">:</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">ContainmentMatch</span><span class="p">(</span><span class="n">negate</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">*</span><span class="n">false_use</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">true_use</span><span class="p">:</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">ContainmentMatch</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">*</span><span class="n">true_use</span><span class="p">))</span>
+
+        <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">l</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">AndRestriction</span><span class="p">(</span><span class="o">*</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">l</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">AlwaysTrue</span>
+
+        <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;use&#39;</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_UseDepDefaultContainment</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">ContainmentMatch</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;if_missing&#39;</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">if_missing</span><span class="p">,</span> <span class="n">vals</span><span class="p">,</span> <span class="n">negate</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;if_missing&#39;</span><span class="p">,</span> <span class="nb">bool</span><span class="p">(</span><span class="n">if_missing</span><span class="p">))</span>
+        <span class="n">values</span><span class="o">.</span><span class="n">ContainmentMatch</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">negate</span><span class="o">=</span><span class="n">negate</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">*</span><span class="n">vals</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="n">reduced_vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vals</span>
+        <span class="n">iuse</span><span class="p">,</span> <span class="n">use</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="k">if</span> <span class="n">reduced_vals</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">iuse</span><span class="p">):</span>
+            <span class="c"># use normal pathways.</span>
+            <span class="k">return</span> <span class="n">values</span><span class="o">.</span><span class="n">ContainmentMatch</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">if_missing</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">negate</span><span class="p">:</span>
+            <span class="c"># ex: if is_missing = False, missing flags are assumed falsed.</span>
+            <span class="c"># if negate is False, then we&#39;re not trying to disable the flags, trying to enable.</span>
+            <span class="c"># as such, this cannot match.  The inverse holds true.</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="c"># to reach here, either we&#39;re trying to force all flags false and the default is False,</span>
+        <span class="c"># or we&#39;re trying to force all flags on, and the default is on.</span>
+        <span class="c"># recall that negate is unfortunately a double negative in labeling...</span>
+        <span class="n">reduced_vals</span> <span class="o">=</span> <span class="n">reduced_vals</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">iuse</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">reduced_vals</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">values</span><span class="o">.</span><span class="n">ContainmentMatch</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use</span><span class="p">,</span> <span class="n">_values_override</span><span class="o">=</span><span class="n">reduced_vals</span><span class="p">)</span>
+        <span class="c"># nothing to match means all are missing, but the default makes them considered a match.</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">force_False</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="n">reduced_vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vals</span>
+        <span class="c"># see comments in .match for clarification of logic.</span>
+        <span class="n">iuse</span><span class="p">,</span> <span class="n">use</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="k">if</span> <span class="n">reduced_vals</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">iuse</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">values</span><span class="o">.</span><span class="n">ContainmentMatch</span><span class="o">.</span><span class="n">force_False</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;use&#39;</span><span class="p">,</span> <span class="n">use</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">if_missing</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">negate</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="n">reduced_vals</span> <span class="o">=</span> <span class="n">reduced_vals</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">iuse</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">reduced_vals</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">values</span><span class="o">.</span><span class="n">ContainmentMatch</span><span class="o">.</span><span class="n">force_False</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;use&#39;</span><span class="p">,</span> <span class="n">use</span><span class="p">,</span> <span class="n">reduced_vals</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">force_True</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="n">reduced_vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vals</span>
+        <span class="c"># see comments in .match for clarification of logic.</span>
+        <span class="n">iuse</span><span class="p">,</span> <span class="n">use</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="k">if</span> <span class="n">reduced_vals</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">iuse</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">values</span><span class="o">.</span><span class="n">ContainmentMatch</span><span class="o">.</span><span class="n">force_True</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;use&#39;</span><span class="p">,</span> <span class="n">use</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">if_missing</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">negate</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="n">reduced_vals</span> <span class="o">=</span> <span class="n">reduced_vals</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">iuse</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">reduced_vals</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">values</span><span class="o">.</span><span class="n">ContainmentMatch</span><span class="o">.</span><span class="n">force_True</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;use&#39;</span><span class="p">,</span> <span class="n">use</span><span class="p">,</span> <span class="n">reduced_vals</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+
+<span class="k">class</span> <span class="nc">UseDepDefault</span><span class="p">(</span><span class="n">packages</span><span class="o">.</span><span class="n">PackageRestrictionMulti</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">__instance_caching__</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">if_missing</span><span class="p">,</span> <span class="n">false_use</span><span class="p">,</span> <span class="n">true_use</span><span class="p">):</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">false_use</span><span class="p">:</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_UseDepDefaultContainment</span><span class="p">(</span><span class="n">if_missing</span><span class="p">,</span> <span class="n">false_use</span><span class="p">,</span> <span class="n">negate</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">true_use</span><span class="p">:</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_UseDepDefaultContainment</span><span class="p">(</span><span class="n">if_missing</span><span class="p">,</span> <span class="n">true_use</span><span class="p">))</span>
+
+        <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">l</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">AndRestriction</span><span class="p">(</span><span class="o">*</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">l</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">AlwaysTrue</span>
+
+        <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestrictionMulti</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;iuse&#39;</span><span class="p">,</span> <span class="s">&#39;use&#39;</span><span class="p">),</span> <span class="n">v</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_nontransitive_use</span><span class="p">(</span><span class="n">sequence</span><span class="p">):</span>
+    <span class="n">default_off</span> <span class="o">=</span> <span class="p">[[],</span> <span class="p">[]]</span>
+    <span class="n">default_on</span> <span class="o">=</span> <span class="p">[[],</span> <span class="p">[]]</span>
+    <span class="n">normal</span> <span class="o">=</span> <span class="p">[[],</span> <span class="p">[]]</span>
+    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">sequence</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">token</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;)&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">token</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;+&#39;</span><span class="p">:</span>
+                <span class="n">trg</span> <span class="o">=</span> <span class="n">default_on</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">trg</span> <span class="o">=</span> <span class="n">default_off</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="n">token</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">trg</span> <span class="o">=</span> <span class="n">normal</span>
+        <span class="k">if</span> <span class="n">token</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;-&#39;</span><span class="p">:</span>
+            <span class="n">trg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">trg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">normal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">normal</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StaticUseDep</span><span class="p">(</span><span class="o">*</span><span class="n">normal</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">default_off</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">default_off</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">UseDepDefault</span><span class="p">(</span><span class="bp">False</span><span class="p">,</span> <span class="o">*</span><span class="n">default_off</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">default_on</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">default_on</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">UseDepDefault</span><span class="p">(</span><span class="bp">True</span><span class="p">,</span> <span class="o">*</span><span class="n">default_on</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">r</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

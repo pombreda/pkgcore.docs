@@ -1,0 +1,523 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.resolver.plan &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.resolver.state" href="pkgcore.resolver.state.html" />
+    <link rel="prev" title="pkgcore.resolver.pigeonholes" href="pkgcore.resolver.pigeonholes.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.resolver.state.html" title="pkgcore.resolver.state"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.resolver.pigeonholes.html" title="pkgcore.resolver.pigeonholes"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pkgcore-resolver-plan">
+<h1>pkgcore.resolver.plan<a class="headerlink" href="#pkgcore-resolver-plan" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-pkgcore.resolver.plan"></span><p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.resolver.plan.merge_plan" title="pkgcore.resolver.plan.merge_plan"><tt class="xref py py-obj docutils literal"><span class="pre">merge_plan</span></tt></a>(dbs,&nbsp;per_repo_strategy[,&nbsp;...])</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.resolver.plan.resolver_frame" title="pkgcore.resolver.plan.resolver_frame"><tt class="xref py py-obj docutils literal"><span class="pre">resolver_frame</span></tt></a>(parent,&nbsp;mode,&nbsp;atom,&nbsp;choices,&nbsp;...)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.resolver.plan.resolver_stack" title="pkgcore.resolver.plan.resolver_stack"><tt class="xref py py-obj docutils literal"><span class="pre">resolver_stack</span></tt></a>()</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="pkgcore.resolver.plan.resolver_frame">
+<em class="property">class </em><tt class="descclassname">pkgcore.resolver.plan.</tt><tt class="descname">resolver_frame</tt><big>(</big><em>parent</em>, <em>mode</em>, <em>atom</em>, <em>choices</em>, <em>dbs</em>, <em>start_point</em>, <em>depth</em>, <em>drop_cycles</em>, <em>ignored=False</em>, <em>vdb_limited=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#resolver_frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.resolver_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_frame.atom">
+<tt class="descname">atom</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_frame.atom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_frame.choices">
+<tt class="descname">choices</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_frame.choices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_frame.current_pkg">
+<tt class="descname">current_pkg</tt><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#resolver_frame.current_pkg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.resolver_frame.current_pkg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_frame.dbs">
+<tt class="descname">dbs</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_frame.dbs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_frame.depth">
+<tt class="descname">depth</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_frame.depth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_frame.drop_cycles">
+<tt class="descname">drop_cycles</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_frame.drop_cycles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_frame.events">
+<tt class="descname">events</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_frame.events" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_frame.ignored">
+<tt class="descname">ignored</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_frame.ignored" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_frame.mode">
+<tt class="descname">mode</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_frame.mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_frame.parent">
+<tt class="descname">parent</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_frame.parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.resolver_frame.reduce_solutions">
+<tt class="descname">reduce_solutions</tt><big>(</big><em>nodes</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#resolver_frame.reduce_solutions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.resolver_frame.reduce_solutions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_frame.start_point">
+<tt class="descname">start_point</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_frame.start_point" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_frame.succeeded">
+<tt class="descname">succeeded</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_frame.succeeded" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_frame.vdb_limited">
+<tt class="descname">vdb_limited</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_frame.vdb_limited" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.resolver.plan.resolver_stack">
+<em class="property">class </em><tt class="descclassname">pkgcore.resolver.plan.</tt><tt class="descname">resolver_stack</tt><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#resolver_stack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/collections.html#collections.deque" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">collections.deque</span></tt></a></p>
+<dl class="method">
+<dt id="pkgcore.resolver.plan.resolver_stack.add_event">
+<tt class="descname">add_event</tt><big>(</big><em>event</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#resolver_stack.add_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.add_event" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.resolver_stack.add_frame">
+<tt class="descname">add_frame</tt><big>(</big><em>mode</em>, <em>atom</em>, <em>choices</em>, <em>dbs</em>, <em>start_point</em>, <em>drop_cycles</em>, <em>vdb_limited=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#resolver_stack.add_frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.add_frame" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_stack.append">
+<tt class="descname">append</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an element to the right side of the deque.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_stack.appendleft">
+<tt class="descname">appendleft</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.appendleft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an element to the left side of the deque.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_stack.clear">
+<tt class="descname">clear</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all elements from the deque.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_stack.count">
+<tt class="descname">count</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.count" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.count(value) -&gt; integer &#8211; return number of occurrences of value</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_stack.current_frame">
+<tt class="descname">current_frame</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.current_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>itemgetter(item, ...) &#8211;&gt; itemgetter object</p>
+<p>Return a callable object that fetches the given item(s) from its operand.
+After, f=itemgetter(2), the call f(r) returns r[2].
+After, g=itemgetter(2,5,3), the call g(r) returns (r[2], r[5], r[3])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_stack.depth">
+<tt class="descname">depth</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.depth" title="Permalink to this definition">¶</a></dt>
+<dd><p>len(object) -&gt; integer</p>
+<p>Return the number of items of a sequence or mapping.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_stack.extend">
+<tt class="descname">extend</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.extend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extend the right side of the deque with elements from the iterable</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_stack.extendleft">
+<tt class="descname">extendleft</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.extendleft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extend the left side of the deque with elements from the iterable</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.resolver_stack.filter_ignored">
+<tt class="descname">filter_ignored</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.filter_ignored" title="Permalink to this definition">¶</a></dt>
+<dd><p>partial(func, <a href="#id1"><span class="problematic" id="id2">*</span></a>args, <a href="#id3"><span class="problematic" id="id4">**</span></a>keywords) - new function with partial application
+of the given arguments and keywords.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_stack.frame_klass">
+<tt class="descname">frame_klass</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.frame_klass" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#pkgcore.resolver.plan.resolver_frame" title="pkgcore.resolver.plan.resolver_frame"><tt class="xref py py-class docutils literal"><span class="pre">resolver_frame</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.resolver_stack.index">
+<tt class="descname">index</tt><big>(</big><em>frame</em>, <em>start=0</em>, <em>stop=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#resolver_stack.index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_stack.maxlen">
+<tt class="descname">maxlen</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.maxlen" title="Permalink to this definition">¶</a></dt>
+<dd><p>maximum size of a deque or None if unbounded</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_stack.parent">
+<tt class="descname">parent</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_stack.pop">
+<tt class="descname">pop</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove and return the rightmost element.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.resolver_stack.pop_frame">
+<tt class="descname">pop_frame</tt><big>(</big><em>result</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#resolver_stack.pop_frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.pop_frame" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_stack.popleft">
+<tt class="descname">popleft</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.popleft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove and return the leftmost element.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_stack.remove">
+<tt class="descname">remove</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.remove(value) &#8211; remove first occurrence of value.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_stack.reverse">
+<tt class="descname">reverse</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.reverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.reverse() &#8211; reverse <em>IN PLACE</em></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.resolver_stack.rotate">
+<tt class="descname">rotate</tt><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate the deque n steps to the right (default n=1).  If n is negative, rotates left.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.resolver_stack.slot_cycles">
+<tt class="descname">slot_cycles</tt><big>(</big><em>trg_frame</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#resolver_stack.slot_cycles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.resolver_stack.slot_cycles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.resolver.plan.merge_plan">
+<em class="property">class </em><tt class="descclassname">pkgcore.resolver.plan.</tt><tt class="descname">merge_plan</tt><big>(</big><em>dbs</em>, <em>per_repo_strategy</em>, <em>global_strategy=None</em>, <em>depset_reorder_strategy=None</em>, <em>process_built_depends=False</em>, <em>drop_cycles=False</em>, <em>debug=False</em>, <em>debug_handle=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="pkgcore.resolver.plan.merge_plan.add_atom">
+<tt class="descname">add_atom</tt><big>(</big><em>atom</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.add_atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.add_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>add an atom, recalculating as necessary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">the last unresolvable atom stack if a solution can&#8217;t be found,
+else returns None if the atom was successfully added.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.merge_plan.add_atoms">
+<tt class="descname">add_atoms</tt><big>(</big><em>restricts</em>, <em>finalize=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.add_atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.add_atoms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.merge_plan.check_for_cycles">
+<tt class="descname">check_for_cycles</tt><big>(</big><em>stack</em>, <em>cur_frame</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.check_for_cycles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.check_for_cycles" title="Permalink to this definition">¶</a></dt>
+<dd><p>check the current stack for cyclical issues;
+:param stack: current stack, a L{resolver_stack} instance
+:param cur_frame: current frame, a L{resolver_frame} instance
+:return: True if no issues and resolution should continue, else the</p>
+<blockquote>
+<div>value to return after collapsing the calling frame</div></blockquote>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pkgcore.resolver.plan.merge_plan.default_depset_reorder_strategy">
+<em class="property">static </em><tt class="descname">default_depset_reorder_strategy</tt><big>(</big><em>depset</em>, <em>mode</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.default_depset_reorder_strategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.default_depset_reorder_strategy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pkgcore.resolver.plan.merge_plan.default_global_strategy">
+<em class="property">static </em><tt class="descname">default_global_strategy</tt><big>(</big><em>dbs</em>, <em>atom</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.default_global_strategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.default_global_strategy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.resolver.plan.merge_plan.forced_restrictions">
+<tt class="descname">forced_restrictions</tt><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.forced_restrictions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.forced_restrictions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.merge_plan.free_caches">
+<tt class="descname">free_caches</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.free_caches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.free_caches" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.merge_plan.generate_mangled_blocker">
+<tt class="descname">generate_mangled_blocker</tt><big>(</big><em>choices</em>, <em>blocker</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.generate_mangled_blocker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.generate_mangled_blocker" title="Permalink to this definition">¶</a></dt>
+<dd><p>converts a blocker into a &#8220;cannot block ourself&#8221; block</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.merge_plan.insert_blockers">
+<tt class="descname">insert_blockers</tt><big>(</big><em>stack</em>, <em>choices</em>, <em>blocks</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.insert_blockers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.insert_blockers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.merge_plan.insert_choice">
+<tt class="descname">insert_choice</tt><big>(</big><em>atom</em>, <em>stack</em>, <em>choices</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.insert_choice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.insert_choice" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.merge_plan.insert_providers">
+<tt class="descname">insert_providers</tt><big>(</big><em>stack</em>, <em>atom</em>, <em>choices</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.insert_providers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.insert_providers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pkgcore.resolver.plan.merge_plan.just_livefs_dbs">
+<em class="property">static </em><tt class="descname">just_livefs_dbs</tt><big>(</big><em>dbs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.just_livefs_dbs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.just_livefs_dbs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pkgcore.resolver.plan.merge_plan.just_nonlivefs_dbs">
+<em class="property">static </em><tt class="descname">just_nonlivefs_dbs</tt><big>(</big><em>dbs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.just_nonlivefs_dbs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.just_nonlivefs_dbs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.merge_plan.load_vdb_state">
+<tt class="descname">load_vdb_state</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.load_vdb_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.load_vdb_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.merge_plan.notify_choice_failed">
+<tt class="descname">notify_choice_failed</tt><big>(</big><em>stack</em>, <em>atom</em>, <em>choices</em>, <em>msg</em>, <em>msg_args=()</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.notify_choice_failed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.notify_choice_failed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.merge_plan.notify_choice_succeeded">
+<tt class="descname">notify_choice_succeeded</tt><big>(</big><em>stack</em>, <em>atom</em>, <em>choices</em>, <em>msg=''</em>, <em>msg_args=()</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.notify_choice_succeeded"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.notify_choice_succeeded" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.merge_plan.notify_starting_mode">
+<tt class="descname">notify_starting_mode</tt><big>(</big><em>mode</em>, <em>stack</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.notify_starting_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.notify_starting_mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.merge_plan.notify_trying_choice">
+<tt class="descname">notify_trying_choice</tt><big>(</big><em>stack</em>, <em>atom</em>, <em>choices</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.notify_trying_choice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.notify_trying_choice" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.merge_plan.notify_viable">
+<tt class="descname">notify_viable</tt><big>(</big><em>stack</em>, <em>atom</em>, <em>viable</em>, <em>msg=''</em>, <em>pre_solved=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.notify_viable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.notify_viable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pkgcore.resolver.plan.merge_plan.prefer_highest_version_strategy">
+<em class="property">static </em><tt class="descname">prefer_highest_version_strategy</tt><big>(</big><em>dbs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.prefer_highest_version_strategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.prefer_highest_version_strategy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.resolver.plan.merge_plan.prefer_livefs_dbs">
+<em class="property">classmethod </em><tt class="descname">prefer_livefs_dbs</tt><big>(</big><em>dbs</em>, <em>just_vdb=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.prefer_livefs_dbs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.prefer_livefs_dbs" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dbs</strong> &#8211; db list to walk</li>
+<li><strong>just_vdb</strong> &#8211; if None, no filtering; if True, just vdb, if False,
+non-vdb only</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">yields repositories in requested ordering</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pkgcore.resolver.plan.merge_plan.prefer_lowest_version_strategy">
+<em class="property">static </em><tt class="descname">prefer_lowest_version_strategy</tt><big>(</big><em>dbs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.prefer_lowest_version_strategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.prefer_lowest_version_strategy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pkgcore.resolver.plan.merge_plan.prefer_reuse_strategy">
+<em class="property">static </em><tt class="descname">prefer_reuse_strategy</tt><big>(</big><em>dbs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.prefer_reuse_strategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.prefer_reuse_strategy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.merge_plan.process_blocker">
+<tt class="descname">process_blocker</tt><big>(</big><em>stack</em>, <em>choices</em>, <em>blocker</em>, <em>mode</em>, <em>atom</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.process_blocker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.process_blocker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.merge_plan.process_dependencies">
+<tt class="descname">process_dependencies</tt><big>(</big><em>stack</em>, <em>choices</em>, <em>mode</em>, <em>depset</em>, <em>atom</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.process_dependencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.process_dependencies" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.merge_plan.process_dependencies_and_blocks">
+<tt class="descname">process_dependencies_and_blocks</tt><big>(</big><em>stack</em>, <em>choices</em>, <em>attr</em>, <em>atom=None</em>, <em>depth=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.process_dependencies_and_blocks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.process_dependencies_and_blocks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.merge_plan.process_finalize">
+<tt class="descname">process_finalize</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.process_finalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.process_finalize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.resolver.plan.merge_plan.reset">
+<tt class="descname">reset</tt><big>(</big><em>point=0</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/resolver/plan.html#merge_plan.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.resolver.plan.merge_plan.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.resolver.pigeonholes.html"
+                        title="previous chapter">pkgcore.resolver.pigeonholes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.resolver.state.html"
+                        title="next chapter">pkgcore.resolver.state</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.resolver.state.html" title="pkgcore.resolver.state"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.resolver.pigeonholes.html" title="pkgcore.resolver.pigeonholes"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,238 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pquery usage &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pquery-usage">
+<h1>pquery usage<a class="headerlink" href="#pquery-usage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="basics">
+<h2>Basics<a class="headerlink" href="#basics" title="Permalink to this headline">¶</a></h2>
+<p>pquery is used to extract various kinds of information about either installed or
+uninstalled packages. As you probably guessed from the name it is similar to
+equery, but it can do things equery cannot do and is a bit more flexible.</p>
+<p>What pquery does is select packages from one or more &#8220;repositories&#8221; that match
+a boolean combination of restrictions, then print selected information about
+those packages. It is important to understand that the information printing and
+repository selection options are almost completely separate from the
+restriction options. The only exception to that is that restrictions on
+contents automatically select the vdb (installed packages) repository, since
+running them on the portdir repository makes no sense.</p>
+<p>Another switch that could do with some extra explanation is <tt class="docutils literal"><span class="pre">--raw</span></tt>.
+Specifying <tt class="docutils literal"><span class="pre">--raw</span></tt> makes your configuration not affect the results. Example:</p>
+<div class="highlight-python"><pre>$ pquery --attr alldepends -m dbus --max -v
+* sys-apps/dbus-0.62-r1
+    description: A message bus system, a simple way for applications to talk
+                 to each other
+    homepage: http://dbus.freedesktop.org/
+    depends: &gt;=dev-libs/glib-2.6 || ( ( x11-libs/libXt x11-libs/libX11 )
+                 virtual/x11 ) &gt;=x11-libs/gtk+-2.6 &gt;=dev-lang/python-2.4
+                 &gt;=dev-python/pyrex-0.9.3-r2 &gt;=dev-libs/expat-1.95.8
+                 dev-util/pkgconfig sys-devel/automake
+                 &gt;=sys-devel/autoconf-2.59 sys-devel/libtool
+    rdepends: &gt;=dev-libs/glib-2.6 || ( ( x11-libs/libXt x11-libs/libX11 )
+                 virtual/x11 ) &gt;=x11-libs/gtk+-2.6 &gt;=dev-lang/python-2.4
+                 &gt;=dev-python/pyrex-0.9.3-r2 &gt;=dev-libs/expat-1.95.8
+    post_rdepends:
+$</pre>
+</div>
+<p>This is the highest unmasked package on my system. Also notice there are no
+references to USE flags or qt in the dependencies. That is because I do not
+have qt in USE in my configuration, so those dependencies do not apply.:</p>
+<div class="highlight-python"><pre>$ pquery --attr alldepends -m dbus --max -v --raw
+* sys-apps/dbus-0.91
+    description: Meta package for D-Bus
+    homepage: http://dbus.freedesktop.org/
+    depends:
+    rdepends: &gt;=sys-apps/dbus-core-0.91 python? (
+                 &gt;=dev-python/dbus-python-0.71 ) qt3? (
+                 &gt;=dev-libs/dbus-qt3-old-0.70 ) gtk? (
+                 &gt;=dev-libs/dbus-glib-0.71 ) !&lt;sys-apps/dbus-0.91
+    post_rdepends:
+$</pre>
+</div>
+<p>This version is in <tt class="docutils literal"><span class="pre">package.mask</span></tt>, and we can see the use-conditional flags now.</p>
+<p>The <tt class="docutils literal"><span class="pre">--verbose</span></tt> or <tt class="docutils literal"><span class="pre">-v</span></tt> flag tries to print human-readable output (although
+some things like the formatting of depend strings need some improvement).
+Without <tt class="docutils literal"><span class="pre">-v</span></tt> the output is usually a single line per package in a hopefully
+machine-parseable format (usable in pipelines). There are some extras like
+<tt class="docutils literal"><span class="pre">--atom</span></tt> meant for shell pipeline use. If you have some useful shell pipeline
+in mind that pquery&#8217;s output could be better formatted for please file a
+ticket.</p>
+<p>Adding short options is planned but there are some features to add first (want
+most of the features in place to avoid name clashes).</p>
+</div>
+<div class="section" id="how-do-i">
+<h2>How Do I?<a class="headerlink" href="#how-do-i" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="29%" />
+<col width="51%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">other tool</th>
+<th class="head">pquery</th>
+<th class="head">comments</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><tt class="docutils literal"><span class="pre">equery</span> <span class="pre">belongs</span> <span class="pre">/bin/ls</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">pquery</span> <span class="pre">--owns</span> <span class="pre">/bin/ls</span></tt></td>
+<td>&nbsp;</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">equery</span> <span class="pre">check</span></tt></td>
+<td>not implemented (yet?)</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">equery</span> <span class="pre">depends</span> <span class="pre">python</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">pquery</span> <span class="pre">--vdb</span> <span class="pre">--revdep</span> <span class="pre">dev-lang/python</span></tt></td>
+<td>omitting the <tt class="docutils literal"><span class="pre">--vdb</span></tt> makes it equivalent to <tt class="docutils literal"><span class="pre">equery</span> <span class="pre">depends</span> <span class="pre">-a</span></tt></td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">equery</span> <span class="pre">depgraph</span></tt></td>
+<td>not implemented (yet?)</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">equery</span> <span class="pre">files</span> <span class="pre">python</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">pquery</span> <span class="pre">--contents</span> <span class="pre">-m</span> <span class="pre">python</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">--contents</span></tt> is an output option, can be combined with any restriction</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">equery</span> <span class="pre">hasuse</span> <span class="pre">python</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">pquery</span> <span class="pre">--vdb</span> <span class="pre">--has-use</span> <span class="pre">python</span></tt></td>
+<td>&nbsp;</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">equery</span> <span class="pre">list</span> <span class="pre">python</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">pquery</span> <span class="pre">--vdb</span> <span class="pre">-m</span> <span class="pre">'*python*'</span></tt></td>
+<td>this is in ExtendedAtomSyntax</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">equery</span> <span class="pre">size</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">not</span> <span class="pre">implemented</span> <span class="pre">(yet?)</span></tt></td>
+<td>&nbsp;</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">equery</span> <span class="pre">uses</span> <span class="pre">python</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">pquery</span> <span class="pre">--attr</span> <span class="pre">use</span> <span class="pre">-m</span> <span class="pre">python</span></tt></td>
+<td>less information, but is an output option so mixes with any restriction</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">emerge</span> <span class="pre">-s</span> <span class="pre">python</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">pquery</span> <span class="pre">-vnm</span> <span class="pre">'*python*'</span></tt></td>
+<td>&nbsp;</td>
+</tr>
+<tr><td><tt class="docutils literal"><span class="pre">emerge</span> <span class="pre">-S</span> <span class="pre">python</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">pquery</span> <span class="pre">-vnS</span> <span class="pre">python</span></tt></td>
+<td>searches through longdescription (from metadata.xml) too</td>
+</tr>
+<tr><td>No equivalent</td>
+<td><tt class="docutils literal"><span class="pre">pquery</span> <span class="pre">--license</span> <span class="pre">GPL-2</span> <span class="pre">--vdb</span></tt></td>
+<td>list all installed GPL-2 packages</td>
+</tr>
+<tr><td>No equivalent</td>
+<td><tt class="docutils literal"><span class="pre">pquery</span> <span class="pre">--maintainer</span> <span class="pre">seemant</span></tt></td>
+<td>list all packages that are maintained by seemant</td>
+</tr>
+</tbody>
+</table>
+<p>It can also do some things equery/emerge do not let you do, like restricting
+based on maintainer or herd and printing various other package attributes. See
+<tt class="docutils literal"><span class="pre">--help</span></tt> for those. If you miss a query file a ticket.</p>
+</div>
+<div class="section" id="freeform-restrictions">
+<h2>Freeform Restrictions<a class="headerlink" href="#freeform-restrictions" title="Permalink to this headline">¶</a></h2>
+<p>One possibly interesting feature is:</p>
+<p><tt class="docutils literal"><span class="pre">pquery</span> <span class="pre">--expr</span> <span class="pre">&quot;and(or(herd(python),</span> <span class="pre">maintainer(me)),</span> <span class="pre">match('dev-*/*'))&quot;</span></tt></p>
+<p>which matches packages in a category starting with dev that are either
+maintained by &#8220;me&#8221; or in the python herd. This code is not heavily tested and
+the &#8220;not&#8221; boolean is currently broken. Should be fixed for the next release
+though.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pquery usage</a><ul>
+<li><a class="reference internal" href="#basics">Basics</a></li>
+<li><a class="reference internal" href="#how-do-i">How Do I?</a></li>
+<li><a class="reference internal" href="#freeform-restrictions">Freeform Restrictions</a></li>
+</ul>
+</li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

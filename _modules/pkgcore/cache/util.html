@@ -1,0 +1,213 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.cache.util &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="pkgcore.cache" href="../cache.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../cache.html" accesskey="U">pkgcore.cache</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.cache.util</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2005 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">cache backend utilities</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;mirror_cache&quot;</span><span class="p">,)</span>
+
+<span class="kn">from</span> <span class="nn">pkgcore.cache</span> <span class="kn">import</span> <span class="n">errors</span>
+
+<div class="viewcode-block" id="mirror_cache"><a class="viewcode-back" href="../../../api/pkgcore.cache.util.html#pkgcore.cache.util.mirror_cache">[docs]</a><span class="k">def</span> <span class="nf">mirror_cache</span><span class="p">(</span><span class="n">valid_nodes_iterable</span><span class="p">,</span> <span class="n">src_cache</span><span class="p">,</span> <span class="n">trg_cache</span><span class="p">,</span> <span class="n">eclass_cache</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">verbose_instance</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    make a cache backend a mirror of another</span>
+
+<span class="sd">    :param valid_nodes_iterable: valid keys</span>
+<span class="sd">    :param src_cache: L{pkgcore.cache.base} instance</span>
+<span class="sd">        to copy keys from</span>
+<span class="sd">    :param trg_cache: L{pkgcore.cache.base} instance</span>
+<span class="sd">        to write keys to</span>
+<span class="sd">    :param eclass_cache: if doing eclass_cache translation,</span>
+<span class="sd">        a L{pkgcore.ebuild.eclass_cache.cache} instance to use, else None</span>
+<span class="sd">    :param verbose_instance: either None (defaulting to L{quiet_mirroring}),</span>
+<span class="sd">        or a L{quiet_mirroring} derivative</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">src_cache</span><span class="o">.</span><span class="n">complete_eclass_entries</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">eclass_cache</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="s">&quot;eclass_cache required for cache&#39;s of class </span><span class="si">%s</span><span class="s">!&quot;</span> <span class="o">%</span>
+            <span class="n">src_cache</span><span class="o">.</span><span class="n">__class__</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">verbose_instance</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">noise</span> <span class="o">=</span> <span class="n">quiet_mirroring</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">noise</span> <span class="o">=</span> <span class="n">verbose_instance</span>
+
+    <span class="n">dead_nodes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">trg_cache</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">())</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">trg_cache</span><span class="o">.</span><span class="n">autocommits</span><span class="p">:</span>
+        <span class="n">trg_cache</span><span class="o">.</span><span class="n">sync</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">valid_nodes_iterable</span><span class="p">:</span>
+        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dead_nodes</span><span class="p">:</span>
+            <span class="n">dead_nodes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">entry</span> <span class="o">=</span> <span class="n">src_cache</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">noise</span><span class="o">.</span><span class="n">missing_entry</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;INHERITED&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">src_cache</span><span class="o">.</span><span class="n">complete_eclass_entries</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="s">&quot;_eclasses_&quot;</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
+                    <span class="n">noise</span><span class="o">.</span><span class="n">corruption</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="s">&quot;missing _eclasses_ field&quot;</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">eclass_cache</span><span class="o">.</span><span class="n">is_eclass_data_valid</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s">&quot;_eclasses_&quot;</span><span class="p">]):</span>
+                    <span class="n">noise</span><span class="o">.</span><span class="n">eclass_stale</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                    <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">entry</span><span class="p">[</span><span class="s">&quot;_eclasses_&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">eclass_cache</span><span class="o">.</span><span class="n">get_eclass_data</span><span class="p">(</span>
+                    <span class="n">entry</span><span class="p">[</span><span class="s">&quot;INHERITED&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="n">from_master_only</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">entry</span><span class="p">[</span><span class="s">&quot;_eclasses_&quot;</span><span class="p">]:</span>
+                    <span class="n">noise</span><span class="o">.</span><span class="n">eclass_stale</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                    <span class="k">continue</span>
+
+        <span class="c"># by this time, if it reaches here, the eclass has been</span>
+        <span class="c"># validated, and the entry has been updated/translated (if</span>
+        <span class="c"># needs be, for metadata/cache mainly)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">trg_cache</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span>
+        <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">CacheError</span><span class="p">,</span> <span class="n">ce</span><span class="p">:</span>
+            <span class="n">noise</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ce</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">ce</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;=</span> <span class="n">noise</span><span class="o">.</span><span class="n">call_update_min</span><span class="p">:</span>
+            <span class="n">noise</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">trg_cache</span><span class="o">.</span><span class="n">autocommits</span><span class="p">:</span>
+        <span class="n">trg_cache</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+    <span class="c"># ok. by this time, the trg_cache is up to date, and we have a</span>
+    <span class="c"># dict with a crapload of cpv&#39;s. we now walk the target db,</span>
+    <span class="c"># removing stuff if it&#39;s in the list.</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">dead_nodes</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">trg_cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">CacheError</span><span class="p">,</span> <span class="n">ce</span><span class="p">:</span>
+            <span class="n">noise</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ce</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">ce</span>
+
+
+<span class="c"># &quot;More than one statement on a single line&quot;</span>
+<span class="c"># pylint: disable-msg=C0321</span>
+</div>
+<span class="k">class</span> <span class="nc">quiet_mirroring</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Quiet mirror_cache callback object for getting progress information.&quot;&quot;&quot;</span>
+    <span class="c"># call_update_every is used by mirror_cache to determine how often</span>
+    <span class="c"># to call in. quiet defaults to 2^24 -1. Don&#39;t call update, &#39;cept</span>
+    <span class="c"># once every 16 million or so :)</span>
+    <span class="n">call_update_min</span> <span class="o">=</span> <span class="mh">0xffffff</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span> <span class="k">pass</span>
+    <span class="k">def</span> <span class="nf">exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span> <span class="k">pass</span>
+    <span class="k">def</span> <span class="nf">eclass_stale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span> <span class="k">pass</span>
+    <span class="k">def</span> <span class="nf">missing_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span> <span class="k">pass</span>
+    <span class="k">def</span> <span class="nf">misc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span> <span class="k">pass</span>
+    <span class="k">def</span> <span class="nf">corruption</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span> <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">non_quiet_mirroring</span><span class="p">(</span><span class="n">quiet_mirroring</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;prints to stdout each step in cache mirroring&quot;&quot;&quot;</span>
+
+    <span class="n">call_update_min</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span> <span class="k">print</span> <span class="s">&quot;processed&quot;</span><span class="p">,</span> <span class="n">key</span>
+    <span class="k">def</span> <span class="nf">exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span> <span class="k">print</span> <span class="s">&quot;exec&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">arg</span>
+    <span class="k">def</span> <span class="nf">missing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span> <span class="k">print</span> <span class="s">&quot;key </span><span class="si">%s</span><span class="s"> is missing&quot;</span><span class="p">,</span> <span class="n">key</span>
+    <span class="k">def</span> <span class="nf">corruption</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span> <span class="k">print</span> <span class="s">&quot;corrupt </span><span class="si">%s</span><span class="s">:&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">,</span> <span class="n">arg</span>
+    <span class="k">def</span> <span class="nf">eclass_stale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span> <span class="k">print</span> <span class="s">&quot;stale </span><span class="si">%s</span><span class="s">:&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">,</span> <span class="n">arg</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../cache.html" >pkgcore.cache</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

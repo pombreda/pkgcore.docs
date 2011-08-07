@@ -1,0 +1,162 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Overview &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<p>Pkgcore supports several configuration formats, Portage&#8217;s <tt class="docutils literal"><span class="pre">/etc/make.conf</span></tt>
+included. This file documents the current state of the support.</p>
+<div class="section" id="features">
+<h2>FEATURES<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
+<p>Supported:</p>
+<ul class="simple">
+<li>ccache</li>
+<li>distcc</li>
+<li>sandbox</li>
+<li>usersandbox</li>
+<li>userpriv</li>
+<li>test</li>
+<li>nodoc</li>
+<li>noinfo</li>
+<li>noman</li>
+<li>userfetch (forced on)</li>
+<li>collision-protect</li>
+<li>metadata-transfer (does not do the actual transfer however)</li>
+<li>nostrip</li>
+</ul>
+<p>Partially supported:</p>
+<ul class="simple">
+<li>strict (mostly there, just missing a few additions)</li>
+</ul>
+<p>Unsupported digest-related:</p>
+<ul class="simple">
+<li>assume-digests</li>
+<li>cvs</li>
+<li>digest</li>
+</ul>
+<p>Unsupported misc:</p>
+<ul class="simple">
+<li>severe</li>
+<li>keeptemp</li>
+<li>keepwork</li>
+<li>distlocks</li>
+<li>selinux</li>
+<li>sesandbox (selinux context sandbox)</li>
+<li>fixpackages</li>
+<li>notitles</li>
+</ul>
+<p>Unsupported, unlikely to be implemented:</p>
+<ul>
+<li><p class="first">noauto  (too tool-specific)</p>
+</li>
+<li><dl class="first docutils">
+<dt>mirror  (it&#8217;s possible to implement it via a custom fetcher,</dt>
+<dd><p class="first last">but there are better ways; use <tt class="docutils literal"><span class="pre">mirror-dist</span></tt> if you want a mirror)</p>
+</dd>
+</dl>
+</li>
+<li><p class="first">lmirror (same)</p>
+</li>
+</ul>
+<p>Aside from that... everything else make.conf wise should be supported with
+out issue- if not, please open a ticket at <a class="reference external" href="http://pkgcore.org/">http://pkgcore.org/</a></p>
+<p>For <tt class="docutils literal"><span class="pre">/etc/portage/</span></tt>, we don&#8217;t support modules (define custom cache modules)
+due the fact our cache subsystem has grown a bit beyond what got imported into
+Portage in 2.1; additionally, we do not support <tt class="docutils literal"><span class="pre">package.provided</span></tt>.</p>
+<p>For <tt class="docutils literal"><span class="pre">/etc/portage/package.*</span></tt> files, we support an extended atom syntax which
+can be used in place of normal atoms (It goes without saying Portage doesn&#8217;t
+support the extension yet, thus introducing incompatibility if used) - read
+extended-atom-syntax.rst for the details.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Overview</a><ul>
+<li><a class="reference internal" href="#features">FEATURES</a></li>
+</ul>
+</li>
+</ul>
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

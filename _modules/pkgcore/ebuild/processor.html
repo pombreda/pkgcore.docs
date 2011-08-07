@@ -1,0 +1,868 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.ebuild.processor &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.ebuild.processor</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2004-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">low level ebuild processor.</span>
+
+<span class="sd">This basically is a coprocessor that controls a bash daemon for actual</span>
+<span class="sd">ebuild execution. Via this, the bash side can reach into the python</span>
+<span class="sd">side (and vice versa), enabling remote trees (piping data from python</span>
+<span class="sd">side into bash side for example).</span>
+
+<span class="sd">A couple of processors are left lingering while pkgcore is running for</span>
+<span class="sd">the purpose of avoiding spawning overhead, this (and the general</span>
+<span class="sd">design) reduces regen time by over 40% compared to portage-2.1</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c"># this needs work. it&#39;s been pruned heavily from what ebd used</span>
+<span class="c"># originally, but it still isn&#39;t what I would define as &#39;right&#39;</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s">&quot;request_ebuild_processor&quot;</span><span class="p">,</span> <span class="s">&quot;release_ebuild_processor&quot;</span><span class="p">,</span> <span class="s">&quot;EbuildProcessor&quot;</span><span class="p">,</span>
+    <span class="s">&quot;UnhandledCommand&quot;</span><span class="p">,</span> <span class="s">&quot;expected_ebuild_env&quot;</span><span class="p">)</span>
+
+
+<span class="n">inactive_ebp_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">active_ebp_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="kn">import</span> <span class="nn">pkgcore.spawn</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">signal</span><span class="o">,</span> <span class="nn">errno</span><span class="o">,</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">pkgcore</span> <span class="kn">import</span> <span class="n">const</span><span class="p">,</span> <span class="n">os_data</span>
+<span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">const</span> <span class="k">as</span> <span class="n">e_const</span>
+
+<span class="kn">from</span> <span class="nn">snakeoil.currying</span> <span class="kn">import</span> <span class="n">post_curry</span><span class="p">,</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">klass</span>
+<span class="kn">from</span> <span class="nn">snakeoil.weakrefs</span> <span class="kn">import</span> <span class="n">WeakRefFinalizer</span>
+<span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="nb">any</span>
+<span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
+<span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
+    <span class="s">&#39;pkgcore.log:logger&#39;</span><span class="p">,</span>
+    <span class="s">&#39;snakeoil:osutils&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">_global_enable_eclass_preloading</span> <span class="o">=</span> <span class="bp">False</span>
+
+<span class="kn">import</span> <span class="nn">traceback</span>
+
+<span class="k">def</span> <span class="nf">shutdown_all_processors</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;kill off all known processors&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">active_ebp_list</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">active_ebp_list</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span><span class="o">.</span><span class="n">shutdown_processor</span><span class="p">(</span>
+                    <span class="n">ignore_keyboard_interrupt</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+                <span class="k">pass</span>
+
+        <span class="k">while</span> <span class="n">inactive_ebp_list</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">inactive_ebp_list</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span><span class="o">.</span><span class="n">shutdown_processor</span><span class="p">(</span>
+                    <span class="n">ignore_keyboard_interrupt</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+                <span class="k">pass</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span><span class="n">e</span><span class="p">:</span>
+        <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+        <span class="k">print</span> <span class="n">e</span>
+        <span class="k">raise</span>
+
+<span class="n">pkgcore</span><span class="o">.</span><span class="n">spawn</span><span class="o">.</span><span class="n">atexit_register</span><span class="p">(</span><span class="n">shutdown_all_processors</span><span class="p">)</span>
+
+<div class="viewcode-block" id="request_ebuild_processor"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.request_ebuild_processor">[docs]</a><span class="k">def</span> <span class="nf">request_ebuild_processor</span><span class="p">(</span><span class="n">userpriv</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">sandbox</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fakeroot</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                             <span class="n">save_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    request an ebuild_processor instance, creating a new one if needed.</span>
+
+<span class="sd">    Note that fakeroot processes are B{never} reused due to the fact</span>
+<span class="sd">    the fakeroot env becomes localized to the pkg it&#39;s handling.</span>
+
+<span class="sd">    :return: L{EbuildProcessor}</span>
+<span class="sd">    :param userpriv: should the processor be deprived to</span>
+<span class="sd">        L{pkgcore.os_data.portage_gid} and L{pkgcore.os_data.portage_uid}?</span>
+<span class="sd">    :param sandbox: should the processor be sandboxed?</span>
+<span class="sd">    :param fakeroot: should the processor be fakerooted?  This option is</span>
+<span class="sd">        mutually exclusive to sandbox, and requires save_file to be set.</span>
+<span class="sd">    :param save_file: location to store fakeroot state dumps</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">sandbox</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">sandbox</span> <span class="o">=</span> <span class="n">pkgcore</span><span class="o">.</span><span class="n">spawn</span><span class="o">.</span><span class="n">is_sandbox_capable</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">fakeroot</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">inactive_ebp_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">userprived</span><span class="p">()</span> <span class="o">==</span> <span class="n">userpriv</span> <span class="ow">and</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">sandboxed</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">sandbox</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">is_alive</span><span class="p">:</span>
+                    <span class="n">inactive_ebp_list</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="n">inactive_ebp_list</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="n">active_ebp_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">x</span>
+
+    <span class="n">e</span> <span class="o">=</span> <span class="n">EbuildProcessor</span><span class="p">(</span><span class="n">userpriv</span><span class="p">,</span> <span class="n">sandbox</span><span class="p">,</span> <span class="n">fakeroot</span><span class="p">,</span> <span class="n">save_file</span><span class="p">)</span>
+    <span class="n">active_ebp_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">e</span>
+
+</div>
+<div class="viewcode-block" id="release_ebuild_processor"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.release_ebuild_processor">[docs]</a><span class="k">def</span> <span class="nf">release_ebuild_processor</span><span class="p">(</span><span class="n">ebp</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    the inverse of request_ebuild_processor.</span>
+
+<span class="sd">    Any processor requested via request_ebuild_processor B{must} be released</span>
+<span class="sd">    via this function once it&#39;s no longer in use.</span>
+<span class="sd">    This includes fakerooted processors.</span>
+
+<span class="sd">    :param ebp: L{EbuildProcessor} instance</span>
+<span class="sd">    :return: boolean indicating release results- if the processor isn&#39;t known</span>
+<span class="sd">        as active, False is returned.</span>
+<span class="sd">        If a processor isn&#39;t known as active, this means either calling</span>
+<span class="sd">        error or an internal error.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">active_ebp_list</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ebp</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="k">assert</span> <span class="n">ebp</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">inactive_ebp_list</span>
+    <span class="c"># if it&#39;s a fakeroot&#39;d process, we throw it away.</span>
+    <span class="c"># it&#39;s not useful outside of a chain of calls</span>
+    <span class="k">if</span> <span class="n">ebp</span><span class="o">.</span><span class="n">onetime</span><span class="p">()</span> <span class="ow">or</span> <span class="n">ebp</span><span class="o">.</span><span class="n">locked</span><span class="p">:</span>
+        <span class="c"># ok, so the thing is not reusable either way.</span>
+        <span class="n">ebp</span><span class="o">.</span><span class="n">shutdown_processor</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">inactive_ebp_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ebp</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">True</span>
+
+</div>
+<span class="k">class</span> <span class="nc">ProcessingInterruption</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">FinishedProcessing</span><span class="p">(</span><span class="n">ProcessingInterruption</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">ProcessingInterruption</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s">&quot;Finished processing with val, </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">val</span><span class="p">,))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">val</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="n">val</span><span class="p">,</span> <span class="n">msg</span>
+
+<div class="viewcode-block" id="UnhandledCommand"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.UnhandledCommand">[docs]</a><span class="k">class</span> <span class="nc">UnhandledCommand</span><span class="p">(</span><span class="n">ProcessingInterruption</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">ProcessingInterruption</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s">&quot;unhandled command, </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">line</span><span class="p">,))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">=</span> <span class="n">line</span>
+</div>
+<span class="k">def</span> <span class="nf">chuck_KeyboardInterrupt</span><span class="p">(</span><span class="o">*</span><span class="n">arg</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">KeyboardInterrupt</span><span class="p">(</span><span class="s">&quot;ctrl+c encountered&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">chuck_UnhandledCommand</span><span class="p">(</span><span class="n">processor</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="n">UnhandledCommand</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">chuck_StoppingCommand</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">processor</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">FinishedProcessing</span><span class="p">(</span><span class="n">val</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="k">raise</span> <span class="n">FinishedProcessing</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">InitializationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+
+
+<div class="viewcode-block" id="EbuildProcessor"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor">[docs]</a><span class="k">class</span> <span class="nc">EbuildProcessor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;abstraction of a running ebuild.sh instance.</span>
+
+<span class="sd">    Contains the env, functions, etc that ebuilds expect.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">WeakRefFinalizer</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userpriv</span><span class="p">,</span> <span class="n">sandbox</span><span class="p">,</span> <span class="n">fakeroot</span><span class="p">,</span> <span class="n">save_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param sandbox: enables a sandboxed processor</span>
+<span class="sd">        :param userpriv: enables a userpriv&#39;d processor</span>
+<span class="sd">        :param fakeroot: enables a fakeroot&#39;d processor-</span>
+<span class="sd">            this is a mutually exclusive option to sandbox, and</span>
+<span class="sd">            requires userpriv to be enabled. Violating this will</span>
+<span class="sd">            result in nastyness.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ebd</span> <span class="o">=</span> <span class="n">e_const</span><span class="o">.</span><span class="n">EBUILD_DAEMON_PATH</span>
+        <span class="n">spawn_opts</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_preloaded_eclasses</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outstanding_expects</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata_paths</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">if</span> <span class="n">fakeroot</span> <span class="ow">and</span> <span class="p">(</span><span class="n">sandbox</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">userpriv</span><span class="p">):</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_stack</span><span class="p">()</span>
+            <span class="k">print</span> <span class="s">&quot;warning, was asking to enable fakeroot but-&quot;</span>
+            <span class="k">print</span> <span class="s">&quot;sandbox&quot;</span><span class="p">,</span> <span class="n">sandbox</span><span class="p">,</span> <span class="s">&quot;userpriv&quot;</span><span class="p">,</span> <span class="n">userpriv</span>
+            <span class="k">print</span> <span class="s">&quot;this isn&#39;t valid.  bailing&quot;</span>
+            <span class="k">raise</span> <span class="n">InitializationError</span><span class="p">(</span><span class="s">&quot;cannot initialize with sandbox and fakeroot&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">userpriv</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__userpriv</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">spawn_opts</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                    <span class="s">&quot;uid&quot;</span><span class="p">:</span><span class="n">os_data</span><span class="o">.</span><span class="n">portage_uid</span><span class="p">,</span> <span class="s">&quot;gid&quot;</span><span class="p">:</span><span class="n">os_data</span><span class="o">.</span><span class="n">portage_gid</span><span class="p">,</span>
+                    <span class="s">&quot;groups&quot;</span><span class="p">:[</span><span class="n">os_data</span><span class="o">.</span><span class="n">portage_gid</span><span class="p">],</span> <span class="s">&quot;umask&quot;</span><span class="p">:</span><span class="mo">002</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pkgcore</span><span class="o">.</span><span class="n">spawn</span><span class="o">.</span><span class="n">is_userpriv_capable</span><span class="p">():</span>
+                <span class="n">spawn_opts</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&quot;gid&quot;</span><span class="p">:</span><span class="n">os_data</span><span class="o">.</span><span class="n">portage_gid</span><span class="p">,</span>
+                                   <span class="s">&quot;groups&quot;</span><span class="p">:[</span><span class="mi">0</span><span class="p">,</span> <span class="n">os_data</span><span class="o">.</span><span class="n">portage_gid</span><span class="p">]})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__userpriv</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="c"># open the pipes to be used for chatting with the new daemon</span>
+        <span class="n">cread</span><span class="p">,</span> <span class="n">cwrite</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">pipe</span><span class="p">()</span>
+        <span class="n">dread</span><span class="p">,</span> <span class="n">dwrite</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">pipe</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__sandbox</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__fakeroot</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="c"># since it&#39;s questionable which spawn method we&#39;ll use (if</span>
+        <span class="c"># sandbox or fakeroot fex), we ensure the bashrc is invalid.</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="s">&quot;/etc/portage/spork/not/valid/ha/ha&quot;</span><span class="p">)</span>
+                   <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;BASHRC&quot;</span><span class="p">,</span> <span class="s">&quot;BASH_ENV&quot;</span><span class="p">))</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">sandbox</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">pkgcore</span><span class="o">.</span><span class="n">spawn</span><span class="o">.</span><span class="n">is_sandbox_capable</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;spawn lacks sandbox capabilities&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fakeroot</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InitializationError</span><span class="p">(</span><span class="s">&#39;fakeroot was on, but sandbox was also on&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__sandbox</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">spawn_func</span> <span class="o">=</span> <span class="n">pkgcore</span><span class="o">.</span><span class="n">spawn</span><span class="o">.</span><span class="n">spawn_sandbox</span>
+<span class="c">#            env.update({&quot;SANDBOX_DEBUG&quot;:&quot;1&quot;, &quot;SANDBOX_DEBUG_LOG&quot;:&quot;/var/tmp/test&quot;})</span>
+
+        <span class="k">elif</span> <span class="n">fakeroot</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">pkgcore</span><span class="o">.</span><span class="n">spawn</span><span class="o">.</span><span class="n">is_fakeroot_capable</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;spawn lacks fakeroot capabilities&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__fakeroot</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">spawn_func</span> <span class="o">=</span> <span class="n">pkgcore</span><span class="o">.</span><span class="n">spawn</span><span class="o">.</span><span class="n">spawn_fakeroot</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">save_file</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">spawn_func</span> <span class="o">=</span> <span class="n">pkgcore</span><span class="o">.</span><span class="n">spawn</span><span class="o">.</span><span class="n">spawn</span>
+
+        <span class="c"># force to a neutral dir so that sandbox/fakeroot won&#39;t explode if</span>
+        <span class="c"># ran from a nonexistant dir</span>
+        <span class="n">spawn_opts</span><span class="p">[</span><span class="s">&quot;chdir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">e_const</span><span class="o">.</span><span class="n">EAPI_BIN_PATH</span>
+        <span class="c"># little trick. we force the pipes to be high up fd wise so</span>
+        <span class="c"># nobody stupidly hits &#39;em.</span>
+        <span class="n">max_fd</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">pkgcore</span><span class="o">.</span><span class="n">spawn</span><span class="o">.</span><span class="n">max_fd_limit</span><span class="p">,</span> <span class="mi">1024</span><span class="p">)</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                <span class="s">&quot;EBD_READ_FD&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">max_fd</span> <span class="o">-</span><span class="mi">2</span><span class="p">),</span> <span class="s">&quot;EBD_WRITE_FD&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">max_fd</span> <span class="o">-</span><span class="mi">1</span><span class="p">)})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pid</span> <span class="o">=</span> <span class="n">spawn_func</span><span class="p">([</span><span class="s">&quot;/bin/bash&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebd</span><span class="p">,</span> <span class="s">&quot;daemonize&quot;</span><span class="p">],</span> \
+            <span class="n">fd_pipes</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_fd</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span><span class="n">cread</span><span class="p">,</span> <span class="n">max_fd</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="n">dwrite</span><span class="p">},</span> \
+            <span class="n">returnpid</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">spawn_opts</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">cread</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">dwrite</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ebd_write</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">fdopen</span><span class="p">(</span><span class="n">cwrite</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ebd_read</span>  <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">fdopen</span><span class="p">(</span><span class="n">dread</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span>
+
+        <span class="c"># basically a quick &quot;yo&quot; to the daemon</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;dude?&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="s">&quot;dude!&quot;</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s">&quot;error in server coms, bailing.&quot;</span>
+            <span class="k">raise</span> <span class="n">InitializationError</span><span class="p">(</span>
+                <span class="s">&quot;expected &#39;dude!&#39; response from ebd, which wasn&#39;t received. &quot;</span>
+                <span class="s">&quot;likely a bug&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">e_const</span><span class="o">.</span><span class="n">EAPI_BIN_PATH</span><span class="p">)</span>
+        <span class="c"># send PKGCORE_PYTHON_BINARY...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pkgcore</span><span class="o">.</span><span class="n">spawn</span><span class="o">.</span><span class="n">find_invoking_python</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">osutils</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">osutils</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">osutils</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="n">pkgcore</span><span class="o">.</span><span class="n">__file__</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">pardir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">pardir</span><span class="p">))))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sandbox</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;sandbox_log?&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__sandbox_log</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dont_export_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="c"># locking isn&#39;t used much, but w/ threading this will matter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unlock</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="EbuildProcessor.prep_phase"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.prep_phase">[docs]</a>    <span class="k">def</span> <span class="nf">prep_phase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">sandbox</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">logging</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Utility function, to initialize the processor for a phase.</span>
+
+<span class="sd">        Used to combine multiple calls into one, leaving the processor</span>
+<span class="sd">        in a state where all that remains is a call start_processing</span>
+<span class="sd">        call, then generic_handler event loop.</span>
+
+<span class="sd">        :param phase: phase to prep for</span>
+<span class="sd">        :type phase: str</span>
+<span class="sd">        :param env: mapping of the environment to prep the processor with</span>
+<span class="sd">        :param sandbox: should the sandbox be enabled?</span>
+<span class="sd">        :param logging: None, or a filepath to log the output from the</span>
+<span class="sd">            processor to</span>
+<span class="sd">        :return: True for success, False for everything else</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;process_ebuild </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">phase</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_env</span><span class="p">(</span><span class="n">env</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="n">sandbox</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_sandbox_state</span><span class="p">(</span><span class="n">sandbox</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">logging</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_logfile</span><span class="p">(</span><span class="n">logging</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="EbuildProcessor.sandboxed"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.sandboxed">[docs]</a>    <span class="k">def</span> <span class="nf">sandboxed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;is this instance sandboxed?&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sandbox</span>
+</div>
+<div class="viewcode-block" id="EbuildProcessor.userprived"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.userprived">[docs]</a>    <span class="k">def</span> <span class="nf">userprived</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;is this instance userprived?&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__userpriv</span>
+</div>
+<div class="viewcode-block" id="EbuildProcessor.fakerooted"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.fakerooted">[docs]</a>    <span class="k">def</span> <span class="nf">fakerooted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;is this instance fakerooted?&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__fakeroot</span>
+</div>
+<div class="viewcode-block" id="EbuildProcessor.onetime"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.onetime">[docs]</a>    <span class="k">def</span> <span class="nf">onetime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Is this instance going to be discarded after usage (fakerooted)?&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__fakeroot</span>
+</div>
+<div class="viewcode-block" id="EbuildProcessor.write"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">disable_runtime_exceptions</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="n">append_newline</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;send something to the bash side.</span>
+
+<span class="sd">        :param string: string to write to the bash processor.</span>
+<span class="sd">            All strings written are automatically \\n terminated.</span>
+<span class="sd">        :param flush: boolean controlling whether the data is flushed</span>
+<span class="sd">            immediately.  Disabling flush is useful when dumping large</span>
+<span class="sd">            amounts of data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">append_newline</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">string</span> <span class="o">!=</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">:</span>
+                    <span class="n">string</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="c">#print &quot;wrote %i: %s&quot; % (len(string), string)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ebd_write</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">flush</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ebd_write</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">IOError</span><span class="p">,</span> <span class="n">ie</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ie</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="n">errno</span><span class="o">.</span><span class="n">EPIPE</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">disable_runtime_exceptions</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">ie</span><span class="p">)</span>
+            <span class="k">raise</span>
+</div>
+    <span class="k">def</span> <span class="nf">_consume_async_expects</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outstanding_expects</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ebd_write</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">got</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">readlines</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_outstanding_expects</span><span class="p">))]</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">(</span><span class="n">got</span> <span class="o">==</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outstanding_expects</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outstanding_expects</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+<div class="viewcode-block" id="EbuildProcessor.expect"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.expect">[docs]</a>    <span class="k">def</span> <span class="nf">expect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">want</span><span class="p">,</span> <span class="n">async</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;read from the daemon, check if the returned string is expected.</span>
+
+<span class="sd">        :param want: string we&#39;re expecting</span>
+<span class="sd">        :return: boolean, was what was read == want?</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">async</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_outstanding_expects</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">flush</span><span class="p">,</span> <span class="n">want</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="n">flush</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ebd_write</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outstanding_expects</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">want</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outstanding_expects</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">flush</span><span class="p">,</span> <span class="n">want</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_consume_async_expects</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="EbuildProcessor.readlines"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.readlines">[docs]</a>    <span class="k">def</span> <span class="nf">readlines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">,</span> <span class="n">ignore_killed</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="n">mydata</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="n">lines</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">mydata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ebd_read</span><span class="o">.</span><span class="n">readline</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">mydata</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;killed&quot;</span><span class="p">):</span>
+<span class="c">#                self.shutdown_processor()</span>
+                <span class="n">chuck_KeyboardInterrupt</span><span class="p">()</span>
+            <span class="n">lines</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">mydata</span>
+</div>
+<div class="viewcode-block" id="EbuildProcessor.read"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ignore_killed</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        read data from the daemon.  Shouldn&#39;t be called except internally</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">readlines</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">ignore_killed</span><span class="o">=</span><span class="n">ignore_killed</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="EbuildProcessor.sandbox_summary"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.sandbox_summary">[docs]</a>    <span class="k">def</span> <span class="nf">sandbox_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">move_log</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        if the instance is sandboxed, print the sandbox access summary</span>
+
+<span class="sd">        :param move_log: location to move the sandbox log to if a failure</span>
+<span class="sd">            occured</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__sandbox_log</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;end_sandbox_summary&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="n">violations</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                      <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__sandbox_log</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">violations</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;end_sandbox_summary&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">move_log</span><span class="p">:</span>
+            <span class="n">move_log</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sandbox_log</span>
+        <span class="k">elif</span> <span class="n">move_log</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sandbox_log</span><span class="p">:</span>
+            <span class="n">myf</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">move_log</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">violations</span><span class="p">:</span>
+                <span class="n">myf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="n">myf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="c"># XXX this is fugly, use a colorizer or something</span>
+        <span class="c"># (but it is better than &quot;from output import red&quot; (portage&#39;s output))</span>
+        <span class="k">def</span> <span class="nf">red</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s">&#39;</span><span class="se">\x1b</span><span class="s">[31;1m</span><span class="si">%s</span><span class="se">\x1b</span><span class="s">[39;49;00m&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">text</span><span class="p">,)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ebd_write</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">red</span><span class="p">(</span>
+                <span class="s">&quot;--------------------------- ACCESS VIOLATION SUMMARY &quot;</span>
+                <span class="s">&quot;---------------------------&quot;</span><span class="p">)</span><span class="o">+</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ebd_write</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">red</span><span class="p">(</span><span class="s">&quot;LOG FILE = </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">move_log</span><span class="p">)</span><span class="o">+</span><span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">violations</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ebd_write</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">red</span><span class="p">(</span>
+                <span class="s">&quot;-----------------------------------------------------&quot;</span>
+                <span class="s">&quot;---------------------------&quot;</span><span class="p">)</span><span class="o">+</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;end_sandbox_summary&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__sandbox_log</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">),</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;exception caught when cleansing sandbox_log=</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+</div>
+<div class="viewcode-block" id="EbuildProcessor.preload_eclasses"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.preload_eclasses">[docs]</a>    <span class="k">def</span> <span class="nf">preload_eclasses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache</span><span class="p">,</span> <span class="n">async</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Preload an eclass stack&#39;s eclasses into a bash functions</span>
+
+<span class="sd">        Avoids the cost of going to disk on inherit. Preloading eutils</span>
+<span class="sd">        (which is heaviliy inherited) speeds up regen times for</span>
+<span class="sd">        example.</span>
+
+<span class="sd">        :param ec_file: filepath of eclass to preload</span>
+<span class="sd">        :return: boolean, True for success</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">eclass</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">cache</span><span class="o">.</span><span class="n">eclasses</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">eclass</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;.eclass&quot;</span>
+            <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preloaded_eclasses</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="bp">None</span><span class="p">):</span>
+                <span class="c">#print &quot;preloadding&quot;, fp</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preload_eclass</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">async</span><span class="o">=</span><span class="n">async</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_preloaded_eclasses</span><span class="p">[</span><span class="n">fp</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</div>
+    <span class="k">def</span> <span class="nf">_preload_eclass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ec_file</span><span class="p">,</span> <span class="n">async</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Preload an eclass into a bash function.</span>
+
+<span class="sd">        Avoids the cost of going to disk on inherit. Preloading eutils</span>
+<span class="sd">        (which is heaviliy inherited) speeds up regen times for</span>
+<span class="sd">        example.</span>
+
+<span class="sd">        :param ec_file: filepath of eclass to preload</span>
+<span class="sd">        :return: boolean, True for success</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">ec_file</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s">&quot;failed:&quot;</span><span class="p">,</span><span class="n">ec_file</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;preload_eclass </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">ec_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="s">&quot;preload_eclass succeeded&quot;</span><span class="p">,</span> <span class="n">async</span><span class="o">=</span><span class="n">async</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+<div class="viewcode-block" id="EbuildProcessor.lock"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.lock">[docs]</a>    <span class="k">def</span> <span class="nf">lock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        lock the processor.  Currently doesn&#39;t block any access, but will</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_lock</span> <span class="o">=</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="EbuildProcessor.unlock"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.unlock">[docs]</a>    <span class="k">def</span> <span class="nf">unlock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        unlock the processor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processing_lock</span> <span class="o">=</span> <span class="bp">False</span>
+</div>
+    <span class="n">locked</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&#39;processing_lock&#39;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="EbuildProcessor.is_alive"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.is_alive">[docs]</a>    <span class="k">def</span> <span class="nf">is_alive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        returns if it&#39;s known if the processor has been shutdown.</span>
+
+<span class="sd">        Currently doesn&#39;t check to ensure the pid is still running,</span>
+<span class="sd">        yet it should.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pid</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">False</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">True</span>
+            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                <span class="c"># pid is dead.</span>
+                <span class="k">pass</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pid</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="c"># thrown only if failure occured instantiation.</span>
+            <span class="k">return</span> <span class="bp">False</span>
+</div>
+<div class="viewcode-block" id="EbuildProcessor.shutdown_processor"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.shutdown_processor">[docs]</a>    <span class="k">def</span> <span class="nf">shutdown_processor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ignore_keyboard_interrupt</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        tell the daemon to shut itself down, and mark this instance as dead</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_alive</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;shutdown_daemon&quot;</span><span class="p">,</span> <span class="n">disable_runtime_exceptions</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ebd_write</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ebd_read</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">)</span>
+
+        <span class="c"># now we wait.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">waitpid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ignore_keyboard_interrupt</span><span class="p">:</span>
+                <span class="k">raise</span>
+
+        <span class="c"># currently, this assumes all went well.</span>
+        <span class="c"># which isn&#39;t always true.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pid</span> <span class="o">=</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="EbuildProcessor.set_sandbox_state"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.set_sandbox_state">[docs]</a>    <span class="k">def</span> <span class="nf">set_sandbox_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        tell the daemon whether to enable the sandbox, or disable it</span>
+<span class="sd">        :param state: boolean, if True enable sandbox</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">state</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;set_sandbox_state 1&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;set_sandbox_state 0&quot;</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_generate_env_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_dict</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">env_dict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dont_export_vars</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isalpha</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">env_dict</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">isalnum</span><span class="p">():</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">=</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="s">&quot;&#39;&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">=&#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">=$&#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\\</span><span class="s">&#39;&quot;</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="s">&#39;export </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data</span><span class="p">),)</span>
+
+<div class="viewcode-block" id="EbuildProcessor.send_env"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.send_env">[docs]</a>    <span class="k">def</span> <span class="nf">send_env</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_dict</span><span class="p">,</span> <span class="n">async</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        transfer the ebuild&#39;s desired env (env_dict) to the running daemon</span>
+
+<span class="sd">        :type env_dict: mapping with string keys and values.</span>
+<span class="sd">        :param env_dict: the bash env.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_env_str</span><span class="p">(</span><span class="n">env_dict</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;start_receiving_env bytes </span><span class="si">%i</span><span class="se">\n</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+            <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">data</span><span class="p">),</span> <span class="n">append_newline</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="s">&quot;env_received&quot;</span><span class="p">,</span> <span class="n">async</span><span class="o">=</span><span class="n">async</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="EbuildProcessor.set_logfile"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.set_logfile">[docs]</a>    <span class="k">def</span> <span class="nf">set_logfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the logfile (location to log to).</span>
+
+<span class="sd">        Relevant only when the daemon is sandbox&#39;d,</span>
+
+<span class="sd">        :param logfile: filepath to log to</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;logging </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">logfile</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="s">&quot;logging_ack&quot;</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;simply attempts to notify the daemon to die&quot;&quot;&quot;</span>
+        <span class="c"># for this to be reached means we ain&#39;t in a list no more.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_alive</span><span class="p">:</span>
+            <span class="c"># I&#39;d love to know why the exception wrapping is required...</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">shutdown_processor</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_ensure_metadata_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">):</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata_paths</span> <span class="o">==</span> <span class="n">paths</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="c"># filter here, so that a screwy default doesn&#39;t result in resetting it</span>
+        <span class="c"># every time.</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="s">&#39;:&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">paths</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;set_metadata_path </span><span class="si">%i</span><span class="se">\n</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">data</span><span class="p">),</span>
+            <span class="n">append_newline</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="s">&quot;metadata_path_received&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_metadata_paths</span> <span class="o">=</span> <span class="n">paths</span>
+
+<div class="viewcode-block" id="EbuildProcessor.get_keys"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.get_keys">[docs]</a>    <span class="k">def</span> <span class="nf">get_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">package_inst</span><span class="p">,</span> <span class="n">eclass_cache</span><span class="p">,</span> <span class="n">preload_eclasses</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        request the metadata be regenerated from an ebuild</span>
+
+<span class="sd">        :param package_inst: L{pkgcore.ebuild.ebuild_src.package} instance</span>
+<span class="sd">            to regenerate</span>
+<span class="sd">        :param eclass_cache: L{pkgcore.ebuild.eclass_cache} instance to use</span>
+<span class="sd">            for eclass access</span>
+<span class="sd">        :return: dict when successful, None when failed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">preload_eclasses</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">preload_eclasses</span> <span class="o">=</span> <span class="n">_global_enable_eclass_preloading</span>
+        <span class="k">if</span> <span class="n">preload_eclasses</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">preload_eclasses</span><span class="p">(</span><span class="n">eclass_cache</span><span class="p">,</span> <span class="n">async</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_metadata_paths</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">HOST_NONROOT_PATHS</span><span class="p">)</span>
+
+        <span class="n">e</span> <span class="o">=</span> <span class="n">expected_ebuild_env</span><span class="p">(</span><span class="n">package_inst</span><span class="p">,</span> <span class="n">depends</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_env_str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;gen_metadata </span><span class="si">%i</span><span class="se">\n</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">data</span><span class="p">),</span>
+            <span class="n">append_newline</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+        <span class="n">metadata_keys</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generic_handler</span><span class="p">(</span><span class="n">additional_commands</span><span class="o">=</span><span class="p">{</span>
+                <span class="s">&quot;request_inherit&quot;</span><span class="p">:</span> <span class="n">partial</span><span class="p">(</span><span class="n">inherit_handler</span><span class="p">,</span> <span class="n">eclass_cache</span><span class="p">),</span>
+                <span class="s">&quot;key&quot;</span><span class="p">:</span> <span class="n">post_curry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">_receive_key</span><span class="p">,</span> <span class="n">metadata_keys</span><span class="p">)})</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">val</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;returned val from get_keys was &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">metadata_keys</span>
+</div>
+    <span class="k">def</span> <span class="nf">_receive_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">keys_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        internal function used for receiving keys from the bash processor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">FinishedProcessing</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">keys_dict</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c"># this basically handles all hijacks from the daemon, whether</span>
+    <span class="c"># confcache or portageq.</span>
+<div class="viewcode-block" id="EbuildProcessor.generic_handler"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.generic_handler">[docs]</a>    <span class="k">def</span> <span class="nf">generic_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">additional_commands</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        internal event handler responding to the running processor&#39;s requests.</span>
+
+<span class="sd">        :type additional_commands: mapping from string to callable.</span>
+<span class="sd">        :param additional_commands: Extra command handlers.</span>
+<span class="sd">            Command names cannot have spaces.</span>
+<span class="sd">            The callable is called with the processor as first arg, and</span>
+<span class="sd">            remaining string (None if no remaining fragment) as second arg.</span>
+<span class="sd">            If you need to split the args to command, whitespace splitting</span>
+<span class="sd">            falls to your func.</span>
+
+<span class="sd">        :raise UnhandledCommand: thrown when an unknown command is encountered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># note that self is passed in. so... we just pass in the</span>
+        <span class="c"># unbound instance. Specifically, via digging through</span>
+        <span class="c"># __class__ if you don&#39;t do it, sandbox_summary (fex) cannot</span>
+        <span class="c"># be overriden, this func will just use this classes version.</span>
+        <span class="c"># so dig through self.__class__ for it. :P</span>
+
+        <span class="n">handlers</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;request_sandbox_summary&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">sandbox_summary</span><span class="p">}</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">chuck_UnhandledCommand</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;prob&quot;</span><span class="p">,</span> <span class="s">&quot;env_receiving_failed&quot;</span><span class="p">,</span> <span class="s">&quot;failed&quot;</span><span class="p">):</span>
+            <span class="n">handlers</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span>
+        <span class="k">del</span> <span class="n">f</span>
+
+        <span class="n">handlers</span><span class="p">[</span><span class="s">&quot;phases&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
+            <span class="n">chuck_StoppingCommand</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;succeeded&quot;</span><span class="p">)</span>
+
+        <span class="n">handlers</span><span class="p">[</span><span class="s">&quot;killed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">chuck_KeyboardInterrupt</span>
+
+        <span class="k">if</span> <span class="n">additional_commands</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">additional_commands</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">additional_commands</span><span class="p">[</span><span class="n">x</span><span class="p">]):</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">additional_commands</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
+
+            <span class="n">handlers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">additional_commands</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outstanding_expects</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_consume_async_expects</span><span class="p">():</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;error in daemon&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">UnhandledCommand</span><span class="p">(</span><span class="s">&quot;expects out of alignment&quot;</span><span class="p">)</span>
+            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="c"># split on first whitespace.</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">handlers</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+                    <span class="n">handlers</span><span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]](</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;unhandled command &#39;</span><span class="si">%s</span><span class="s">&#39;, line &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span>
+                                 <span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">line</span><span class="p">))</span>
+                    <span class="k">raise</span> <span class="n">UnhandledCommand</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">FinishedProcessing</span><span class="p">,</span> <span class="n">fp</span><span class="p">:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">val</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">unlock</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">v</span>
+</div></div>
+<span class="k">def</span> <span class="nf">inherit_handler</span><span class="p">(</span><span class="n">ecache</span><span class="p">,</span> <span class="n">ebp</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Callback for implementing inherit digging into eclass_cache.</span>
+
+<span class="sd">    Not for normal consumption.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">line</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">ebp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;failed&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">UnhandledCommand</span><span class="p">(</span>
+            <span class="s">&quot;inherit requires an eclass specified, none specified&quot;</span><span class="p">)</span>
+
+    <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">eclass</span> <span class="o">=</span> <span class="n">ecache</span><span class="o">.</span><span class="n">get_eclass</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">eclass</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">ebp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;failed&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">UnhandledCommand</span><span class="p">(</span>
+            <span class="s">&quot;inherit requires an unknown eclass, </span><span class="si">%s</span><span class="s"> cannot be found&quot;</span> <span class="o">%</span> <span class="n">line</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">eclass</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">ebp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;path&quot;</span><span class="p">)</span>
+        <span class="n">ebp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">eclass</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># XXX $10 this doesn&#39;t work.</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">eclass</span><span class="o">.</span><span class="n">text_fileobj</span><span class="p">()</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">ebp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;transfer&quot;</span><span class="p">)</span>
+        <span class="n">ebp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="expected_ebuild_env"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.expected_ebuild_env">[docs]</a><span class="k">def</span> <span class="nf">expected_ebuild_env</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">env_source_override</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">depends</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    setup expected ebuild vars</span>
+
+<span class="sd">    :param d: if None, generates a dict, else modifies a passed in mapping</span>
+<span class="sd">    :return: mapping</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">d</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">d</span><span class="p">[</span><span class="s">&quot;CATEGORY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">category</span>
+    <span class="n">d</span><span class="p">[</span><span class="s">&quot;PF&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">pkg</span><span class="o">.</span><span class="n">package</span><span class="p">,</span> <span class="n">pkg</span><span class="o">.</span><span class="n">fullver</span><span class="p">))</span>
+    <span class="n">d</span><span class="p">[</span><span class="s">&quot;P&quot;</span><span class="p">]</span>  <span class="o">=</span> <span class="s">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">pkg</span><span class="o">.</span><span class="n">package</span><span class="p">,</span> <span class="n">pkg</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+    <span class="n">d</span><span class="p">[</span><span class="s">&quot;PN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">package</span>
+    <span class="n">d</span><span class="p">[</span><span class="s">&quot;PV&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">version</span>
+    <span class="k">if</span> <span class="n">pkg</span><span class="o">.</span><span class="n">revision</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;PR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;r0&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;PR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;r</span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">pkg</span><span class="o">.</span><span class="n">revision</span>
+    <span class="n">d</span><span class="p">[</span><span class="s">&quot;PVR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">fullver</span>
+    <span class="k">if</span> <span class="n">env_source_override</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">env_source_override</span><span class="o">.</span><span class="n">path</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s">&quot;EBUILD&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">path</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;EBUILD&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">ebuild</span><span class="o">.</span><span class="n">path</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">depends</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">HOST_ROOT_PATHS</span><span class="p">)</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">osutils</span><span class="o">.</span><span class="n">pjoin</span><span class="p">(</span><span class="n">e_const</span><span class="o">.</span><span class="n">EBUILD_HELPERS_PATH</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">eapi</span><span class="p">)))</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">osutils</span><span class="o">.</span><span class="n">pjoin</span><span class="p">(</span><span class="n">e_const</span><span class="o">.</span><span class="n">EBUILD_HELPERS_PATH</span><span class="p">,</span> <span class="s">&quot;common&quot;</span><span class="p">))</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;PATH&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;:&quot;</span><span class="p">))</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;:&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">path</span><span class="p">))</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;PKGCORE_EAPI&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">eapi_obj</span><span class="o">.</span><span class="n">magic</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;INHERITED&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;_eclasses_&quot;</span><span class="p">,</span> <span class="p">()))</span>
+
+    <span class="k">if</span> <span class="s">&quot;PKGCORE_DEBUG&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;PKGCORE_DEBUG&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&quot;PKGCORE_DEBUG&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">d</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

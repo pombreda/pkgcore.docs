@@ -1,0 +1,260 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.config.dhcpformat &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="pkgcore.config" href="../config.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../config.html" accesskey="U">pkgcore.config</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.config.dhcpformat</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2005 Marien Zwart &lt;marienz@gentoo.org&gt;</span>
+<span class="c"># License: BSD/GPL2</span>
+
+<span class="sd">&quot;&quot;&quot;Parse a dhcpd.conf(5) style configuration file.</span>
+
+<span class="sd">Example of the supported format (not a complete config)::</span>
+
+<span class="sd">    # this is a comment.</span>
+<span class="sd">    # this is a config section.</span>
+<span class="sd">    metadata {</span>
+<span class="sd">        # strings may be quoted or unquoted. semicolon terminator.</span>
+<span class="sd">        type cache;</span>
+<span class="sd">        class pkgcore.cache.metadata.database;</span>
+<span class="sd">        # true, yes or 1 for boolean True (case-insensitive).</span>
+<span class="sd">        readonly true;</span>
+<span class="sd">        location /usr/portage/</span>
+<span class="sd">    }</span>
+
+<span class="sd">    # this needs to be quoted because it has a space in it</span>
+<span class="sd">    &quot;livefs domain&quot; {</span>
+<span class="sd">        # this could be unquoted.</span>
+<span class="sd">        type &quot;domain&quot;;</span>
+<span class="sd">        package.keywords &quot;/etc/portage/package.keywords&quot;;</span>
+<span class="sd">        default yes;</span>
+<span class="sd">        # this is a section reference, with a nested anonymous section.</span>
+<span class="sd">        repositories {</span>
+<span class="sd">            type repo;</span>
+<span class="sd">            class pkgcore.ebuild.repository.tree;</span>
+<span class="sd">            location /usr/portage;</span>
+<span class="sd">            # this is also a section reference, but instead of a nested section</span>
+<span class="sd">            # we refer to the named metadata section above</span>
+<span class="sd">            cache metadata;</span>
+<span class="sd">        };</span>
+<span class="sd">        fetcher {</span>
+<span class="sd">            type fetcher;</span>
+<span class="sd">            distdir /usr/portage/distfiles;</span>
+<span class="sd">        }</span>
+<span class="sd">    }</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;config_from_file&quot;</span><span class="p">,)</span>
+
+<span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">basics</span><span class="p">,</span> <span class="n">errors</span>
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">mappings</span><span class="p">,</span> <span class="n">modules</span><span class="p">,</span> <span class="n">demandload</span>
+<span class="n">demandload</span><span class="o">.</span><span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span> <span class="s">&#39;snakeoil.compatibility:all&#39;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">pyparsing</span> <span class="kn">as</span> <span class="nn">pyp</span>
+
+<span class="c"># this is based on the &#39;BIND named.conf parser&#39; on pyparsing&#39;s webpage</span>
+
+<span class="n">_section</span> <span class="o">=</span> <span class="n">pyp</span><span class="o">.</span><span class="n">Forward</span><span class="p">()</span>
+<span class="n">_value</span> <span class="o">=</span> <span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">alphanums</span> <span class="o">+</span> <span class="s">&#39;./_&#39;</span><span class="p">)</span> <span class="o">|</span>
+          <span class="n">pyp</span><span class="o">.</span><span class="n">quotedString</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">removeQuotes</span><span class="p">))</span>
+
+<span class="n">_section_contents</span> <span class="o">=</span> <span class="n">pyp</span><span class="o">.</span><span class="n">dictOf</span><span class="p">(</span>
+    <span class="n">_value</span><span class="p">,</span> <span class="n">pyp</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">OneOrMore</span><span class="p">(</span><span class="n">_value</span> <span class="o">|</span> <span class="n">_section</span><span class="p">))</span> <span class="o">+</span> <span class="n">pyp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&#39;;&#39;</span><span class="p">))</span>
+
+<span class="c"># &quot;statement seems to have no effect&quot;</span>
+<span class="c"># pylint: disable-msg=W0104</span>
+<span class="n">_section</span> <span class="o">&lt;&lt;</span> <span class="n">pyp</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&#39;{&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">_section_contents</span> <span class="o">+</span>
+                      <span class="n">pyp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&#39;}&#39;</span><span class="p">))</span>
+
+<span class="n">parser</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">pyp</span><span class="o">.</span><span class="n">stringStart</span> <span class="o">+</span>
+    <span class="n">pyp</span><span class="o">.</span><span class="n">dictOf</span><span class="p">(</span><span class="n">_value</span><span class="p">,</span> <span class="n">_section</span><span class="p">)</span><span class="o">.</span><span class="n">ignore</span><span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">pythonStyleComment</span><span class="p">)</span> <span class="o">+</span>
+    <span class="n">pyp</span><span class="o">.</span><span class="n">stringEnd</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">ConfigSection</span><span class="p">(</span><span class="n">basics</span><span class="o">.</span><span class="n">ConfigSection</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Expose a section_contents from pyparsing as a ConfigSection.</span>
+
+<span class="sd">    mke2fsformat also uses this.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section</span><span class="p">):</span>
+        <span class="n">basics</span><span class="o">.</span><span class="n">ConfigSection</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">section</span> <span class="o">=</span> <span class="n">section</span>
+
+    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">section</span>
+
+    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">section</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">central</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">section</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">arg_type</span> <span class="o">==</span> <span class="s">&#39;callable&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span><span class="s">&#39;only one argument required&#39;</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
+                    <span class="s">&#39;need a callable, not a section&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">modules</span><span class="o">.</span><span class="n">load_attribute</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">modules</span><span class="o">.</span><span class="n">FailedImport</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span><span class="s">&#39;cannot import </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="p">,))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%r</span><span class="s"> is not callable&#39;</span> <span class="o">%</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="k">elif</span> <span class="n">arg_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;ref:&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span><span class="s">&#39;only one argument required&#39;</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+                <span class="c"># it&#39;s a section ref</span>
+                <span class="k">return</span> <span class="n">basics</span><span class="o">.</span><span class="n">LazyNamedSectionRef</span><span class="p">(</span><span class="n">central</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># it&#39;s an anonymous inline section</span>
+                <span class="k">return</span> <span class="n">basics</span><span class="o">.</span><span class="n">LazyUnnamedSectionRef</span><span class="p">(</span><span class="n">central</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">,</span>
+                                                    <span class="n">ConfigSection</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">arg_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;refs:&#39;</span><span class="p">):</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+                    <span class="c"># it&#39;s a section ref</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">basics</span><span class="o">.</span><span class="n">LazyNamedSectionRef</span><span class="p">(</span>
+                            <span class="n">central</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">,</span> <span class="n">ref</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c"># it&#39;s an anonymous inline section</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">basics</span><span class="o">.</span><span class="n">LazyUnnamedSectionRef</span><span class="p">(</span>
+                            <span class="n">central</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">,</span> <span class="n">ConfigSection</span><span class="p">(</span><span class="n">ref</span><span class="p">)))</span>
+            <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="bp">None</span>
+        <span class="k">elif</span> <span class="n">arg_type</span> <span class="o">==</span> <span class="s">&#39;list&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+                <span class="c"># sequence</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="n">basics</span><span class="o">.</span><span class="n">list_parser</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="bp">None</span>
+        <span class="k">elif</span> <span class="n">arg_type</span> <span class="o">==</span> <span class="s">&#39;repr&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="s">&#39;str&#39;</span><span class="p">,</span> <span class="n">value</span>
+                <span class="k">return</span> <span class="s">&#39;ref&#39;</span><span class="p">,</span> <span class="n">ConfigSection</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">):</span>
+                <span class="k">return</span> <span class="s">&#39;list&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+                    <span class="n">v</span> <span class="o">=</span> <span class="n">ConfigSection</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s">&#39;refs&#39;</span><span class="p">,</span> <span class="n">result</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span><span class="s">&#39;only one argument required&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">basestring</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
+                    <span class="s">&#39;</span><span class="si">%r</span><span class="s"> should be a string&#39;</span> <span class="o">%</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">arg_type</span> <span class="o">==</span> <span class="s">&#39;str&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="n">basics</span><span class="o">.</span><span class="n">str_parser</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="bp">None</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">arg_type</span> <span class="o">==</span> <span class="s">&#39;bool&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">basics</span><span class="o">.</span><span class="n">bool_parser</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
+                    <span class="s">&#39;unsupported type </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">arg_type</span><span class="p">,))</span>
+
+
+<div class="viewcode-block" id="config_from_file"><a class="viewcode-back" href="../../../api/pkgcore.config.dhcpformat.html#pkgcore.config.dhcpformat.config_from_file">[docs]</a><span class="k">def</span> <span class="nf">config_from_file</span><span class="p">(</span><span class="n">file_obj</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parseFile</span><span class="p">(</span><span class="n">file_obj</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">pyp</span><span class="o">.</span><span class="n">ParseException</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">file_obj</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">file_obj</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">build_section</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ConfigSection</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">mappings</span><span class="o">.</span><span class="n">LazyValDict</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">keys</span><span class="p">,</span> <span class="n">build_section</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../config.html" >pkgcore.config</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

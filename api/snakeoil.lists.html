@@ -1,0 +1,276 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>snakeoil.lists &mdash; snakeoil v-trunk documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '-trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="snakeoil v-trunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="snakeoil.mappings" href="snakeoil.mappings.html" />
+    <link rel="prev" title="snakeoil.klass" href="snakeoil.klass.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.mappings.html" title="snakeoil.mappings"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.klass.html" title="snakeoil.klass"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-snakeoil.lists">
+<span id="snakeoil-lists"></span><h1>snakeoil.lists<a class="headerlink" href="#module-snakeoil.lists" title="Permalink to this headline">¶</a></h1>
+<p>sequence related operations and classes</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#snakeoil.lists.iter_stable_unique" title="snakeoil.lists.iter_stable_unique"><tt class="xref py py-obj docutils literal"><span class="pre">iter_stable_unique</span></tt></a>(iterable)</td>
+<td>Given a sequence, yield unique items while preserving ordering</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.lists.predicate_split" title="snakeoil.lists.predicate_split"><tt class="xref py py-obj docutils literal"><span class="pre">predicate_split</span></tt></a>(func,&nbsp;stream[,&nbsp;key])</td>
+<td>Given a stream and a function, split the stream into two sequences based on</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.lists.stable_unique" title="snakeoil.lists.stable_unique"><tt class="xref py py-obj docutils literal"><span class="pre">stable_unique</span></tt></a>(iterable)</td>
+<td>Given a sequence, return a list of the unique items while preserving ordering</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.lists.unstable_unique" title="snakeoil.lists.unstable_unique"><tt class="xref py py-obj docutils literal"><span class="pre">unstable_unique</span></tt></a>(sequence)</td>
+<td>Given a sequence, return a list of the unique items without preserving ordering</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#snakeoil.lists.ChainedLists" title="snakeoil.lists.ChainedLists"><tt class="xref py py-obj docutils literal"><span class="pre">ChainedLists</span></tt></a>(*lists)</td>
+<td>Given a set of sequences, this will act as a proxy to them without collapsing them into a single list.</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.lists.iflatten_func" title="snakeoil.lists.iflatten_func"><tt class="xref py py-obj docutils literal"><span class="pre">iflatten_func</span></tt></a></td>
+<td>iflatten_func(iters, func): collapse [(1),2] into [1,2]</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.lists.iflatten_instance" title="snakeoil.lists.iflatten_instance"><tt class="xref py py-obj docutils literal"><span class="pre">iflatten_instance</span></tt></a></td>
+<td>iflatten_func(iters, skip_flattening=basestring)</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="snakeoil.lists.unstable_unique">
+<tt class="descclassname">snakeoil.lists.</tt><tt class="descname">unstable_unique</tt><big>(</big><em>sequence</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/lists.html#unstable_unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.lists.unstable_unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a sequence, return a list of the unique items without preserving ordering</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="snakeoil.lists.stable_unique">
+<tt class="descclassname">snakeoil.lists.</tt><tt class="descname">stable_unique</tt><big>(</big><em>iterable</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/lists.html#stable_unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.lists.stable_unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a sequence, return a list of the unique items while preserving ordering</p>
+<p>For performance reasons, only use this if you really do need to preserve the ordering.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="snakeoil.lists.iter_stable_unique">
+<tt class="descclassname">snakeoil.lists.</tt><tt class="descname">iter_stable_unique</tt><big>(</big><em>iterable</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/lists.html#iter_stable_unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.lists.iter_stable_unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a sequence, yield unique items while preserving ordering</p>
+<p>For performance reasons, only use this if you really do need to preserve the ordering.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="snakeoil.lists.iflatten_instance">
+<em class="property">class </em><tt class="descclassname">snakeoil.lists.</tt><tt class="descname">iflatten_instance</tt><a class="headerlink" href="#snakeoil.lists.iflatten_instance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>iflatten_func(iters, skip_flattening=basestring)</p>
+<p>collapse [(1),2] into [1,2]
+skip_flattening is a list of classes to not descend through</p>
+<dl class="attribute">
+<dt id="snakeoil.lists.iflatten_instance.next">
+<tt class="descname">next</tt><a class="headerlink" href="#snakeoil.lists.iflatten_instance.next" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.next() -&gt; the next value, or raise StopIteration</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="snakeoil.lists.iflatten_func">
+<em class="property">class </em><tt class="descclassname">snakeoil.lists.</tt><tt class="descname">iflatten_func</tt><a class="headerlink" href="#snakeoil.lists.iflatten_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>iflatten_func(iters, func): collapse [(1),2] into [1,2]</p>
+<p>func is called with one argument and should return true if this 
+should not be iterated over.</p>
+<dl class="attribute">
+<dt id="snakeoil.lists.iflatten_func.next">
+<tt class="descname">next</tt><a class="headerlink" href="#snakeoil.lists.iflatten_func.next" title="Permalink to this definition">¶</a></dt>
+<dd><p>x.next() -&gt; the next value, or raise StopIteration</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="snakeoil.lists.ChainedLists">
+<em class="property">class </em><tt class="descclassname">snakeoil.lists.</tt><tt class="descname">ChainedLists</tt><big>(</big><em>*lists</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/lists.html#ChainedLists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.lists.ChainedLists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Given a set of sequences, this will act as a proxy to them without collapsing them
+into a single list.</p>
+<p>This is primarily useful when you&#8217;re dealing in large sets (or custom sequence objects),
+and do not want to collapse them into one sequence- but you still want to be able to access
+them as if they were one sequence.</p>
+<p>Note that while you can add more lists onto this, you cannot directly change the underlying
+lists through this class.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">snakeoil.lists</span> <span class="kn">import</span> <span class="n">ChainedLists</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">l1</span><span class="p">,</span> <span class="n">l2</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cl</span> <span class="o">=</span> <span class="n">ChainedLists</span><span class="p">(</span><span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">cl</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+<span class="go">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">cl</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+<span class="go">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">cl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="mi">4</span> <span class="ow">in</span> <span class="n">cl</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="nb">len</span><span class="p">(</span><span class="n">cl</span><span class="p">)</span>
+<span class="go">7</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">9</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="gr">TypeError</span>: <span class="n">not mutable</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="snakeoil.lists.ChainedLists.append">
+<tt class="descname">append</tt><big>(</big><em>item</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/lists.html#ChainedLists.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.lists.ChainedLists.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>L.append(object) &#8211; append object to end</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.lists.ChainedLists.extend">
+<tt class="descname">extend</tt><big>(</big><em>items</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/lists.html#ChainedLists.extend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.lists.ChainedLists.extend" title="Permalink to this definition">¶</a></dt>
+<dd><p>L.extend(iterable) &#8211; extend list by appending elements from the iterable</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="snakeoil.lists.predicate_split">
+<tt class="descclassname">snakeoil.lists.</tt><tt class="descname">predicate_split</tt><big>(</big><em>func</em>, <em>stream</em>, <em>key=None</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/lists.html#predicate_split"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.lists.predicate_split" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a stream and a function, split the stream into two sequences based on
+the results of the func for that item</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>func</strong> &#8211; function to invoke with the item; function must return True or False</li>
+<li><strong>stream</strong> &#8211; iterable to split into two sequences</li>
+<li><strong>key</strong> &#8211; if set, a function to use to pull the attribute to inspect.  Basically
+the same sort of trick as the key paramater for <a class="reference external" href="http://docs.python.org/library/functions.html#sorted" title="(in Python v2.7)"><tt class="xref py py-func docutils literal"><span class="pre">sorted()</span></tt></a></li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">two lists, the first a list of everything that was False, the second a
+list of everything that was True</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Example Usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">snakeoil.lists</span> <span class="kn">import</span> <span class="n">predicate_split</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">odd</span><span class="p">,</span> <span class="n">even</span> <span class="o">=</span> <span class="n">predicate_split</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">odd</span> <span class="o">==</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">even</span> <span class="o">==</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="snakeoil.klass.html"
+                        title="previous chapter">snakeoil.klass</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="snakeoil.mappings.html"
+                        title="next chapter">snakeoil.mappings</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.mappings.html" title="snakeoil.mappings"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.klass.html" title="snakeoil.klass"
+             >previous</a> |</li>
+        <li><a href="../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

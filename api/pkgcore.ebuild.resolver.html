@@ -1,0 +1,190 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.ebuild.resolver &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.ebuild.triggers" href="pkgcore.ebuild.triggers.html" />
+    <link rel="prev" title="pkgcore.ebuild.repository" href="pkgcore.ebuild.repository.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.triggers.html" title="pkgcore.ebuild.triggers"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.repository.html" title="pkgcore.ebuild.repository"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.ebuild.resolver">
+<span id="pkgcore-ebuild-resolver"></span><h1>pkgcore.ebuild.resolver<a class="headerlink" href="#module-pkgcore.ebuild.resolver" title="Permalink to this headline">¶</a></h1>
+<p>resolver configuration to match portage behaviour (misbehaviour in a few spots)</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.resolver.min_install_resolver" title="pkgcore.ebuild.resolver.min_install_resolver"><tt class="xref py py-obj docutils literal"><span class="pre">min_install_resolver</span></tt></a>(vdbs,&nbsp;dbs,&nbsp;**kwds[,&nbsp;...])</td>
+<td>Resolver that tries to minimize the number of changes while installing.</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.resolver.upgrade_resolver" title="pkgcore.ebuild.resolver.upgrade_resolver"><tt class="xref py py-obj docutils literal"><span class="pre">upgrade_resolver</span></tt></a>(vdbs,&nbsp;dbs,&nbsp;**kwds[,&nbsp;...])</td>
+<td>generate and configure a resolver for upgrading all processed nodes.</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="pkgcore.ebuild.resolver.upgrade_resolver">
+<tt class="descclassname">pkgcore.ebuild.resolver.</tt><tt class="descname">upgrade_resolver</tt><big>(</big><em>vdbs</em>, <em>dbs</em>, <em>verify_vdb=True</em>, <em>nodeps=False</em>, <em>force_replacement=False</em>, <em>resolver_cls=&lt;class 'pkgcore.resolver.plan.merge_plan'&gt;</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/resolver.html#upgrade_resolver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.resolver.upgrade_resolver" title="Permalink to this definition">¶</a></dt>
+<dd><p>generate and configure a resolver for upgrading all processed nodes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>vdbs</strong> &#8211; list of L{pkgcore.repository.prototype.tree} instances
+that represents the livefs</li>
+<li><strong>dbs</strong> &#8211; list of L{pkgcore.repository.prototype.tree} instances
+representing sources of pkgs</li>
+<li><strong>verify_vdb</strong> &#8211; should we stop resolving once we hit the vdb,
+or do full resolution?</li>
+<li><strong>force_vdb_virtuals</strong> &#8211; old style portage virtuals (non metapkgs)
+cannot be technically sorted since their versions are from multiple
+packages bleeding through- results make no sense essentially.
+You want this option enabled if you&#8217;re dealing in old style virtuals.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">L{pkgcore.resolver.plan.merge_plan} instance</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.resolver.min_install_resolver">
+<tt class="descclassname">pkgcore.ebuild.resolver.</tt><tt class="descname">min_install_resolver</tt><big>(</big><em>vdbs</em>, <em>dbs</em>, <em>verify_vdb=True</em>, <em>force_vdb_virtuals=True</em>, <em>force_replacement=False</em>, <em>resolver_cls=&lt;class 'pkgcore.resolver.plan.merge_plan'&gt;</em>, <em>nodeps=False</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/resolver.html#min_install_resolver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.resolver.min_install_resolver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resolver that tries to minimize the number of changes while installing.</p>
+<p>generate and configure a resolver that is focused on just
+installing requests- installs highest version it can build a
+solution for, but tries to avoid building anything not needed</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>vdbs</strong> &#8211; list of L{pkgcore.repository.prototype.tree} instances
+that represents the livefs</li>
+<li><strong>dbs</strong> &#8211; list of L{pkgcore.repository.prototype.tree} instances
+representing sources of pkgs</li>
+<li><strong>verify_vdb</strong> &#8211; should we stop resolving once we hit the vdb,
+or do full resolution?</li>
+<li><strong>force_vdb_virtuals</strong> &#8211; old style portage virtuals (non metapkgs)
+cannot be technically sorted since their versions are from multiple
+packages bleeding through- results make no sense essentially.
+You want this option enabled if you&#8217;re dealing in old style virtuals.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">L{pkgcore.resolver.plan.merge_plan} instance</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.repository.html"
+                        title="previous chapter">pkgcore.ebuild.repository</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.triggers.html"
+                        title="next chapter">pkgcore.ebuild.triggers</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.triggers.html" title="pkgcore.ebuild.triggers"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.repository.html" title="pkgcore.ebuild.repository"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

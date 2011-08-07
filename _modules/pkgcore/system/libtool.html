@@ -1,0 +1,236 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.system.libtool &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.system.libtool</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2010 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD 3 clause</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;UnknownData&quot;</span><span class="p">,</span> <span class="s">&quot;FixLibtoolArchivesTrigger&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">snakeoil.lists</span> <span class="kn">import</span> <span class="n">stable_unique</span>
+<span class="kn">from</span> <span class="nn">snakeoil.currying</span> <span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">post_curry</span>
+<span class="kn">from</span> <span class="nn">snakeoil.data_source</span> <span class="kn">import</span> <span class="n">local_source</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">basename</span><span class="p">,</span> <span class="n">dirname</span>
+<span class="kn">import</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">operator</span>
+
+<span class="kn">from</span> <span class="nn">pkgcore.merge</span> <span class="kn">import</span> <span class="n">triggers</span>
+
+<span class="n">x11_sub</span> <span class="o">=</span> <span class="n">post_curry</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;X11R6/+lib&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sub</span><span class="p">,</span>
+    <span class="s">&quot;lib&quot;</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">local_sub</span> <span class="o">=</span> <span class="n">post_curry</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;local/+lib&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sub</span><span class="p">,</span>
+    <span class="s">&quot;lib&quot;</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">pkgconfig1_sub</span> <span class="o">=</span> <span class="n">post_curry</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;usr/+lib[^/]*/+pkgconfig/+\.\./\.\.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sub</span><span class="p">,</span>
+    <span class="s">&quot;usr&quot;</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">pkgconfig2_sub</span> <span class="o">=</span> <span class="n">post_curry</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;usr/+lib[^/]*/+pkgconfig/+\.\.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sub</span><span class="p">,</span>
+    <span class="s">&quot;usr&quot;</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">flags_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;-(?:mt|mthreads|kthread|Kthread|pthread&quot;</span>
+    <span class="s">&quot;|pthreads|-thread-safe|threads)&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span>
+
+<span class="n">template</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;# </span><span class="si">%(file)s</span><span class="s"> - a libtool library file</span>
+<span class="s"># Generated by ltmain.sh - GNU libtool 1.5.10 (1.1220.2.130 2004/09/19 12:13:49)</span>
+<span class="si">%(content)s</span><span class="s"></span>
+<span class="s">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="UnknownData"><a class="viewcode-back" href="../../../api/pkgcore.system.libtool.html#pkgcore.system.libtool.UnknownData">[docs]</a><span class="k">class</span> <span class="nc">UnknownData</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">=</span> <span class="n">token</span><span class="p">,</span> <span class="n">line</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s">&quot;we don&#39;t know how to parse line </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="p">,)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s">&quot;specifically token </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="p">,)</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+<span class="c"># libtiff.la - a libtool library file</span>
+<span class="c"># Generated by ltmain.sh - GNU libtool 1.5.10 (1.1220.2.130 2004/09/19 12:13:49)</span></div>
+<span class="k">def</span> <span class="nf">parse_lafile</span><span class="p">(</span><span class="n">handle</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">handle</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;#&quot;</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnknownData</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="c"># &#39; is specifically forced by libtdl implementation</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">val</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;&#39;&quot;</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+    <span class="k">return</span> <span class="n">d</span>
+
+
+<span class="k">def</span> <span class="nf">rewrite_lafile</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">parse_lafile</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+    <span class="n">raw_dep_libs</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;dependency_libs&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">raw_dep_libs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">None</span>
+
+    <span class="n">original_libs</span> <span class="o">=</span> <span class="n">raw_dep_libs</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">rpaths</span><span class="p">,</span> <span class="n">libs</span><span class="p">,</span> <span class="n">libladirs</span><span class="p">,</span> <span class="n">inherited_flags</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="n">original_inherited_flags</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;inherited_linker_flags&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">stable_unique</span><span class="p">(</span><span class="n">original_libs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;-l&quot;</span><span class="p">):</span>
+            <span class="n">libs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">item</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.la&quot;</span><span class="p">):</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="n">basename</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">base</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;lib&quot;</span><span class="p">):</span>
+                <span class="c"># convert to -l; punt .la, and &#39;lib&#39; prefix</span>
+                <span class="n">libs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;-l&quot;</span> <span class="o">+</span> <span class="n">base</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">3</span><span class="p">])</span>
+                <span class="n">libladirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;-L&quot;</span> <span class="o">+</span> <span class="n">dirname</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">libs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">item</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;-L&quot;</span><span class="p">):</span>
+                <span class="c"># this is heinous, but is what the script did.</span>
+                <span class="n">item</span> <span class="o">=</span> <span class="n">x11_sub</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="n">item</span> <span class="o">=</span> <span class="n">local_sub</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="n">item</span> <span class="o">=</span> <span class="n">pkgconfig1_sub</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="n">item</span> <span class="o">=</span> <span class="n">pkgconfig2_sub</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="n">libladirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">item</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;-R&quot;</span><span class="p">):</span>
+            <span class="n">rpaths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">flags_match</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">inherited_flags</span><span class="p">:</span>
+                <span class="n">inherited_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">libs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnknownData</span><span class="p">(</span><span class="n">raw_dep_libs</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+    <span class="n">libs</span> <span class="o">=</span> <span class="n">stable_unique</span><span class="p">(</span><span class="n">rpaths</span> <span class="o">+</span> <span class="n">libladirs</span> <span class="o">+</span> <span class="n">libs</span><span class="p">)</span>
+    <span class="n">inherited_flags</span> <span class="o">=</span> <span class="n">stable_unique</span><span class="p">(</span><span class="n">inherited_flags</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">libs</span> <span class="o">==</span> <span class="n">original_libs</span> <span class="ow">and</span> <span class="n">inherited_flags</span> <span class="o">==</span> <span class="n">original_inherited_flags</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">None</span>
+
+    <span class="c"># must be prefixed with a space</span>
+    <span class="n">data</span><span class="p">[</span><span class="s">&quot;dependency_libs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39; &#39;</span> <span class="o">+</span> <span class="p">(</span><span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">libs</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">inherited_flags</span><span class="p">:</span>
+        <span class="c"># must be prefixed with a space</span>
+        <span class="n">data</span><span class="p">[</span><span class="s">&quot;inherited_flags&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39; &#39;</span> <span class="o">+</span> <span class="p">(</span><span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inherited_flags</span><span class="p">))</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">=&#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="bp">True</span><span class="p">,</span> <span class="n">template</span> <span class="o">%</span> <span class="p">{</span><span class="s">&quot;content&quot;</span><span class="p">:</span><span class="n">content</span><span class="p">,</span> <span class="s">&quot;file&quot;</span><span class="p">:</span><span class="n">filename</span><span class="p">}</span>
+
+<span class="k">def</span> <span class="nf">fix_fsobject</span><span class="p">(</span><span class="n">location</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">pkgcore.fs</span> <span class="kn">import</span> <span class="n">livefs</span><span class="p">,</span> <span class="n">fs</span>
+    <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">livefs</span><span class="o">.</span><span class="n">iter_scan</span><span class="p">(</span><span class="n">location</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fs</span><span class="o">.</span><span class="n">isreg</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">basename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.la&quot;</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="n">updated</span><span class="p">,</span> <span class="n">content</span> <span class="o">=</span> <span class="n">rewrite_lafile</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">updated</span><span class="p">:</span>
+            <span class="nb">open</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="FixLibtoolArchivesTrigger"><a class="viewcode-back" href="../../../api/pkgcore.system.libtool.html#pkgcore.system.libtool.FixLibtoolArchivesTrigger">[docs]</a><span class="k">class</span> <span class="nc">FixLibtoolArchivesTrigger</span><span class="p">(</span><span class="n">triggers</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
+
+    <span class="n">required_csets</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;install&#39;</span><span class="p">,)</span>
+    <span class="n">_engine_types</span> <span class="o">=</span> <span class="n">triggers</span><span class="o">.</span><span class="n">INSTALLING_MODES</span>
+    <span class="n">_hooks</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;pre_merge&#39;</span><span class="p">,)</span>
+
+<div class="viewcode-block" id="FixLibtoolArchivesTrigger.trigger"><a class="viewcode-back" href="../../../api/pkgcore.system.libtool.html#pkgcore.system.libtool.FixLibtoolArchivesTrigger.trigger">[docs]</a>    <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">cset</span><span class="p">):</span>
+        <span class="n">updates</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">cset</span><span class="o">.</span><span class="n">iterfiles</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">basename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.la&quot;</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">handle</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">text_fileobj</span><span class="p">()</span>
+            <span class="n">updated</span><span class="p">,</span> <span class="n">content</span> <span class="o">=</span> <span class="n">rewrite_lafile</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">basename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">updated</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">engine</span><span class="o">.</span><span class="n">observer</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;rewriting libtool archive </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">location</span><span class="p">,))</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">get_writable_fsobj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">empty</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">text_fileobj</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+            <span class="c"># force chksums to be regenerated</span>
+            <span class="n">updates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">change_attributes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">source</span><span class="p">,</span>
+                <span class="n">chksums</span><span class="o">=</span><span class="bp">None</span><span class="p">))</span>
+        <span class="n">cset</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">updates</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

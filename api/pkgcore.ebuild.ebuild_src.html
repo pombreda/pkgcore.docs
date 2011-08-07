@@ -1,0 +1,708 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.ebuild.ebuild_src &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.ebuild.eclass_cache" href="pkgcore.ebuild.eclass_cache.html" />
+    <link rel="prev" title="pkgcore.ebuild.ebuild_built" href="pkgcore.ebuild.ebuild_built.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.eclass_cache.html" title="pkgcore.ebuild.eclass_cache"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.ebuild_built.html" title="pkgcore.ebuild.ebuild_built"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.ebuild.ebuild_src">
+<span id="pkgcore-ebuild-ebuild-src"></span><h1>pkgcore.ebuild.ebuild_src<a class="headerlink" href="#module-pkgcore.ebuild.ebuild_src" title="Permalink to this headline">¶</a></h1>
+<p>package class for buildable ebuilds</p>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.ebuild_src.base" title="pkgcore.ebuild.ebuild_src.base"><tt class="xref py py-obj docutils literal"><span class="pre">base</span></tt></a>(parent_repository,&nbsp;*a,&nbsp;**kwds)</td>
+<td>ebuild package</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.ebuild_src.package" title="pkgcore.ebuild.ebuild_src.package"><tt class="xref py py-obj docutils literal"><span class="pre">package</span></tt></a>(shared_pkg_data,&nbsp;*args,&nbsp;**kwargs)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.ebuild_src.package_factory" title="pkgcore.ebuild.ebuild_src.package_factory"><tt class="xref py py-obj docutils literal"><span class="pre">package_factory</span></tt></a>(parent,&nbsp;cachedb,&nbsp;...)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.ebuild_src.virtual_ebuild" title="pkgcore.ebuild.ebuild_src.virtual_ebuild"><tt class="xref py py-obj docutils literal"><span class="pre">virtual_ebuild</span></tt></a>(parent_repository,&nbsp;pkg,&nbsp;data,&nbsp;...)</td>
+<td>PROVIDES generated fake packages</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="pkgcore.ebuild.ebuild_src.base">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.ebuild_src.</tt><tt class="descname">base</tt><big>(</big><em>parent_repository</em>, <em>*a</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/ebuild_src.html#base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pkgcore.package.metadata.html#pkgcore.package.metadata.package" title="pkgcore.package.metadata.package"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.package.metadata.package</span></tt></a></p>
+<p>ebuild package</p>
+<dl class="docutils">
+<dt>&#64;cvar tracked_attributes: sequence of attributes that are required to exist</dt>
+<dd>in the built version of ebuild-src</dd>
+<dt>&#64;cvar _config_wrappables: mapping of attribute to callable for</dt>
+<dd>re-evaluating attributes dependant on configuration</dd>
+</dl>
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.P">
+<tt class="descname">P</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/ebuild_src.html#base.P"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.P" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.PF">
+<tt class="descname">PF</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/ebuild_src.html#base.PF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.PF" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.PN">
+<tt class="descname">PN</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.PN" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to package</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.PR">
+<tt class="descname">PR</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/ebuild_src.html#base.PR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.PR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.ebuild_src.base.add_format_triggers">
+<tt class="descname">add_format_triggers</tt><big>(</big><em>op_inst</em>, <em>format_op_inst</em>, <em>engine_inst</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.add_format_triggers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.category">
+<tt class="descname">category</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.category" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.cpvstr">
+<tt class="descname">cpvstr</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.cpvstr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.data">
+<tt class="descname">data</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.defined_phases">
+<tt class="descname">defined_phases</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.defined_phases" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.depends">
+<tt class="descname">depends</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.depends" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.description">
+<tt class="descname">description</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.eapi">
+<tt class="descname">eapi</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/ebuild_src.html#base.eapi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.eapi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.eapi_obj">
+<tt class="descname">eapi_obj</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.eapi_obj" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.ebuild">
+<tt class="descname">ebuild</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/ebuild_src.html#base.ebuild"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.ebuild" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.fetchables">
+<tt class="descname">fetchables</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.fetchables" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.fullver">
+<tt class="descname">fullver</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.fullver" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.homepage">
+<tt class="descname">homepage</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.homepage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.iuse">
+<tt class="descname">iuse</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.iuse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.key">
+<tt class="descname">key</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.keywords">
+<tt class="descname">keywords</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.keywords" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.license">
+<tt class="descname">license</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.license" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.ebuild_src.base.operations">
+<tt class="descname">operations</tt><big>(</big><em>domain</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.operations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.package">
+<tt class="descname">package</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.package" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.path">
+<tt class="descname">path</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/ebuild_src.html#base.path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.post_rdepends">
+<tt class="descname">post_rdepends</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.post_rdepends" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.properties">
+<tt class="descname">properties</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.provides">
+<tt class="descname">provides</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.provides" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.rdepends">
+<tt class="descname">rdepends</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.rdepends" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.ebuild_src.base.release_cached_data">
+<tt class="descname">release_cached_data</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.release_cached_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.repo">
+<tt class="descname">repo</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.repo" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to _parent._parent_repo</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.required_use">
+<tt class="descname">required_use</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.required_use" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.restrict">
+<tt class="descname">restrict</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.restrict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.revision">
+<tt class="descname">revision</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.revision" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.slot">
+<tt class="descname">slot</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.slot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.slotted_atom">
+<tt class="descname">slotted_atom</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.slotted_atom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.ebuild_src.base.unversioned">
+<em class="property">classmethod </em><tt class="descname">unversioned</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.unversioned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.unversioned_atom">
+<tt class="descname">unversioned_atom</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.unversioned_atom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.version">
+<tt class="descname">version</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.ebuild_src.base.versioned">
+<em class="property">classmethod </em><tt class="descname">versioned</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.versioned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.base.versioned_atom">
+<tt class="descname">versioned_atom</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.base.versioned_atom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.ebuild_src.package">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.ebuild_src.</tt><tt class="descname">package</tt><big>(</big><em>shared_pkg_data</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/ebuild_src.html#package"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.ebuild.ebuild_src.base" title="pkgcore.ebuild.ebuild_src.base"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.ebuild.ebuild_src.base</span></tt></a></p>
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.P">
+<tt class="descname">P</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.P" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.PF">
+<tt class="descname">PF</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.PF" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.PN">
+<tt class="descname">PN</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.PN" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to package</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.PR">
+<tt class="descname">PR</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.PR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.ebuild_src.package.add_format_triggers">
+<tt class="descname">add_format_triggers</tt><big>(</big><em>op_inst</em>, <em>format_op_inst</em>, <em>engine_inst</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.add_format_triggers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.category">
+<tt class="descname">category</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.category" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.cpvstr">
+<tt class="descname">cpvstr</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.cpvstr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.data">
+<tt class="descname">data</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.defined_phases">
+<tt class="descname">defined_phases</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.defined_phases" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.depends">
+<tt class="descname">depends</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.depends" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.description">
+<tt class="descname">description</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.eapi">
+<tt class="descname">eapi</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.eapi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.eapi_obj">
+<tt class="descname">eapi_obj</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.eapi_obj" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.ebuild">
+<tt class="descname">ebuild</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.ebuild" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.fetchables">
+<tt class="descname">fetchables</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.fetchables" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.fullver">
+<tt class="descname">fullver</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.fullver" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.herds">
+<tt class="descname">herds</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.herds" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to _shared_pkg_data.metadata_xml.herds</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.homepage">
+<tt class="descname">homepage</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.homepage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.iuse">
+<tt class="descname">iuse</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.iuse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.key">
+<tt class="descname">key</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.keywords">
+<tt class="descname">keywords</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.keywords" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.license">
+<tt class="descname">license</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.license" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.longdescription">
+<tt class="descname">longdescription</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.longdescription" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to _shared_pkg_data.metadata_xml.longdescription</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.maintainers">
+<tt class="descname">maintainers</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.maintainers" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to _shared_pkg_data.metadata_xml.maintainers</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.manifest">
+<tt class="descname">manifest</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.manifest" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to _shared_pkg_data.manifest</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.ebuild_src.package.operations">
+<tt class="descname">operations</tt><big>(</big><em>domain</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.operations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.package">
+<tt class="descname">package</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.package" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.path">
+<tt class="descname">path</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.post_rdepends">
+<tt class="descname">post_rdepends</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.post_rdepends" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.properties">
+<tt class="descname">properties</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.provides">
+<tt class="descname">provides</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.provides" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.rdepends">
+<tt class="descname">rdepends</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.rdepends" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.ebuild_src.package.release_cached_data">
+<tt class="descname">release_cached_data</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.release_cached_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.repo">
+<tt class="descname">repo</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.repo" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to _parent._parent_repo</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.required_use">
+<tt class="descname">required_use</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.required_use" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.restrict">
+<tt class="descname">restrict</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.restrict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.revision">
+<tt class="descname">revision</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.revision" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.slot">
+<tt class="descname">slot</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.slot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.slotted_atom">
+<tt class="descname">slotted_atom</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.slotted_atom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.ebuild_src.package.unversioned">
+<em class="property">classmethod </em><tt class="descname">unversioned</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.unversioned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.unversioned_atom">
+<tt class="descname">unversioned_atom</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.unversioned_atom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.version">
+<tt class="descname">version</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.ebuild_src.package.versioned">
+<em class="property">classmethod </em><tt class="descname">versioned</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.versioned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package.versioned_atom">
+<tt class="descname">versioned_atom</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package.versioned_atom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.ebuild_src.package_factory">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.ebuild_src.</tt><tt class="descname">package_factory</tt><big>(</big><em>parent</em>, <em>cachedb</em>, <em>eclass_cache</em>, <em>mirrors</em>, <em>default_mirrors</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/ebuild_src.html#package_factory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package_factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pkgcore.package.metadata.html#pkgcore.package.metadata.factory" title="pkgcore.package.metadata.factory"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.package.metadata.factory</span></tt></a></p>
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.package_factory.child_class">
+<tt class="descname">child_class</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package_factory.child_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#pkgcore.ebuild.ebuild_src.package" title="pkgcore.ebuild.ebuild_src.package"><tt class="xref py py-class docutils literal"><span class="pre">package</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.ebuild_src.package_factory.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package_factory.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>wipe the weakref cache of packages instances</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.ebuild_src.package_factory.get_ebuild_src">
+<tt class="descname">get_ebuild_src</tt><big>(</big><em>pkg</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/ebuild_src.html#package_factory.get_ebuild_src"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package_factory.get_ebuild_src" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.ebuild_src.package_factory.new_package">
+<tt class="descname">new_package</tt><big>(</big><em>*args</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/ebuild_src.html#package_factory.new_package"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.package_factory.new_package" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.ebuild.ebuild_src.virtual_ebuild">
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.ebuild_src.</tt><tt class="descname">virtual_ebuild</tt><big>(</big><em>parent_repository</em>, <em>pkg</em>, <em>data</em>, <em>cpvstr</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/ebuild_src.html#virtual_ebuild"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.virtual_ebuild" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pkgcore.package.metadata.html#pkgcore.package.metadata.package" title="pkgcore.package.metadata.package"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.package.metadata.package</span></tt></a></p>
+<p>PROVIDES generated fake packages</p>
+<dl class="method">
+<dt id="pkgcore.ebuild.ebuild_src.virtual_ebuild.add_format_triggers">
+<tt class="descname">add_format_triggers</tt><big>(</big><em>op_inst</em>, <em>format_op_inst</em>, <em>engine_inst</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.virtual_ebuild.add_format_triggers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.virtual_ebuild.category">
+<tt class="descname">category</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.virtual_ebuild.category" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.virtual_ebuild.cpvstr">
+<tt class="descname">cpvstr</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.virtual_ebuild.cpvstr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.virtual_ebuild.data">
+<tt class="descname">data</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.virtual_ebuild.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.virtual_ebuild.eapi">
+<tt class="descname">eapi</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/ebuild_src.html#virtual_ebuild.eapi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.virtual_ebuild.eapi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.virtual_ebuild.fullver">
+<tt class="descname">fullver</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.virtual_ebuild.fullver" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.virtual_ebuild.key">
+<tt class="descname">key</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.virtual_ebuild.key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.ebuild_src.virtual_ebuild.operations">
+<tt class="descname">operations</tt><big>(</big><em>domain</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.virtual_ebuild.operations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.virtual_ebuild.package">
+<tt class="descname">package</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.virtual_ebuild.package" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.ebuild.ebuild_src.virtual_ebuild.release_cached_data">
+<tt class="descname">release_cached_data</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.virtual_ebuild.release_cached_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.virtual_ebuild.repo">
+<tt class="descname">repo</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.virtual_ebuild.repo" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias to _parent._parent_repo</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.virtual_ebuild.revision">
+<tt class="descname">revision</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.virtual_ebuild.revision" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.virtual_ebuild.slotted_atom">
+<tt class="descname">slotted_atom</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.virtual_ebuild.slotted_atom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.ebuild_src.virtual_ebuild.unversioned">
+<em class="property">classmethod </em><tt class="descname">unversioned</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.virtual_ebuild.unversioned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.virtual_ebuild.unversioned_atom">
+<tt class="descname">unversioned_atom</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.virtual_ebuild.unversioned_atom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.virtual_ebuild.version">
+<tt class="descname">version</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.virtual_ebuild.version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pkgcore.ebuild.ebuild_src.virtual_ebuild.versioned">
+<em class="property">classmethod </em><tt class="descname">versioned</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.virtual_ebuild.versioned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebuild_src.virtual_ebuild.versioned_atom">
+<tt class="descname">versioned_atom</tt><a class="headerlink" href="#pkgcore.ebuild.ebuild_src.virtual_ebuild.versioned_atom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.ebuild_built.html"
+                        title="previous chapter">pkgcore.ebuild.ebuild_built</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.eclass_cache.html"
+                        title="next chapter">pkgcore.ebuild.eclass_cache</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.eclass_cache.html" title="pkgcore.ebuild.eclass_cache"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.ebuild_built.html" title="pkgcore.ebuild.ebuild_built"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

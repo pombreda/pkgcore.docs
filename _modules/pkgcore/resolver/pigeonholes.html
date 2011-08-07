@@ -1,0 +1,175 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.resolver.pigeonholes &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.resolver.pigeonholes</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2006-2010 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;PigeonHoledSlots&quot;</span><span class="p">,)</span>
+
+<span class="kn">from</span> <span class="nn">pkgcore.restrictions</span> <span class="kn">import</span> <span class="n">restriction</span>
+
+<span class="c"># lil too getter/setter like for my tastes...</span>
+
+<div class="viewcode-block" id="PigeonHoledSlots"><a class="viewcode-back" href="../../../api/pkgcore.resolver.pigeonholes.html#pkgcore.resolver.pigeonholes.PigeonHoledSlots">[docs]</a><span class="k">class</span> <span class="nc">PigeonHoledSlots</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;class for tracking slotting to a specific atom/obj key</span>
+<span class="sd">    no atoms present, just prevents conflicts of obj.key; atom present, assumes</span>
+<span class="sd">    it&#39;s a blocker and ensures no obj matches the atom for that key</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slot_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">limiters</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="PigeonHoledSlots.fill_slotting"><a class="viewcode-back" href="../../../api/pkgcore.resolver.pigeonholes.html#pkgcore.resolver.pigeonholes.PigeonHoledSlots.fill_slotting">[docs]</a>    <span class="k">def</span> <span class="nf">fill_slotting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Try to insert obj in.</span>
+
+<span class="sd">        :return: any conflicting objs (empty list if inserted successfully).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">key</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">limiters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">())</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">obj</span><span class="p">)]</span>
+
+        <span class="n">dslot</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">slot</span>
+        <span class="n">l</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">slot_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">())</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">slot</span> <span class="o">==</span> <span class="n">dslot</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">l</span> <span class="ow">or</span> <span class="n">force</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">slot_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">l</span>
+
+</div>
+<div class="viewcode-block" id="PigeonHoledSlots.get_conflicting_slot"><a class="viewcode-back" href="../../../api/pkgcore.resolver.pigeonholes.html#pkgcore.resolver.pigeonholes.PigeonHoledSlots.get_conflicting_slot">[docs]</a>    <span class="k">def</span> <span class="nf">get_conflicting_slot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">slot_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="p">()):</span>
+            <span class="k">if</span> <span class="n">pkg</span><span class="o">.</span><span class="n">slot</span> <span class="o">==</span> <span class="n">x</span><span class="o">.</span><span class="n">slot</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">x</span>
+        <span class="k">return</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="PigeonHoledSlots.find_atom_matches"><a class="viewcode-back" href="../../../api/pkgcore.resolver.pigeonholes.html#pkgcore.resolver.pigeonholes.PigeonHoledSlots.find_atom_matches">[docs]</a>    <span class="k">def</span> <span class="nf">find_atom_matches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">key</span>
+        <span class="k">return</span> <span class="nb">filter</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">match</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">slot_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">()))</span>
+</div>
+<div class="viewcode-block" id="PigeonHoledSlots.add_limiter"><a class="viewcode-back" href="../../../api/pkgcore.resolver.pigeonholes.html#pkgcore.resolver.pigeonholes.PigeonHoledSlots.add_limiter">[docs]</a>    <span class="k">def</span> <span class="nf">add_limiter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;add a limiter, returning any conflicting objs&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">restriction</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;atom must be a restriction.base derivative: &quot;</span>
+                <span class="s">&quot;got </span><span class="si">%r</span><span class="s">, key=</span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span>
+        <span class="c"># debug.</span>
+
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">limiters</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">filter</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">match</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">slot_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">()))</span>
+</div>
+<div class="viewcode-block" id="PigeonHoledSlots.remove_slotting"><a class="viewcode-back" href="../../../api/pkgcore.resolver.pigeonholes.html#pkgcore.resolver.pigeonholes.PigeonHoledSlots.remove_slotting">[docs]</a>    <span class="k">def</span> <span class="nf">remove_slotting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">key</span>
+        <span class="c"># let the key error be thrown if they screwed up.</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">slot_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">obj</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slot_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&quot;obj </span><span class="si">%s</span><span class="s"> isn&#39;t slotted&quot;</span> <span class="o">%</span> <span class="n">obj</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">l</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">slot_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">l</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">slot_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="PigeonHoledSlots.remove_limiter"><a class="viewcode-back" href="../../../api/pkgcore.resolver.pigeonholes.html#pkgcore.resolver.pigeonholes.PigeonHoledSlots.remove_limiter">[docs]</a>    <span class="k">def</span> <span class="nf">remove_limiter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">key</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">limiters</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">atom</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">limiters</span><span class="p">[</span><span class="n">key</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&quot;obj </span><span class="si">%s</span><span class="s"> isn&#39;t slotted&quot;</span> <span class="o">%</span> <span class="n">atom</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">l</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">limiters</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">limiters</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">l</span>
+</div>
+    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">restriction</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">limiters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="p">())</span>
+        <span class="k">return</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">slot_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="p">())</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

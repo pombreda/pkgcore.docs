@@ -1,0 +1,155 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.scripts.pebuild &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pkgcore.scripts.pebuild</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2005-2011 Brian Harring &lt;ferringb@gmail.com</span>
+<span class="c"># Copyright: 2006 Marien Zwart &lt;marienz@gentoo.org&gt;</span>
+<span class="c"># License: BSD/GPL2</span>
+
+
+<span class="sd">&quot;&quot;&quot;Low-level ebuild operations.&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;argparse_parser&quot;</span><span class="p">,</span> <span class="s">&quot;main&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">pkgcore.util</span> <span class="kn">import</span> <span class="n">commandline</span>
+<span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">atom</span><span class="p">,</span> <span class="n">errors</span>
+<span class="kn">from</span> <span class="nn">pkgcore.operations</span> <span class="kn">import</span> <span class="n">observer</span>
+<span class="kn">from</span> <span class="nn">snakeoil.formatters</span> <span class="kn">import</span> <span class="n">ObserverFormatter</span>
+<span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="nb">all</span>
+
+
+<span class="n">argparse_parser</span> <span class="o">=</span> <span class="n">commandline</span><span class="o">.</span><span class="n">mk_argparser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="n">__doc__</span><span class="p">)</span>
+<span class="n">argparse_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--no-auto&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;run just the specified phases; it&#39;s up to the invoker to get the order right&quot;</span><span class="p">)</span>
+<span class="n">argparse_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;atom&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;atom to match a pkg to execute phases from&quot;</span><span class="p">)</span>
+<span class="n">argparse_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;phase&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;+&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;phases to run&quot;</span><span class="p">)</span>
+
+<span class="nd">@argparse_parser.bind_main_func</span>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pebuild.html#pkgcore.scripts.pebuild.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
+    <span class="n">pkgs</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">all_repos</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">atom</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pkgs</span><span class="p">:</span>
+        <span class="n">err</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;got no matches for </span><span class="si">%s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">atom</span><span class="p">,))</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pkgs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">err</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;got multiple matches for </span><span class="si">%s</span><span class="s">:&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">atom</span><span class="p">,))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">((</span><span class="n">pkg</span><span class="o">.</span><span class="n">slot</span><span class="p">,</span> <span class="n">pkg</span><span class="o">.</span><span class="n">repo</span><span class="p">)</span> <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">pkgs</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pkgs</span><span class="p">):</span>
+                <span class="n">err</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;repo </span><span class="si">%r</span><span class="s">, slot </span><span class="si">%r</span><span class="s">, </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                    <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> <span class="s">&#39;repo_id&#39;</span><span class="p">,</span> <span class="s">&#39;unknown&#39;</span><span class="p">),</span> <span class="n">pkg</span><span class="o">.</span><span class="n">slot</span><span class="p">,</span> <span class="n">pkg</span><span class="o">.</span><span class="n">cpvstr</span><span class="p">,),</span> <span class="n">prefix</span><span class="o">=</span><span class="s">&quot;  &quot;</span><span class="p">)</span>
+            <span class="n">err</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+            <span class="n">err</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;please refine your restriction to match only one slot/repo pair</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="n">pkgs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="n">pkgs</span><span class="p">)]</span>
+        <span class="n">err</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;choosing </span><span class="si">%r</span><span class="s">, slot </span><span class="si">%r</span><span class="s">, </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">pkgs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> <span class="s">&#39;repo_id&#39;</span><span class="p">,</span> <span class="s">&#39;unknown&#39;</span><span class="p">),</span>
+            <span class="n">pkgs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">slot</span><span class="p">,</span> <span class="n">pkgs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cpvstr</span><span class="p">),</span> <span class="n">prefix</span><span class="o">=</span><span class="s">&#39;  &#39;</span><span class="p">)</span>
+    <span class="n">kwds</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">build_obs</span> <span class="o">=</span> <span class="n">observer</span><span class="o">.</span><span class="n">file_build_observer</span><span class="p">(</span><span class="n">ObserverFormatter</span><span class="p">(</span><span class="n">out</span><span class="p">),</span>
+        <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">debug</span><span class="p">)</span>
+
+    <span class="n">phases</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">phase</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="s">&#39;clean&#39;</span><span class="p">]</span>
+    <span class="n">clean</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">phases</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">phase</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">no_auto</span><span class="p">:</span>
+        <span class="n">kwds</span><span class="p">[</span><span class="s">&quot;ignore_deps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="s">&quot;setup&quot;</span> <span class="ow">in</span> <span class="n">phases</span><span class="p">:</span>
+            <span class="n">phases</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;fetch&quot;</span><span class="p">)</span>
+    <span class="c"># by default turn off startup cleans; we clean by ourselves if</span>
+    <span class="c"># told to do so via an arg</span>
+    <span class="n">build</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">build_pkg</span><span class="p">(</span><span class="n">pkgs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">build_obs</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">clean</span><span class="p">:</span>
+        <span class="n">build</span><span class="o">.</span><span class="n">cleanup</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">build</span><span class="o">.</span><span class="n">_reload_state</span><span class="p">()</span>
+    <span class="n">phase_funcs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">build</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">phases</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">phase</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span> <span class="n">phase_funcs</span><span class="p">):</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;executing phase </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">phase</span><span class="p">,))</span>
+        <span class="n">f</span><span class="p">(</span><span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

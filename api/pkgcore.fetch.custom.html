@@ -1,0 +1,185 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.fetch.custom &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.fetch.errors" href="pkgcore.fetch.errors.html" />
+    <link rel="prev" title="pkgcore.fetch.base" href="pkgcore.fetch.base.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.fetch.errors.html" title="pkgcore.fetch.errors"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.fetch.base.html" title="pkgcore.fetch.base"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.fetch.custom">
+<span id="pkgcore-fetch-custom"></span><h1>pkgcore.fetch.custom<a class="headerlink" href="#module-pkgcore.fetch.custom" title="Permalink to this headline">¶</a></h1>
+<p>fetcher class that pulls files via executing another program to do the fetching</p>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.fetch.custom.fetcher" title="pkgcore.fetch.custom.fetcher"><tt class="xref py py-obj docutils literal"><span class="pre">fetcher</span></tt></a>(distdir,&nbsp;command,&nbsp;**extra_env[,&nbsp;...])</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Exceptions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.fetch.custom.MalformedCommand" title="pkgcore.fetch.custom.MalformedCommand"><tt class="xref py py-obj docutils literal"><span class="pre">MalformedCommand</span></tt></a>(command)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="exception">
+<dt id="pkgcore.fetch.custom.MalformedCommand">
+<em class="property">exception </em><tt class="descclassname">pkgcore.fetch.custom.</tt><tt class="descname">MalformedCommand</tt><big>(</big><em>command</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fetch/custom.html#MalformedCommand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fetch.custom.MalformedCommand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pkgcore.fetch.errors.html#pkgcore.fetch.errors.base" title="pkgcore.fetch.errors.base"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.fetch.errors.base</span></tt></a></p>
+<dl class="attribute">
+<dt id="pkgcore.fetch.custom.MalformedCommand.args">
+<tt class="descname">args</tt><a class="headerlink" href="#pkgcore.fetch.custom.MalformedCommand.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.fetch.custom.MalformedCommand.message">
+<tt class="descname">message</tt><a class="headerlink" href="#pkgcore.fetch.custom.MalformedCommand.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pkgcore.fetch.custom.fetcher">
+<em class="property">class </em><tt class="descclassname">pkgcore.fetch.custom.</tt><tt class="descname">fetcher</tt><big>(</big><em>distdir</em>, <em>command</em>, <em>resume_command=None</em>, <em>required_chksums=None</em>, <em>userpriv=True</em>, <em>attempts=10</em>, <em>readonly=False</em>, <em>**extra_env</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fetch/custom.html#fetcher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fetch.custom.fetcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pkgcore.fetch.base.html#pkgcore.fetch.base.fetcher" title="pkgcore.fetch.base.fetcher"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.fetch.base.fetcher</span></tt></a></p>
+<dl class="method">
+<dt id="pkgcore.fetch.custom.fetcher.fetch">
+<tt class="descname">fetch</tt><big>(</big><em>target</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fetch/custom.html#fetcher.fetch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fetch.custom.fetcher.fetch" title="Permalink to this definition">¶</a></dt>
+<dd><p>fetch a file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">None if fetching failed,
+else on disk location of the copied file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.fetch.custom.fetcher.get_path">
+<tt class="descname">get_path</tt><big>(</big><em>fetchable</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fetch/custom.html#fetcher.get_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fetch.custom.fetcher.get_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.fetch.custom.fetcher.get_storage_path">
+<tt class="descname">get_storage_path</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/fetch/custom.html#fetcher.get_storage_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fetch.custom.fetcher.get_storage_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.fetch.base.html"
+                        title="previous chapter">pkgcore.fetch.base</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.fetch.errors.html"
+                        title="next chapter">pkgcore.fetch.errors</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.fetch.errors.html" title="pkgcore.fetch.errors"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.fetch.base.html" title="pkgcore.fetch.base"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

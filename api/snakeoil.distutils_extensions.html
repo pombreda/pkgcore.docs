@@ -1,0 +1,547 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>snakeoil.distutils_extensions &mdash; snakeoil v-trunk documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '-trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="snakeoil v-trunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="snakeoil.fileutils" href="snakeoil.fileutils.html" />
+    <link rel="prev" title="snakeoil.descriptors" href="snakeoil.descriptors.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.fileutils.html" title="snakeoil.fileutils"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.descriptors.html" title="snakeoil.descriptors"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-snakeoil.distutils_extensions">
+<span id="snakeoil-distutils-extensions"></span><h1>snakeoil.distutils_extensions<a class="headerlink" href="#module-snakeoil.distutils_extensions" title="Permalink to this headline">¶</a></h1>
+<p>collection of distutils extensions adding things like automatic 2to3 translation,
+a test runner, basic bzr changelog generation, and working around broken stdlib
+extensions CFLAG passing in distutils.</p>
+<p>Generally speaking, you should flip through this modules src.</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">get_number_of_processors</span></tt>()</td>
+<td></td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">sphinx_build_docs</span></tt>()</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#snakeoil.distutils_extensions.OptionalExtension" title="snakeoil.distutils_extensions.OptionalExtension"><tt class="xref py py-obj docutils literal"><span class="pre">OptionalExtension</span></tt></a>(name,&nbsp;sources,&nbsp;**kw[,&nbsp;...])</td>
+<td>python extension that is optional to build.</td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">build_docs_mixin</span></tt></td>
+<td></td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">build_ext</span></tt>(dist)</td>
+<td></td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">build_py</span></tt>(dist)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.distutils_extensions.sdist" title="snakeoil.distutils_extensions.sdist"><tt class="xref py py-obj docutils literal"><span class="pre">sdist</span></tt></a>(dist)</td>
+<td>sdist command specifying the right files and generating ChangeLog.</td>
+</tr>
+<tr><td><a class="reference internal" href="#snakeoil.distutils_extensions.test" title="snakeoil.distutils_extensions.test"><tt class="xref py py-obj docutils literal"><span class="pre">test</span></tt></a>(dist)</td>
+<td>Run our unit tests in a built copy.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Data</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">bzrbin</span></tt></td>
+<td>str(object) -&gt; string</td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">is_jython</span></tt></td>
+<td>bool(x) -&gt; bool</td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">is_py3k</span></tt></td>
+<td>bool(x) -&gt; bool</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="snakeoil.distutils_extensions.OptionalExtension">
+<em class="property">class </em><tt class="descclassname">snakeoil.distutils_extensions.</tt><tt class="descname">OptionalExtension</tt><big>(</big><em>name</em>, <em>sources</em>, <em>include_dirs=None</em>, <em>define_macros=None</em>, <em>undef_macros=None</em>, <em>library_dirs=None</em>, <em>libraries=None</em>, <em>runtime_library_dirs=None</em>, <em>extra_objects=None</em>, <em>extra_compile_args=None</em>, <em>extra_link_args=None</em>, <em>export_symbols=None</em>, <em>swig_opts=None</em>, <em>depends=None</em>, <em>language=None</em>, <em>**kw</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/distutils_extensions.html#OptionalExtension"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.distutils_extensions.OptionalExtension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">distutils.extension.Extension</span></tt></p>
+<p>python extension that is optional to build.</p>
+<p>If it&#8217;s not required to have the exception built, just preferable,
+use this class instead of <tt class="xref py py-class docutils literal"><span class="pre">core.Extension</span></tt> since the machinery
+in this module relies on isinstance to identify what absolutely must
+be built vs what would be nice to have built.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="snakeoil.distutils_extensions.sdist">
+<em class="property">class </em><tt class="descclassname">snakeoil.distutils_extensions.</tt><tt class="descname">sdist</tt><big>(</big><em>dist</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/distutils_extensions.html#sdist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.distutils_extensions.sdist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">distutils.command.sdist.sdist</span></tt></p>
+<p>sdist command specifying the right files and generating ChangeLog.</p>
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.add_defaults">
+<tt class="descname">add_defaults</tt><big>(</big><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.add_defaults" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Add all the default files to self.filelist:</dt>
+<dd><ul class="first last simple">
+<li>README or README.txt</li>
+<li>setup.py</li>
+<li>test/test*.py</li>
+<li>all pure Python modules mentioned in setup script</li>
+<li>all files pointed by package_data (build_py)</li>
+<li>all files defined in data_files.</li>
+<li>all files defined as scripts.</li>
+<li>all C sources listed as part of extensions or C libraries
+in the setup script (doesn&#8217;t catch C headers!)</li>
+</ul>
+</dd>
+</dl>
+<p>Warns if (README or README.txt) or setup.py are missing; everything
+else is optional.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.announce">
+<tt class="descname">announce</tt><big>(</big><em>msg</em>, <em>level=1</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.announce" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the current verbosity level is of greater than or equal to
+&#8216;level&#8217; print &#8216;msg&#8217; to stdout.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.check_metadata">
+<tt class="descname">check_metadata</tt><big>(</big><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.check_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deprecated API.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.checking_metadata">
+<tt class="descname">checking_metadata</tt><big>(</big><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.checking_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callable used for the check sub-command.</p>
+<p>Placed here so user_options can view it</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.copy_file">
+<tt class="descname">copy_file</tt><big>(</big><em>infile</em>, <em>outfile</em>, <em>preserve_mode=1</em>, <em>preserve_times=1</em>, <em>link=None</em>, <em>level=1</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.copy_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy a file respecting verbose, dry-run and force flags.  (The
+former two default to whatever is in the Distribution object, and
+the latter defaults to false for commands that don&#8217;t define it.)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.copy_tree">
+<tt class="descname">copy_tree</tt><big>(</big><em>infile</em>, <em>outfile</em>, <em>preserve_mode=1</em>, <em>preserve_times=1</em>, <em>preserve_symlinks=0</em>, <em>level=1</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.copy_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy an entire directory tree respecting verbose, dry-run,
+and force flags.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.debug_print">
+<tt class="descname">debug_print</tt><big>(</big><em>msg</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.debug_print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print &#8216;msg&#8217; to stdout if the global DEBUG (taken from the
+DISTUTILS_DEBUG environment variable) flag is true.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.ensure_filename">
+<tt class="descname">ensure_filename</tt><big>(</big><em>option</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.ensure_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure that &#8216;option&#8217; is the name of an existing file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.ensure_string">
+<tt class="descname">ensure_string</tt><big>(</big><em>option</em>, <em>default=None</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.ensure_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure that &#8216;option&#8217; is a string; if not defined, set it to
+&#8216;default&#8217;.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.ensure_string_list">
+<tt class="descname">ensure_string_list</tt><big>(</big><em>option</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.ensure_string_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure that &#8216;option&#8217; is a list of strings.  If &#8216;option&#8217; is
+currently a string, we split it either on /,s*/ or /s+/, so
+&#8220;foo bar baz&#8221;, &#8220;foo,bar,baz&#8221;, and &#8220;foo,   bar baz&#8221; all become
+[&#8220;foo&#8221;, &#8220;bar&#8221;, &#8220;baz&#8221;].</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.get_archive_files">
+<tt class="descname">get_archive_files</tt><big>(</big><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.get_archive_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the list of archive files created when the command
+was run, or None if the command hasn&#8217;t run yet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.get_file_list">
+<tt class="descname">get_file_list</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/snakeoil/distutils_extensions.html#sdist.get_file_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.get_file_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a filelist without doing anything involving MANIFEST files.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.get_finalized_command">
+<tt class="descname">get_finalized_command</tt><big>(</big><em>command</em>, <em>create=1</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.get_finalized_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper around Distribution&#8217;s &#8216;get_command_obj()&#8217; method: find
+(create if necessary and &#8216;create&#8217; is true) the command object for
+&#8216;command&#8217;, call its &#8216;ensure_finalized()&#8217; method, and return the
+finalized command object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.get_sub_commands">
+<tt class="descname">get_sub_commands</tt><big>(</big><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.get_sub_commands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine the sub-commands that are relevant in the current
+distribution (ie., that need to be run).  This is based on the
+&#8216;sub_commands&#8217; class attribute: each tuple in that list may include
+a method that we call to determine if the subcommand needs to be
+run for the current distribution.  Return a list of command names.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.make_distribution">
+<tt class="descname">make_distribution</tt><big>(</big><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.make_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the source distribution(s).  First, we create the release
+tree with &#8216;make_release_tree()&#8217;; then, we create all required
+archive files (according to &#8216;self.formats&#8217;) from the release tree.
+Finally, we clean up by blowing away the release tree (unless
+&#8216;self.keep_temp&#8217; is true).  The list of archive files created is
+stored so it can be retrieved later by &#8216;get_archive_files()&#8217;.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.make_file">
+<tt class="descname">make_file</tt><big>(</big><em>infiles</em>, <em>outfile</em>, <em>func</em>, <em>args</em>, <em>exec_msg=None</em>, <em>skip_msg=None</em>, <em>level=1</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.make_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Special case of &#8216;execute()&#8217; for operations that process one or
+more input files and generate one output file.  Works just like
+&#8216;execute()&#8217;, except the operation is skipped and a different
+message printed if &#8216;outfile&#8217; already exists and is newer than all
+files listed in &#8216;infiles&#8217;.  If the command defined &#8216;self.force&#8217;,
+and it is true, then the command is unconditionally run &#8211; does no
+timestamp checks.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.make_release_tree">
+<tt class="descname">make_release_tree</tt><big>(</big><em>base_dir</em>, <em>files</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/distutils_extensions.html#sdist.make_release_tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.make_release_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create and populate the directory tree that is put in source tars.</p>
+<p>This copies or hardlinks &#8220;normal&#8221; source files that should go
+into the release and adds generated files that should not
+exist in a working tree.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.move_file">
+<tt class="descname">move_file</tt><big>(</big><em>src</em>, <em>dst</em>, <em>level=1</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.move_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move a file respecting dry-run flag.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.prune_file_list">
+<tt class="descname">prune_file_list</tt><big>(</big><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.prune_file_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prune off branches that might slip into the file list as created
+by &#8216;read_template()&#8217;, but really don&#8217;t belong there:</p>
+<blockquote>
+<div><ul class="simple">
+<li>the build tree (typically &#8220;build&#8221;)</li>
+<li>the release tree itself (only an issue if we ran &#8220;sdist&#8221;
+previously with &#8211;keep-temp, or it aborted)</li>
+<li>any RCS, CVS, .svn, .hg, .git, .bzr, _darcs directories</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.read_manifest">
+<tt class="descname">read_manifest</tt><big>(</big><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.read_manifest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the manifest file (named by &#8216;self.manifest&#8217;) and use it to
+fill in &#8216;self.filelist&#8217;, the list of files to include in the source
+distribution.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.read_template">
+<tt class="descname">read_template</tt><big>(</big><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.read_template" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read and parse manifest template file named by self.template.</p>
+<p>(usually &#8220;MANIFEST.in&#8221;) The parsing and processing is done by
+&#8216;self.filelist&#8217;, which updates itself accordingly.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.run_command">
+<tt class="descname">run_command</tt><big>(</big><em>command</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.run_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run some other command: uses the &#8216;run_command()&#8217; method of
+Distribution, which creates and finalizes the command object if
+necessary and then invokes its &#8216;run()&#8217; method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.set_undefined_options">
+<tt class="descname">set_undefined_options</tt><big>(</big><em>src_cmd</em>, <em>*option_pairs</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.set_undefined_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the values of any &#8220;undefined&#8221; options from corresponding
+option values in some other command object.  &#8220;Undefined&#8221; here means
+&#8220;is None&#8221;, which is the convention used to indicate that an option
+has not been changed between &#8216;initialize_options()&#8217; and
+&#8216;finalize_options()&#8217;.  Usually called from &#8216;finalize_options()&#8217; for
+options that depend on some other command rather than another
+option of the same command.  &#8216;src_cmd&#8217; is the other command from
+which option values will be taken (a command object will be created
+for it if necessary); the remaining arguments are
+&#8216;(src_option,dst_option)&#8217; tuples which mean &#8220;take the value of
+&#8216;src_option&#8217; in the &#8216;src_cmd&#8217; command object, and copy it to
+&#8216;dst_option&#8217; in the current command object&#8221;.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.spawn">
+<tt class="descname">spawn</tt><big>(</big><em>cmd</em>, <em>search_path=1</em>, <em>level=1</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.spawn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spawn an external command respecting dry-run flag.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.sdist.write_manifest">
+<tt class="descname">write_manifest</tt><big>(</big><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.sdist.write_manifest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the file list in &#8216;self.filelist&#8217; (presumably as filled in
+by &#8216;add_defaults()&#8217; and &#8216;read_template()&#8217;) to the manifest file
+named by &#8216;self.manifest&#8217;.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="snakeoil.distutils_extensions.test">
+<em class="property">class </em><tt class="descclassname">snakeoil.distutils_extensions.</tt><tt class="descname">test</tt><big>(</big><em>dist</em><big>)</big><a class="reference internal" href="../_modules/snakeoil/distutils_extensions.html#test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#snakeoil.distutils_extensions.test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/distutils/apiref.html#distutils.cmd.Command" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">distutils.cmd.Command</span></tt></a></p>
+<p>Run our unit tests in a built copy.</p>
+<p>Based on code from setuptools.</p>
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.test.announce">
+<tt class="descname">announce</tt><big>(</big><em>msg</em>, <em>level=1</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.test.announce" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the current verbosity level is of greater than or equal to
+&#8216;level&#8217; print &#8216;msg&#8217; to stdout.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.test.copy_file">
+<tt class="descname">copy_file</tt><big>(</big><em>infile</em>, <em>outfile</em>, <em>preserve_mode=1</em>, <em>preserve_times=1</em>, <em>link=None</em>, <em>level=1</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.test.copy_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy a file respecting verbose, dry-run and force flags.  (The
+former two default to whatever is in the Distribution object, and
+the latter defaults to false for commands that don&#8217;t define it.)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.test.copy_tree">
+<tt class="descname">copy_tree</tt><big>(</big><em>infile</em>, <em>outfile</em>, <em>preserve_mode=1</em>, <em>preserve_times=1</em>, <em>preserve_symlinks=0</em>, <em>level=1</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.test.copy_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy an entire directory tree respecting verbose, dry-run,
+and force flags.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.test.debug_print">
+<tt class="descname">debug_print</tt><big>(</big><em>msg</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.test.debug_print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print &#8216;msg&#8217; to stdout if the global DEBUG (taken from the
+DISTUTILS_DEBUG environment variable) flag is true.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.test.ensure_filename">
+<tt class="descname">ensure_filename</tt><big>(</big><em>option</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.test.ensure_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure that &#8216;option&#8217; is the name of an existing file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.test.ensure_string">
+<tt class="descname">ensure_string</tt><big>(</big><em>option</em>, <em>default=None</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.test.ensure_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure that &#8216;option&#8217; is a string; if not defined, set it to
+&#8216;default&#8217;.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.test.ensure_string_list">
+<tt class="descname">ensure_string_list</tt><big>(</big><em>option</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.test.ensure_string_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure that &#8216;option&#8217; is a list of strings.  If &#8216;option&#8217; is
+currently a string, we split it either on /,s*/ or /s+/, so
+&#8220;foo bar baz&#8221;, &#8220;foo,bar,baz&#8221;, and &#8220;foo,   bar baz&#8221; all become
+[&#8220;foo&#8221;, &#8220;bar&#8221;, &#8220;baz&#8221;].</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.test.get_finalized_command">
+<tt class="descname">get_finalized_command</tt><big>(</big><em>command</em>, <em>create=1</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.test.get_finalized_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper around Distribution&#8217;s &#8216;get_command_obj()&#8217; method: find
+(create if necessary and &#8216;create&#8217; is true) the command object for
+&#8216;command&#8217;, call its &#8216;ensure_finalized()&#8217; method, and return the
+finalized command object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.test.get_sub_commands">
+<tt class="descname">get_sub_commands</tt><big>(</big><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.test.get_sub_commands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine the sub-commands that are relevant in the current
+distribution (ie., that need to be run).  This is based on the
+&#8216;sub_commands&#8217; class attribute: each tuple in that list may include
+a method that we call to determine if the subcommand needs to be
+run for the current distribution.  Return a list of command names.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.test.make_file">
+<tt class="descname">make_file</tt><big>(</big><em>infiles</em>, <em>outfile</em>, <em>func</em>, <em>args</em>, <em>exec_msg=None</em>, <em>skip_msg=None</em>, <em>level=1</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.test.make_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Special case of &#8216;execute()&#8217; for operations that process one or
+more input files and generate one output file.  Works just like
+&#8216;execute()&#8217;, except the operation is skipped and a different
+message printed if &#8216;outfile&#8217; already exists and is newer than all
+files listed in &#8216;infiles&#8217;.  If the command defined &#8216;self.force&#8217;,
+and it is true, then the command is unconditionally run &#8211; does no
+timestamp checks.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.test.move_file">
+<tt class="descname">move_file</tt><big>(</big><em>src</em>, <em>dst</em>, <em>level=1</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.test.move_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move a file respecting dry-run flag.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.test.run_command">
+<tt class="descname">run_command</tt><big>(</big><em>command</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.test.run_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run some other command: uses the &#8216;run_command()&#8217; method of
+Distribution, which creates and finalizes the command object if
+necessary and then invokes its &#8216;run()&#8217; method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.test.set_undefined_options">
+<tt class="descname">set_undefined_options</tt><big>(</big><em>src_cmd</em>, <em>*option_pairs</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.test.set_undefined_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the values of any &#8220;undefined&#8221; options from corresponding
+option values in some other command object.  &#8220;Undefined&#8221; here means
+&#8220;is None&#8221;, which is the convention used to indicate that an option
+has not been changed between &#8216;initialize_options()&#8217; and
+&#8216;finalize_options()&#8217;.  Usually called from &#8216;finalize_options()&#8217; for
+options that depend on some other command rather than another
+option of the same command.  &#8216;src_cmd&#8217; is the other command from
+which option values will be taken (a command object will be created
+for it if necessary); the remaining arguments are
+&#8216;(src_option,dst_option)&#8217; tuples which mean &#8220;take the value of
+&#8216;src_option&#8217; in the &#8216;src_cmd&#8217; command object, and copy it to
+&#8216;dst_option&#8217; in the current command object&#8221;.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="snakeoil.distutils_extensions.test.spawn">
+<tt class="descname">spawn</tt><big>(</big><em>cmd</em>, <em>search_path=1</em>, <em>level=1</em><big>)</big><a class="headerlink" href="#snakeoil.distutils_extensions.test.spawn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spawn an external command respecting dry-run flag.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="snakeoil.descriptors.html"
+                        title="previous chapter">snakeoil.descriptors</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="snakeoil.fileutils.html"
+                        title="next chapter">snakeoil.fileutils</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.fileutils.html" title="snakeoil.fileutils"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="snakeoil.descriptors.html" title="snakeoil.descriptors"
+             >previous</a> |</li>
+        <li><a href="../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

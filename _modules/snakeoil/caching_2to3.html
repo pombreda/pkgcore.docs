@@ -1,0 +1,206 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>snakeoil.caching_2to3 &mdash; snakeoil v-trunk documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '-trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="snakeoil v-trunk documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for snakeoil.caching_2to3</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/python3</span>
+<span class="c"># Copyright: 2009-2010 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># License: PSF-2.2/GPL2/BSD</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">python 2to3 with caching support</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">lib2to3.main</span>
+<span class="kn">import</span> <span class="nn">lib2to3.refactor</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">hashlib</span>
+
+<span class="k">def</span> <span class="nf">md5_hash_data</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">chf</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">()</span>
+    <span class="n">chf</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">chf</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="caching_mixin"><a class="viewcode-back" href="../../api/snakeoil.caching_2to3.html#snakeoil.caching_2to3.caching_mixin">[docs]</a><span class="k">class</span> <span class="nc">caching_mixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    core caching logic</span>
+
+<span class="sd">    Roughly, this works by intercepting 2to3 converter methods and checking</span>
+<span class="sd">    a cache directory (defined by environment variable PY2TO3_CACHEDIR) for</span>
+<span class="sd">    previous conversion attempts for this file.</span>
+
+<span class="sd">    If the md5sum for the source matches the original conversion attempt, the</span>
+<span class="sd">    original results are returned greatly speeding up repeated 2to3 conversions.</span>
+
+<span class="sd">    If the md5sum doesn&#39;t match, it does the 2to3 conversion and than stashes a copy</span>
+<span class="sd">    of the results into the cache dir for future usage.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">base_cls</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cache_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;PY2TO3_CACHEDIR&quot;</span><span class="p">,</span> <span class="s">&quot;cache&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_cache_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">cache_key</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">update_cache_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_key</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">encoding</span><span class="p">,</span> <span class="n">new_text</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">cache_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">new_text</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">new_text</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="p">)</span>
+        <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">cache_key</span><span class="p">),</span> <span class="s">&#39;wb&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">new_text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">check_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_key</span><span class="p">,</span> <span class="n">encoding</span><span class="p">):</span>
+        <span class="n">cache_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cache_path</span><span class="p">(</span><span class="n">cache_key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">cache_path</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_path</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">compute_cache_key</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">encoding</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">md5_hash_data</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">refactor_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">doctests_only</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="nb">input</span><span class="p">,</span> <span class="n">encoding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_python_source</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">cache_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_cache_key</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">encoding</span><span class="p">)</span>
+        <span class="n">cache_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_cache</span><span class="p">(</span><span class="n">cache_key</span><span class="p">,</span> <span class="n">encoding</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">write</span> <span class="ow">or</span> <span class="n">cache_data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">caching_mixin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">refactor_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="n">write</span><span class="p">,</span>
+                <span class="n">doctests_only</span><span class="o">=</span><span class="n">doctests_only</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">processed_file</span><span class="p">(</span><span class="n">cache_data</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="n">write</span><span class="p">,</span>
+                <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">old_text</span><span class="o">=</span><span class="nb">input</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">processed_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_text</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">old_text</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">write</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">old_text</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">cache_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_cache_key</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_read_python_source</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cache_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_cache_key</span><span class="p">(</span><span class="n">old_text</span><span class="p">,</span> <span class="n">encoding</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_cache_from_file</span><span class="p">(</span><span class="n">cache_key</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">encoding</span><span class="p">,</span>
+                <span class="n">new_text</span><span class="o">=</span><span class="n">new_text</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">caching_mixin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">processed_file</span><span class="p">(</span><span class="n">new_text</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span>
+            <span class="n">old_text</span><span class="o">=</span><span class="n">old_text</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="n">write</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span>
+
+</div>
+<span class="k">class</span> <span class="nc">RefactoringTool</span><span class="p">(</span><span class="n">caching_mixin</span><span class="p">,</span> <span class="n">lib2to3</span><span class="o">.</span><span class="n">refactor</span><span class="o">.</span><span class="n">RefactoringTool</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="n">multiprocessing_available</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">lib2to3</span><span class="o">.</span><span class="n">refactor</span><span class="p">,</span> <span class="s">&#39;MultiprocessRefactoringTool&#39;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">()</span>
+    <span class="kn">import</span> <span class="nn">multiprocessing</span>
+    <span class="c"># this is to detect python upstream bug 3770</span>
+    <span class="kn">from</span> <span class="nn">_multiprocessing</span> <span class="kn">import</span> <span class="n">SemLock</span>
+    <span class="n">multiprocessing_available</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">MultiprocessRefactoringTool</span> <span class="o">=</span> <span class="n">RefactoringTool</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">class</span> <span class="nc">MultiprocessRefactoringTool</span><span class="p">(</span><span class="n">caching_mixin</span><span class="p">,</span> <span class="n">lib2to3</span><span class="o">.</span><span class="n">refactor</span><span class="o">.</span><span class="n">MultiprocessRefactoringTool</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+
+<span class="k">def</span> <span class="nf">StdoutRefactoringTool</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="c"># stupid hacks...</span>
+    <span class="n">lib2to3</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">StdoutRefactoringTool</span> <span class="o">=</span> <span class="n">my_StdoutRefactoringTool</span><span class="o">.</span><span class="n">base_cls</span>
+    <span class="n">inst</span> <span class="o">=</span> <span class="n">my_StdoutRefactoringTool</span><span class="o">.</span><span class="n">base_cls</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">inst</span><span class="o">.</span><span class="n">__class__</span> <span class="o">=</span> <span class="n">my_StdoutRefactoringTool</span>
+    <span class="k">return</span> <span class="n">inst</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">lib2to3</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">StdoutRefactoringTool</span> <span class="o">=</span> <span class="n">StdoutRefactoringTool</span>
+    <span class="kn">import</span> <span class="nn">sys</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">lib2to3</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="s">&quot;lib2to3.fixes&quot;</span><span class="p">))</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">snakeoil v-trunk documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

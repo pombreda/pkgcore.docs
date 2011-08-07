@@ -1,0 +1,212 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pkgcore.ebuild.portage_conf &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="API Documentation" href="../api.html" />
+    <link rel="next" title="pkgcore.ebuild.processor" href="pkgcore.ebuild.processor.html" />
+    <link rel="prev" title="pkgcore.ebuild.overlay_repository" href="pkgcore.ebuild.overlay_repository.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.processor.html" title="pkgcore.ebuild.processor"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.overlay_repository.html" title="pkgcore.ebuild.overlay_repository"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pkgcore.ebuild.portage_conf">
+<span id="pkgcore-ebuild-portage-conf"></span><h1>pkgcore.ebuild.portage_conf<a class="headerlink" href="#module-pkgcore.ebuild.portage_conf" title="Permalink to this headline">¶</a></h1>
+<p>make.conf translator.</p>
+<p>Converts portage configuration files into L{pkgcore.config} form.</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.portage_conf.SecurityUpgradesViaProfile" title="pkgcore.ebuild.portage_conf.SecurityUpgradesViaProfile"><tt class="xref py py-obj docutils literal"><span class="pre">SecurityUpgradesViaProfile</span></tt></a>(ebuild_repo,&nbsp;vdb,&nbsp;...)</td>
+<td>generate a GLSA vuln. pkgset limited by profile</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.portage_conf.add_fetcher" title="pkgcore.ebuild.portage_conf.add_fetcher"><tt class="xref py py-obj docutils literal"><span class="pre">add_fetcher</span></tt></a>(config,&nbsp;conf_dict,&nbsp;distdir)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.portage_conf.add_layman_syncers" title="pkgcore.ebuild.portage_conf.add_layman_syncers"><tt class="xref py py-obj docutils literal"><span class="pre">add_layman_syncers</span></tt></a>(new_config,&nbsp;rsync_opts,&nbsp;...)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.portage_conf.add_profile" title="pkgcore.ebuild.portage_conf.add_profile"><tt class="xref py py-obj docutils literal"><span class="pre">add_profile</span></tt></a>(config,&nbsp;base_path[,&nbsp;...])</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.portage_conf.add_sets" title="pkgcore.ebuild.portage_conf.add_sets"><tt class="xref py py-obj docutils literal"><span class="pre">add_sets</span></tt></a>(config,&nbsp;root,&nbsp;portage_base_dir)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.portage_conf.config_from_make_conf" title="pkgcore.ebuild.portage_conf.config_from_make_conf"><tt class="xref py py-obj docutils literal"><span class="pre">config_from_make_conf</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<td>generate a config from a file location</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.portage_conf.make_syncer" title="pkgcore.ebuild.portage_conf.make_syncer"><tt class="xref py py-obj docutils literal"><span class="pre">make_syncer</span></tt></a>(new_config,&nbsp;basedir,&nbsp;sync_uri,&nbsp;...)</td>
+<td></td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.portage_conf.mk_simple_cache" title="pkgcore.ebuild.portage_conf.mk_simple_cache"><tt class="xref py py-obj docutils literal"><span class="pre">mk_simple_cache</span></tt></a>(config_root,&nbsp;tree_loc[,&nbsp;...])</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="pkgcore.ebuild.portage_conf.SecurityUpgradesViaProfile">
+<tt class="descclassname">pkgcore.ebuild.portage_conf.</tt><tt class="descname">SecurityUpgradesViaProfile</tt><big>(</big><em>ebuild_repo</em>, <em>vdb</em>, <em>profile</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/portage_conf.html#SecurityUpgradesViaProfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.portage_conf.SecurityUpgradesViaProfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>generate a GLSA vuln. pkgset limited by profile</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ebuild_repo</strong> &#8211; L{pkgcore.ebuild.repository.UnconfiguredTree} instance</li>
+<li><strong>vdb</strong> &#8211; L{pkgcore.repository.prototype.tree} instance that is the livefs</li>
+<li><strong>profile</strong> &#8211; L{pkgcore.ebuild.profiles} instance</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.portage_conf.add_layman_syncers">
+<tt class="descclassname">pkgcore.ebuild.portage_conf.</tt><tt class="descname">add_layman_syncers</tt><big>(</big><em>new_config</em>, <em>rsync_opts</em>, <em>overlay_paths</em>, <em>config_root='/'</em>, <em>default_loc='etc/layman/layman.cfg'</em>, <em>default_conf='overlays.xml'</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/portage_conf.html#add_layman_syncers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.portage_conf.add_layman_syncers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.portage_conf.make_syncer">
+<tt class="descclassname">pkgcore.ebuild.portage_conf.</tt><tt class="descname">make_syncer</tt><big>(</big><em>new_config</em>, <em>basedir</em>, <em>sync_uri</em>, <em>rsync_opts</em>, <em>allow_timestamps=True</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/portage_conf.html#make_syncer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.portage_conf.make_syncer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.portage_conf.add_sets">
+<tt class="descclassname">pkgcore.ebuild.portage_conf.</tt><tt class="descname">add_sets</tt><big>(</big><em>config</em>, <em>root</em>, <em>portage_base_dir</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/portage_conf.html#add_sets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.portage_conf.add_sets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.portage_conf.add_profile">
+<tt class="descclassname">pkgcore.ebuild.portage_conf.</tt><tt class="descname">add_profile</tt><big>(</big><em>config</em>, <em>base_path</em>, <em>user_profile_path=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/portage_conf.html#add_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.portage_conf.add_profile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.portage_conf.add_fetcher">
+<tt class="descclassname">pkgcore.ebuild.portage_conf.</tt><tt class="descname">add_fetcher</tt><big>(</big><em>config</em>, <em>conf_dict</em>, <em>distdir</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/portage_conf.html#add_fetcher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.portage_conf.add_fetcher" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.portage_conf.mk_simple_cache">
+<tt class="descclassname">pkgcore.ebuild.portage_conf.</tt><tt class="descname">mk_simple_cache</tt><big>(</big><em>config_root</em>, <em>tree_loc</em>, <em>readonly=False</em>, <em>kls='pkgcore.cache.flat_hash.database'</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/portage_conf.html#mk_simple_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.portage_conf.mk_simple_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.ebuild.portage_conf.config_from_make_conf">
+<tt class="descclassname">pkgcore.ebuild.portage_conf.</tt><tt class="descname">config_from_make_conf</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/portage_conf.html#config_from_make_conf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.portage_conf.config_from_make_conf" title="Permalink to this definition">¶</a></dt>
+<dd><p>generate a config from a file location</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>location</strong> &#8211; location the portage configuration is based in,
+defaults to /etc</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.overlay_repository.html"
+                        title="previous chapter">pkgcore.ebuild.overlay_repository</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pkgcore.ebuild.processor.html"
+                        title="next chapter">pkgcore.ebuild.processor</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.processor.html" title="pkgcore.ebuild.processor"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pkgcore.ebuild.overlay_repository.html" title="pkgcore.ebuild.overlay_repository"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
