@@ -71,17 +71,33 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field"><th class="field-name" colspan="2">{parent,eapi,deprecated,provided,system,use_expand,masks,virtuals,defaults,arch}:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body">profiles commands
-parent
-eapi
-deprecated
+<tr><td>&nbsp;</td><td class="field-body"><p class="first">profiles commands
+parent                                                                          output the linearized tree of inherited parents</p>
+<blockquote>
+<div><p>later lines override earlier lines</p>
+</div></blockquote>
+<p>eapi                                                                            output all eapi support required for reading this profile
+deprecated                                                                      dump deprecation notices, if any
 provided
-system
-use_expand
-masks
-virtuals
-defaults
-arch</td>
+system                                                                          Output the system package set.
+use_expand                                                                      Output the USE_EXPAND configuration for this profile</p>
+<blockquote>
+<div><p>Outputs two fields of interest; USE_EXPAND (pseudo use groups), and
+USE_EXPAND_HIDDEN which is immutable by user configuration and use deps
+(primarily used for things like setting the kernel or OS type).</p>
+</div></blockquote>
+<p>masks                                                                           Inspect package masks
+virtuals                                                                        Inspect old style virtuals (aliasing) default targets</p>
+<blockquote>
+<div><p>In the absence of any package PROVIDE&#8217;ing one of these virtuals,
+the defined target will be used instead.</p>
+</div></blockquote>
+<p>defaults                                                                        Inspect defined configuration for this profile</p>
+<blockquote>
+<div><p>This is data parsed from make.defaults, containing things like ACCEPT_KEYWORDS.</p>
+</div></blockquote>
+<p class="last">arch                                                                            Output the arch defined for this profile</p>
+</td>
 </tr>
 </tbody>
 </table>
