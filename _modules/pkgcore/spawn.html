@@ -474,15 +474,18 @@
             <span class="n">cleanup_pids</span><span class="p">([</span><span class="n">fakepid</span><span class="p">]</span> <span class="o">+</span> <span class="n">pids</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="spawn_get_output"><a class="viewcode-back" href="../../api/pkgcore.spawn.html#pkgcore.spawn.spawn_get_output">[docs]</a><span class="k">def</span> <span class="nf">spawn_get_output</span><span class="p">(</span>
-    <span class="n">mycommand</span><span class="p">,</span> <span class="n">spawn_type</span><span class="o">=</span><span class="n">spawn</span><span class="p">,</span> <span class="n">raw_exit_code</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">collect_fds</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+    <span class="n">mycommand</span><span class="p">,</span> <span class="n">spawn_type</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">raw_exit_code</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">collect_fds</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
     <span class="n">fd_pipes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">split_lines</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="n">keywords</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;Call spawn, collecting the output to fd&#39;s specified in collect_fds list.</span>
 
-<span class="sd">    :param spawn_type: the passed in function to call-</span>
-<span class="sd">       typically spawn_bash, spawn, spawn_sandbox, or spawn_fakeroot.</span>
-<span class="sd">       defaults to spawn</span>
+<span class="sd">    :param spawn_type: the passed in function to call- typically :func:`spawn_bash`,</span>
+<span class="sd">       :func:`spawn`, :func:`spawn_sandbox`, or :func:`spawn_fakeroot`.</span>
+<span class="sd">       Defaults to :func:`spawn`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">spawn_type</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">spawn_type</span> <span class="o">=</span> <span class="n">spawn</span>
 
     <span class="n">pr</span><span class="p">,</span> <span class="n">pw</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
     <span class="k">if</span> <span class="n">fd_pipes</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>

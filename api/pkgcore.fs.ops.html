@@ -57,7 +57,7 @@
 <span id="pkgcore-fs-ops"></span><h1>pkgcore.fs.ops<a class="headerlink" href="#module-pkgcore.fs.ops" title="Permalink to this headline">¶</a></h1>
 <p>default fs ops.</p>
 <p>Shouldn&#8217;t be accessed directly for the most part, use
-L{pkgcore.plugins} to get at these ops.</p>
+<a class="reference internal" href="pkgcore.plugins.html#module-pkgcore.plugins"><tt class="xref py py-mod docutils literal"><span class="pre">pkgcore.plugins</span></tt></a> to get at these ops.</p>
 <p class="rubric">Functions</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -66,7 +66,7 @@ L{pkgcore.plugins} to get at these ops.</p>
 </colgroup>
 <tbody valign="top">
 <tr><td><a class="reference internal" href="#pkgcore.fs.ops.default_copyfile" title="pkgcore.fs.ops.default_copyfile"><tt class="xref py py-obj docutils literal"><span class="pre">default_copyfile</span></tt></a>(obj[,&nbsp;mkdirs])</td>
-<td>copy a L{fs obj&lt;pkgcore.fs.fs.fsBase&gt;} to its stated location.</td>
+<td>copy a <tt class="xref py py-class docutils literal"><span class="pre">pkgcore.fs.fs.fsBase</span></tt> to its stated location.</td>
 </tr>
 <tr><td><a class="reference internal" href="#pkgcore.fs.ops.default_ensure_perms" title="pkgcore.fs.ops.default_ensure_perms"><tt class="xref py py-obj docutils literal"><span class="pre">default_ensure_perms</span></tt></a>(d1[,&nbsp;d2])</td>
 <td>Enforce a fs objects attributes on the livefs.</td>
@@ -75,7 +75,7 @@ L{pkgcore.plugins} to get at these ops.</p>
 <td>mkdir for a fsDir object</td>
 </tr>
 <tr><td><a class="reference internal" href="#pkgcore.fs.ops.merge_contents" title="pkgcore.fs.ops.merge_contents"><tt class="xref py py-obj docutils literal"><span class="pre">merge_contents</span></tt></a>(cset[,&nbsp;offset,&nbsp;callback])</td>
-<td>merge a L{pkgcore.fs.contents.contentsSet} instance to the livefs</td>
+<td>merge a <a class="reference internal" href="pkgcore.fs.contents.html#pkgcore.fs.contents.contentsSet" title="pkgcore.fs.contents.contentsSet"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.fs.contents.contentsSet</span></tt></a> instance to the livefs</td>
 </tr>
 <tr><td><a class="reference internal" href="#pkgcore.fs.ops.unmerge_contents" title="pkgcore.fs.ops.unmerge_contents"><tt class="xref py py-obj docutils literal"><span class="pre">unmerge_contents</span></tt></a>(cset[,&nbsp;offset,&nbsp;callback])</td>
 <td>unmerge a L{pkgcore.fs.contents.contentsSet} instance to the livefs</td>
@@ -84,25 +84,23 @@ L{pkgcore.plugins} to get at these ops.</p>
 </table>
 <dl class="function">
 <dt id="pkgcore.fs.ops.merge_contents">
-<tt class="descclassname">pkgcore.fs.ops.</tt><tt class="descname">merge_contents</tt><big>(</big><em>cset</em>, <em>offset=None</em>, <em>callback=&lt;function &lt;lambda&gt; at 0x23c8f50&gt;</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/ops.html#merge_contents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.ops.merge_contents" title="Permalink to this definition">¶</a></dt>
-<dd><p>merge a L{pkgcore.fs.contents.contentsSet} instance to the livefs</p>
+<tt class="descclassname">pkgcore.fs.ops.</tt><tt class="descname">merge_contents</tt><big>(</big><em>cset</em>, <em>offset=None</em>, <em>callback=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/ops.html#merge_contents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.ops.merge_contents" title="Permalink to this definition">¶</a></dt>
+<dd><p>merge a <a class="reference internal" href="pkgcore.fs.contents.html#pkgcore.fs.contents.contentsSet" title="pkgcore.fs.contents.contentsSet"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.fs.contents.contentsSet</span></tt></a> instance to the livefs</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>cset</strong> &#8211; L{pkgcore.fs.contents.contentsSet} instance</li>
+<li><strong>cset</strong> &#8211; <a class="reference internal" href="pkgcore.fs.contents.html#pkgcore.fs.contents.contentsSet" title="pkgcore.fs.contents.contentsSet"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.fs.contents.contentsSet</span></tt></a> instance</li>
 <li><strong>offset</strong> &#8211; if not None, offset to prefix all locations with.
 Think of it as target dir.</li>
-<li><strong>callback</strong> &#8211; callable to report each entry being merged</li>
+<li><strong>callback</strong> &#8211; callable to report each entry being merged; given a single arg,
+the fs object being merged.</li>
 </ul>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Raises OSError:</th><td class="field-body"><p class="first">see L{default_copyfile} and L{default_mkdir}</p>
-</td>
-</tr>
-<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True, or an exception is thrown on failure
-(OSError, although see default_copyfile for specifics).</p>
+<tr class="field"><th class="field-name" colspan="2">Raises EnvironmentError:</th></tr>
+<tr><td>&nbsp;</td><td class="field-body"><p class="first last">Thrown for permission failures.</p>
 </td>
 </tr>
 </tbody>
@@ -111,7 +109,7 @@ Think of it as target dir.</li>
 
 <dl class="function">
 <dt id="pkgcore.fs.ops.unmerge_contents">
-<tt class="descclassname">pkgcore.fs.ops.</tt><tt class="descname">unmerge_contents</tt><big>(</big><em>cset</em>, <em>offset=None</em>, <em>callback=&lt;function &lt;lambda&gt; at 0x23cc0c8&gt;</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/ops.html#unmerge_contents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.ops.unmerge_contents" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pkgcore.fs.ops.</tt><tt class="descname">unmerge_contents</tt><big>(</big><em>cset</em>, <em>offset=None</em>, <em>callback=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/ops.html#unmerge_contents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.ops.unmerge_contents" title="Permalink to this definition">¶</a></dt>
 <dd><p>unmerge a L{pkgcore.fs.contents.contentsSet} instance to the livefs</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -125,11 +123,12 @@ Think of it as target dir.</li>
 </ul>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Raises OSError:</th><td class="field-body"><p class="first">see L{default_copyfile} and L{default_mkdir}</p>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True, or an exception is thrown on failure
+(OSError, although see default_copyfile for specifics).</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True, or an exception is thrown on failure
-(OSError, although see default_copyfile for specifics).</p>
+<tr class="field"><th class="field-name" colspan="2">Raises EnvironmentError:</th></tr>
+<tr><td>&nbsp;</td><td class="field-body"><p class="first last">see <a class="reference internal" href="#pkgcore.fs.ops.default_copyfile" title="pkgcore.fs.ops.default_copyfile"><tt class="xref py py-func docutils literal"><span class="pre">default_copyfile()</span></tt></a> and <a class="reference internal" href="#pkgcore.fs.ops.default_mkdir" title="pkgcore.fs.ops.default_mkdir"><tt class="xref py py-func docutils literal"><span class="pre">default_mkdir()</span></tt></a></p>
 </td>
 </tr>
 </tbody>
@@ -150,10 +149,11 @@ Think of it as target dir.</li>
 </ul>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Raises OSError:</th><td class="field-body"><p class="first">if fs object attributes can&#8217;t be enforced</p>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True on success, else an exception is thrown</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True on success, else an exception is thrown</p>
+<tr class="field"><th class="field-name" colspan="2">Raises EnvironmentError:</th></tr>
+<tr><td>&nbsp;</td><td class="field-body"><p class="first last">if fs object attributes can&#8217;t be enforced</p>
 </td>
 </tr>
 </tbody>
@@ -163,20 +163,25 @@ Think of it as target dir.</li>
 <dl class="function">
 <dt id="pkgcore.fs.ops.default_copyfile">
 <tt class="descclassname">pkgcore.fs.ops.</tt><tt class="descname">default_copyfile</tt><big>(</big><em>obj</em>, <em>mkdirs=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/ops.html#default_copyfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.ops.default_copyfile" title="Permalink to this definition">¶</a></dt>
-<dd><p>copy a L{fs obj&lt;pkgcore.fs.fs.fsBase&gt;} to its stated location.</p>
+<dd><p>copy a <tt class="xref py py-class docutils literal"><span class="pre">pkgcore.fs.fs.fsBase</span></tt> to its stated location.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>obj</strong> &#8211; L{pkgcore.fs.fs.fsBase} instance, exempting fsDir</li>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>obj</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">pkgcore.fs.fs.fsBase</span></tt> instance, exempting <tt class="xref py py-class docutils literal"><span class="pre">fsDir</span></tt></li>
 </ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">true if success, else an exception is thrown</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">Raises EnvironmentError:</th></tr>
+<tr><td>&nbsp;</td><td class="field-body"><p class="first last">permission errors</p>
 </td>
 </tr>
 </tbody>
 </table>
-<p>:raise OSError:, for non file objs, Exception (this needs to be fixed
-:return: true if success, else an exception is thrown</p>
 </dd></dl>
 
 <dl class="function">
@@ -188,14 +193,15 @@ Think of it as target dir.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>d</strong> &#8211; L{pkgcore.fs.fs.fsDir} instance</li>
+<li><strong>d</strong> &#8211; <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsDir" title="pkgcore.fs.fs.fsDir"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.fs.fs.fsDir</span></tt></a> instance</li>
 </ul>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Raises OSError:</th><td class="field-body"><p class="first">if can&#8217;t complete</p>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">true if success, else an exception is thrown</p>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">true if success, else an exception is thrown</p>
+<tr class="field"><th class="field-name" colspan="2">Raises EnvironmentError:</th></tr>
+<tr><td>&nbsp;</td><td class="field-body"><p class="first last">if can&#8217;t complete</p>
 </td>
 </tr>
 </tbody>
