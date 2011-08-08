@@ -187,10 +187,10 @@
 
 <span class="sd">        :param tempdir: tempspace for the merger to use; this space it must</span>
 <span class="sd">            control alone, no sharing.</span>
-<span class="sd">        :param pkg: L{pkgcore.package.metadata.package} instance to install</span>
+<span class="sd">        :param pkg: :obj:`pkgcore.package.metadata.package` instance to install</span>
 <span class="sd">        :param offset: any livefs offset to force for modifications</span>
 <span class="sd">        :param disable_plugins: if enabled, run just the triggers passed in</span>
-<span class="sd">        :return: L{MergeEngine}</span>
+<span class="sd">        :return: :obj:`MergeEngine`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -222,11 +222,11 @@
 
 <span class="sd">        :param tempdir: tempspace for the merger to use; this space it must</span>
 <span class="sd">            control alone, no sharing.</span>
-<span class="sd">        :param pkg: L{pkgcore.package.metadata.package} instance to uninstall,</span>
+<span class="sd">        :param pkg: :obj:`pkgcore.package.metadata.package` instance to uninstall,</span>
 <span class="sd">            must be from a livefs vdb</span>
 <span class="sd">        :param offset: any livefs offset to force for modifications</span>
 <span class="sd">        :param disable_plugins: if enabled, run just the triggers passed in</span>
-<span class="sd">        :return: L{MergeEngine}</span>
+<span class="sd">        :return: :obj:`MergeEngine`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">hooks</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
@@ -257,12 +257,12 @@
 
 <span class="sd">        :param tempdir: tempspace for the merger to use; this space it must</span>
 <span class="sd">            control alone, no sharing.</span>
-<span class="sd">        :param old: L{pkgcore.package.metadata.package} instance to replace,</span>
+<span class="sd">        :param old: :obj:`pkgcore.package.metadata.package` instance to replace,</span>
 <span class="sd">            must be from a livefs vdb</span>
-<span class="sd">        :param new: L{pkgcore.package.metadata.package} instance</span>
+<span class="sd">        :param new: :obj:`pkgcore.package.metadata.package` instance</span>
 <span class="sd">        :param offset: any livefs offset to force for modifications</span>
 <span class="sd">        :param disable_plugins: if enabled, run just the triggers passed in</span>
-<span class="sd">        :return: L{MergeEngine}</span>
+<span class="sd">        :return: :obj:`MergeEngine`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -344,10 +344,10 @@
 </div>
 <div class="viewcode-block" id="MergeEngine.add_trigger"><a class="viewcode-back" href="../../../api/pkgcore.merge.engine.html#pkgcore.merge.engine.MergeEngine.add_trigger">[docs]</a>    <span class="k">def</span> <span class="nf">add_trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hook_name</span><span class="p">,</span> <span class="n">trigger</span><span class="p">,</span> <span class="n">required_csets</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        register a L{pkgcore.merge.triggers.base} instance to be executed</span>
+<span class="sd">        register a :obj:`pkgcore.merge.triggers.base` instance to be executed</span>
 
 <span class="sd">        :param hook_name: engine step to hook the trigger into</span>
-<span class="sd">        :param trigger: L{triggers&lt;pkgcore.merge.triggers.base&gt;} to add</span>
+<span class="sd">        :param trigger: :class:`pkgcore.merge.triggers.base` to add</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">hook_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hooks</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&quot;trigger </span><span class="si">%r</span><span class="s">&#39;s hook </span><span class="si">%s</span><span class="s"> isn&#39;t a known hook&quot;</span> <span class="o">%</span>

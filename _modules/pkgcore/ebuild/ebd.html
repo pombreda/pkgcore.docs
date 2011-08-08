@@ -53,7 +53,7 @@
 <span class="sd">EBuild Daemon (ebd), main high level interface to ebuild execution env</span>
 <span class="sd">(ebuild.sh being part of it).</span>
 
-<span class="sd">Wraps L{pkgcore.ebuild.processor} functionality into a higher level</span>
+<span class="sd">Wraps :obj:`pkgcore.ebuild.processor` functionality into a higher level</span>
 <span class="sd">api, per phase methods for example</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -97,10 +97,10 @@
                 <span class="n">use_override</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param pkg:</span>
-<span class="sd">            L{ebuild package instance&lt;pkgcore.ebuild.ebuild_src.package&gt;}</span>
+<span class="sd">            :class:`pkgcore.ebuild.ebuild_src.package`</span>
 <span class="sd">            instance this env is being setup for</span>
 <span class="sd">        :param initial_env: initial environment to use for this ebuild</span>
-<span class="sd">        :param env_data_source: a L{snakeoil.data_source..base} instance</span>
+<span class="sd">        :param env_data_source: a :obj:`snakeoil.data_source..base` instance</span>
 <span class="sd">            to restore the environment from- used for restoring the</span>
 <span class="sd">            state of an ebuild processing, whether for unmerging, or</span>
 <span class="sd">            walking phases during building</span>
@@ -308,8 +308,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param phase: phase to execute</span>
 <span class="sd">        :param userpriv: will we drop to</span>
-<span class="sd">            L{portage_uid&lt;pkgcore.os_data.portage_uid&gt;} and</span>
-<span class="sd">            L{portage_gid&lt;pkgcore.os_data.portage_gid&gt;} access for this phase?</span>
+<span class="sd">            :obj:`pkgcore.os_data.portage_uid` and</span>
+<span class="sd">            :obj:`pkgcore.os_data.portage_gid` access for this phase?</span>
 <span class="sd">        :param sandbox: should this phase be sandboxed?</span>
 <span class="sd">        :param fakeroot: should the phase be fakeroot&#39;d?  Only really useful</span>
 <span class="sd">            for install phase, and is mutually exclusive with sandbox</span>
@@ -440,8 +440,8 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param phase: phase to execute</span>
 <span class="sd">    :param userpriv: will we drop to</span>
-<span class="sd">        L{portage_uid&lt;pkgcore.os_data.portage_uid&gt;} and</span>
-<span class="sd">        L{portage_gid&lt;pkgcore.os_data.portage_gid&gt;} access for this phase?</span>
+<span class="sd">        :obj:`pkgcore.os_data.portage_uid` and</span>
+<span class="sd">        :obj:`pkgcore.os_data.portage_gid` access for this phase?</span>
 <span class="sd">    :param sandbox: should this phase be sandboxed?</span>
 <span class="sd">    :param fakeroot: should the phase be fakeroot&#39;d?  Only really useful</span>
 <span class="sd">        for install phase, and is mutually exclusive with sandbox</span>
@@ -575,13 +575,13 @@
         <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param pkg: L{pkgcore.ebuild.ebuild_src.package} instance we&#39;ll be</span>
+<span class="sd">        :param pkg: :obj:`pkgcore.ebuild.ebuild_src.package` instance we&#39;ll be</span>
 <span class="sd">            building</span>
 <span class="sd">        :param domain_settings: dict bled down from the domain configuration;</span>
 <span class="sd">            basically initial env</span>
-<span class="sd">        :param eclass_cache: the L{eclass_cache&lt;pkgcore.ebuild.eclass_cache&gt;}</span>
+<span class="sd">        :param eclass_cache: the :class:`pkgcore.ebuild.eclass_cache`</span>
 <span class="sd">            we&#39;ll be using</span>
-<span class="sd">        :param fetcher: a L{pkgcore.fetch.base.fetcher} instance to use to</span>
+<span class="sd">        :param fetcher: a :obj:`pkgcore.fetch.base.fetcher` instance to use to</span>
 <span class="sd">            access our required files for building</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -843,7 +843,7 @@
 <span class="sd">        install the package somewhere prior to executing clean if you</span>
 <span class="sd">        intend on installing it.</span>
 
-<span class="sd">        :return: L{pkgcore.ebuild.ebuild_built.package} instance</span>
+<span class="sd">        :return: :obj:`pkgcore.ebuild.ebuild_built.package` instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">factory</span> <span class="o">=</span> <span class="n">ebuild_built</span><span class="o">.</span><span class="n">fake_package_factory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_built_class</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">factory</span><span class="o">.</span><span class="n">new_package</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span>

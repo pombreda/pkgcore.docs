@@ -66,7 +66,7 @@
 
     <span class="sd">&quot;&quot;&quot;Minimal dict-like wrapper returning config sections by type.</span>
 
-<span class="sd">    Similar to L{LazyValDict&lt;mappings.LazyValDict&gt;} but __getitem__</span>
+<span class="sd">    Similar to :class:`mappings.LazyValDict` but __getitem__</span>
 <span class="sd">    does not call the key func for __getitem__.</span>
 
 <span class="sd">    Careful: getting the keys for this mapping will collapse all of</span>
@@ -112,7 +112,7 @@
 
     <span class="sd">&quot;&quot;&quot;A collapsed config section.</span>
 
-<span class="sd">    :type type: L{basics.ConfigType}</span>
+<span class="sd">    :type type: :obj:`basics.ConfigType`</span>
 <span class="sd">    @ivar type: Our type.</span>
 <span class="sd">    :type config: dict</span>
 <span class="sd">    @ivar config: The supplied configuration values.</span>
@@ -217,9 +217,9 @@
 
 <span class="sd">    The following special type names are recognized:</span>
 <span class="sd">      - configsection: instantiated and used the same way as an entry in the</span>
-<span class="sd">        configs L{__init__} arg.</span>
+<span class="sd">        configs :obj:`__init__` arg.</span>
 <span class="sd">      - remoteconfigsection: Instantiated and used the same way as an entry in</span>
-<span class="sd">        theremote_configs L{__init__} arg.</span>
+<span class="sd">        theremote_configs :obj:`__init__` arg.</span>
 
 <span class="sd">    These &quot;magic&quot; typenames are only recognized if they are used by a</span>
 <span class="sd">    section with a name starting with &quot;autoload&quot;.</span>
@@ -313,7 +313,7 @@
 <div class="viewcode-block" id="ConfigManager.collapse_named_section"><a class="viewcode-back" href="../../../api/pkgcore.config.central.html#pkgcore.config.central.ConfigManager.collapse_named_section">[docs]</a>    <span class="k">def</span> <span class="nf">collapse_named_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">raise_on_missing</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Collapse a config by name, possibly returning a cached instance.</span>
 
-<span class="sd">        @returns: L{CollapsedConfig}.</span>
+<span class="sd">        @returns: :obj:`CollapsedConfig`.</span>
 
 <span class="sd">        If there is no section with this name a ConfigurationError is raised,</span>
 <span class="sd">        unless raise_on_missing is False in which case None is returned.</span>
@@ -352,7 +352,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_refs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ConfigManager.collapse_section"><a class="viewcode-back" href="../../../api/pkgcore.config.central.html#pkgcore.config.central.ConfigManager.collapse_section">[docs]</a>    <span class="k">def</span> <span class="nf">collapse_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">_index</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Collapse a ConfigSection to a L{CollapsedConfig}.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Collapse a ConfigSection to a :obj:`CollapsedConfig`.&quot;&quot;&quot;</span>
 
         <span class="c"># Bail if this is an inherit-only (uncollapsable) section.</span>
         <span class="k">try</span><span class="p">:</span>

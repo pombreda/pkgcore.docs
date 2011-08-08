@@ -56,9 +56,9 @@
   <div class="section" id="module-pkgcore.util.commandline">
 <span id="pkgcore-util-commandline"></span><h1>pkgcore.util.commandline<a class="headerlink" href="#module-pkgcore.util.commandline" title="Permalink to this headline">¶</a></h1>
 <p>Utilities for writing commandline utilities.</p>
-<p>pkgcore scripts should use the L{OptionParser} subclass here for a
+<p>pkgcore scripts should use the <a class="reference internal" href="#pkgcore.util.commandline.OptionParser" title="pkgcore.util.commandline.OptionParser"><tt class="xref py py-obj docutils literal"><span class="pre">OptionParser</span></tt></a> subclass here for a
 consistent commandline &#8220;look and feel&#8221; (and it tries to make life a
-bit easier too). They will probably want to use L{main} from an C{if
+bit easier too). They will probably want to use <a class="reference internal" href="#pkgcore.util.commandline.main" title="pkgcore.util.commandline.main"><tt class="xref py py-obj docutils literal"><span class="pre">main</span></tt></a> from an C{if
 __name__ == &#8216;__main__&#8217;} block too: it will take care of things like
 consistent exception handling.</p>
 <p>See dev-notes/commandline.rst for more complete documentation.</p>
@@ -566,8 +566,8 @@ manager) are handled. Other exceptions are not (trigger a traceback).</p>
 <li><strong>subcommands</strong> (<em>mapping of string =&gt; (OptionParser class, main func)</em>) &#8211; available commands.
 The keys are a subcommand name or None for other/unknown/no subcommand.
 The values are tuples of OptionParser subclasses and functions called
-as main_func(config, out, err) with a L{Values} instance, two
-L{snakeoil.formatters.Formatter} instances for output (stdout)
+as main_func(config, out, err) with a <a class="reference internal" href="#pkgcore.util.commandline.Values" title="pkgcore.util.commandline.Values"><tt class="xref py py-obj docutils literal"><span class="pre">Values</span></tt></a> instance, two
+<a class="reference external" href="http://docs.snakeoil.googlecode.com/git/api/snakeoil.formatters.html#snakeoil.formatters.Formatter" title="(in snakeoil v0.4.1)"><tt class="xref py py-obj docutils literal"><span class="pre">snakeoil.formatters.Formatter</span></tt></a> instances for output (stdout)
 and errors (stderr). It should return an integer used as
 exit status or None as synonym for 0.</li>
 <li><strong>args</strong> (<em>sequence of strings</em>) &#8211; arguments to parse, defaulting to C{sys.argv[1:]}.</li>

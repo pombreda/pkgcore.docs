@@ -55,8 +55,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">configuration subsystem primitives</span>
 
-<span class="sd">all callables can/may throw a</span>
-<span class="sd">L{configuration exception&lt;pkgcore.config.errors.ConfigurationError&gt;}</span>
+<span class="sd">all callables can/may throw a :class:`pkgcore.config.errors.ConfigurationError`</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;ConfigType&quot;</span><span class="p">,</span> <span class="s">&quot;LazySectionRef&quot;</span><span class="p">,</span> <span class="s">&quot;LazyNamedSectionRef&quot;</span><span class="p">,</span> <span class="s">&quot;ConfigSection&quot;</span><span class="p">,</span>
@@ -109,7 +108,7 @@
 
 <span class="sd">        If an argument has no default, it is assumed to be a string-</span>
 <span class="sd">        exception to this is if the callable has a pkgcore_config_type</span>
-<span class="sd">        attr that is a L{ConfigHint} instance, in which case those</span>
+<span class="sd">        attr that is a :obj:`ConfigHint` instance, in which case those</span>
 <span class="sd">        override.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">original_func_obj</span> <span class="o">=</span> <span class="n">func_obj</span>
@@ -210,7 +209,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_collapse</span><span class="p">)</span>
 
 <div class="viewcode-block" id="LazySectionRef.collapse"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.LazySectionRef.collapse">[docs]</a>    <span class="k">def</span> <span class="nf">collapse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;@returns: L{pkgcore.config.central.CollapsedConfig}.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;@returns: :obj:`pkgcore.config.central.CollapsedConfig`.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cached_config</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cached_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collapse</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">typename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">typename</span><span class="p">:</span>
@@ -503,10 +502,10 @@
     <span class="k">return</span> <span class="n">value</span>
 </div>
 <div class="viewcode-block" id="convert_hybrid"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.convert_hybrid">[docs]</a><span class="k">def</span> <span class="nf">convert_hybrid</span><span class="p">(</span><span class="n">central</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Automagically switch between L{convert_string} and L{convert_asis}.</span>
+    <span class="sd">&quot;&quot;&quot;Automagically switch between :obj:`convert_string` and :obj:`convert_asis`.</span>
 
-<span class="sd">    L{convert_asis} is used for arg_type str and if value is not a basestring.</span>
-<span class="sd">    L{convert_string} is used for the rest.</span>
+<span class="sd">    :obj:`convert_asis` is used for arg_type str and if value is not a basestring.</span>
+<span class="sd">    :obj:`convert_string` is used for the rest.</span>
 
 <span class="sd">    Be careful about handing in escaped strings: they are not</span>
 <span class="sd">    unescaped (for arg_type str).</span>
