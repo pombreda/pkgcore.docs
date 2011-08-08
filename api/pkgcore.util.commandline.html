@@ -119,8 +119,8 @@ consistent exception handling.</p>
 <dt id="pkgcore.util.commandline.FormattingHandler.close">
 <tt class="descname">close</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.close" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tidy up any resources used by the handler.</p>
-<p>This version removes the handler from an internal map of handlers,
-_handlers, which is used for handler lookup by name. Subclasses
+<p>This version does removes the handler from an internal list
+of handlers which is closed when shutdown() is called. Subclasses
 should ensure that this gets called from overridden close()
 methods.</p>
 </dd></dl>
@@ -162,11 +162,6 @@ for the module.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pkgcore.util.commandline.FormattingHandler.get_name">
-<tt class="descname">get_name</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.get_name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
 <dt id="pkgcore.util.commandline.FormattingHandler.handle">
 <tt class="descname">handle</tt><big>(</big><em>record</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.handle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Conditionally emit the specified logging record.</p>
@@ -188,11 +183,6 @@ the logging system, they are more interested in application errors.
 You could, however, replace this with a custom handler if you wish.
 The record which was being processed is passed in to this method.</p>
 </dd></dl>
-
-<dl class="attribute">
-<dt id="pkgcore.util.commandline.FormattingHandler.name">
-<tt class="descname">name</tt><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.util.commandline.FormattingHandler.release">
@@ -218,11 +208,6 @@ The record which was being processed is passed in to this method.</p>
 <dd><p>Set the logging level of this handler.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="pkgcore.util.commandline.FormattingHandler.set_name">
-<tt class="descname">set_name</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.FormattingHandler.set_name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
 <dl class="class">
@@ -238,18 +223,6 @@ attribute like this:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">vals</span><span class="p">)</span>
 </pre></div>
 </div>
-<dl class="attribute">
-<dt id="pkgcore.util.commandline.Values.config">
-<tt class="descname">config</tt><a class="headerlink" href="#pkgcore.util.commandline.Values.config" title="Permalink to this definition">¶</a></dt>
-<dd><p>InternalJitAttr object; basis of JIT cached attr access</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pkgcore.util.commandline.Values.domain">
-<tt class="descname">domain</tt><a class="headerlink" href="#pkgcore.util.commandline.Values.domain" title="Permalink to this definition">¶</a></dt>
-<dd><p>InternalJitAttr object; basis of JIT cached attr access</p>
-</dd></dl>
-
 <dl class="method">
 <dt id="pkgcore.util.commandline.Values.ensure_value">
 <tt class="descname">ensure_value</tt><big>(</big><em>attr</em>, <em>value</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.Values.ensure_value" title="Permalink to this definition">¶</a></dt>
@@ -323,7 +296,7 @@ attribute like this:</p>
 <dl class="class">
 <dt id="pkgcore.util.commandline.OptionParser">
 <em class="property">class </em><tt class="descclassname">pkgcore.util.commandline.</tt><tt class="descname">OptionParser</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pkgcore.util.commandline.OptionParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/optparse.html#optparse.OptionParser" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">optparse.OptionParser</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/optparse.html#optparse.OptionParser" title="(in Python v2.7)"><tt class="docutils literal"><span class="pre">optparse.OptionParser</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Our common OptionParser subclass.</p>
 <p>Adds some common options, makes options that get &#8220;append&#8221;ed
 default to an empty sequence instead of None, uses our custom
@@ -661,7 +634,7 @@ of C{sys.argv[0]}.</li>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Brian Harring, Marien Zwart.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.1.
     </div>
   </body>
 </html>

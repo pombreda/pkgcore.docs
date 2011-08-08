@@ -75,17 +75,17 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><a class="reference internal" href="#pkgcore.ebuild.atom.atom" title="pkgcore.ebuild.atom.atom"><tt class="xref py py-obj docutils literal"><span class="pre">atom</span></tt></a></td>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.atom.atom" title="pkgcore.ebuild.atom.atom"><tt class="xref py py-obj docutils literal"><span class="pre">atom</span></tt></a>(atom[,&nbsp;negate_vers,&nbsp;eapi])</td>
 <td>Currently implements gentoo ebuild atom parsing.</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.ebuild.atom.transitive_use_atom" title="pkgcore.ebuild.atom.transitive_use_atom"><tt class="xref py py-obj docutils literal"><span class="pre">transitive_use_atom</span></tt></a></td>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.atom.transitive_use_atom" title="pkgcore.ebuild.atom.transitive_use_atom"><tt class="xref py py-obj docutils literal"><span class="pre">transitive_use_atom</span></tt></a>(atom[,&nbsp;negate_vers,&nbsp;eapi])</td>
 <td></td>
 </tr>
 </tbody>
 </table>
 <dl class="class">
 <dt id="pkgcore.ebuild.atom.atom">
-<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.atom.</tt><tt class="descname">atom</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/atom.html#atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.atom.atom" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.atom.</tt><tt class="descname">atom</tt><big>(</big><em>atom</em>, <em>negate_vers=False</em>, <em>eapi=-1</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/atom.html#atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.atom.atom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pkgcore.restrictions.boolean.html#pkgcore.restrictions.boolean.AndRestriction" title="pkgcore.restrictions.boolean.AndRestriction"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.restrictions.boolean.AndRestriction</span></tt></a></p>
 <p>Currently implements gentoo ebuild atom parsing.</p>
 <p>Should be converted into an agnostic dependency base.</p>
@@ -97,8 +97,11 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_restrictions</strong> &#8211; if node_type is enforced,
-restrictions must be of that type.</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>new_restrictions</strong> &#8211; if node_type is enforced,
+restrictions must be of that type.</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -219,14 +222,14 @@ of the given arguments and keywords.</p>
 <p>Two atoms &#8220;intersect&#8221; if a package can be constructed that
 matches both:</p>
 <blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li>if you query for just &#8220;dev-lang/python&#8221; it &#8220;intersects&#8221; both
 &#8220;dev-lang/python&#8221; and &#8220;&gt;=dev-lang/python-2.4&#8221;</li>
 <li>if you query for &#8220;=dev-lang/python-2.4&#8221; it &#8220;intersects&#8221;
 &#8220;&gt;=dev-lang/python-2.4&#8221; and &#8220;dev-lang/python&#8221; but not
 &#8220;&lt;dev-lang/python-2.3&#8221;</li>
 </ul>
-</div></blockquote>
+</blockquote>
 <p>USE and slot deps are also taken into account.</p>
 <p>The block/nonblock state of the atom is ignored.</p>
 </dd></dl>
@@ -305,7 +308,7 @@ matches both:</p>
 
 <dl class="class">
 <dt id="pkgcore.ebuild.atom.transitive_use_atom">
-<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.atom.</tt><tt class="descname">transitive_use_atom</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/atom.html#transitive_use_atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.atom.</tt><tt class="descname">transitive_use_atom</tt><big>(</big><em>atom</em>, <em>negate_vers=False</em>, <em>eapi=-1</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/atom.html#transitive_use_atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.atom.transitive_use_atom" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pkgcore.ebuild.atom.atom" title="pkgcore.ebuild.atom.atom"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.ebuild.atom.atom</span></tt></a></p>
 <dl class="method">
 <dt id="pkgcore.ebuild.atom.transitive_use_atom.add_restriction">
@@ -315,8 +318,11 @@ matches both:</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_restrictions</strong> &#8211; if node_type is enforced,
-restrictions must be of that type.</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>new_restrictions</strong> &#8211; if node_type is enforced,
+restrictions must be of that type.</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -356,8 +362,11 @@ restrictions must be of that type.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_solution_expansion</strong> &#8211; controls whether to expand everything
-(break apart atoms for example); this isn&#8217;t likely what you want</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>full_solution_expansion</strong> &#8211; controls whether to expand everything
+(break apart atoms for example); this isn&#8217;t likely what you want</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -452,14 +461,14 @@ of the given arguments and keywords.</p>
 <p>Two atoms &#8220;intersect&#8221; if a package can be constructed that
 matches both:</p>
 <blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li>if you query for just &#8220;dev-lang/python&#8221; it &#8220;intersects&#8221; both
 &#8220;dev-lang/python&#8221; and &#8220;&gt;=dev-lang/python-2.4&#8221;</li>
 <li>if you query for &#8220;=dev-lang/python-2.4&#8221; it &#8220;intersects&#8221;
 &#8220;&gt;=dev-lang/python-2.4&#8221; and &#8220;dev-lang/python&#8221; but not
 &#8220;&lt;dev-lang/python-2.3&#8221;</li>
 </ul>
-</div></blockquote>
+</blockquote>
 <p>USE and slot deps are also taken into account.</p>
 <p>The block/nonblock state of the atom is ignored.</p>
 </dd></dl>
@@ -477,8 +486,11 @@ matches both:</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_solution_expansion</strong> &#8211; controls whether to expand everything
-(break apart atoms for example); this isn&#8217;t likely what you want</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>full_solution_expansion</strong> &#8211; controls whether to expand everything
+(break apart atoms for example); this isn&#8217;t likely what you want</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -598,7 +610,7 @@ matches both:</p>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Brian Harring, Marien Zwart.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.1.
     </div>
   </body>
 </html>

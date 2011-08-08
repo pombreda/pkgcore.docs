@@ -88,10 +88,10 @@ still use <tt class="docutils literal"><span class="pre">/etc/make.conf</span></
 <p><tt class="docutils literal"><span class="pre">system</span></tt>, <tt class="docutils literal"><span class="pre">world</span></tt>, <tt class="docutils literal"><span class="pre">installed</span></tt>, <tt class="docutils literal"><span class="pre">version-installed</span></tt>, <tt class="docutils literal"><span class="pre">glsa</span></tt></p>
 <p><tt class="docutils literal"><span class="pre">system</span></tt>, <tt class="docutils literal"><span class="pre">world</span></tt>:</p>
 <blockquote>
-<div>These two are the same as in portage.</div></blockquote>
+These two are the same as in portage.</blockquote>
 <p><tt class="docutils literal"><span class="pre">version-installed</span></tt>:</p>
 <blockquote>
-<div><p><tt class="docutils literal"><span class="pre">versioned-installed</span></tt> is a set of all CPVs from the vdb. This is useful for
+<p><tt class="docutils literal"><span class="pre">versioned-installed</span></tt> is a set of all CPVs from the vdb. This is useful for
 <tt class="docutils literal"><span class="pre">--emptytree</span></tt>.</p>
 <dl class="docutils">
 <dt>Example:</dt>
@@ -99,10 +99,10 @@ still use <tt class="docutils literal"><span class="pre">/etc/make.conf</span></
 <tt class="docutils literal"><span class="pre">versioned-installed</span></tt> would be a set containing <tt class="docutils literal"><span class="pre">-app/foo-1</span></tt> and
 <tt class="docutils literal"><span class="pre">-bar/dar-2</span></tt>.</dd>
 </dl>
-</div></blockquote>
+</blockquote>
 <p><tt class="docutils literal"><span class="pre">installed</span></tt>:</p>
 <blockquote>
-<div><p><tt class="docutils literal"><span class="pre">installed</span></tt> is an unversioned set, but is slotted. Unlike
+<p><tt class="docutils literal"><span class="pre">installed</span></tt> is an unversioned set, but is slotted. Unlike
 <tt class="docutils literal"><span class="pre">version-installed</span></tt>, <tt class="docutils literal"><span class="pre">installed</span></tt> can be used for &#8220;system update&#8221;. Using
 <tt class="docutils literal"><span class="pre">pmerge</span> <span class="pre">-us</span> <span class="pre">installed</span></tt> over <tt class="docutils literal"><span class="pre">pmerge</span> <span class="pre">-u</span> <span class="pre">-s</span> <span class="pre">system</span> <span class="pre">-s</span> <span class="pre">world</span></tt> also has the
 advantage that dependency-orphaned packages are updated.</p>
@@ -111,11 +111,11 @@ advantage that dependency-orphaned packages are updated.</p>
 <dd>If you had <tt class="docutils literal"><span class="pre">app/foo-1</span></tt> slot 1, <tt class="docutils literal"><span class="pre">app/foo-2</span></tt> slot 2, <tt class="docutils literal"><span class="pre">installed</span></tt> would
 be a set containing <tt class="docutils literal"><span class="pre">app/foo:1</span> <span class="pre">app/foo:2</span></tt>.</dd>
 </dl>
-</div></blockquote>
+</blockquote>
 <p><tt class="docutils literal"><span class="pre">glsa</span></tt>:</p>
 <blockquote>
-<div>Packages that are vulnerable to security bugs, as specified in their
-appropriate Gentoo Linux Security Advisory (GLSA).</div></blockquote>
+Packages that are vulnerable to security bugs, as specified in their
+appropriate Gentoo Linux Security Advisory (GLSA).</blockquote>
 </div>
 <div class="section" id="custom-sets">
 <h3>Custom Sets<a class="headerlink" href="#custom-sets" title="Permalink to this headline">¶</a></h3>
@@ -132,7 +132,7 @@ pmerge -uDs kde-set</pre>
 <h4>New in pkgcore:<a class="headerlink" href="#new-in-pkgcore" title="Permalink to this headline">¶</a></h4>
 <p><tt class="docutils literal"><span class="pre">--ignore-failures</span></tt>:</p>
 <blockquote>
-<div><p>Ignore resolution/build failures, skipping to the next step.  Think of it as
+<p>Ignore resolution/build failures, skipping to the next step.  Think of it as
 the equivalent of <tt class="docutils literal"><span class="pre">--skipfirst</span></tt>, just without the commandline interruption.</p>
 <p>It goes without saying that this feature should be used with care. It is
 primarily useful for a long chain of non-critical updates, where a failure is
@@ -144,41 +144,41 @@ targets as possible, rather then having the 5th build out of 80 bail out
 without even attempting the other 75.</p>
 <p>Long term, this feature will likely be replaced with a more finely tuned
 option.</p>
-</div></blockquote>
+</blockquote>
 <p><tt class="docutils literal"><span class="pre">--preload-vdb-state</span></tt>:</p>
 <blockquote>
-<div>This preloads the installed packages database, causing the resolver to work
+This preloads the installed packages database, causing the resolver to work
 with a complete graph, disallowing actions that conflict with installed
 packages. If it&#8217;s disabled, it&#8217;s possible for the requested action to
 conflict with already installed dependencies that aren&#8217;t involved in the
-graph of the requested operation.</div></blockquote>
+graph of the requested operation.</blockquote>
 </div>
 <div class="section" id="moved-in-pmerge">
 <h4>Moved, in pmerge:<a class="headerlink" href="#moved-in-pmerge" title="Permalink to this headline">¶</a></h4>
 <p><tt class="docutils literal"><span class="pre">--depclean</span></tt>:</p>
 <blockquote>
-<div><tt class="docutils literal"><span class="pre">--clean</span></tt></div></blockquote>
+<tt class="docutils literal"><span class="pre">--clean</span></tt></blockquote>
 <p><tt class="docutils literal"><span class="pre">--with-bdeps</span></tt>:</p>
 <blockquote>
-<div><tt class="docutils literal"><span class="pre">--with-built-depends</span></tt></div></blockquote>
+<tt class="docutils literal"><span class="pre">--with-built-depends</span></tt></blockquote>
 </div>
 <div class="section" id="moved-out-of-pmerge">
 <h4>Moved out of pmerge:<a class="headerlink" href="#moved-out-of-pmerge" title="Permalink to this headline">¶</a></h4>
 <p><tt class="docutils literal"><span class="pre">--regen</span></tt>:</p>
 <blockquote>
-<div>See <a class="reference internal" href="#regen">regen</a></div></blockquote>
+See <a class="reference external" href="#regen">regen</a></blockquote>
 </div>
 <div class="section" id="no-equivalents">
 <h4>No equivalents:<a class="headerlink" href="#no-equivalents" title="Permalink to this headline">¶</a></h4>
 <p><tt class="docutils literal"><span class="pre">--info</span></tt>:</p>
 <blockquote>
-<div><tt class="docutils literal"><span class="pre">pconfig</span></tt> is the closest equivalent at the moment; it&#8217;s rather verbose.</div></blockquote>
+<tt class="docutils literal"><span class="pre">pconfig</span></tt> is the closest equivalent at the moment; it&#8217;s rather verbose.</blockquote>
 <p><tt class="docutils literal"><span class="pre">--config</span></tt>:</p>
 <blockquote>
-<div>This may be implemented in <tt class="docutils literal"><span class="pre">pmaint</span></tt> in the future, possibly 0.4.x.</div></blockquote>
+This may be implemented in <tt class="docutils literal"><span class="pre">pmaint</span></tt> in the future, possibly 0.4.x.</blockquote>
 <p><tt class="docutils literal"><span class="pre">--prune</span></tt>:</p>
 <blockquote>
-<div><p>Currently not implemented; Portage&#8217;s implementation of it ignores slots,
+<p>Currently not implemented; Portage&#8217;s implementation of it ignores slots,
 trying to force a max version for each package. This is problematic since it
 can remove needed slotted packages that are of a lesser version.</p>
 <p>Any package that requires slotting (automake for example) generally will
@@ -186,24 +186,24 @@ be screwed up by <tt class="docutils literal"><span class="pre">emerge</span> <s
 <p>The long term intention is to implement this functionality safely.
 Effectively, to try to minimize the resolved dependency graph to the minimal
 number of packages involved.</p>
-</div></blockquote>
+</blockquote>
 <p><tt class="docutils literal"><span class="pre">--resume</span></tt>, <tt class="docutils literal"><span class="pre">--skipfirst</span></tt>:</p>
 <blockquote>
-<div>Not yet implemented.</div></blockquote>
+Not yet implemented.</blockquote>
 <p><tt class="docutils literal"><span class="pre">--metadata</span></tt>:</p>
 <blockquote>
-<div><p>Not implemented: pkgcore doesn&#8217;t need cache localization.</p>
+<p>Not implemented: pkgcore doesn&#8217;t need cache localization.</p>
 <p>If the user is after copying cache data around, pclone_cache can be used.</p>
-</div></blockquote>
+</blockquote>
 <p><tt class="docutils literal"><span class="pre">--fetch-all-uri</span></tt>:</p>
 <blockquote>
-<div>Not yet implemented.</div></blockquote>
+Not yet implemented.</blockquote>
 <p><tt class="docutils literal"><span class="pre">--buildpkg</span></tt>:</p>
 <blockquote>
-<div>Not yet implemented.</div></blockquote>
+Not yet implemented.</blockquote>
 <p><tt class="docutils literal"><span class="pre">--getbinpkg</span></tt>, <tt class="docutils literal"><span class="pre">--getbinpkgonly</span></tt>:</p>
 <blockquote>
-<div><p>Remote Binhost v1 support will not be implemented in pkgcore, instead
+<p>Remote Binhost v1 support will not be implemented in pkgcore, instead
 favoring the genpkgindex approach Ned Ludd (solar) has created.</p>
 <p>There are two main reasons for not implementing this:</p>
 <ul>
@@ -222,19 +222,19 @@ request to pull the metadata.</p>
 <p>The main reason why v1 support will not be added to pkgcore is the package
 namespace collision issue; as both of these issues will be addressed in v2
 pkgcore will go this route.</p>
-</div></blockquote>
+</blockquote>
 <p><tt class="docutils literal"><span class="pre">--tree</span></tt>:</p>
 <blockquote>
-<div>This is formatter-dependent; it may be included in 0.4.</div></blockquote>
+This is formatter-dependent; it may be included in 0.4.</blockquote>
 <p><tt class="docutils literal"><span class="pre">--verbose</span></tt>:</p>
 <blockquote>
-<div>Not yet implemented.</div></blockquote>
+Not yet implemented.</blockquote>
 <p><tt class="docutils literal"><span class="pre">--alphabetical</span></tt>, <tt class="docutils literal"><span class="pre">--columns</span></tt>:</p>
 <blockquote>
-<div>These won&#8217;t be implemented in pkgcore.</div></blockquote>
+These won&#8217;t be implemented in pkgcore.</blockquote>
 <p><tt class="docutils literal"><span class="pre">--changelog</span></tt>:</p>
 <blockquote>
-<div>At some point will be accessible via <tt class="docutils literal"><span class="pre">pquery</span></tt>.</div></blockquote>
+At some point will be accessible via <tt class="docutils literal"><span class="pre">pquery</span></tt>.</blockquote>
 </div>
 </div>
 </div>
@@ -343,7 +343,7 @@ binpkg built with <tt class="docutils literal"><span class="pre">--buildpkg</spa
     </div>
     <div class="footer">
         &copy; Copyright 2010, Brian Harring, Marien Zwart.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.1.
     </div>
   </body>
 </html>

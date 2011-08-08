@@ -88,6 +88,9 @@ attr from a package instance and hand it to their wrapped restriction
 <tr><td><tt class="xref py py-obj docutils literal"><span class="pre">is_disjoint</span></tt>(instance,&nbsp;*args)</td>
 <td></td>
 </tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">reflective_hash</span></tt>(attr)</td>
+<td>default __hash__ implementation that returns a pregenerated hash attribute</td>
+</tr>
 </tbody>
 </table>
 <p class="rubric">Classes</p>
@@ -115,13 +118,13 @@ attr from a package instance and hand it to their wrapped restriction
 <tr><td><a class="reference internal" href="#pkgcore.restrictions.values.FunctionRestriction" title="pkgcore.restrictions.values.FunctionRestriction"><tt class="xref py py-obj docutils literal"><span class="pre">FunctionRestriction</span></tt></a>(func[,&nbsp;negate])</td>
 <td>Convenience class for creating special restrictions.</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.restrictions.values.GetAttrRestriction" title="pkgcore.restrictions.values.GetAttrRestriction"><tt class="xref py py-obj docutils literal"><span class="pre">GetAttrRestriction</span></tt></a></td>
+<tr><td><a class="reference internal" href="#pkgcore.restrictions.values.GetAttrRestriction" title="pkgcore.restrictions.values.GetAttrRestriction"><tt class="xref py py-obj docutils literal"><span class="pre">GetAttrRestriction</span></tt></a>(attr,&nbsp;childrestriction[,&nbsp;...])</td>
 <td>Restriction pulling an attribute and applying a child restriction.</td>
 </tr>
 <tr><td><a class="reference internal" href="#pkgcore.restrictions.values.StrConversion" title="pkgcore.restrictions.values.StrConversion"><tt class="xref py py-obj docutils literal"><span class="pre">StrConversion</span></tt></a>(restrict)</td>
 <td>convert passed in data to a str object</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.restrictions.values.StrExactMatch" title="pkgcore.restrictions.values.StrExactMatch"><tt class="xref py py-obj docutils literal"><span class="pre">StrExactMatch</span></tt></a></td>
+<tr><td><a class="reference internal" href="#pkgcore.restrictions.values.StrExactMatch" title="pkgcore.restrictions.values.StrExactMatch"><tt class="xref py py-obj docutils literal"><span class="pre">StrExactMatch</span></tt></a>(exact[,&nbsp;case_sensitive,&nbsp;negate])</td>
 <td></td>
 </tr>
 <tr><td><a class="reference internal" href="#pkgcore.restrictions.values.StrGlobMatch" title="pkgcore.restrictions.values.StrGlobMatch"><tt class="xref py py-obj docutils literal"><span class="pre">StrGlobMatch</span></tt></a>(glob[,&nbsp;case_sensitive,&nbsp;prefix,&nbsp;...])</td>
@@ -139,14 +142,11 @@ attr from a package instance and hand it to their wrapped restriction
 <tr><td><a class="reference internal" href="#pkgcore.restrictions.values.base" title="pkgcore.restrictions.values.base"><tt class="xref py py-obj docutils literal"><span class="pre">base</span></tt></a></td>
 <td>Base restriction matching object for values.</td>
 </tr>
-<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">base_StrExactMatch</span></tt></td>
+<tr><td><a class="reference internal" href="#pkgcore.restrictions.values.base_StrExactMatch" title="pkgcore.restrictions.values.base_StrExactMatch"><tt class="xref py py-obj docutils literal"><span class="pre">base_StrExactMatch</span></tt></a></td>
 <td>exact string comparison match</td>
 </tr>
 <tr><td><a class="reference internal" href="#pkgcore.restrictions.values.native_StrExactMatch" title="pkgcore.restrictions.values.native_StrExactMatch"><tt class="xref py py-obj docutils literal"><span class="pre">native_StrExactMatch</span></tt></a>(exact[,&nbsp;...])</td>
 <td>exact string comparison match</td>
-</tr>
-<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">reflective_hash</span></tt></td>
-<td>ReflectiveHash; used mainly for near native __hash__ speed when the hash value is precomputed on an object</td>
 </tr>
 </tbody>
 </table>
@@ -162,6 +162,9 @@ attr from a package instance and hand it to their wrapped restriction
 </tr>
 <tr><td><tt class="xref py py-obj docutils literal"><span class="pre">AlwaysTrue</span></tt></td>
 <td>restriction that always yields a specific boolean</td>
+</tr>
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">extension</span></tt></td>
+<td></td>
 </tr>
 <tr><td><tt class="xref py py-obj docutils literal"><span class="pre">value_type</span></tt></td>
 <td>str(object) -&gt; string</td>
@@ -415,7 +418,7 @@ occurs an alias will be left in place for compatibility.</p>
 
 <dl class="class">
 <dt id="pkgcore.restrictions.values.GetAttrRestriction">
-<em class="property">class </em><tt class="descclassname">pkgcore.restrictions.values.</tt><tt class="descname">GetAttrRestriction</tt><a class="reference internal" href="../_modules/pkgcore/restrictions/values.html#GetAttrRestriction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.restrictions.values.GetAttrRestriction" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">pkgcore.restrictions.values.</tt><tt class="descname">GetAttrRestriction</tt><big>(</big><em>attr</em>, <em>childrestriction</em>, <em>negate=False</em>, <em>ignore_missing=True</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/restrictions/values.html#GetAttrRestriction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.restrictions.values.GetAttrRestriction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pkgcore.restrictions.packages.html#pkgcore.restrictions.packages.PackageRestriction" title="pkgcore.restrictions.packages.PackageRestriction"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.restrictions.packages.PackageRestriction</span></tt></a></p>
 <p>Restriction pulling an attribute and applying a child restriction.</p>
 <dl class="attribute">
@@ -450,9 +453,9 @@ occurs an alias will be left in place for compatibility.</p>
 <p>If an optimized intersection cannot be determined this returns C{None}.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pkgcore.restrictions.values.GetAttrRestriction.match">
-<tt class="descname">match</tt><a class="headerlink" href="#pkgcore.restrictions.values.GetAttrRestriction.match" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">match</tt><big>(</big><em>pkg</em><big>)</big><a class="headerlink" href="#pkgcore.restrictions.values.GetAttrRestriction.match" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -501,8 +504,8 @@ occurs an alias will be left in place for compatibility.</p>
 
 <dl class="class">
 <dt id="pkgcore.restrictions.values.StrExactMatch">
-<em class="property">class </em><tt class="descclassname">pkgcore.restrictions.values.</tt><tt class="descname">StrExactMatch</tt><a class="reference internal" href="../_modules/pkgcore/restrictions/values.html#StrExactMatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.restrictions.values.StrExactMatch" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">pkgcore.restrictions._restrictions.StrExactMatch</span></tt>, <a class="reference internal" href="#pkgcore.restrictions.values.base" title="pkgcore.restrictions.values.base"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.restrictions.values.base</span></tt></a></p>
+<em class="property">class </em><tt class="descclassname">pkgcore.restrictions.values.</tt><tt class="descname">StrExactMatch</tt><big>(</big><em>exact</em>, <em>case_sensitive=True</em>, <em>negate=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/restrictions/values.html#StrExactMatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.restrictions.values.StrExactMatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pkgcore.restrictions.values.native_StrExactMatch" title="pkgcore.restrictions.values.native_StrExactMatch"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.restrictions.values.native_StrExactMatch</span></tt></a>, <a class="reference internal" href="#pkgcore.restrictions.values.base" title="pkgcore.restrictions.values.base"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.restrictions.values.base</span></tt></a></p>
 <dl class="attribute">
 <dt id="pkgcore.restrictions.values.StrExactMatch.case_sensitive">
 <tt class="descname">case_sensitive</tt><a class="headerlink" href="#pkgcore.restrictions.values.StrExactMatch.case_sensitive" title="Permalink to this definition">¶</a></dt>
@@ -528,9 +531,9 @@ occurs an alias will be left in place for compatibility.</p>
 <tt class="descname">intersect</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#pkgcore.restrictions.values.StrExactMatch.intersect" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pkgcore.restrictions.values.StrExactMatch.match">
-<tt class="descname">match</tt><a class="headerlink" href="#pkgcore.restrictions.values.StrExactMatch.match" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">match</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#pkgcore.restrictions.values.StrExactMatch.match" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -723,6 +726,12 @@ restrictions! Use the C{type} attribute instead.</p>
 
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.restrictions.values.base_StrExactMatch">
+<tt class="descclassname">pkgcore.restrictions.values.</tt><tt class="descname">base_StrExactMatch</tt><a class="headerlink" href="#pkgcore.restrictions.values.base_StrExactMatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#pkgcore.restrictions.values.native_StrExactMatch" title="pkgcore.restrictions.values.native_StrExactMatch"><tt class="xref py py-class docutils literal"><span class="pre">native_StrExactMatch</span></tt></a></p>
+</dd></dl>
+
 <dl class="function">
 <dt id="pkgcore.restrictions.values.hashed_base">
 <tt class="descclassname">pkgcore.restrictions.values.</tt><tt class="descname">hashed_base</tt><big>(</big><em>name</em>, <em>bases</em>, <em>scope</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/restrictions/values.html#hashed_base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.restrictions.values.hashed_base" title="Permalink to this definition">¶</a></dt>
@@ -807,7 +816,7 @@ restrictions! Use the C{type} attribute instead.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Brian Harring, Marien Zwart.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.1.
     </div>
   </body>
 </html>
