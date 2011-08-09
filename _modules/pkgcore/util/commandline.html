@@ -408,6 +408,20 @@
         <span class="n">parser</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_help</span><span class="p">())</span>
 
 
+<span class="k">class</span> <span class="nc">_SubParser</span><span class="p">(</span><span class="n">argparse</span><span class="o">.</span><span class="n">_SubParsersAction</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">add_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;modified version of argparse._SubParsersAction, linking description/help if one is specified&quot;&quot;&quot;</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="n">kwds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;description&quot;</span><span class="p">)</span>
+        <span class="n">help_txt</span> <span class="o">=</span> <span class="n">kwds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;help&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">description</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">help_txt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">kwds</span><span class="p">[</span><span class="s">&quot;description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">help_txt</span>
+        <span class="k">elif</span> <span class="n">help_txt</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">kwds</span><span class="p">[</span><span class="s">&quot;help&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="k">return</span> <span class="n">argparse</span><span class="o">.</span><span class="n">_SubParsersAction</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+
+
 <span class="k">class</span> <span class="nc">ArgumentParser</span><span class="p">(</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
@@ -423,12 +437,15 @@
                  <span class="n">argument_default</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                  <span class="n">conflict_handler</span><span class="o">=</span><span class="s">&#39;error&#39;</span><span class="p">,</span>
                  <span class="n">add_help</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+
         <span class="nb">super</span><span class="p">(</span><span class="n">ArgumentParser</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="n">prog</span><span class="p">,</span> <span class="n">usage</span><span class="o">=</span><span class="n">usage</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">epilog</span><span class="o">=</span><span class="n">epilog</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span>
             <span class="n">parents</span><span class="o">=</span><span class="n">parents</span><span class="p">,</span> <span class="n">formatter_class</span><span class="o">=</span><span class="n">formatter_class</span><span class="p">,</span>
             <span class="n">prefix_chars</span><span class="o">=</span><span class="n">prefix_chars</span><span class="p">,</span> <span class="n">fromfile_prefix_chars</span><span class="o">=</span><span class="n">fromfile_prefix_chars</span><span class="p">,</span>
             <span class="n">argument_default</span><span class="o">=</span><span class="n">argument_default</span><span class="p">,</span> <span class="n">conflict_handler</span><span class="o">=</span><span class="n">conflict_handler</span><span class="p">,</span>
             <span class="n">add_help</span><span class="o">=</span><span class="n">add_help</span><span class="p">)</span>
+        <span class="c"># register our own subparser</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s">&#39;action&#39;</span><span class="p">,</span> <span class="s">&#39;parsers&#39;</span><span class="p">,</span> <span class="n">_SubParser</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
