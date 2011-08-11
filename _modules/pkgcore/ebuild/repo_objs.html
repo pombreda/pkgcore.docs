@@ -237,16 +237,16 @@
         <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_base&#39;</span><span class="p">,</span> <span class="n">repo_base</span><span class="p">)</span>
 
     <span class="nd">@klass.jit_attr_none</span>
-    <span class="k">def</span> <span class="nf">licenses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Licenses.licenses"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.Licenses.licenses">[docs]</a>    <span class="k">def</span> <span class="nf">licenses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">content</span> <span class="o">=</span> <span class="n">listdir_files</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">licenses_dir</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">:</span>
             <span class="n">content</span> <span class="o">=</span> <span class="p">()</span>
         <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
-
+</div>
     <span class="nd">@klass.jit_attr_none</span>
-    <span class="k">def</span> <span class="nf">groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Licenses.groups"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.Licenses.groups">[docs]</a>    <span class="k">def</span> <span class="nf">groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">fp</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">license_group_location</span><span class="p">)</span>
             <span class="n">d</span> <span class="o">=</span> <span class="n">fileutils</span><span class="o">.</span><span class="n">read_dict</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">splitter</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
@@ -258,7 +258,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_expand_groups</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
             <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
-
+</div>
     <span class="k">def</span> <span class="nf">_expand_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groups</span><span class="p">):</span>
         <span class="n">keep_going</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">groups</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
@@ -315,7 +315,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_license_instances</span><span class="p">()</span>
 
     <span class="nd">@klass.jit_attr_none</span>
-    <span class="k">def</span> <span class="nf">groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OverlayedLicenses.groups"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.OverlayedLicenses.groups">[docs]</a>    <span class="k">def</span> <span class="nf">groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">li</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_license_instances</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">li</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
@@ -324,11 +324,11 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
         <span class="k">return</span> <span class="n">d</span>
-
+</div>
     <span class="nd">@klass.jit_attr_none</span>
-    <span class="k">def</span> <span class="nf">licenses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OverlayedLicenses.licenses"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.OverlayedLicenses.licenses">[docs]</a>    <span class="k">def</span> <span class="nf">licenses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="nb">iter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_license_instances</span><span class="p">)))</span>
-
+</div>
     <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">license</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">li</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_license_instances</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>

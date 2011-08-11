@@ -152,7 +152,7 @@
     <span class="n">_packages_kls</span> <span class="o">=</span> <span class="n">sequences</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;packages&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s">&quot;system&quot;</span><span class="p">,</span> <span class="s">&quot;visibility&quot;</span><span class="p">))</span>
 
     <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;packages&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">packages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="ProfileNode.packages"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.packages">[docs]</a>    <span class="k">def</span> <span class="nf">packages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="c"># sys packages and visibility</span>
         <span class="n">sys</span><span class="p">,</span> <span class="n">neg_sys</span><span class="p">,</span> <span class="n">vis</span><span class="p">,</span> <span class="n">neg_vis</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
@@ -168,19 +168,19 @@
                     <span class="n">vis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eapi_atom</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">negate_vers</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_packages_kls</span><span class="p">((</span><span class="nb">tuple</span><span class="p">(</span><span class="n">neg_sys</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">sys</span><span class="p">)),</span>
             <span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">neg_vis</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">vis</span><span class="p">)))</span>
-
+</div>
     <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;parent&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">parents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="ProfileNode.parents"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.parents">[docs]</a>    <span class="k">def</span> <span class="nf">parents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">kls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;parent_node_kls&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">kls</span><span class="p">(</span><span class="n">abspath</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">x</span><span class="p">)))</span>
             <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">)</span>
-
+</div>
     <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;package.provided&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">pkg_provided</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="ProfileNode.pkg_provided"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.pkg_provided">[docs]</a>    <span class="k">def</span> <span class="nf">pkg_provided</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">split_negations</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">cpv</span><span class="o">.</span><span class="n">versioned_CPV</span><span class="p">)</span>
-
+</div>
     <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;virtuals&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">virtuals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="ProfileNode.virtuals"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.virtuals">[docs]</a>    <span class="k">def</span> <span class="nf">virtuals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
             <span class="n">l</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
@@ -188,13 +188,13 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%r</span><span class="s"> is malformated&quot;</span> <span class="o">%</span> <span class="n">line</span><span class="p">)</span>
             <span class="n">d</span><span class="p">[</span><span class="n">cpv</span><span class="o">.</span><span class="n">CPV</span><span class="o">.</span><span class="n">unversioned</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">package</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eapi_atom</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-
+</div>
     <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;package.mask&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">masks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="ProfileNode.masks"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.masks">[docs]</a>    <span class="k">def</span> <span class="nf">masks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">split_negations</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eapi_atom</span><span class="p">)</span>
-
+</div>
     <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;deprecated&quot;</span><span class="p">,</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="p">),</span> <span class="bp">None</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">deprecated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="ProfileNode.deprecated"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.deprecated">[docs]</a>    <span class="k">def</span> <span class="nf">deprecated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
@@ -207,7 +207,7 @@
                 <span class="c"># formatted badly.</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;didn&#39;t specify a replacement profile&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data</span>
-
+</div>
     <span class="k">def</span> <span class="nf">_parse_package_use</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">mappings</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
         <span class="c"># split the data down ordered cat/pkg lines</span>
@@ -223,23 +223,23 @@
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
 
     <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;package.use.force&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">pkg_use_force</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="ProfileNode.pkg_use_force"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.pkg_use_force">[docs]</a>    <span class="k">def</span> <span class="nf">pkg_use_force</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_package_use</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-
+</div>
     <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;package.use.mask&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">pkg_use_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="ProfileNode.pkg_use_mask"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.pkg_use_mask">[docs]</a>    <span class="k">def</span> <span class="nf">pkg_use_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_package_use</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-
+</div>
     <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;package.use&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">pkg_use</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="ProfileNode.pkg_use"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.pkg_use">[docs]</a>    <span class="k">def</span> <span class="nf">pkg_use</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">ChunkedDataDict</span><span class="p">()</span>
         <span class="n">c</span><span class="o">.</span><span class="n">update_from_stream</span><span class="p">(</span>
             <span class="n">chain_from_iterable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parse_package_use</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">itervalues</span><span class="p">()))</span>
         <span class="n">c</span><span class="o">.</span><span class="n">freeze</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">c</span>
-
+</div>
     <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;use.force&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">forced_use</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="ProfileNode.forced_use"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.forced_use">[docs]</a>    <span class="k">def</span> <span class="nf">forced_use</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">ChunkedDataDict</span><span class="p">()</span>
         <span class="n">neg</span><span class="p">,</span> <span class="n">pos</span> <span class="o">=</span> <span class="n">split_negations</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">neg</span> <span class="ow">or</span> <span class="n">pos</span><span class="p">:</span>
@@ -248,9 +248,9 @@
             <span class="n">chain_from_iterable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg_use_force</span><span class="o">.</span><span class="n">itervalues</span><span class="p">()))</span>
         <span class="n">c</span><span class="o">.</span><span class="n">freeze</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">c</span>
-
+</div>
     <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;use.mask&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">masked_use</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="ProfileNode.masked_use"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.masked_use">[docs]</a>    <span class="k">def</span> <span class="nf">masked_use</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">ChunkedDataDict</span><span class="p">()</span>
         <span class="n">neg</span><span class="p">,</span> <span class="n">pos</span> <span class="o">=</span> <span class="n">split_negations</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">neg</span> <span class="ow">or</span> <span class="n">pos</span><span class="p">:</span>
@@ -259,10 +259,10 @@
             <span class="n">chain_from_iterable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg_use_mask</span><span class="o">.</span><span class="n">itervalues</span><span class="p">()))</span>
         <span class="n">c</span><span class="o">.</span><span class="n">freeze</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">c</span>
-
+</div>
     <span class="nd">@load_property</span><span class="p">(</span><span class="s">&#39;make.defaults&#39;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">read_func</span><span class="o">=</span><span class="n">_open_utf8</span><span class="p">,</span>
         <span class="n">handler</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">default_env</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="ProfileNode.default_env"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.default_env">[docs]</a>    <span class="k">def</span> <span class="nf">default_env</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">rendered</span> <span class="o">=</span> <span class="n">_make_incrementals_dict</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parents</span><span class="p">:</span>
             <span class="n">rendered</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">default_env</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
@@ -271,16 +271,16 @@
             <span class="n">data</span> <span class="o">=</span> <span class="n">read_bash_dict</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">vars_dict</span><span class="o">=</span><span class="n">rendered</span><span class="p">)</span>
             <span class="n">rendered</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">(</span><span class="n">rendered</span><span class="p">)</span>
-
+</div>
     <span class="nd">@klass.jit_attr</span>
-    <span class="k">def</span> <span class="nf">bashrc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ProfileNode.bashrc"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.bashrc">[docs]</a>    <span class="k">def</span> <span class="nf">bashrc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;profile.bashrc&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">local_source</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">None</span>
-
+</div>
     <span class="nd">@load_property</span><span class="p">(</span><span class="s">&#39;eapi&#39;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;0&#39;</span><span class="p">,))</span>
-    <span class="k">def</span> <span class="nf">eapi_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="ProfileNode.eapi_obj"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.eapi_obj">[docs]</a>    <span class="k">def</span> <span class="nf">eapi_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
         <span class="n">data</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
@@ -288,7 +288,7 @@
         <span class="k">elif</span> <span class="ow">not</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">in</span> <span class="n">const</span><span class="o">.</span><span class="n">eapi_capable</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">ProfileError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s">&#39;eapi&#39;</span><span class="p">,</span> <span class="s">&#39;unsupported eapi: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">get_eapi</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-
+</div>
     <span class="n">eapi</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&quot;eapi_obj.magic&quot;</span><span class="p">)</span>
     <span class="n">eapi_atom</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&quot;eapi_obj.atom_kls&quot;</span><span class="p">)</span>
 
@@ -327,18 +327,17 @@
     <span class="k">def</span> <span class="nf">arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ARCH&quot;</span><span class="p">)</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">deprecated</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">deprecated</span>
+    <span class="n">deprecated</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&quot;node.deprecated&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_load_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">stack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">parents</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
                     <span class="k">yield</span> <span class="n">y</span>
             <span class="k">yield</span> <span class="n">node</span>
 
-        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_collapse_use_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
 
@@ -351,6 +350,18 @@
         <span class="n">d</span><span class="o">.</span><span class="n">freeze</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">d</span>
 
+    <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">forced_use</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collapse_use_dict</span><span class="p">(</span><span class="s">&quot;forced_use&quot;</span><span class="p">)</span>
+
+    <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">masked_use</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collapse_use_dict</span><span class="p">(</span><span class="s">&quot;masked_use&quot;</span><span class="p">)</span>
+
+    <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">pkg_use</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collapse_use_dict</span><span class="p">(</span><span class="s">&quot;pkg_use&quot;</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">_collapse_generic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
         <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">:</span>
@@ -359,7 +370,8 @@
             <span class="n">s</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">s</span>
 
-    <span class="k">def</span> <span class="nf">_collapse_env</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">default_env</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">default_env</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
         <span class="k">for</span> <span class="n">incremental</span> <span class="ow">in</span> <span class="n">const</span><span class="o">.</span><span class="n">incrementals</span><span class="p">:</span>
             <span class="n">v</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">incremental</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
@@ -370,29 +382,33 @@
                     <span class="n">v</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">render_incrementals</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">v</span><span class="p">:</span>
                         <span class="n">d</span><span class="p">[</span><span class="n">incremental</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
-        <span class="k">return</span> <span class="n">d</span>
+        <span class="k">return</span> <span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
 
-    <span class="nd">@property</span>
+    <span class="nd">@klass.jit_attr</span>
     <span class="k">def</span> <span class="nf">use_expand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="s">&quot;USE_EXPAND&quot;</span> <span class="ow">in</span> <span class="n">const</span><span class="o">.</span><span class="n">incrementals</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;USE_EXPAND&quot;</span><span class="p">,</span> <span class="p">()))</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;USE_EXPAND&quot;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
 
-    <span class="nd">@property</span>
+    <span class="nd">@klass.jit_attr</span>
     <span class="k">def</span> <span class="nf">use_expand_hidden</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="s">&quot;USE_EXPAND_HIDDEN&quot;</span> <span class="ow">in</span> <span class="n">const</span><span class="o">.</span><span class="n">incrementals</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;USE_EXPAND_HIDDEN&quot;</span><span class="p">,</span> <span class="p">()))</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;USE_EXPAND_HIDDEN&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
 
-    <span class="k">def</span> <span class="nf">_collapse_virtuals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">virtuals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">profile</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">:</span>
             <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">virtuals</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">virtuals</span> <span class="o">=</span> <span class="n">d</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">make_virtuals_repo</span> <span class="o">=</span> <span class="n">currying</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">AliasedVirtuals</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_collapse_pkg_provided</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">make_virtuals_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">currying</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">AliasedVirtuals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">virtuals</span><span class="p">)</span>
+
+    <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">provides_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collapse_generic</span><span class="p">(</span><span class="s">&quot;pkg_provided&quot;</span><span class="p">):</span>
             <span class="n">d</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">category</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">package</span><span class="p">,</span>
@@ -407,40 +423,21 @@
             <span class="n">obj</span><span class="o">.</span><span class="n">has_match</span> <span class="o">=</span> <span class="n">_empty_provides_has_match</span>
         <span class="k">return</span> <span class="n">obj</span>
 
-    <span class="k">def</span> <span class="nf">_collapse_masks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">masks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_collapse_generic</span><span class="p">(</span><span class="s">&quot;masks&quot;</span><span class="p">),</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_collapse_generic</span><span class="p">(</span><span class="s">&quot;visibility&quot;</span><span class="p">)))</span>
 
-    <span class="n">bashrc</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&quot;bashrcs&quot;</span><span class="p">)</span>
+    <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">bashrcs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">bashrc</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stack</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">bashrc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&quot;stack&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">stack</span> <span class="o">=</span> <span class="n">obj</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_load_stack</span><span class="p">())</span>
-        <span class="k">elif</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;forced_use&#39;</span><span class="p">,</span> <span class="s">&#39;masked_use&#39;</span><span class="p">,</span> <span class="s">&#39;pkg_use&#39;</span><span class="p">):</span>
-            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collapse_use_dict</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
-            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;bashrcs&#39;</span><span class="p">:</span>
-            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bashrcc</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">bashrc</span>
-                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stack</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">bashrc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;system&#39;</span><span class="p">:</span>
-            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collapse_generic</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;masks&#39;</span><span class="p">:</span>
-            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">masks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collapse_masks</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;default_env&#39;</span><span class="p">:</span>
-            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collapse_env</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;virtuals&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_collapse_virtuals</span><span class="p">()</span>
-            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">virtuals</span>
-        <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;make_virtuals_repo&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_collapse_virtuals</span><span class="p">()</span>
-            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_virtuals_repo</span>
-        <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;provides_repo&#39;</span><span class="p">:</span>
-            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">provides_repo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collapse_pkg_provided</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;path&#39;</span><span class="p">:</span>
-            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">path</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">obj</span>
+    <span class="n">bashrc</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&quot;bashrcs&quot;</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&quot;node.path&quot;</span><span class="p">)</span>
+
+    <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collapse_generic</span><span class="p">(</span><span class="s">&#39;system&#39;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="OnDiskProfile"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.OnDiskProfile">[docs]</a><span class="k">class</span> <span class="nc">OnDiskProfile</span><span class="p">(</span><span class="n">ProfileStack</span><span class="p">):</span>
@@ -474,13 +471,14 @@
             <span class="n">vals</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span><span class="n">load_profile_base</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">*</span><span class="n">vals</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">vals</span>
 </div>
-    <span class="k">def</span> <span class="nf">_load_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">l</span> <span class="o">=</span> <span class="n">ProfileStack</span><span class="o">.</span><span class="n">_load_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    <span class="nd">@klass.jit_attr</span>
+<div class="viewcode-block" id="OnDiskProfile.stack"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.OnDiskProfile.stack">[docs]</a>    <span class="k">def</span> <span class="nf">stack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">ProfileStack</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_profile_base</span><span class="p">:</span>
-            <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="n">EmptyRootNode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basepath</span><span class="p">)]</span> <span class="o">+</span> <span class="n">l</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="p">(</span><span class="n">EmptyRootNode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basepath</span><span class="p">),)</span> <span class="o">+</span> <span class="n">l</span>
         <span class="k">return</span> <span class="n">l</span>
 
-</div>
+</div></div>
 <span class="k">class</span> <span class="nc">UserProfileNode</span><span class="p">(</span><span class="n">ProfileNode</span><span class="p">):</span>
 
     <span class="n">parent_node_kls</span> <span class="o">=</span> <span class="n">ProfileNode</span>
@@ -489,9 +487,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">override_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">parent_path</span><span class="p">)</span>
         <span class="n">ProfileNode</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_load_parents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parents</span> <span class="o">=</span> <span class="p">(</span><span class="n">ProfileNode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">override_path</span><span class="p">),)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parents</span>
+    <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">parents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">ProfileNode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">override_path</span><span class="p">),)</span>
 
 
 <div class="viewcode-block" id="UserProfile"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.UserProfile">[docs]</a><span class="k">class</span> <span class="nc">UserProfile</span><span class="p">(</span><span class="n">OnDiskProfile</span><span class="p">):</span>
