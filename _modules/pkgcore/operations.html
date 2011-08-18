@@ -51,6 +51,14 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">operation templates for package/repository/data source objects</span>
+
+<span class="sd">For new format implementations, new formats, and generally any new extension,</span>
+<span class="sd">an operation class will likely have to be defined.  While the implementations</span>
+<span class="sd">are a bit repetitive, the design of it is intentional to ensure that any derivative</span>
+<span class="sd">will be forced to adhere to the pkgcore internal api.</span>
+
+<span class="sd">Basically it&#39;s a crappy form of zope interfaces; converting to zope.interfaces may</span>
+<span class="sd">occur down the line if dependencies can be kept as minimal as possible.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="base"><a class="viewcode-back" href="../../api/pkgcore.operations.html#pkgcore.operations.base">[docs]</a><span class="k">class</span> <span class="nc">base</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -75,14 +83,13 @@
 
     <span class="k">def</span> <span class="nf">_enable_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation</span><span class="p">):</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation</span><span class="p">,</span>
-            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_cmd_enabled_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">operation</span><span class="p">))</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_cmd_api_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">operation</span><span class="p">))</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_collect_operations</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;_cmd_&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;_cmd_enabled_&quot;</span><span class="p">)</span> \
-                <span class="ow">and</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;_cmd_check_support_&quot;</span><span class="p">):</span>
-                <span class="k">yield</span> <span class="n">x</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s">&quot;_cmd_&quot;</span><span class="p">):]</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;_cmd_implementation_&quot;</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">x</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s">&quot;_cmd_implementation_&quot;</span><span class="p">):]</span>
 
 <div class="viewcode-block" id="base.supports"><a class="viewcode-back" href="../../api/pkgcore.operations.html#pkgcore.operations.base.supports">[docs]</a>    <span class="k">def</span> <span class="nf">supports</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">operation_name</span><span class="p">:</span>
@@ -90,7 +97,7 @@
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enabled_ops</span>
             <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_collect_operations</span><span class="p">())</span>
         <span class="k">if</span> <span class="n">raw</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_cmd_enabled_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">operation_name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_cmd_api_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">operation_name</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation_name</span><span class="p">)</span>
 
     <span class="c">#def __dir__(self):</span>

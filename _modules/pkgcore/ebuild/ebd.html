@@ -870,7 +870,7 @@
 </div></div>
 <span class="k">class</span> <span class="nc">ebuild_mixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">_cmd_sanity_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_cmd_implementation_sanity_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">):</span>
         <span class="n">pkg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span>
         <span class="n">eapi</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">eapi_obj</span>
         <span class="k">if</span> <span class="n">eapi</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">has_required_use</span><span class="p">:</span>
@@ -901,7 +901,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_use_override</span> <span class="o">=</span> <span class="n">use_override</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_eclass_cache</span> <span class="o">=</span> <span class="n">eclass_cache</span>
 
-    <span class="k">def</span> <span class="nf">_cmd_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_cmd_implementation_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">observer</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">observer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">observer</span>
         <span class="k">return</span> <span class="n">buildable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span>
@@ -919,7 +919,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_fetcher</span> <span class="o">=</span> <span class="n">fetcher</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_initial_env</span> <span class="o">=</span> <span class="n">initial_env</span>
 
-    <span class="k">def</span> <span class="nf">_cmd_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_cmd_implementation_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">observer</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">observer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">observer</span>
         <span class="k">return</span> <span class="n">binpkg_buildable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span>
