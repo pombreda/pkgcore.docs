@@ -60,7 +60,8 @@
 <span class="kn">from</span> <span class="nn">snakeoil.dependant_methods</span> <span class="kn">import</span> <span class="n">ForcedDepends</span>
 <span class="kn">from</span> <span class="nn">snakeoil.weakrefs</span> <span class="kn">import</span> <span class="n">WeakRefFinalizer</span>
 <span class="kn">from</span> <span class="nn">snakeoil.currying</span> <span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">post_curry</span>
-<span class="kn">from</span> <span class="nn">pkgcore.operations</span> <span class="kn">import</span> <span class="n">base</span> <span class="k">as</span> <span class="n">operations_base</span>
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">klass</span>
+<span class="kn">from</span> <span class="nn">pkgcore</span> <span class="kn">import</span> <span class="n">operations</span> <span class="k">as</span> <span class="n">_operations_mod</span>
 <span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span> <span class="s">&quot;pkgcore.log:logger&quot;</span><span class="p">,</span>
     <span class="s">&quot;pkgcore.operations:observer@observer_mod&quot;</span><span class="p">,</span>
@@ -179,11 +180,11 @@
         <span class="n">install</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">newpkg</span><span class="p">,</span> <span class="n">observer</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="operations"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.operations">[docs]</a><span class="k">class</span> <span class="nc">operations</span><span class="p">(</span><span class="n">operations_base</span><span class="p">):</span>
+<div class="viewcode-block" id="operations"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.operations">[docs]</a><span class="k">class</span> <span class="nc">operations</span><span class="p">(</span><span class="n">_operations_mod</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repository</span><span class="p">,</span> <span class="n">disable_overrides</span><span class="o">=</span><span class="p">(),</span> <span class="n">enable_overrides</span><span class="o">=</span><span class="p">()):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">repo</span> <span class="o">=</span> <span class="n">repository</span>
-        <span class="n">operations_base</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disable_overrides</span><span class="p">,</span> <span class="n">enable_overrides</span><span class="p">)</span>
+        <span class="n">_operations_mod</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disable_overrides</span><span class="p">,</span> <span class="n">enable_overrides</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_disabled_if_frozen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">frozen</span><span class="p">:</span>
@@ -229,12 +230,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmd_implementation_configure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repository</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_default_observer</span><span class="p">(</span><span class="n">observer</span><span class="p">))</span>
 
+    <span class="nd">@_operations_mod.is_standalone</span>
     <span class="k">def</span> <span class="nf">_cmd_api_sync</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="c"># often enough, the syncer is a lazy_ref</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmd_implementation_sync</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_observer</span><span class="p">(</span><span class="n">observer</span><span class="p">))</span>
-
-    <span class="k">def</span> <span class="nf">_cmd_implementation_sync</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_syncer</span><span class="p">()</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
+        <span class="n">syncer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_syncer</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">syncer</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_get_syncer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -250,26 +249,19 @@
 </div>
 <div class="viewcode-block" id="operations_proxy"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.operations_proxy">[docs]</a><span class="k">class</span> <span class="nc">operations_proxy</span><span class="p">(</span><span class="n">operations</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repository</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">repo</span> <span class="o">=</span> <span class="n">repository</span>
-        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_target_attrs</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;_cmd_&quot;</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;_cmd_check_support_&quot;</span><span class="p">):</span>
-                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proxy_op_support</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
-                <span class="k">elif</span> <span class="ow">not</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;_cmd_api_&quot;</span><span class="p">):</span>
-                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proxy_op</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
-        <span class="n">operations</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repository</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+    <span class="c"># cache this; this is to prevent the target operations mutating resulting in</span>
+    <span class="c"># our proxy setup not matching the target.</span>
+    <span class="n">raw_operations</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">cached_property_named</span><span class="p">(</span><span class="s">&quot;raw_operations&quot;</span><span class="p">)(</span>
+        <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&quot;repo.operations.raw_operations&quot;</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">_get_target_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">raw_repo</span><span class="o">.</span><span class="n">operations</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_proxy_op</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">raw_repo</span><span class="o">.</span><span class="n">operations</span><span class="p">,</span> <span class="n">op_name</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
-
-    <span class="n">_proxy_op_support</span> <span class="o">=</span> <span class="n">_proxy_op</span>
-
-    <span class="k">def</span> <span class="nf">_collect_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">raw_repo</span><span class="o">.</span><span class="n">operations</span><span class="o">.</span><span class="n">_collect_operations</span><span class="p">()</span></div>
+    <span class="nd">@klass.cached_property</span>
+<div class="viewcode-block" id="operations_proxy.enabled_operations"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.operations_proxy.enabled_operations">[docs]</a>    <span class="k">def</span> <span class="nf">enabled_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">operations</span><span class="o">.</span><span class="n">enabled_operations</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_apply_overrides</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+</div>
+    <span class="k">def</span> <span class="nf">_setup_api</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled_operations</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&#39;repo.operations.</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">op</span><span class="p">,)))</span></div>
 </pre></div>
 
           </div>

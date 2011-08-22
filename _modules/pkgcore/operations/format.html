@@ -95,10 +95,8 @@
     <span class="k">def</span> <span class="nf">_cmd_api_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmd_implementation_info</span><span class="p">()</span>
 
+    <span class="nd">@_operations_mod.is_standalone</span>
     <span class="k">def</span> <span class="nf">_cmd_api_mergable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmd_implementation_mergable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_cmd_implementation_mergable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;built&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_cmd_api_sanity_check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -109,6 +107,8 @@
 
 
 <span class="k">class</span> <span class="nc">build_operations</span><span class="p">(</span><span class="n">operations</span><span class="p">):</span>
+
+    <span class="n">__required__</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">([</span><span class="s">&quot;build&quot;</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">_cmd_api_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmd_implementation_build</span><span class="p">(</span><span class="n">observer</span><span class="o">=</span><span class="n">observer</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="n">clean</span><span class="p">)</span>

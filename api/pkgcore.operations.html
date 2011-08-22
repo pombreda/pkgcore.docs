@@ -62,6 +62,18 @@ are a bit repetitive, the design of it is intentional to ensure that any derivat
 will be forced to adhere to the pkgcore internal api.</p>
 <p>Basically it&#8217;s a crappy form of zope interfaces; converting to zope.interfaces may
 occur down the line if dependencies can be kept as minimal as possible.</p>
+<p class="rubric">Functions</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="reference internal" href="#pkgcore.operations.is_standalone" title="pkgcore.operations.is_standalone"><tt class="xref py py-obj docutils literal"><span class="pre">is_standalone</span></tt></a>(functor)</td>
+<td>decorator to mark a api operation method as containing the implementation</td>
+</tr>
+</tbody>
+</table>
 <p class="rubric">Classes</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -78,11 +90,35 @@ occur down the line if dependencies can be kept as minimal as possible.</p>
 <dt id="pkgcore.operations.base">
 <em class="property">class </em><tt class="descclassname">pkgcore.operations.</tt><tt class="descname">base</tt><big>(</big><em>disable_overrides=()</em>, <em>enable_overrides=()</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations.html#base"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.base" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="attribute">
+<dt id="pkgcore.operations.base.enabled_operations">
+<tt class="descname">enabled_operations</tt><a class="reference internal" href="../_modules/pkgcore/operations.html#base.enabled_operations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.base.enabled_operations" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.operations.base.raw_operations">
+<tt class="descname">raw_operations</tt><a class="reference internal" href="../_modules/pkgcore/operations.html#base.raw_operations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.base.raw_operations" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="pkgcore.operations.base.supports">
 <tt class="descname">supports</tt><big>(</big><em>operation_name=None</em>, <em>raw=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations.html#base.supports"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.base.supports" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+</dd></dl>
+
+<dl class="function">
+<dt id="pkgcore.operations.is_standalone">
+<tt class="descclassname">pkgcore.operations.</tt><tt class="descname">is_standalone</tt><big>(</big><em>functor</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations.html#is_standalone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.is_standalone" title="Permalink to this definition">¶</a></dt>
+<dd><p>decorator to mark a api operation method as containing the implementation</p>
+<p>This is primarily useful for commands that can contain all of the logic in
+the template class itself, rather than requiring a glue method to be provided</p>
 </dd></dl>
 
 </div>

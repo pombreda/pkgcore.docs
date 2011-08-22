@@ -61,47 +61,66 @@
 <span class="sd">occur down the line if dependencies can be kept as minimal as possible.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">klass</span>
+
 <div class="viewcode-block" id="base"><a class="viewcode-back" href="../../api/pkgcore.operations.html#pkgcore.operations.base">[docs]</a><span class="k">class</span> <span class="nc">base</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
+    <span class="n">__required__</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">()</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disable_overrides</span><span class="o">=</span><span class="p">(),</span> <span class="n">enable_overrides</span><span class="o">=</span><span class="p">()):</span>
-        <span class="n">enabled_ops</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filter_disabled_commands</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_collect_operations</span><span class="p">()))</span>
-        <span class="n">enabled_ops</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">enable_overrides</span><span class="p">)</span>
-        <span class="n">enabled_ops</span><span class="o">.</span><span class="n">difference_update</span><span class="p">(</span><span class="n">disable_overrides</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_force_disabled</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">disable_overrides</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_force_enabled</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">enable_overrides</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_api</span><span class="p">()</span>
 
-        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">enabled_ops</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_enable_operation</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+    <span class="nd">@klass.cached_property</span>
+<div class="viewcode-block" id="base.raw_operations"><a class="viewcode-back" href="../../api/pkgcore.operations.html#pkgcore.operations.base.raw_operations">[docs]</a>    <span class="k">def</span> <span class="nf">raw_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s">&quot;_cmd_api_&quot;</span><span class="p">):]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;_cmd_api_&quot;</span><span class="p">))</span>
+</div>
+    <span class="nd">@klass.cached_property</span>
+<div class="viewcode-block" id="base.enabled_operations"><a class="viewcode-back" href="../../api/pkgcore.operations.html#pkgcore.operations.base.enabled_operations">[docs]</a>    <span class="k">def</span> <span class="nf">enabled_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">enabled_ops</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filter_disabled_commands</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_operations</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_apply_overrides</span><span class="p">(</span><span class="n">enabled_ops</span><span class="p">))</span>
+</div>
+    <span class="k">def</span> <span class="nf">_apply_overrides</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ops</span><span class="p">):</span>
+        <span class="n">ops</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_force_enabled</span><span class="p">)</span>
+        <span class="n">ops</span><span class="o">.</span><span class="n">difference_update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_force_disabled</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ops</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_enabled_ops</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">enabled_ops</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_setup_api</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled_operations</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span>
+                <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_cmd_api_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">op</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_filter_disabled_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sequence</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">sequence</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_cmd_api_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">command</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s">&#39;_is_standalone&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_cmd_implementation_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">command</span><span class="p">):</span>
+                    <span class="k">continue</span>
             <span class="n">check_f</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_cmd_check_support_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">command</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">check_f</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">check_f</span><span class="p">():</span>
                 <span class="k">continue</span>
             <span class="k">yield</span> <span class="n">command</span>
 
-    <span class="k">def</span> <span class="nf">_enable_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation</span><span class="p">):</span>
-        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation</span><span class="p">,</span>
-            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_cmd_api_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">operation</span><span class="p">))</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_collect_operations</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;_cmd_implementation_&quot;</span><span class="p">):</span>
-                <span class="k">yield</span> <span class="n">x</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s">&quot;_cmd_implementation_&quot;</span><span class="p">):]</span>
-
 <div class="viewcode-block" id="base.supports"><a class="viewcode-back" href="../../api/pkgcore.operations.html#pkgcore.operations.base.supports">[docs]</a>    <span class="k">def</span> <span class="nf">supports</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">operation_name</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">raw</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enabled_ops</span>
-            <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_collect_operations</span><span class="p">())</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled_operations</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_operations</span>
         <span class="k">if</span> <span class="n">raw</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_cmd_api_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">operation_name</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation_name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">operation_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_operations</span>
+        <span class="k">return</span> <span class="n">operation_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled_operations</span>
 
-    <span class="c">#def __dir__(self):</span>
-    <span class="c">#    return list(self._enabled_ops)</span></div></div>
+</div></div>
+<div class="viewcode-block" id="is_standalone"><a class="viewcode-back" href="../../api/pkgcore.operations.html#pkgcore.operations.is_standalone">[docs]</a><span class="k">def</span> <span class="nf">is_standalone</span><span class="p">(</span><span class="n">functor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;decorator to mark a api operation method as containing the implementation</span>
+
+<span class="sd">    This is primarily useful for commands that can contain all of the logic in</span>
+<span class="sd">    the template class itself, rather than requiring a glue method to be provided</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">functor</span><span class="o">.</span><span class="n">_is_standalone</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">return</span> <span class="n">functor</span></div>
 </pre></div>
 
           </div>

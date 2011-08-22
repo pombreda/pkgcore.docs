@@ -72,7 +72,7 @@
 <tr><td><a class="reference internal" href="#pkgcore.operations.repo.operations" title="pkgcore.operations.repo.operations"><tt class="xref py py-obj docutils literal"><span class="pre">operations</span></tt></a>(repository[,&nbsp;disable_overrides,&nbsp;...])</td>
 <td></td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.operations.repo.operations_proxy" title="pkgcore.operations.repo.operations_proxy"><tt class="xref py py-obj docutils literal"><span class="pre">operations_proxy</span></tt></a>(repository,&nbsp;*args,&nbsp;**kwds)</td>
+<tr><td><a class="reference internal" href="#pkgcore.operations.repo.operations_proxy" title="pkgcore.operations.repo.operations_proxy"><tt class="xref py py-obj docutils literal"><span class="pre">operations_proxy</span></tt></a>(repository[,&nbsp;...])</td>
 <td></td>
 </tr>
 <tr><td><a class="reference internal" href="#pkgcore.operations.repo.replace" title="pkgcore.operations.repo.replace"><tt class="xref py py-obj docutils literal"><span class="pre">replace</span></tt></a>(repo,&nbsp;oldpkg,&nbsp;newpkg,&nbsp;observer)</td>
@@ -219,6 +219,22 @@
 <dt id="pkgcore.operations.repo.operations">
 <em class="property">class </em><tt class="descclassname">pkgcore.operations.repo.</tt><tt class="descname">operations</tt><big>(</big><em>repository</em>, <em>disable_overrides=()</em>, <em>enable_overrides=()</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/repo.html#operations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.repo.operations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pkgcore.operations.html#pkgcore.operations.base" title="pkgcore.operations.base"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.operations.base</span></tt></a></p>
+<dl class="attribute">
+<dt id="pkgcore.operations.repo.operations.enabled_operations">
+<tt class="descname">enabled_operations</tt><a class="headerlink" href="#pkgcore.operations.repo.operations.enabled_operations" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.operations.repo.operations.raw_operations">
+<tt class="descname">raw_operations</tt><a class="headerlink" href="#pkgcore.operations.repo.operations.raw_operations" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="pkgcore.operations.repo.operations.supports">
 <tt class="descname">supports</tt><big>(</big><em>operation_name=None</em>, <em>raw=False</em><big>)</big><a class="headerlink" href="#pkgcore.operations.repo.operations.supports" title="Permalink to this definition">¶</a></dt>
@@ -228,8 +244,24 @@
 
 <dl class="class">
 <dt id="pkgcore.operations.repo.operations_proxy">
-<em class="property">class </em><tt class="descclassname">pkgcore.operations.repo.</tt><tt class="descname">operations_proxy</tt><big>(</big><em>repository</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/repo.html#operations_proxy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.repo.operations_proxy" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">pkgcore.operations.repo.</tt><tt class="descname">operations_proxy</tt><big>(</big><em>repository</em>, <em>disable_overrides=()</em>, <em>enable_overrides=()</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/repo.html#operations_proxy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.repo.operations_proxy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pkgcore.operations.repo.operations" title="pkgcore.operations.repo.operations"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.operations.repo.operations</span></tt></a></p>
+<dl class="attribute">
+<dt id="pkgcore.operations.repo.operations_proxy.enabled_operations">
+<tt class="descname">enabled_operations</tt><a class="reference internal" href="../_modules/pkgcore/operations/repo.html#operations_proxy.enabled_operations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.repo.operations_proxy.enabled_operations" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.operations.repo.operations_proxy.raw_operations">
+<tt class="descname">raw_operations</tt><a class="headerlink" href="#pkgcore.operations.repo.operations_proxy.raw_operations" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="pkgcore.operations.repo.operations_proxy.supports">
 <tt class="descname">supports</tt><big>(</big><em>operation_name=None</em>, <em>raw=False</em><big>)</big><a class="headerlink" href="#pkgcore.operations.repo.operations_proxy.supports" title="Permalink to this definition">¶</a></dt>
