@@ -67,10 +67,15 @@
 
     <span class="n">__required__</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">()</span>
 
+    <span class="n">UNSUPPORTED</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disable_overrides</span><span class="o">=</span><span class="p">(),</span> <span class="n">enable_overrides</span><span class="o">=</span><span class="p">()):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_force_disabled</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">disable_overrides</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_force_enabled</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">enable_overrides</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_setup_api</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_get_observer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">observer</span>
 
     <span class="nd">@klass.cached_property</span>
 <div class="viewcode-block" id="base.raw_operations"><a class="viewcode-back" href="../../api/pkgcore.operations.html#pkgcore.operations.base.raw_operations">[docs]</a>    <span class="k">def</span> <span class="nf">raw_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -111,6 +116,22 @@
         <span class="k">if</span> <span class="n">raw</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">operation_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_operations</span>
         <span class="k">return</span> <span class="n">operation_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled_operations</span>
+</div>
+<div class="viewcode-block" id="base.run_if_supported"><a class="viewcode-back" href="../../api/pkgcore.operations.html#pkgcore.operations.base.run_if_supported">[docs]</a>    <span class="k">def</span> <span class="nf">run_if_supported</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation_name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;invoke an operation if it&#39;s supported</span>
+
+<span class="sd">        :param operation_name: operation to run if supported</span>
+<span class="sd">        :param args: positional args passed to the operation</span>
+<span class="sd">        :param kwds: optional args passed to the operation</span>
+<span class="sd">        :keyword or_return: if the operation isn&#39;t supported, return this</span>
+<span class="sd">            (if unspecified, it returns :obj:`base.UNSUPPORTED`)</span>
+<span class="sd">        :return: Either the value of or_return, or if the operation is</span>
+<span class="sd">            supported, the return value from that operation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">kwds</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;or_return&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">UNSUPPORTED</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">supports</span><span class="p">(</span><span class="n">operation_name</span><span class="p">):</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation_name</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
 
 </div></div>
 <div class="viewcode-block" id="is_standalone"><a class="viewcode-back" href="../../api/pkgcore.operations.html#pkgcore.operations.is_standalone">[docs]</a><span class="k">def</span> <span class="nf">is_standalone</span><span class="p">(</span><span class="n">functor</span><span class="p">):</span>

@@ -336,7 +336,29 @@
             <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;=&#39;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
             <span class="n">_dump_uncollapsed_section</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">section</span><span class="p">)</span>
             <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
-</pre></div></div>
+</div>
+<span class="n">package</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;package&quot;</span><span class="p">,</span>
+    <span class="n">parents</span><span class="o">=</span><span class="p">(</span><span class="n">commandline</span><span class="o">.</span><span class="n">mk_argparser</span><span class="p">(</span><span class="n">add_help</span><span class="o">=</span><span class="bp">False</span><span class="p">),),</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&quot;invoke a packages custom configuration scripts&quot;</span><span class="p">)</span>
+<span class="n">commandline</span><span class="o">.</span><span class="n">make_query</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;+&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;query&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;restrictions/atoms; matching installed packages will be configured&quot;</span><span class="p">)</span>
+<span class="nd">@package.bind_main_func</span>
+<span class="k">def</span> <span class="nf">package_func</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
+    <span class="n">matched</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">domain</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">domain</span>
+    <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">domain</span><span class="o">.</span><span class="n">installed_repositories</span><span class="o">.</span><span class="n">combined</span><span class="o">.</span><span class="n">itermatch</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">query</span><span class="p">):</span>
+        <span class="n">matched</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">ops</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">pkg_operations</span><span class="p">(</span><span class="n">pkg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ops</span><span class="o">.</span><span class="n">supports</span><span class="p">(</span><span class="s">&quot;configure&quot;</span><span class="p">):</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;package </span><span class="si">%s</span><span class="s">: nothing to configure, ignoring&quot;</span> <span class="o">%</span>
+                <span class="p">(</span><span class="n">pkg</span><span class="p">,))</span>
+            <span class="k">continue</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;package </span><span class="si">%s</span><span class="s">: configuring...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pkg</span><span class="p">,))</span>
+        <span class="n">ops</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">matched</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;no packages matched&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">1</span>
+</pre></div>
 
           </div>
         </div>

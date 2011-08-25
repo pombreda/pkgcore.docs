@@ -58,7 +58,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;ebd&quot;</span><span class="p">,</span> <span class="s">&quot;setup_mixin&quot;</span><span class="p">,</span> <span class="s">&quot;install_op&quot;</span><span class="p">,</span> <span class="s">&quot;uninstall_op&quot;</span><span class="p">,</span> <span class="s">&quot;replace_op&quot;</span><span class="p">,</span>
-    <span class="s">&quot;buildable&quot;</span><span class="p">,</span> <span class="s">&quot;binpkg_buildable&quot;</span><span class="p">)</span>
+    <span class="s">&quot;buildable&quot;</span><span class="p">,</span> <span class="s">&quot;binpkg_localize&quot;</span><span class="p">)</span>
 
 <span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">errno</span><span class="o">,</span> <span class="nn">shutil</span>
 
@@ -100,7 +100,7 @@
 <span class="sd">            :class:`pkgcore.ebuild.ebuild_src.package`</span>
 <span class="sd">            instance this env is being setup for</span>
 <span class="sd">        :param initial_env: initial environment to use for this ebuild</span>
-<span class="sd">        :param env_data_source: a :obj:`snakeoil.data_source..base` instance</span>
+<span class="sd">        :param env_data_source: a :obj:`snakeoil.data_source.base` instance</span>
 <span class="sd">            to restore the environment from- used for restoring the</span>
 <span class="sd">            state of an ebuild processing, whether for unmerging, or</span>
 <span class="sd">            walking phases during building</span>
@@ -850,7 +850,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;IMAGE&quot;</span><span class="p">],</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;T&quot;</span><span class="p">],</span> <span class="s">&quot;environment&quot;</span><span class="p">))</span>
 
 </div></div>
-<div class="viewcode-block" id="binpkg_buildable"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebd.html#pkgcore.ebuild.ebd.binpkg_buildable">[docs]</a><span class="k">class</span> <span class="nc">binpkg_buildable</span><span class="p">(</span><span class="n">ebd</span><span class="p">,</span> <span class="n">setup_mixin</span><span class="p">,</span> <span class="n">format</span><span class="o">.</span><span class="n">build</span><span class="p">):</span>
+<div class="viewcode-block" id="binpkg_localize"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebd.html#pkgcore.ebuild.ebd.binpkg_localize">[docs]</a><span class="k">class</span> <span class="nc">binpkg_localize</span><span class="p">(</span><span class="n">ebd</span><span class="p">,</span> <span class="n">setup_mixin</span><span class="p">,</span> <span class="n">format</span><span class="o">.</span><span class="n">build</span><span class="p">):</span>
 
     <span class="n">stage_depends</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;finalize&quot;</span><span class="p">:</span><span class="s">&quot;setup&quot;</span><span class="p">,</span> <span class="s">&quot;setup&quot;</span><span class="p">:</span><span class="s">&quot;start&quot;</span><span class="p">}</span>
     <span class="n">setup_is_for_src</span> <span class="o">=</span> <span class="bp">False</span>
@@ -864,7 +864,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;MERGE_TYPE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;binpkg&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fetchables</span> <span class="o">=</span> <span class="p">()</span>
 
-<div class="viewcode-block" id="binpkg_buildable.finalize"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebd.html#pkgcore.ebuild.ebd.binpkg_buildable.finalize">[docs]</a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="binpkg_localize.finalize"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebd.html#pkgcore.ebuild.ebd.binpkg_localize.finalize">[docs]</a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">MutatedPkg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;environment&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">get_env_source</span><span class="p">()})</span>
 
 </div></div>
@@ -911,21 +911,49 @@
             <span class="n">clean</span><span class="o">=</span><span class="n">clean</span><span class="p">)</span>
 
 
+<span class="k">class</span> <span class="nc">misc_operations</span><span class="p">(</span><span class="n">ebd</span><span class="p">):</span>
 
-<span class="k">class</span> <span class="nc">built_operations</span><span class="p">(</span><span class="n">ebuild_mixin</span><span class="p">,</span> <span class="n">format</span><span class="o">.</span><span class="n">build_operations</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">domain</span>
+        <span class="n">ebd</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_phase</span><span class="p">(</span><span class="s">&#39;config&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_phase</span><span class="p">(</span><span class="s">&#39;info&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">built_operations</span><span class="p">(</span><span class="n">ebuild_mixin</span><span class="p">,</span> <span class="n">format</span><span class="o">.</span><span class="n">operations</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">fetcher</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">initial_env</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="n">format</span><span class="o">.</span><span class="n">build_operations</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="n">observer</span><span class="p">)</span>
+        <span class="n">format</span><span class="o">.</span><span class="n">operations</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="n">observer</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fetcher</span> <span class="o">=</span> <span class="n">fetcher</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_initial_env</span> <span class="o">=</span> <span class="n">initial_env</span>
 
-    <span class="k">def</span> <span class="nf">_cmd_implementation_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">observer</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">observer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">observer</span>
-        <span class="k">return</span> <span class="n">binpkg_buildable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span>
-            <span class="n">clean</span><span class="o">=</span><span class="n">clean</span><span class="p">,</span>
-            <span class="n">initial_env</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_initial_env</span><span class="p">,</span>
-            <span class="n">env_data_source</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="o">.</span><span class="n">environment</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_cmd_implementation_localize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">force</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;_is_from_source&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span>
+        <span class="n">op</span> <span class="o">=</span> <span class="n">binpkg_localize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">initial_env</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_initial_env</span><span class="p">,</span> <span class="n">env_data_source</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span>
+            <span class="n">observer</span><span class="o">=</span><span class="n">observer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">op</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_cmd_check_support_configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">pkg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span>
+        <span class="k">if</span> <span class="n">pkg</span><span class="o">.</span><span class="n">eapi_obj</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">trust_defined_phases_cache</span> <span class="ow">and</span> \
+            <span class="s">&#39;config&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pkg</span><span class="o">.</span><span class="n">defined_phases</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">_cmd_implementation_configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="p">):</span>
+        <span class="n">misc</span> <span class="o">=</span> <span class="n">misc_operations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="n">env_data_source</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">misc</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="n">misc</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">misc</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">True</span>
 </pre></div>
 
           </div>
