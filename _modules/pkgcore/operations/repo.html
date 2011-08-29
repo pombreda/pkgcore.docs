@@ -64,7 +64,7 @@
 <span class="kn">from</span> <span class="nn">pkgcore</span> <span class="kn">import</span> <span class="n">operations</span> <span class="k">as</span> <span class="n">_operations_mod</span>
 <span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span> <span class="s">&quot;pkgcore.log:logger&quot;</span><span class="p">,</span>
-    <span class="s">&quot;pkgcore.operations:observer@observer_mod&quot;</span><span class="p">,</span>
+    <span class="s">&quot;pkgcore.operations:observer@observer_mod,regen&quot;</span><span class="p">,</span>
     <span class="s">&quot;pkgcore:sync&quot;</span><span class="p">,</span>
     <span class="s">&quot;pkgcore.package.mutated:MutatedPkg&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -245,6 +245,13 @@
     <span class="k">def</span> <span class="nf">_cmd_check_support_sync</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> <span class="s">&#39;_syncer&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> \
             <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_syncer</span><span class="p">()</span><span class="o">.</span><span class="n">disabled</span>
+
+    <span class="nd">@_operations_mod.is_standalone</span>
+    <span class="k">def</span> <span class="nf">_cmd_api_regen_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_regen_disable_threads&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+            <span class="n">threads</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">regen</span><span class="o">.</span><span class="n">regen_repository</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_observer</span><span class="p">(</span><span class="n">observer</span><span class="p">),</span> <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="operations_proxy"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.operations_proxy">[docs]</a><span class="k">class</span> <span class="nc">operations_proxy</span><span class="p">(</span><span class="n">operations</span><span class="p">):</span>
