@@ -527,6 +527,10 @@
 
 <div class="viewcode-block" id="uninstall_op.add_triggers"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebd.html#pkgcore.ebuild.ebd.uninstall_op.add_triggers">[docs]</a>    <span class="k">def</span> <span class="nf">add_triggers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain_op</span><span class="p">,</span> <span class="n">engine</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">old_pkg</span><span class="o">.</span><span class="n">add_format_triggers</span><span class="p">(</span><span class="n">domain_op</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="uninstall_op.finish"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebd.html#pkgcore.ebuild.ebd.uninstall_op.finish">[docs]</a>    <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">format</span><span class="o">.</span><span class="n">uninstall</span><span class="o">.</span><span class="n">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 </div></div>
 <div class="viewcode-block" id="replace_op"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebd.html#pkgcore.ebuild.ebd.replace_op">[docs]</a><span class="k">class</span> <span class="nc">replace_op</span><span class="p">(</span><span class="n">format</span><span class="o">.</span><span class="n">replace</span><span class="p">):</span>
@@ -930,14 +934,20 @@
         <span class="n">format</span><span class="o">.</span><span class="n">operations</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="n">observer</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fetcher</span> <span class="o">=</span> <span class="n">fetcher</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_initial_env</span> <span class="o">=</span> <span class="n">initial_env</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_localized_ebd</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="k">def</span> <span class="nf">_cmd_implementation_localize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">force</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;_is_from_source&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span>
-        <span class="n">op</span> <span class="o">=</span> <span class="n">binpkg_localize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_localized_ebd</span> <span class="o">=</span> <span class="n">op</span> <span class="o">=</span> <span class="n">binpkg_localize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
             <span class="n">initial_env</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_initial_env</span><span class="p">,</span> <span class="n">env_data_source</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span>
             <span class="n">observer</span><span class="o">=</span><span class="n">observer</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">op</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_cmd_implementation_cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_localized_ebd</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_localized_ebd</span><span class="o">.</span><span class="n">cleanup</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_cmd_check_support_configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">pkg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span>

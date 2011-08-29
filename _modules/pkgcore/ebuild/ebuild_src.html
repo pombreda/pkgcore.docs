@@ -212,6 +212,8 @@
         <span class="k">return</span> <span class="n">restrict</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
     <span class="k">return</span> <span class="n">restrict</span>
 
+<span class="k">def</span> <span class="nf">get_repo_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">repo_id</span>
 
 <div class="viewcode-block" id="base"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebuild_src.html#pkgcore.ebuild.ebuild_src.base">[docs]</a><span class="k">class</span> <span class="nc">base</span><span class="p">(</span><span class="n">metadata</span><span class="o">.</span><span class="n">package</span><span class="p">):</span>
 
@@ -228,7 +230,7 @@
         <span class="s">&quot;depends&quot;</span><span class="p">,</span> <span class="s">&quot;rdepends&quot;</span><span class="p">,</span> <span class="s">&quot;post_rdepends&quot;</span><span class="p">,</span> <span class="s">&quot;provides&quot;</span><span class="p">,</span> <span class="s">&quot;license&quot;</span><span class="p">,</span>
         <span class="s">&quot;slot&quot;</span><span class="p">,</span> <span class="s">&quot;keywords&quot;</span><span class="p">,</span> <span class="s">&quot;eapi_obj&quot;</span><span class="p">,</span> <span class="s">&quot;restrict&quot;</span><span class="p">,</span> <span class="s">&quot;description&quot;</span><span class="p">,</span> <span class="s">&quot;iuse&quot;</span><span class="p">,</span>
         <span class="s">&quot;chost&quot;</span><span class="p">,</span> <span class="s">&quot;cbuild&quot;</span><span class="p">,</span> <span class="s">&quot;ctarget&quot;</span><span class="p">,</span> <span class="s">&quot;homepage&quot;</span><span class="p">,</span> <span class="s">&quot;properties&quot;</span><span class="p">,</span>
-        <span class="s">&quot;required_use&quot;</span><span class="p">,</span> <span class="s">&quot;defined_phases&quot;</span><span class="p">)</span>
+        <span class="s">&quot;required_use&quot;</span><span class="p">,</span> <span class="s">&quot;defined_phases&quot;</span><span class="p">,</span> <span class="s">&quot;source_repository&quot;</span><span class="p">)</span>
 
     <span class="n">_config_wrappables</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">alias_class_method</span><span class="p">(</span><span class="s">&quot;evaluate_depset&quot;</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;depends&quot;</span><span class="p">,</span> <span class="s">&quot;rdepends&quot;</span><span class="p">,</span> <span class="s">&quot;post_rdepends&quot;</span><span class="p">,</span> <span class="s">&quot;fetchables&quot;</span><span class="p">,</span>
@@ -260,8 +262,12 @@
         <span class="n">s</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;DEFINED_PHASES&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()),</span> <span class="bp">False</span><span class="p">)</span>
     <span class="n">_get_attr</span><span class="p">[</span><span class="s">&quot;homepage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span><span class="n">s</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;HOMEPAGE&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="n">_get_attr</span><span class="p">[</span><span class="s">&quot;required_use&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">generate_required_use</span>
+    <span class="n">_get_attr</span><span class="p">[</span><span class="s">&quot;source_repository&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_repo_id</span>
 
     <span class="n">__slots__</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">_get_attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="s">&quot;_pkg_metadata_shared&quot;</span><span class="p">])</span>
+
+    <span class="n">PN</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&quot;package&quot;</span><span class="p">)</span>
+    <span class="n">repo_id</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&quot;repo.repo_id&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="base.eapi"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebuild_src.html#pkgcore.ebuild.ebuild_src.base.eapi">[docs]</a>    <span class="k">def</span> <span class="nf">eapi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -278,8 +284,6 @@
 <div class="viewcode-block" id="base.PF"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebuild_src.html#pkgcore.ebuild.ebuild_src.base.PF">[docs]</a>    <span class="k">def</span> <span class="nf">PF</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">-</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">package</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fullver</span><span class="p">)</span>
 </div>
-    <span class="n">PN</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&quot;package&quot;</span><span class="p">)</span>
-
     <span class="nd">@property</span>
 <div class="viewcode-block" id="base.PR"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebuild_src.html#pkgcore.ebuild.ebuild_src.base.PR">[docs]</a>    <span class="k">def</span> <span class="nf">PR</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">revision</span>

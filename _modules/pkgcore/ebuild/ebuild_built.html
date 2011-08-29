@@ -73,10 +73,11 @@
 <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">passthrough</span><span class="p">(</span><span class="n">inst</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">rename</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">rename</span> <span class="o">=</span> <span class="n">attr</span>
-    <span class="k">return</span> <span class="n">inst</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">rename</span><span class="p">]</span>
+<span class="k">def</span> <span class="nf">passthrough</span><span class="p">(</span><span class="n">inst</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">inst</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">passthrough_repo</span><span class="p">(</span><span class="n">inst</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">inst</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;repo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
 <span class="k">def</span> <span class="nf">flatten_depset</span><span class="p">(</span><span class="n">inst</span><span class="p">,</span> <span class="n">conditionals</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">inst</span><span class="o">.</span><span class="n">evaluate_depset</span><span class="p">(</span><span class="n">conditionals</span><span class="p">)</span>
@@ -102,6 +103,7 @@
 
 <span class="n">_empty_fetchable</span> <span class="o">=</span> <span class="n">conditionals</span><span class="o">.</span><span class="n">DepSet</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">ebuild_src</span><span class="o">.</span><span class="n">fetchable</span><span class="p">,</span>
     <span class="n">operators</span><span class="o">=</span><span class="p">{})</span>
+
 
 <div class="viewcode-block" id="package"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebuild_built.html#pkgcore.ebuild.ebuild_built.package">[docs]</a><span class="k">class</span> <span class="nc">package</span><span class="p">(</span><span class="n">ebuild_src</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
 
@@ -130,6 +132,7 @@
 
     <span class="n">_get_attr</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">post_curry</span><span class="p">(</span><span class="n">passthrough</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
                      <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;contents&quot;</span><span class="p">,</span> <span class="s">&quot;environment&quot;</span><span class="p">,</span> <span class="s">&quot;ebuild&quot;</span><span class="p">))</span>
+    <span class="n">_get_attr</span><span class="p">[</span><span class="s">&#39;source_repository&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">passthrough_repo</span>
     <span class="n">_get_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
         <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">post_curry</span><span class="p">(</span><span class="n">wrap_inst</span><span class="p">,</span>
                        <span class="n">ebuild_src</span><span class="o">.</span><span class="n">package</span><span class="o">.</span><span class="n">_config_wrappables</span><span class="p">[</span><span class="n">k</span><span class="p">],</span>
