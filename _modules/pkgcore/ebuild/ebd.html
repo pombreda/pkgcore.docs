@@ -575,7 +575,7 @@
 
     <span class="c"># XXX this is unclean- should be handing in strictly what is build</span>
     <span class="c"># env, rather then dumping domain settings as env.</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">eclass_cache</span><span class="p">,</span> <span class="n">fetcher</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">verified_files</span><span class="p">,</span> <span class="n">eclass_cache</span><span class="p">,</span>
         <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
@@ -585,14 +585,13 @@
 <span class="sd">            basically initial env</span>
 <span class="sd">        :param eclass_cache: the :class:`pkgcore.ebuild.eclass_cache`</span>
 <span class="sd">            we&#39;ll be using</span>
-<span class="sd">        :param fetcher: a :obj:`pkgcore.fetch.base.fetcher` instance to use to</span>
-<span class="sd">            access our required files for building</span>
+<span class="sd">        :param files: mapping of fetchables mapped to their disk location</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">use</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;use_override&quot;</span><span class="p">,</span> <span class="n">pkg</span><span class="o">.</span><span class="n">use</span><span class="p">)</span>
         <span class="n">domain_settings</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">settings</span>
 
-        <span class="n">format</span><span class="o">.</span><span class="n">build</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="p">)</span>
+        <span class="n">format</span><span class="o">.</span><span class="n">build</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">verified_files</span><span class="p">,</span> <span class="n">observer</span><span class="p">)</span>
         <span class="n">ebd</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">initial_env</span><span class="o">=</span><span class="n">domain_settings</span><span class="p">,</span>
                      <span class="n">features</span><span class="o">=</span><span class="n">domain_settings</span><span class="p">[</span><span class="s">&quot;FEATURES&quot;</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -600,8 +599,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">eclass_cache</span> <span class="o">=</span> <span class="n">eclass_cache</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;ECLASSDIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">eclass_cache</span><span class="o">.</span><span class="n">eclassdir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;PORTDIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">eclass_cache</span><span class="o">.</span><span class="n">portdir</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">fetcher</span> <span class="o">=</span> <span class="n">fetcher</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">run_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">feat_or_bool</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">,</span> <span class="n">domain_settings</span><span class="p">)</span>
         <span class="k">if</span> <span class="s">&quot;test&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">restrict</span><span class="p">:</span>
@@ -638,9 +635,8 @@
                         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="n">s</span><span class="o">+</span><span class="n">y</span><span class="p">]</span>
         <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">piece</span> <span class="k">for</span> <span class="n">piece</span> <span class="ow">in</span> <span class="n">path</span> <span class="k">if</span> <span class="n">piece</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;:&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fetchables</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">fetchables</span><span class="p">[:]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">filename</span>
-            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetchables</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pkg</span><span class="o">.</span><span class="n">fetchables</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">eapi_obj</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">has_AA</span><span class="p">:</span>
             <span class="n">pkg</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;_raw_pkg&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">)</span>
@@ -660,10 +656,10 @@
 
 <div class="viewcode-block" id="buildable.init_distfiles_env"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebd.html#pkgcore.ebuild.ebd.buildable.init_distfiles_env">[docs]</a>    <span class="k">def</span> <span class="nf">init_distfiles_env</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c"># cvs/svn ebuilds need to die.</span>
-        <span class="n">distdir_write</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetcher</span><span class="o">.</span><span class="n">get_storage_path</span><span class="p">()</span>
+        <span class="n">distdir_write</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">fetcher</span><span class="o">.</span><span class="n">get_storage_path</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">distdir_write</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">format</span><span class="o">.</span><span class="n">GenericBuildError</span><span class="p">(</span><span class="s">&quot;no usable distdir was found &quot;</span>
-                <span class="s">&quot;for PORTAGE_ACTUAL_DISTDIR from fetcher </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetcher</span><span class="p">)</span>
+                <span class="s">&quot;for PORTAGE_ACTUAL_DISTDIR from fetcher </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">fetcher</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;PORTAGE_ACTUAL_DISTDIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">distdir_write</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;DISTDIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normpath</span><span class="p">(</span>
             <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">builddir</span><span class="p">,</span> <span class="s">&quot;distdir&quot;</span><span class="p">))</span>
@@ -671,11 +667,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="n">x</span><span class="p">])</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span>
 </div>
 <div class="viewcode-block" id="buildable.setup_distfiles"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebd.html#pkgcore.ebuild.ebd.buildable.setup_distfiles">[docs]</a>    <span class="k">def</span> <span class="nf">setup_distfiles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c"># added to protect against no-auto usage in pebuild.</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;files&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verified_files</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;DISTDIR&quot;</span><span class="p">]):</span>
                     <span class="k">if</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;DISTDIR&quot;</span><span class="p">])</span>
@@ -699,7 +692,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">dest</span> <span class="ow">in</span> <span class="p">[</span>
                     <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;DISTDIR&quot;</span><span class="p">],</span> <span class="n">v</span><span class="o">.</span><span class="n">filename</span><span class="p">))</span>
-                    <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">items</span><span class="p">()]:</span>
+                    <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">verified_files</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()]:</span>
                     <span class="n">os</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
 
             <span class="k">except</span> <span class="ne">OSError</span><span class="p">,</span> <span class="n">oe</span><span class="p">:</span>
@@ -866,7 +859,6 @@
         <span class="n">ebd</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">eapi_obj</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">has_merge_type</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;MERGE_TYPE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;binpkg&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fetchables</span> <span class="o">=</span> <span class="p">()</span>
 
 <div class="viewcode-block" id="binpkg_localize.finalize"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebd.html#pkgcore.ebuild.ebd.binpkg_localize.finalize">[docs]</a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">MutatedPkg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;environment&quot;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">get_env_source</span><span class="p">()})</span>
@@ -905,12 +897,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_use_override</span> <span class="o">=</span> <span class="n">use_override</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_eclass_cache</span> <span class="o">=</span> <span class="n">eclass_cache</span>
 
-    <span class="k">def</span> <span class="nf">_cmd_implementation_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">observer</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">observer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">observer</span>
-        <span class="k">return</span> <span class="n">buildable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">_cmd_implementation_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="p">,</span> <span class="n">verified_files</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">buildable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="n">verified_files</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_eclass_cache</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_fetcher</span><span class="p">,</span>
             <span class="n">use_override</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_override</span><span class="p">,</span>
             <span class="n">clean</span><span class="o">=</span><span class="n">clean</span><span class="p">)</span>
 
