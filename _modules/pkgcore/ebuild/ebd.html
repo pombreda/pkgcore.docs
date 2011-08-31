@@ -63,6 +63,7 @@
 <span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">errno</span><span class="o">,</span> <span class="nn">shutil</span>
 
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">data_source</span>
+<span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="n">raise_from</span>
 <span class="kn">from</span> <span class="nn">pkgcore.ebuild.processor</span> <span class="kn">import</span> \
     <span class="n">request_ebuild_processor</span><span class="p">,</span> <span class="n">release_ebuild_processor</span><span class="p">,</span> \
     <span class="n">expected_ebuild_env</span><span class="p">,</span> <span class="n">chuck_UnhandledCommand</span><span class="p">,</span> \
@@ -369,12 +370,12 @@
             <span class="c"># try to wipe the cat dir; if not empty, ignore it</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">rmdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">builddir</span><span class="p">))</span>
-            <span class="k">except</span> <span class="ne">OSError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOTEMPTY</span><span class="p">:</span>
                     <span class="k">raise</span>
-        <span class="k">except</span> <span class="ne">OSError</span><span class="p">,</span> <span class="n">oe</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">format</span><span class="o">.</span><span class="n">GenericBuildError</span><span class="p">(</span>
-                <span class="s">&quot;clean: Caught exception while cleansing: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">oe</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">oe</span><span class="p">:</span>
+            <span class="n">raise_from</span><span class="p">(</span><span class="n">format</span><span class="o">.</span><span class="n">GenericBuildError</span><span class="p">(</span>
+                <span class="s">&quot;clean: Caught exception while cleansing: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">oe</span><span class="p">,)))</span>
         <span class="k">return</span> <span class="bp">True</span>
 </div>
 <div class="viewcode-block" id="ebd.feat_or_bool"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebd.html#pkgcore.ebuild.ebd.ebd.feat_or_bool">[docs]</a>    <span class="k">def</span> <span class="nf">feat_or_bool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">extra_env</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -470,8 +471,9 @@
         <span class="n">release_ebuild_processor</span><span class="p">(</span><span class="n">ebd</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="p">(</span><span class="ne">SystemExit</span><span class="p">,</span> <span class="n">format</span><span class="o">.</span><span class="n">GenericBuildError</span><span class="p">)):</span>
             <span class="k">raise</span>
-        <span class="k">raise</span> <span class="n">format</span><span class="o">.</span><span class="n">GenericBuildError</span><span class="p">(</span><span class="s">&quot;Executing phase </span><span class="si">%s</span><span class="s">: Caught exception: &quot;</span>
-            <span class="s">&quot;</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">phase</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+        <span class="n">raise_from</span><span class="p">(</span>
+            <span class="n">format</span><span class="o">.</span><span class="n">GenericBuildError</span><span class="p">(</span><span class="s">&quot;Executing phase </span><span class="si">%s</span><span class="s">: Caught exception: &quot;</span>
+                <span class="s">&quot;</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">phase</span><span class="p">,</span> <span class="n">e</span><span class="p">)))</span>
 
     <span class="n">release_ebuild_processor</span><span class="p">(</span><span class="n">ebd</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">True</span>
@@ -677,11 +679,11 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;DISTDIR&quot;</span><span class="p">])</span>
 
-            <span class="k">except</span> <span class="ne">OSError</span><span class="p">,</span> <span class="n">oe</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">format</span><span class="o">.</span><span class="n">FailedDirectory</span><span class="p">(</span>
+            <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">oe</span><span class="p">:</span>
+                <span class="n">raise_from</span><span class="p">(</span><span class="n">format</span><span class="o">.</span><span class="n">FailedDirectory</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;DISTDIR&quot;</span><span class="p">],</span>
                     <span class="s">&quot;failed removing existing file/dir/link at: exception </span><span class="si">%s</span><span class="s">&quot;</span>
-                    <span class="o">%</span> <span class="n">oe</span><span class="p">)</span>
+                    <span class="o">%</span> <span class="n">oe</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ensure_dirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;DISTDIR&quot;</span><span class="p">],</span> <span class="n">mode</span><span class="o">=</span><span class="mo">0770</span><span class="p">,</span>
                                <span class="n">gid</span><span class="o">=</span><span class="n">portage_gid</span><span class="p">):</span>
@@ -695,10 +697,10 @@
                     <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">verified_files</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()]:</span>
                     <span class="n">os</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
 
-            <span class="k">except</span> <span class="ne">OSError</span><span class="p">,</span> <span class="n">oe</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">format</span><span class="o">.</span><span class="n">GenericBuildError</span><span class="p">(</span>
+            <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">oe</span><span class="p">:</span>
+                <span class="n">raise_from</span><span class="p">(</span><span class="n">format</span><span class="o">.</span><span class="n">GenericBuildError</span><span class="p">(</span>
                     <span class="s">&quot;Failed symlinking in distfiles for src </span><span class="si">%s</span><span class="s"> -&gt; </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                        <span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">oe</span><span class="p">)))</span>
+                        <span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">oe</span><span class="p">))))</span>
 </div>
     <span class="nd">@observer.decorate_build_method</span><span class="p">(</span><span class="s">&quot;setup&quot;</span><span class="p">)</span>
 <div class="viewcode-block" id="buildable.setup"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebd.html#pkgcore.ebuild.ebd.buildable.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -724,9 +726,9 @@
                 <span class="n">st</span> <span class="o">=</span> <span class="bp">None</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">ensure_dirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;CCACHE_DIR&quot;</span><span class="p">],</span> <span class="n">mode</span><span class="o">=</span><span class="mo">02775</span><span class="p">,</span>
                                    <span class="n">gid</span><span class="o">=</span><span class="n">portage_gid</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="n">format</span><span class="o">.</span><span class="n">FailedDirectory</span><span class="p">(</span>
+                    <span class="n">raise_from</span><span class="p">(</span><span class="n">format</span><span class="o">.</span><span class="n">FailedDirectory</span><span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;CCACHE_DIR&quot;</span><span class="p">],</span>
-                        <span class="s">&quot;failed creation of ccache dir&quot;</span><span class="p">)</span>
+                        <span class="s">&quot;failed creation of ccache dir&quot;</span><span class="p">))</span>
 
                 <span class="c"># XXX this is more then mildly stupid.</span>
                 <span class="n">st</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;CCACHE_DIR&quot;</span><span class="p">])</span>
@@ -762,9 +764,9 @@
                     <span class="k">finally</span><span class="p">:</span>
                         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">format</span><span class="o">.</span><span class="n">FailedDirectory</span><span class="p">(</span>
+                <span class="n">raise_from</span><span class="p">(</span><span class="n">format</span><span class="o">.</span><span class="n">FailedDirectory</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;CCACHE_DIR&quot;</span><span class="p">],</span>
-                    <span class="s">&quot;failed ensuring perms/group owner for CCACHE_DIR&quot;</span><span class="p">)</span>
+                    <span class="s">&quot;failed ensuring perms/group owner for CCACHE_DIR&quot;</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">setup_mixin</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="buildable.configure"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebd.html#pkgcore.ebuild.ebd.buildable.configure">[docs]</a>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -805,9 +807,9 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">chown</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s">&quot;WORKDIR&quot;</span><span class="p">],</span> <span class="n">portage_uid</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">OSError</span><span class="p">,</span> <span class="n">oe</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">format</span><span class="o">.</span><span class="n">GenericBuildError</span><span class="p">(</span>
+                <span class="n">raise_from</span><span class="p">(</span><span class="n">format</span><span class="o">.</span><span class="n">GenericBuildError</span><span class="p">(</span>
                     <span class="s">&quot;failed forcing </span><span class="si">%i</span><span class="s"> uid for WORKDIR: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
-                        <span class="p">(</span><span class="n">portage_uid</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">oe</span><span class="p">)))</span>
+                        <span class="p">(</span><span class="n">portage_uid</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">oe</span><span class="p">))))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_phase</span><span class="p">(</span><span class="s">&quot;unpack&quot;</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
 </div>
     <span class="nb">compile</span> <span class="o">=</span> <span class="n">pretty_docs</span><span class="p">(</span>

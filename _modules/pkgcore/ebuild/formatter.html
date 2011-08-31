@@ -46,8 +46,9 @@
           <div class="body">
             
   <h1>Source code for pkgcore.ebuild.formatter</h1><div class="highlight"><pre>
-<span class="c"># Copyright: 2006 Charlie Shepherd &lt;masterdriverz@gmail.com&gt;</span>
-<span class="c"># License: GPL2</span>
+<span class="c"># Copyright: 2007-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># Copyright: 2007 Charlie Shepherd &lt;masterdriverz@gmail.com&gt;</span>
+<span class="c"># License: GPL2/BSD2</span>
 
 <span class="sd">&quot;&quot;&quot;pmerge formatting module&quot;&quot;&quot;</span>
 
@@ -60,6 +61,7 @@
 
 <span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">configurable</span>
 <span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
+<span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="n">raise_from</span>
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
     <span class="s">&#39;errno&#39;</span><span class="p">,</span>
     <span class="s">&#39;snakeoil.compatibility:any&#39;</span><span class="p">,</span>
@@ -138,11 +140,11 @@
             <span class="n">response</span> <span class="o">=</span> <span class="nb">raw_input</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">EOFError</span><span class="p">:</span>
             <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Not answerable: EOF on STDIN&quot;</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="n">NoChoice</span><span class="p">()</span>
+            <span class="n">raise_from</span><span class="p">(</span><span class="n">NoChoice</span><span class="p">())</span>
         <span class="k">except</span> <span class="ne">IOError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="n">errno</span><span class="o">.</span><span class="n">EBADF</span><span class="p">:</span>
                 <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Not answerable: STDIN is either closed, or not readable&quot;</span><span class="p">)</span>
-                <span class="k">raise</span> <span class="n">NoChoice</span><span class="p">()</span>
+                <span class="n">raise_from</span><span class="p">(</span><span class="n">NoChoice</span><span class="p">())</span>
             <span class="k">raise</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">default_answer</span>

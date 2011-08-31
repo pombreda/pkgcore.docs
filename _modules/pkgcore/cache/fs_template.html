@@ -47,7 +47,7 @@
           <div class="body">
             
   <h1>Source code for pkgcore.cache.fs_template</h1><div class="highlight"><pre>
-<span class="c"># Copyright: 2005-2006 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># Copyright: 2005-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
 <span class="c"># License: GPL2/BSD</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -109,7 +109,7 @@
             <span class="k">if</span> <span class="n">mtime</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
                 <span class="n">mtime</span> <span class="o">=</span> <span class="nb">long</span><span class="p">(</span><span class="n">mtime</span><span class="p">)</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">utime</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="p">(</span><span class="n">mtime</span><span class="p">,</span> <span class="n">mtime</span><span class="p">))</span>
-        <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">IOError</span><span class="p">):</span>
+        <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">False</span>
         <span class="k">return</span> <span class="bp">True</span>
 

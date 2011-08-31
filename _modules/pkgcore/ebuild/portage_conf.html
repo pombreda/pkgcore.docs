@@ -65,6 +65,7 @@
 <span class="kn">from</span> <span class="nn">pkgcore.pkgsets.glsa</span> <span class="kn">import</span> <span class="n">SecurityUpgrades</span>
 
 <span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">normpath</span><span class="p">,</span> <span class="n">abspath</span><span class="p">,</span> <span class="n">listdir_files</span><span class="p">,</span> <span class="n">pjoin</span><span class="p">,</span> <span class="n">ensure_dirs</span>
+<span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="n">raise_from</span>
 <span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
     <span class="s">&#39;errno&#39;</span><span class="p">,</span>
@@ -268,11 +269,11 @@
                 <span class="n">profile</span> <span class="o">=</span> <span class="n">_find_profile_link</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s">&#39;portage&#39;</span><span class="p">),</span> <span class="bp">True</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">profile</span>
-            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">InstantiationError</span><span class="p">(</span>
+            <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">InstantiationError</span><span class="p">(</span>
                 <span class="s">&quot;</span><span class="si">%s</span><span class="s"> must be a symlink pointing to a real target&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                    <span class="n">make_profile</span><span class="p">,))</span>
-        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">InstantiationError</span><span class="p">(</span>
-            <span class="s">&quot;</span><span class="si">%s</span><span class="s">: unexpected error- </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">make_profile</span><span class="p">,</span> <span class="n">oe</span><span class="o">.</span><span class="n">strerror</span><span class="p">))</span>
+                    <span class="n">make_profile</span><span class="p">,)))</span>
+        <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">InstantiationError</span><span class="p">(</span>
+            <span class="s">&quot;</span><span class="si">%s</span><span class="s">: unexpected error- </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">make_profile</span><span class="p">,</span> <span class="n">oe</span><span class="o">.</span><span class="n">strerror</span><span class="p">)))</span>
 
 <div class="viewcode-block" id="add_profile"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.portage_conf.html#pkgcore.ebuild.portage_conf.add_profile">[docs]</a><span class="k">def</span> <span class="nf">add_profile</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">base_path</span><span class="p">,</span> <span class="n">user_profile_path</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="n">profile</span> <span class="o">=</span> <span class="n">_find_profile_link</span><span class="p">(</span><span class="n">base_path</span><span class="p">)</span>
@@ -337,9 +338,9 @@
             <span class="n">sourcing_command</span><span class="o">=</span><span class="n">sourcing_command</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">ie</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ie</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="n">errno</span><span class="o">.</span><span class="n">EACCES</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">PermissionDeniedError</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">PermissionDeniedError</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="bp">False</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">ie</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span> <span class="ow">or</span> <span class="n">required</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ParsingError</span><span class="p">(</span><span class="s">&quot;parsing </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fp</span><span class="p">,),</span> <span class="n">exception</span><span class="o">=</span><span class="n">ie</span><span class="p">)</span>
+            <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ParsingError</span><span class="p">(</span><span class="s">&quot;parsing </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fp</span><span class="p">,),</span> <span class="n">exception</span><span class="o">=</span><span class="n">ie</span><span class="p">))</span>
         <span class="k">return</span>
 
     <span class="k">if</span> <span class="n">incrementals</span><span class="p">:</span>

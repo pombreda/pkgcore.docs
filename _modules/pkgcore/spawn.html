@@ -81,7 +81,7 @@
     <span class="k">def</span> <span class="nf">get_open_fds</span><span class="p">():</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">listdir</span><span class="p">(</span><span class="s">&quot;/proc/</span><span class="si">%i</span><span class="s">/fd&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()))</span>
-        <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">IOError</span><span class="p">):</span>
+        <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">slow_get_open_fds</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span>
             <span class="kn">import</span> <span class="nn">warnings</span>

@@ -46,8 +46,8 @@
           <div class="body">
             
   <h1>Source code for pkgcore.ebuild.cpv</h1><div class="highlight"><pre>
-<span class="c"># Copyright: 2005 Jason Stubbs &lt;jstubbs@gentoo.org&gt;</span>
 <span class="c"># Copyright: 2005-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># Copyright: 2005 Jason Stubbs &lt;jstubbs@gentoo.org&gt;</span>
 <span class="c"># License: GPL2/BSD</span>
 
 
@@ -207,11 +207,8 @@
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cpvstr</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s">&#39;&lt;</span><span class="si">%s</span><span class="s"> cpvstr=</span><span class="si">%s</span><span class="s"> @</span><span class="si">%#8x</span><span class="s">&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;cpvstr&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">,</span> <span class="n">ae</span><span class="p">:</span>
-            <span class="k">raise</span>
+        <span class="k">return</span> <span class="s">&#39;&lt;</span><span class="si">%s</span><span class="s"> cpvstr=</span><span class="si">%s</span><span class="s"> @</span><span class="si">%#8x</span><span class="s">&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span>
+             <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;cpvstr&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;cpvstr&#39;</span><span class="p">,</span> <span class="s">&#39;None&#39;</span><span class="p">)</span>

@@ -62,6 +62,7 @@
 <span class="kn">from</span> <span class="nn">snakeoil.mappings</span> <span class="kn">import</span> <span class="n">IndeterminantDict</span>
 <span class="kn">from</span> <span class="nn">snakeoil.currying</span> <span class="kn">import</span> <span class="n">post_curry</span><span class="p">,</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">snakeoil.obj</span> <span class="kn">import</span> <span class="n">DelayedInstantiation</span>
+<span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="n">raise_from</span>
 
 <span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
@@ -296,7 +297,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">KeyError</span>
+                <span class="n">raise_from</span><span class="p">(</span><span class="ne">KeyError</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
 
     <span class="n">_generate_format_install_op</span>   <span class="o">=</span> <span class="n">_generic_format_install_op</span>
     <span class="n">_generate_format_uninstall_op</span> <span class="o">=</span> <span class="n">_generic_format_uninstall_op</span>

@@ -100,14 +100,14 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">active_ebp_list</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span><span class="o">.</span><span class="n">shutdown_processor</span><span class="p">(</span>
                     <span class="n">ignore_keyboard_interrupt</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-            <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+            <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">:</span>
                 <span class="k">pass</span>
 
         <span class="k">while</span> <span class="n">inactive_ebp_list</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">inactive_ebp_list</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span><span class="o">.</span><span class="n">shutdown_processor</span><span class="p">(</span>
                     <span class="n">ignore_keyboard_interrupt</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-            <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+            <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">:</span>
                 <span class="k">pass</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span><span class="n">e</span><span class="p">:</span>
         <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
@@ -563,7 +563,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">ebd_read</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span>
-        <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">EnvironmentError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">)</span>
 
         <span class="c"># now we wait.</span>

@@ -46,7 +46,7 @@
           <div class="body">
             
   <h1>Source code for pkgcore.cache</h1><div class="highlight"><pre>
-<span class="c"># Copyright: 2005-2010 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># Copyright: 2005-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
 <span class="c"># License: GPL2/BSD</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -59,6 +59,7 @@
 <span class="kn">from</span> <span class="nn">snakeoil.mappings</span> <span class="kn">import</span> <span class="n">ProtectedDict</span><span class="p">,</span> <span class="n">autoconvert_py3k_methods_metaclass</span>
 <span class="kn">from</span> <span class="nn">snakeoil.obj</span> <span class="kn">import</span> <span class="n">make_SlottedDict_kls</span>
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">klass</span>
+<span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="n">raise_from</span>
 
 <span class="c"># temp hack for .2</span>
 <span class="kn">from</span> <span class="nn">pkgcore.ebuild.const</span> <span class="kn">import</span> <span class="n">metadata_keys</span>
@@ -260,8 +261,8 @@
                 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">eclasses</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
                     <span class="n">d</span><span class="p">[</span><span class="n">eclasses</span><span class="p">[</span><span class="n">x</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="nb">long</span><span class="p">(</span><span class="n">eclasses</span><span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]))</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">CacheCorruption</span><span class="p">(</span>
-                <span class="n">cpv</span><span class="p">,</span> <span class="s">&#39;ValueError reading </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">eclass_string</span><span class="p">,))</span>
+            <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">CacheCorruption</span><span class="p">(</span>
+                <span class="n">cpv</span><span class="p">,</span> <span class="s">&#39;ValueError reading </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">eclass_string</span><span class="p">,)))</span>
         <span class="k">return</span> <span class="n">d</span>
 
 </div></div>

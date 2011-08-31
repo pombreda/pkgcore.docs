@@ -46,7 +46,7 @@
           <div class="body">
             
   <h1>Source code for pkgcore.ebuild.digest</h1><div class="highlight"><pre>
-<span class="c"># Copyright: 2005-2010 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># Copyright: 2005-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
 <span class="c"># License: GPL2/BSD</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -66,7 +66,7 @@
 <span class="kn">from</span> <span class="nn">pkgcore.fs.fs</span> <span class="kn">import</span> <span class="n">fsFile</span><span class="p">,</span> <span class="n">fsDir</span>
 
 <span class="kn">from</span> <span class="nn">snakeoil.obj</span> <span class="kn">import</span> <span class="n">make_SlottedDict_kls</span>
-<span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="nb">any</span>
+<span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="nb">any</span><span class="p">,</span> <span class="n">raise_from</span>
 <span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
     <span class="s">&quot;pkgcore:fetch&quot;</span><span class="p">,</span>
@@ -103,10 +103,10 @@
                     <span class="n">d2</span><span class="p">[</span><span class="n">chf</span><span class="p">]</span> <span class="o">=</span> <span class="nb">long</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span>
                 <span class="n">chf_keys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">chf</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ParseChksumError</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span>
-                <span class="n">missing</span><span class="o">=</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">))</span>
+            <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ParseChksumError</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span>
+                <span class="n">missing</span><span class="o">=</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">)))</span>
         <span class="k">except</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ParseChksumError</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ParseChksumError</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
     <span class="k">finally</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">f</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -235,8 +235,8 @@
                         <span class="p">[</span><span class="nb">long</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="nb">long</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">16</span><span class="p">)])</span>
 
         <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ParseChksumError</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span>
-                <span class="n">missing</span><span class="o">=</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">))</span>
+            <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ParseChksumError</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span>
+                <span class="n">missing</span><span class="o">=</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">)))</span>
     <span class="k">finally</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">f</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>

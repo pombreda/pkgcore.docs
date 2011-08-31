@@ -46,7 +46,7 @@
           <div class="body">
             
   <h1>Source code for pkgcore.sync.base</h1><div class="highlight"><pre>
-<span class="c"># Copyright: 2006-2008 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># Copyright: 2006-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
 <span class="c"># License: GPL2/BSD</span>
 
 
@@ -57,7 +57,7 @@
 <span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">ConfigHint</span><span class="p">,</span> <span class="n">configurable</span>
-<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">demandload</span><span class="p">,</span> <span class="n">descriptors</span>
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">demandload</span><span class="p">,</span> <span class="n">descriptors</span><span class="p">,</span> <span class="n">compatibility</span>
 <span class="n">demandload</span><span class="o">.</span><span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
     <span class="s">&#39;os&#39;</span><span class="p">,</span>
     <span class="s">&#39;pwd&#39;</span><span class="p">,</span>
@@ -219,9 +219,9 @@
     <span class="k">def</span> <span class="nf">_sync</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbosity</span><span class="p">,</span> <span class="n">output_fd</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">st</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basedir</span><span class="p">)</span>
-        <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">),</span> <span class="n">ie</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">ie</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">ie</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">generic_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">basedir</span><span class="p">,</span> <span class="n">ie</span><span class="p">)</span>
+                <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">generic_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">basedir</span><span class="p">,</span> <span class="n">ie</span><span class="p">))</span>
             <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_pull</span><span class="p">()</span>
             <span class="n">chdir</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">else</span><span class="p">:</span>
