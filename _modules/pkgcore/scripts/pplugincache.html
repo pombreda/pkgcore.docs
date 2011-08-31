@@ -53,21 +53,21 @@
 
 <span class="sd">&quot;&quot;&quot;Update the plugin cache.&quot;&quot;&quot;</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;argparse_parser&quot;</span><span class="p">,</span> <span class="s">&quot;main&quot;</span><span class="p">)</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;argparser&quot;</span><span class="p">,</span> <span class="s">&quot;main&quot;</span><span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">pkgcore.util</span> <span class="kn">import</span> <span class="n">commandline</span>
 <span class="kn">from</span> <span class="nn">pkgcore</span> <span class="kn">import</span> <span class="n">plugin</span><span class="p">,</span> <span class="n">plugins</span>
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">lists</span><span class="p">,</span> <span class="n">currying</span>
 
-<span class="n">argparse_parser</span> <span class="o">=</span> <span class="n">commandline</span><span class="o">.</span><span class="n">mk_argparser</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+<span class="n">argparser</span> <span class="o">=</span> <span class="n">commandline</span><span class="o">.</span><span class="n">mk_argparser</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
     <span class="n">description</span> <span class="o">=</span> <span class="n">__doc__</span><span class="p">)</span>
-<span class="n">argparse_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;packages&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&quot;*&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store&#39;</span><span class="p">,</span>
+<span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;packages&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&quot;*&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store&#39;</span><span class="p">,</span>
     <span class="nb">type</span><span class="o">=</span><span class="n">currying</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">commandline</span><span class="o">.</span><span class="n">python_namespace_type</span><span class="p">,</span> <span class="n">module</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
     <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="n">plugins</span><span class="p">],</span>
     <span class="n">help</span><span class="o">=</span><span class="s">&quot;python namespace(s) to regenerate plugins for.  If none are &quot;</span>
     <span class="s">&quot;specified, pkgcore.plugins is updated&quot;</span><span class="p">)</span>
 
-<span class="nd">@argparse_parser.bind_main_func</span>
+<span class="nd">@argparser.bind_main_func</span>
 <div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pplugincache.html#pkgcore.scripts.pplugincache.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Update caches.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">packages</span><span class="p">:</span>

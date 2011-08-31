@@ -53,23 +53,23 @@
 
 <span class="sd">&quot;&quot;&quot;Clone a repository cache.&quot;&quot;&quot;</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;argparse_parser&quot;</span><span class="p">,</span> <span class="s">&quot;main&quot;</span><span class="p">)</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;argparser&quot;</span><span class="p">,</span> <span class="s">&quot;main&quot;</span><span class="p">)</span>
 
 <span class="kn">import</span> <span class="nn">time</span>
 
 <span class="kn">from</span> <span class="nn">pkgcore.util</span> <span class="kn">import</span> <span class="n">commandline</span>
 
-<span class="n">argparse_parser</span> <span class="o">=</span> <span class="n">commandline</span><span class="o">.</span><span class="n">mk_argparser</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">__doc__</span><span class="p">)</span>
-<span class="n">argparse_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--verbose&quot;</span><span class="p">,</span> <span class="s">&quot;-v&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+<span class="n">argparser</span> <span class="o">=</span> <span class="n">commandline</span><span class="o">.</span><span class="n">mk_argparser</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">__doc__</span><span class="p">)</span>
+<span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--verbose&quot;</span><span class="p">,</span> <span class="s">&quot;-v&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="s">&quot;print keys as they are processed&quot;</span><span class="p">)</span>
-<span class="n">argparse_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;source&quot;</span><span class="p">,</span> <span class="n">config_type</span><span class="o">=</span><span class="s">&#39;cache&#39;</span><span class="p">,</span>
+<span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;source&quot;</span><span class="p">,</span> <span class="n">config_type</span><span class="o">=</span><span class="s">&#39;cache&#39;</span><span class="p">,</span>
     <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">StoreConfigObject</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="s">&quot;source cache to copy data from&quot;</span><span class="p">)</span>
-<span class="n">argparse_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;target&quot;</span><span class="p">,</span> <span class="n">config_type</span><span class="o">=</span><span class="s">&#39;cache&#39;</span><span class="p">,</span>
+<span class="n">argparser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;target&quot;</span><span class="p">,</span> <span class="n">config_type</span><span class="o">=</span><span class="s">&#39;cache&#39;</span><span class="p">,</span>
     <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">StoreConfigObject</span><span class="p">,</span> <span class="n">writable</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="s">&quot;target cache to update.  Must be writable.&quot;</span><span class="p">)</span>
 
-<span class="nd">@argparse_parser.bind_main_func</span>
+<span class="nd">@argparser.bind_main_func</span>
 <div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pclone_cache.html#pkgcore.scripts.pclone_cache.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
     <span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span><span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">readonly</span><span class="p">:</span>
