@@ -89,6 +89,8 @@
 
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">autoconvert_py3k_methods_metaclass</span>
 
+    <span class="n">_reading_key_rewrites</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;repo&#39;</span><span class="p">:</span><span class="s">&#39;REPO&#39;</span><span class="p">}</span>
+
     <span class="n">trailer_pre_magic</span> <span class="o">=</span> <span class="s">&quot;XPAKSTOP&quot;</span>
     <span class="n">trailer_post_magic</span> <span class="o">=</span> <span class="s">&quot;STOP&quot;</span>
     <span class="n">trailer</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">Struct</span><span class="p">(</span><span class="s">&quot;&gt;</span><span class="si">%i</span><span class="s">sL</span><span class="si">%i</span><span class="s">s&quot;</span> <span class="o">%</span> <span class="p">(</span>
@@ -195,6 +197,7 @@
         <span class="n">index_start</span><span class="p">,</span> <span class="n">index_len</span><span class="p">,</span> <span class="n">data_len</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_magic</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
         <span class="n">data_start</span> <span class="o">=</span> <span class="n">index_start</span> <span class="o">+</span> <span class="n">index_len</span>
         <span class="n">keys_dict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">key_rewrite</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reading_key_rewrites</span><span class="o">.</span><span class="n">get</span>
         <span class="k">while</span> <span class="n">index_len</span><span class="p">:</span>
             <span class="n">key_len</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s">&quot;&gt;L&quot;</span><span class="p">,</span> <span class="n">fd</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">key</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">key_len</span><span class="p">)</span>
@@ -210,6 +213,7 @@
                 <span class="n">raise_from</span><span class="p">(</span><span class="n">MalformedXpak</span><span class="p">(</span>
                     <span class="s">&quot;key </span><span class="si">%i</span><span class="s">, tried reading data offset/len but hit EOF&quot;</span> <span class="o">%</span> <span class="p">(</span>
                         <span class="nb">len</span><span class="p">(</span><span class="n">keys_dict</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">key_rewrite</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
             <span class="n">keys_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">data_start</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="n">data_len</span><span class="p">,</span>
                 <span class="n">compatibility</span><span class="o">.</span><span class="n">is_py3k</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;environment&quot;</span><span class="p">))</span>
             <span class="n">index_len</span> <span class="o">-=</span> <span class="p">(</span><span class="n">key_len</span> <span class="o">+</span> <span class="mi">12</span><span class="p">)</span> <span class="c"># 12 for key_len, offset, data_len longs</span>

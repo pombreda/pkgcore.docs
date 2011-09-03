@@ -171,7 +171,7 @@
 </div></div>
 <span class="k">def</span> <span class="nf">wrap_build_method</span><span class="p">(</span><span class="n">phase</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
     <span class="n">disable_observer</span> <span class="o">=</span> <span class="n">kwds</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;disable_observer&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">observer</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">disable_observer</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observer</span><span class="p">,</span> <span class="s">&#39;phase_start&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">disable_observer</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">observer</span><span class="o">.</span><span class="n">phase_start</span><span class="p">(</span><span class="n">phase</span><span class="p">)</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="bp">False</span>
@@ -184,8 +184,8 @@
 <div class="viewcode-block" id="decorate_build_method"><a class="viewcode-back" href="../../../api/pkgcore.operations.observer.html#pkgcore.operations.observer.decorate_build_method">[docs]</a><span class="k">def</span> <span class="nf">decorate_build_method</span><span class="p">(</span><span class="n">phase</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">pre_curry</span><span class="p">(</span><span class="n">wrap_build_method</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">f</span>
-</pre></div></div>
+    <span class="k">return</span> <span class="n">f</span></div>
+</pre></div>
 
           </div>
         </div>
