@@ -67,7 +67,7 @@
 <span class="kn">from</span> <span class="nn">pkgcore.restrictions.boolean</span> <span class="kn">import</span> <span class="n">AndRestriction</span><span class="p">,</span> <span class="n">OrRestriction</span>
 
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">lists</span><span class="p">,</span> <span class="n">currying</span>
-<span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="nb">any</span>
+<span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="nb">any</span><span class="p">,</span> <span class="n">IGNORED_EXCEPTIONS</span>
 <span class="kn">from</span> <span class="nn">pkgcore.resolver.util</span> <span class="kn">import</span> <span class="n">reduce_to_failures</span>
 
 <div class="viewcode-block" id="OptionParser"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pmerge.html#pkgcore.scripts.pmerge.OptionParser">[docs]</a><span class="k">class</span> <span class="nc">OptionParser</span><span class="p">(</span><span class="n">commandline</span><span class="o">.</span><span class="n">OptionParser</span><span class="p">):</span>
@@ -649,7 +649,7 @@
                 <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="si">%i</span><span class="s"> files required-&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">pkg</span><span class="o">.</span><span class="n">fetchables</span><span class="p">))</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">ret</span> <span class="o">=</span> <span class="n">pkg_ops</span><span class="o">.</span><span class="n">run_if_supported</span><span class="p">(</span><span class="s">&quot;fetch&quot;</span><span class="p">,</span> <span class="n">or_return</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-                <span class="k">except</span> <span class="p">(</span><span class="ne">SystemExit</span><span class="p">,</span> <span class="ne">KeyboardInterrupt</span><span class="p">):</span>
+                <span class="k">except</span> <span class="n">IGNORED_EXCEPTIONS</span><span class="p">:</span>
                     <span class="k">raise</span>
                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
                     <span class="n">ret</span> <span class="o">=</span> <span class="n">e</span>

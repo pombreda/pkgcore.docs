@@ -69,6 +69,7 @@
 <span class="kn">from</span> <span class="nn">pkgcore.operations</span> <span class="kn">import</span> <span class="n">observer</span> <span class="k">as</span> <span class="n">observer_mod</span>
 <span class="kn">from</span> <span class="nn">pkgcore.merge.const</span> <span class="kn">import</span> <span class="n">REPLACE_MODE</span><span class="p">,</span> <span class="n">INSTALL_MODE</span><span class="p">,</span> <span class="n">UNINSTALL_MODE</span>
 
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">compatibility</span>
 <span class="kn">from</span> <span class="nn">snakeoil.mappings</span> <span class="kn">import</span> <span class="n">LazyValDict</span><span class="p">,</span> <span class="n">ImmutableDict</span><span class="p">,</span> <span class="n">StackedDict</span>
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">currying</span><span class="p">,</span> <span class="n">data_source</span>
 <span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">normpath</span><span class="p">,</span> <span class="n">pjoin</span>
@@ -375,7 +376,7 @@
                 <span class="k">try</span><span class="p">:</span>
                     <span class="k">try</span><span class="p">:</span>
                         <span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">csets</span><span class="p">)</span>
-                    <span class="k">except</span> <span class="p">(</span><span class="ne">RuntimeError</span><span class="p">,</span> <span class="ne">SystemExit</span><span class="p">,</span> <span class="ne">KeyboardInterrupt</span><span class="p">):</span>
+                    <span class="k">except</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">IGNORED_EXCEPTIONS</span><span class="p">:</span>
                         <span class="k">raise</span>
                     <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">BlockModification</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">observer</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;modification was blocked by &quot;</span>
