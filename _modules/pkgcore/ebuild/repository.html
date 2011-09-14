@@ -405,7 +405,7 @@
         <span class="n">scope_update</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;chost&#39;</span><span class="p">:</span> <span class="n">chost</span><span class="p">}</span>
         <span class="n">scope_update</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">domain_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">chost</span><span class="p">))</span>
             <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;cbuild&#39;</span><span class="p">,</span> <span class="s">&#39;ctarget&#39;</span><span class="p">))</span>
-        <span class="n">scope_update</span><span class="p">[</span><span class="s">&#39;operations_callback&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_operations</span>
+        <span class="n">scope_update</span><span class="p">[</span><span class="s">&#39;operations_callback&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_pkg_operations</span>
 
         <span class="n">configured</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_repo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_wrappables</span><span class="p">,</span>
            <span class="n">pkg_kls_injections</span><span class="o">=</span><span class="n">scope_update</span><span class="p">)</span>
@@ -426,7 +426,7 @@
             <span class="s">&quot;unchangable_settings&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delayed_iuse</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_get_delayed_immutable</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">immutable</span><span class="p">)}</span>
 
-    <span class="k">def</span> <span class="nf">_generate_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_generate_pkg_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
         <span class="n">fetcher</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetcher_override</span>
         <span class="k">if</span> <span class="n">fetcher</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">fetcher</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">fetcher</span>

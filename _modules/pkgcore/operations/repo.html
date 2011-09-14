@@ -194,7 +194,7 @@
 
     <span class="k">def</span> <span class="nf">_get_observer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">observer</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">observer</span> <span class="o">=</span> <span class="n">observer_mod</span><span class="o">.</span><span class="n">repo_observer</span><span class="p">(</span><span class="n">observer_mod</span><span class="o">.</span><span class="n">null_output</span><span class="p">)</span>
+            <span class="n">observer</span> <span class="o">=</span> <span class="n">observer_mod</span><span class="o">.</span><span class="n">repo_observer</span><span class="p">(</span><span class="n">observer_mod</span><span class="o">.</span><span class="n">null_output</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">observer</span>
 
     <span class="k">def</span> <span class="nf">_cmd_api_install</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -268,17 +268,21 @@
 
     <span class="c"># cache this; this is to prevent the target operations mutating resulting in</span>
     <span class="c"># our proxy setup not matching the target.</span>
-    <span class="n">raw_operations</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">cached_property_named</span><span class="p">(</span><span class="s">&quot;raw_operations&quot;</span><span class="p">)(</span>
-        <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&quot;repo.operations.raw_operations&quot;</span><span class="p">))</span>
-
+    <span class="nd">@klass.cached_property</span>
+<div class="viewcode-block" id="operations_proxy.raw_operations"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.operations_proxy.raw_operations">[docs]</a>    <span class="k">def</span> <span class="nf">raw_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">raw_repo</span><span class="o">.</span><span class="n">operations</span>
+</div>
     <span class="nd">@klass.cached_property</span>
 <div class="viewcode-block" id="operations_proxy.enabled_operations"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.operations_proxy.enabled_operations">[docs]</a>    <span class="k">def</span> <span class="nf">enabled_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">operations</span><span class="o">.</span><span class="n">enabled_operations</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_operations</span><span class="o">.</span><span class="n">enabled_operations</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_apply_overrides</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
 </div>
     <span class="k">def</span> <span class="nf">_setup_api</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled_operations</span><span class="p">:</span>
-            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&#39;repo.operations.</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">op</span><span class="p">,)))</span></div>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_operations</span><span class="o">.</span><span class="n">enabled_operations</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proxy_op</span><span class="p">,</span> <span class="n">op</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_proxy_op</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_operations</span><span class="p">,</span> <span class="n">op_name</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span></div>
 </pre></div>
 
           </div>
