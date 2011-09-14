@@ -308,7 +308,39 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">skip_ldconfig</span><span class="p">:</span>
         <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;update ldso cache/elf hints for </span><span class="si">%r</span><span class="s">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">root</span><span class="p">,))</span>
         <span class="n">merge_triggers</span><span class="o">.</span><span class="n">update_elf_hints</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
-    <span class="k">return</span> <span class="mi">0</span></div>
+    <span class="k">return</span> <span class="mi">0</span>
+
+</div>
+<span class="n">mirror</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;mirror&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&quot;mirror the sources for a package in full- grab everything&quot;</span>
+    <span class="s">&quot; that could be required&quot;</span><span class="p">,</span>
+    <span class="n">parents</span><span class="o">=</span><span class="p">(</span><span class="n">commandline</span><span class="o">.</span><span class="n">mk_argparser</span><span class="p">(</span><span class="n">add_help</span><span class="o">=</span><span class="bp">False</span><span class="p">),))</span>
+<span class="n">mirror</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--ignore-failures&quot;</span><span class="p">,</span> <span class="s">&quot;-f&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;if a failure occurs, keep going.  If this option isn&#39;t given, it&#39;ll&quot;</span>
+    <span class="s">&quot; stop at the first failure encountered&quot;</span><span class="p">)</span>
+<span class="n">commandline</span><span class="o">.</span><span class="n">make_query</span><span class="p">(</span><span class="n">mirror</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;+&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;query&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;query of which packages to mirror&quot;</span><span class="p">)</span>
+<span class="nd">@mirror.bind_main_func</span>
+<span class="k">def</span> <span class="nf">mirror_main</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
+    <span class="n">domain</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">domain</span>
+    <span class="n">warnings</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">domain</span><span class="o">.</span><span class="n">all_repos</span><span class="o">.</span><span class="n">itermatch</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">query</span><span class="p">):</span>
+        <span class="n">pkg_ops</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">pkg_operations</span><span class="p">(</span><span class="n">pkg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">pkg_ops</span><span class="o">.</span><span class="n">supports</span><span class="p">(</span><span class="s">&quot;mirror&quot;</span><span class="p">):</span>
+            <span class="n">warnings</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;pkg </span><span class="si">%s</span><span class="s"> doesn&#39;t support mirroring</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pkg</span><span class="p">,))</span>
+            <span class="k">continue</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;mirroring </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pkg</span><span class="p">,))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">pkg_ops</span><span class="o">.</span><span class="n">mirror</span><span class="p">():</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;pkg </span><span class="si">%s</span><span class="s"> failed to mirror&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pkg</span><span class="p">,))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">ignore_failures</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mi">2</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;ignoring..</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+    <span class="k">if</span> <span class="n">warnings</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="mi">0</span>
 </pre></div>
 
           </div>

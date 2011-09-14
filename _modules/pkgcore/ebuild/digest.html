@@ -54,7 +54,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;parse_digest&quot;</span><span class="p">,</span> <span class="s">&quot;serialize_digest&quot;</span><span class="p">,</span> <span class="s">&quot;serialize_manifest&quot;</span><span class="p">,</span>
-    <span class="s">&quot;parse_manifest&quot;</span><span class="p">)</span>
+    <span class="s">&quot;parse_manifest&quot;</span><span class="p">,</span> <span class="s">&quot;Manifest&quot;</span><span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">izip</span>
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">basename</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">sep</span>
@@ -71,6 +71,7 @@
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
     <span class="s">&quot;pkgcore:fetch&quot;</span><span class="p">,</span>
     <span class="s">&quot;snakeoil.lists:iflatten_instance&quot;</span><span class="p">,</span>
+    <span class="s">&#39;snakeoil:mappings&#39;</span><span class="p">,</span>
     <span class="s">&quot;errno&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -281,7 +282,45 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">d</span> <span class="o">=</span> <span class="n">kls_override</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">kls</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">ret</span><span class="p">,</span> <span class="n">manifest_type</span></div>
+    <span class="k">return</span> <span class="n">ret</span><span class="p">,</span> <span class="n">manifest_type</span>
+
+</div>
+<div class="viewcode-block" id="Manifest"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.digest.html#pkgcore.ebuild.digest.Manifest">[docs]</a><span class="k">class</span> <span class="nc">Manifest</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">enforce_gpg</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="o">=</span> <span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="ow">not</span> <span class="n">enforce_gpg</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_pull_manifest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">source</span><span class="p">,</span> <span class="n">gpg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">parse_manifest</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">ignore_gpg</span><span class="o">=</span><span class="n">gpg</span><span class="p">,</span>
+            <span class="n">kls_override</span><span class="o">=</span><span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aux</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ebuild</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_misc</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_version</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Manifest.version"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.digest.html#pkgcore.ebuild.digest.Manifest.version">[docs]</a>    <span class="k">def</span> <span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pull_manifest</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Manifest.required_files"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.digest.html#pkgcore.ebuild.digest.Manifest.required_files">[docs]</a>    <span class="k">def</span> <span class="nf">required_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pull_manifest</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">mappings</span><span class="o">.</span><span class="n">StackedDict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ebuild</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_misc</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Manifest.aux_files"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.digest.html#pkgcore.ebuild.digest.Manifest.aux_files">[docs]</a>    <span class="k">def</span> <span class="nf">aux_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pull_manifest</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aux</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Manifest.distfiles"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.digest.html#pkgcore.ebuild.digest.Manifest.distfiles">[docs]</a>    <span class="k">def</span> <span class="nf">distfiles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pull_manifest</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;only manifest2 instances carry digest data&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span></div></div>
 </pre></div>
 
           </div>
