@@ -69,11 +69,9 @@
     <span class="s">&#39;pkgcore.repository:multiplex&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.package:mutated&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.fs:contents,livefs&#39;</span><span class="p">,</span>
-    <span class="s">&#39;pkgcore.ebuild:atom,errors,digest,processor,triggers&#39;</span><span class="p">,</span>
+    <span class="s">&#39;pkgcore.ebuild:digest,processor,triggers&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.merge:triggers@merge_triggers&#39;</span><span class="p">,</span>
-    <span class="s">&#39;pkgcore.restrictions.boolean:OrRestriction&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.sync:base@sync_base&#39;</span><span class="p">,</span>
-    <span class="s">&#39;snakeoil.compatibility:any&#39;</span><span class="p">,</span>
     <span class="s">&#39;re&#39;</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -112,7 +110,6 @@
 <span class="nd">@sync.bind_main_func</span>
 <div class="viewcode-block" id="sync_main"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pmaint.html#pkgcore.scripts.pmaint.sync_main">[docs]</a><span class="k">def</span> <span class="nf">sync_main</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Update a local repositories to match their remote parent&quot;&quot;&quot;</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">config</span>
     <span class="n">succeeded</span><span class="p">,</span> <span class="n">failed</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
     <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">repo</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>

@@ -59,7 +59,7 @@
 
 
 <span class="kn">from</span> <span class="nn">pkgcore.restrictions</span> <span class="kn">import</span> <span class="n">packages</span><span class="p">,</span> <span class="n">restriction</span>
-<span class="kn">from</span> <span class="nn">pkgcore.ebuild.atom</span> <span class="kn">import</span> <span class="n">atom</span>
+<span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">atom</span>
 
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">compatibility</span><span class="p">,</span> <span class="n">mappings</span>
 <span class="kn">from</span> <span class="nn">snakeoil.lists</span> <span class="kn">import</span> <span class="n">iflatten_instance</span>
@@ -68,12 +68,10 @@
 
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
 
-<span class="kn">from</span> <span class="nn">snakeoil.currying</span> <span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">alias_class_method</span>
+<span class="kn">from</span> <span class="nn">snakeoil.currying</span> <span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
 
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
-    <span class="s">&#39;pkgcore.ebuild:atom&#39;</span><span class="p">,</span>
-    <span class="s">&#39;pkgcore.restrictions:packages&#39;</span><span class="p">,</span>
     <span class="s">&#39;snakeoil.iterables:chain_from_iterable&#39;</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -97,13 +95,11 @@
     <span class="c"># identifying terminal points for incrementals; aka, -x x, &#39;x&#39;</span>
     <span class="c"># is the terminal point- no point in having -x.</span>
     <span class="n">finalized</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">sequence</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;-&#39;</span><span class="p">:</span>
             <span class="n">i</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">i</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">encountered an incomplete negation, &#39;-&#39;&quot;</span>
-                    <span class="o">%</span> <span class="p">(</span><span class="n">msg_prefix</span><span class="p">,))</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;encountered an incomplete negation (just -, no flag)&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="s">&#39;*&#39;</span><span class="p">:</span>
                 <span class="c"># seen enough.</span>
                 <span class="k">yield</span> <span class="n">item</span>
@@ -439,7 +435,6 @@
     <span class="k">def</span> <span class="nf">_add_global</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disabled</span><span class="p">,</span> <span class="n">enabled</span><span class="p">,</span> <span class="n">restrict</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">disabled</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">enabled</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="n">global_settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_global_settings</span>
         <span class="c"># discard current global in the mapping.</span>
         <span class="n">disabled</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">disabled</span><span class="p">)</span>
         <span class="n">enabled</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">enabled</span><span class="p">)</span>

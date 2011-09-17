@@ -87,19 +87,16 @@
 
 <span class="k">def</span> <span class="nf">gen_doc_additions</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">slots</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">init</span><span class="o">.</span><span class="n">__doc__</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="n">raw_init_doc</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="n">init</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
-    <span class="n">init</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">d</span><span class="p">)</span> <span class="o">+</span> \
-        <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_fs_doc</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_fs_doc</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">slots</span><span class="p">)</span>
-
-
-<span class="n">raw_init_doc</span> <span class="o">=</span> \
+        <span class="n">d</span> <span class="o">=</span> \
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">:param location: location (real or intended) for this entry</span>
 <span class="sd">:param strict: is this fully representative of the entry, or only partially</span>
 <span class="sd">:raise KeyError: if strict is enabled, and not all args are passed in</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">init</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+    <span class="n">init</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">d</span><span class="p">)</span> <span class="o">+</span> \
+        <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_fs_doc</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_fs_doc</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">slots</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">fsBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -357,7 +354,6 @@
         <span class="n">extradocs</span><span class="o">=</span><span class="p">(</span><span class="s">&quot;return True if obj is an instance of :obj:`</span><span class="si">%s</span><span class="s">`, else False&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">),</span>
         <span class="n">name</span><span class="o">=</span><span class="p">(</span><span class="s">&quot;is&quot;</span> <span class="o">+</span><span class="n">name</span><span class="p">)</span>
         <span class="p">)</span>
-    <span class="k">return</span> <span class="n">f</span>
 
 <span class="n">isdir</span>    <span class="o">=</span> <span class="n">mk_check</span><span class="p">(</span><span class="s">&#39;dir&#39;</span><span class="p">)</span>
 <span class="n">isreg</span>    <span class="o">=</span> <span class="n">mk_check</span><span class="p">(</span><span class="s">&#39;reg&#39;</span><span class="p">)</span>
@@ -367,7 +363,7 @@
 <span class="n">isfs_obj</span> <span class="o">=</span> <span class="n">pretty_docs</span><span class="p">(</span><span class="n">post_curry</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">,</span> <span class="n">fsBase</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;isfs_obj&#39;</span><span class="p">,</span>
     <span class="n">extradocs</span><span class="o">=</span><span class="s">&#39;return True if obj is an fsBase derived object&#39;</span><span class="p">)</span>
 
-<span class="k">del</span> <span class="n">raw_init_doc</span><span class="p">,</span> <span class="n">gen_doc_additions</span><span class="p">,</span> <span class="n">_fs_doc</span><span class="p">,</span> <span class="n">mk_check</span>
+<span class="k">del</span> <span class="n">gen_doc_additions</span><span class="p">,</span> <span class="n">mk_check</span>
 </pre></div>
 
           </div>

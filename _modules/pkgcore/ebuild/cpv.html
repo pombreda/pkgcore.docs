@@ -56,7 +56,7 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;CPV&quot;</span><span class="p">,</span> <span class="s">&quot;versioned_CPV&quot;</span><span class="p">,</span> <span class="s">&quot;unversioned_CPV&quot;</span><span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">izip</span>
-<span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="nb">all</span><span class="p">,</span> <span class="nb">cmp</span><span class="p">,</span> <span class="n">is_py3k</span>
+<span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="nb">all</span><span class="p">,</span> <span class="nb">cmp</span>
 <span class="kn">from</span> <span class="nn">snakeoil.klass</span> <span class="kn">import</span> <span class="n">inject_richcmp_methods_from_cmp</span>
 <span class="kn">from</span> <span class="nn">pkgcore.ebuild.errors</span> <span class="kn">import</span> <span class="n">InvalidCPV</span>
 
@@ -278,7 +278,6 @@
         <span class="c"># OPT: Pull length calculation out of the loop</span>
         <span class="n">ver_parts1_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ver_parts1</span><span class="p">)</span>
         <span class="n">ver_parts2_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ver_parts2</span><span class="p">)</span>
-        <span class="n">len_list</span> <span class="o">=</span> <span class="p">(</span><span class="n">ver_parts1_len</span><span class="p">,</span> <span class="n">ver_parts2_len</span><span class="p">)</span>
 
         <span class="c"># Iterate through the components</span>
         <span class="k">for</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">izip</span><span class="p">(</span><span class="n">ver_parts1</span><span class="p">,</span> <span class="n">ver_parts2</span><span class="p">):</span>

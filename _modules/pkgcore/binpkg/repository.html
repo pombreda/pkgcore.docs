@@ -60,7 +60,6 @@
 <span class="kn">from</span> <span class="nn">pkgcore.repository</span> <span class="kn">import</span> <span class="n">prototype</span><span class="p">,</span> <span class="n">errors</span>
 <span class="kn">from</span> <span class="nn">pkgcore.merge</span> <span class="kn">import</span> <span class="n">triggers</span>
 <span class="kn">from</span> <span class="nn">pkgcore.plugin</span> <span class="kn">import</span> <span class="n">get_plugin</span>
-<span class="kn">from</span> <span class="nn">pkgcore.ebuild.ebuild_built</span> <span class="kn">import</span> <span class="n">pkg_uses_default_preinst</span>
 <span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">ConfigHint</span>
 <span class="c">#needed to grab the PN</span>
 <span class="kn">from</span> <span class="nn">pkgcore.ebuild.cpv</span> <span class="kn">import</span> <span class="n">versioned_CPV</span>
@@ -68,7 +67,6 @@
 <span class="kn">from</span> <span class="nn">pkgcore.binpkg</span> <span class="kn">import</span> <span class="n">repo_ops</span>
 
 <span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="n">raise_from</span>
-<span class="kn">from</span> <span class="nn">snakeoil.currying</span> <span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">snakeoil.mappings</span> <span class="kn">import</span> <span class="n">DictMixin</span><span class="p">,</span> <span class="n">StackedDict</span>
 <span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">listdir_dirs</span><span class="p">,</span> <span class="n">listdir_files</span><span class="p">,</span> <span class="n">access</span>
 <span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span>
@@ -145,9 +143,7 @@
                                  <span class="n">engine_inst</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">engine</span><span class="o">.</span><span class="n">UNINSTALL_MODE</span> <span class="o">!=</span> <span class="n">engine_inst</span><span class="o">.</span><span class="n">mode</span> <span class="ow">and</span> \
                 <span class="n">pkg</span> <span class="o">==</span> <span class="n">engine_inst</span><span class="o">.</span><span class="n">new</span> <span class="ow">and</span> \
-                <span class="n">pkg</span><span class="o">.</span><span class="n">repo</span> <span class="ow">is</span> <span class="n">engine_inst</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">repo</span> <span class="ow">and</span> \
-                <span class="bp">True</span><span class="p">:</span>
-<span class="c">#                not pkg_uses_default_preinst(pkg):</span>
+                <span class="n">pkg</span><span class="o">.</span><span class="n">repo</span> <span class="ow">is</span> <span class="n">engine_inst</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">repo</span><span class="p">:</span>
                 <span class="n">t</span> <span class="o">=</span> <span class="n">force_unpacking</span><span class="p">(</span><span class="n">op_inst</span><span class="o">.</span><span class="n">format_op</span><span class="p">)</span>
                 <span class="n">t</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">engine_inst</span><span class="p">)</span>
 
@@ -227,7 +223,7 @@
     <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;contents&quot;</span><span class="p">,</span> <span class="s">&quot;environment&quot;</span><span class="p">):</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_wipes</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">remove</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_wipes</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">xpak</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
         <span class="k">return</span> <span class="n">val</span>
@@ -372,7 +368,7 @@
             <span class="n">cache_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">pkg</span><span class="o">.</span><span class="n">cpvstr</span><span class="p">]</span>
             <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">cache_data</span><span class="p">[</span><span class="s">&#39;mtime&#39;</span><span class="p">])</span> <span class="o">!=</span> <span class="nb">int</span><span class="p">(</span><span class="n">xpak</span><span class="o">.</span><span class="n">mtime</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">KeyError</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="n">ke</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="n">cache_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">update_from_xpak</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">xpak</span><span class="p">)</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="n">StackedCache</span><span class="p">(</span><span class="n">cache_data</span><span class="p">,</span> <span class="n">xpak</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">obj</span>

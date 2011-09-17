@@ -72,7 +72,7 @@
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">compatibility</span>
 <span class="kn">from</span> <span class="nn">snakeoil.mappings</span> <span class="kn">import</span> <span class="n">LazyValDict</span><span class="p">,</span> <span class="n">ImmutableDict</span><span class="p">,</span> <span class="n">StackedDict</span>
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">currying</span><span class="p">,</span> <span class="n">data_source</span>
-<span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">normpath</span><span class="p">,</span> <span class="n">pjoin</span>
+<span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">normpath</span>
 
 <span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
@@ -441,7 +441,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="s">&#39;/&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">strip_offset</span><span class="p">:</span>
             <span class="n">rewrite</span> <span class="o">=</span> <span class="n">contents</span><span class="o">.</span><span class="n">change_offset_rewriter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span> <span class="s">&#39;/&#39;</span><span class="p">,</span>
                 <span class="n">cset</span><span class="p">)</span>
-            <span class="n">cset</span> <span class="o">=</span> <span class="n">contents</span><span class="o">.</span><span class="n">contentsSet</span><span class="p">(</span><span class="n">cset</span><span class="p">)</span>
+            <span class="n">cset</span> <span class="o">=</span> <span class="n">contents</span><span class="o">.</span><span class="n">contentsSet</span><span class="p">(</span><span class="n">rewrite</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cset</span>
 </div>
 <div class="viewcode-block" id="MergeEngine.get_writable_fsobj"><a class="viewcode-back" href="../../../api/pkgcore.merge.engine.html#pkgcore.merge.engine.MergeEngine.get_writable_fsobj">[docs]</a>    <span class="k">def</span> <span class="nf">get_writable_fsobj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fsobj</span><span class="p">,</span> <span class="n">prefer_reuse</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">empty</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>

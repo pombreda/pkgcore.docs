@@ -60,7 +60,7 @@
 
 <span class="kn">import</span> <span class="nn">os</span>
 
-<span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">basics</span><span class="p">,</span> <span class="n">configurable</span><span class="p">,</span> <span class="n">errors</span>
+<span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">basics</span><span class="p">,</span> <span class="n">configurable</span>
 <span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">const</span>
 <span class="kn">from</span> <span class="nn">pkgcore.pkgsets.glsa</span> <span class="kn">import</span> <span class="n">SecurityUpgrades</span>
 
@@ -338,9 +338,9 @@
             <span class="n">sourcing_command</span><span class="o">=</span><span class="n">sourcing_command</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">ie</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ie</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="n">errno</span><span class="o">.</span><span class="n">EACCES</span><span class="p">:</span>
-            <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">PermissionDeniedError</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="bp">False</span><span class="p">))</span>
+            <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">PermissionDeniedError</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="bp">False</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">ie</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span> <span class="ow">or</span> <span class="n">required</span><span class="p">:</span>
-            <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ParsingError</span><span class="p">(</span><span class="s">&quot;parsing </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fp</span><span class="p">,),</span> <span class="n">exception</span><span class="o">=</span><span class="n">ie</span><span class="p">))</span>
+            <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ParsingError</span><span class="p">(</span><span class="s">&quot;parsing </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">path</span><span class="p">,),</span> <span class="n">exception</span><span class="o">=</span><span class="n">ie</span><span class="p">))</span>
         <span class="k">return</span>
 
     <span class="k">if</span> <span class="n">incrementals</span><span class="p">:</span>
