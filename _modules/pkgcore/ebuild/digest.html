@@ -53,8 +53,7 @@
 <span class="sd">ebuild tree manifest/digest support</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;parse_digest&quot;</span><span class="p">,</span> <span class="s">&quot;serialize_digest&quot;</span><span class="p">,</span> <span class="s">&quot;serialize_manifest&quot;</span><span class="p">,</span>
-    <span class="s">&quot;parse_manifest&quot;</span><span class="p">,</span> <span class="s">&quot;Manifest&quot;</span><span class="p">)</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;serialize_manifest&quot;</span><span class="p">,</span> <span class="s">&quot;parse_manifest&quot;</span><span class="p">,</span> <span class="s">&quot;Manifest&quot;</span><span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">izip</span>
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">basename</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">sep</span>
@@ -75,70 +74,6 @@
     <span class="s">&quot;errno&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
-<div class="viewcode-block" id="parse_digest"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.digest.html#pkgcore.ebuild.digest.parse_digest">[docs]</a><span class="k">def</span> <span class="nf">parse_digest</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">throw_errors</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">chf_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s">&quot;size&quot;</span><span class="p">])</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
-                <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">,</span> <span class="mi">32768</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">f</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">text_fileobj</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">l</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">l</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">throw_errors</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ParseChksumError</span><span class="p">(</span>
-                            <span class="n">source</span><span class="p">,</span> <span class="s">&quot;line count was not 4, was </span><span class="si">%i</span><span class="s">: &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                                <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">),</span> <span class="n">line</span><span class="p">))</span>
-                    <span class="k">continue</span>
-                <span class="n">chf</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-                <span class="c">#MD5 c08f3a71a51fff523d2cfa00f14fa939 diffball-0.6.2.tar.bz2 305567</span>
-                <span class="n">d2</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-                <span class="k">if</span> <span class="n">d2</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                    <span class="n">d</span><span class="p">[</span><span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="n">chf</span><span class="p">:</span><span class="nb">long</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">16</span><span class="p">),</span> <span class="s">&quot;size&quot;</span><span class="p">:</span><span class="nb">long</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">3</span><span class="p">])}</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">d2</span><span class="p">[</span><span class="n">chf</span><span class="p">]</span> <span class="o">=</span> <span class="nb">long</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span>
-                <span class="n">chf_keys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">chf</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ParseChksumError</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span>
-                <span class="n">missing</span><span class="o">=</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">)))</span>
-        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ParseChksumError</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
-    <span class="k">finally</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">f</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">:</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-    <span class="n">kls</span> <span class="o">=</span> <span class="n">make_SlottedDict_kls</span><span class="p">(</span><span class="n">chf_keys</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">kls</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
-    <span class="k">return</span> <span class="n">d</span>
-</div>
-<div class="viewcode-block" id="serialize_digest"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.digest.html#pkgcore.ebuild.digest.serialize_digest">[docs]</a><span class="k">def</span> <span class="nf">serialize_digest</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">fetchables</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    write out a digest entry for a fetchable</span>
-
-<span class="sd">    throws KeyError if needed chksums are missing.  Requires at least md5</span>
-<span class="sd">    and size chksums per fetchable.</span>
-
-<span class="sd">    :param handle: file object to write to</span>
-<span class="sd">    :param fetchables: list of :obj:`pkgcore.fetch.fetchable` instances</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">fetchable</span> <span class="ow">in</span> <span class="n">iflatten_instance</span><span class="p">(</span><span class="n">fetchables</span><span class="p">,</span> <span class="n">fetch</span><span class="o">.</span><span class="n">fetchable</span><span class="p">):</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">fetchable</span><span class="o">.</span><span class="n">chksums</span><span class="p">)</span>
-        <span class="n">size</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;size&quot;</span><span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">md5</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;md5&quot;</span><span class="p">)</span>
-            <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;MD5 </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> </span><span class="si">%i</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">get_handler</span><span class="p">(</span><span class="s">&#39;md5&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">long2str</span><span class="p">(</span><span class="n">md5</span><span class="p">),</span> <span class="n">fetchable</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="k">for</span> <span class="n">chf</span><span class="p">,</span> <span class="nb">sum</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-            <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> </span><span class="si">%i</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">chf</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">get_handler</span><span class="p">(</span><span class="n">chf</span><span class="p">)</span><span class="o">.</span><span class="n">long2str</span><span class="p">(</span><span class="nb">sum</span><span class="p">),</span>
-                <span class="n">fetchable</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
-</div>
 <div class="viewcode-block" id="serialize_manifest"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.digest.html#pkgcore.ebuild.digest.serialize_manifest">[docs]</a><span class="k">def</span> <span class="nf">serialize_manifest</span><span class="p">(</span><span class="n">pkgdir</span><span class="p">,</span> <span class="n">fetchables</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Write a manifest given a pkg_instance</span>
@@ -179,20 +114,16 @@
             <span class="k">yield</span> <span class="n">chf</span><span class="p">,</span> <span class="nb">long</span><span class="p">(</span><span class="nb">sum</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="parse_manifest"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.digest.html#pkgcore.ebuild.digest.parse_manifest">[docs]</a><span class="k">def</span> <span class="nf">parse_manifest</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">throw_errors</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">ignore_gpg</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-    <span class="n">kls_override</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">dist</span><span class="p">,</span> <span class="n">aux</span><span class="p">,</span> <span class="n">ebuild</span><span class="p">,</span> <span class="n">misc</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{},</span> <span class="p">{},</span> <span class="p">{}</span>
-    <span class="n">types</span> <span class="o">=</span> <span class="p">((</span><span class="s">&quot;DIST&quot;</span><span class="p">,</span> <span class="n">dist</span><span class="p">),</span> <span class="p">(</span><span class="s">&quot;AUX&quot;</span><span class="p">,</span> <span class="n">aux</span><span class="p">),</span> <span class="p">(</span><span class="s">&quot;EBUILD&quot;</span><span class="p">,</span> <span class="n">ebuild</span><span class="p">),</span> <span class="p">(</span><span class="s">&quot;MISC&quot;</span><span class="p">,</span> <span class="n">misc</span><span class="p">))</span>
-    <span class="n">files</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="c"># type format (see glep 44 for exact rules)</span>
+<div class="viewcode-block" id="parse_manifest"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.digest.html#pkgcore.ebuild.digest.parse_manifest">[docs]</a><span class="k">def</span> <span class="nf">parse_manifest</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">ignore_gpg</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="n">types</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;DIST&quot;</span><span class="p">:{},</span> <span class="s">&quot;AUX&quot;</span><span class="p">:{},</span> <span class="s">&quot;EBUILD&quot;</span><span class="p">:{},</span> <span class="s">&quot;MISC&quot;</span><span class="p">:{}}</span>
+    <span class="c"># manifest v2 format: (see glep 44 for exact rules)</span>
     <span class="c"># TYPE filename size (CHF sum)+</span>
     <span class="c"># example &#39;type&#39; entry, all one line</span>
     <span class="c">#MISC metadata.xml 219 RMD160 613195ece366b33606e71ff1753be048f2507841 SHA1 d162fb909241ef50b95a3539bdfcde95429bdf81 SHA256 cbd3a20e5c89a48a842f7132fe705bf39959f02c1025052efce8aad8a8baa8dc</span>
-    <span class="c"># old style manifest</span>
+    <span class="c"># manifest v1 format is</span>
     <span class="c"># CHF sum filename size</span>
+    <span class="c"># note that we do _not_ support manifest1</span>
     <span class="n">chf_types</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s">&quot;size&quot;</span><span class="p">])</span>
-    <span class="n">manifest_type</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">f</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">try</span><span class="p">:</span>
@@ -206,34 +137,21 @@
                 <span class="n">line</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
                     <span class="k">continue</span>
-                <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">types</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">t</span><span class="p">:</span>
-                        <span class="k">continue</span>
-                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">throw_errors</span><span class="p">:</span>
-                            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ParseChksumError</span><span class="p">(</span><span class="n">source</span><span class="p">,</span>
-                                <span class="s">&quot;manifest 2 entry doesn&#39;t have right &quot;</span>
-                                <span class="s">&quot;number of tokens, </span><span class="si">%i</span><span class="s">: </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span>
-                                <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">),</span> <span class="n">line</span><span class="p">))</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">chf_types</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">3</span><span class="p">::</span><span class="mi">2</span><span class="p">])</span>
-                        <span class="c"># this is a trick to do pairwise collapsing;</span>
-                        <span class="c"># [size, 1] becomes [(size, 1)]</span>
-                        <span class="n">i</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">3</span><span class="p">:])</span>
-                        <span class="n">d</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&quot;size&quot;</span><span class="p">,</span> <span class="nb">long</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">]))]</span> <span class="o">+</span> \
-                            <span class="nb">list</span><span class="p">(</span><span class="n">convert_chksums</span><span class="p">(</span><span class="n">izip</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">)))</span>
-                    <span class="n">manifest_type</span> <span class="o">=</span> <span class="mi">2</span>
-                    <span class="k">break</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">throw_errors</span><span class="p">:</span>
-                            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ParseChksumError</span><span class="p">(</span><span class="n">source</span><span class="p">,</span>
-                                <span class="s">&quot;line count was not 4, was </span><span class="si">%i</span><span class="s">: </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span>
-                                <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">),</span> <span class="n">line</span><span class="p">))</span>
-                        <span class="k">continue</span>
-                    <span class="n">chf_types</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                    <span class="n">files</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="p">[</span><span class="nb">long</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="nb">long</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">16</span><span class="p">)])</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">d</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ParseChksumError</span><span class="p">(</span><span class="n">source</span><span class="p">,</span>
+                        <span class="s">&quot;unknown manifest type: </span><span class="si">%s</span><span class="s">: </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">line</span><span class="p">))</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ParseChksumError</span><span class="p">(</span><span class="n">source</span><span class="p">,</span>
+                        <span class="s">&quot;manifest 2 entry doesn&#39;t have right &quot;</span>
+                        <span class="s">&quot;number of tokens, </span><span class="si">%i</span><span class="s">: </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span>
+                        <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">),</span> <span class="n">line</span><span class="p">))</span>
+                <span class="n">chf_types</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">3</span><span class="p">::</span><span class="mi">2</span><span class="p">])</span>
+                <span class="c"># this is a trick to do pairwise collapsing;</span>
+                <span class="c"># [size, 1] becomes [(size, 1)]</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">3</span><span class="p">:])</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&quot;size&quot;</span><span class="p">,</span> <span class="nb">long</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">]))]</span> <span class="o">+</span> \
+                    <span class="nb">list</span><span class="p">(</span><span class="n">convert_chksums</span><span class="p">(</span><span class="n">izip</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">)))</span>
 
         <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ParseChksumError</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span>
@@ -242,47 +160,12 @@
         <span class="k">if</span> <span class="n">f</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-    <span class="c"># collapse files into 4 types, convert to lower mem dicts</span>
-    <span class="c"># doesn&#39;t handle files sublists correctly yet</span>
-    <span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">files</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-        <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">types</span><span class="p">:</span>
-            <span class="n">existing</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">existing</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c"># work around portage_manifest sucking and not</span>
-            <span class="c"># specifying all files in the manifest.</span>
-            <span class="k">if</span> <span class="n">fname</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.ebuild&quot;</span><span class="p">):</span>
-                <span class="n">existing</span> <span class="o">=</span> <span class="n">ebuild</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="p">[])</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">existing</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="p">[])</span>
-
-        <span class="k">for</span> <span class="n">chksum</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">existing</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">existing</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">chksum</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
-                    <span class="k">if</span> <span class="n">throw_errors</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ParseChksumError</span><span class="p">(</span><span class="n">source</span><span class="p">,</span>
-                            <span class="s">&quot;size collision for file </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fname</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">existing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chksum</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">existing</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s">&quot;size&quot;</span><span class="p">,</span> <span class="n">chksum</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-                <span class="n">existing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chksum</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-
-    <span class="k">del</span> <span class="n">files</span>
-
     <span class="c"># finally convert it to slotted dict for memory savings.</span>
-    <span class="n">kls</span> <span class="o">=</span> <span class="n">make_SlottedDict_kls</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">chf_types</span><span class="p">)</span>
-    <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">types</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">kls_override</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">kls</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="n">kls_override</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">kls</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
-        <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">ret</span><span class="p">,</span> <span class="n">manifest_type</span>
+    <span class="n">slotted_kls</span> <span class="o">=</span> <span class="n">make_SlottedDict_kls</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">chf_types</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">types</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="n">types</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">slotted_kls</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
+    <span class="c"># ordering annoyingly matters. bad api.</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">types</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;DIST&quot;</span><span class="p">,</span> <span class="s">&quot;AUX&quot;</span><span class="p">,</span> <span class="s">&quot;EBUILD&quot;</span><span class="p">,</span> <span class="s">&quot;MISC&quot;</span><span class="p">)]</span>
 
 </div>
 <div class="viewcode-block" id="Manifest"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.digest.html#pkgcore.ebuild.digest.Manifest">[docs]</a><span class="k">class</span> <span class="nc">Manifest</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -294,17 +177,10 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="n">source</span><span class="p">,</span> <span class="n">gpg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">parse_manifest</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">ignore_gpg</span><span class="o">=</span><span class="n">gpg</span><span class="p">,</span>
-            <span class="n">kls_override</span><span class="o">=</span><span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aux</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ebuild</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_misc</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_version</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">parse_manifest</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">ignore_gpg</span><span class="o">=</span><span class="n">gpg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aux</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ebuild</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_misc</span> <span class="o">=</span> <span class="n">data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="o">=</span> <span class="bp">None</span>
 
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="Manifest.version"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.digest.html#pkgcore.ebuild.digest.Manifest.version">[docs]</a>    <span class="k">def</span> <span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_pull_manifest</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version</span>
-</div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Manifest.required_files"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.digest.html#pkgcore.ebuild.digest.Manifest.required_files">[docs]</a>    <span class="k">def</span> <span class="nf">required_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pull_manifest</span><span class="p">()</span>
@@ -318,8 +194,6 @@
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Manifest.distfiles"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.digest.html#pkgcore.ebuild.digest.Manifest.distfiles">[docs]</a>    <span class="k">def</span> <span class="nf">distfiles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pull_manifest</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;only manifest2 instances carry digest data&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span></div></div>
 </pre></div>
 

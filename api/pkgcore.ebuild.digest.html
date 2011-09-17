@@ -63,14 +63,8 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><a class="reference internal" href="#pkgcore.ebuild.digest.parse_digest" title="pkgcore.ebuild.digest.parse_digest"><tt class="xref py py-obj docutils literal"><span class="pre">parse_digest</span></tt></a>(source[,&nbsp;throw_errors])</td>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.digest.parse_manifest" title="pkgcore.ebuild.digest.parse_manifest"><tt class="xref py py-obj docutils literal"><span class="pre">parse_manifest</span></tt></a>(source[,&nbsp;ignore_gpg])</td>
 <td></td>
-</tr>
-<tr><td><a class="reference internal" href="#pkgcore.ebuild.digest.parse_manifest" title="pkgcore.ebuild.digest.parse_manifest"><tt class="xref py py-obj docutils literal"><span class="pre">parse_manifest</span></tt></a>(source[,&nbsp;throw_errors,&nbsp;...])</td>
-<td></td>
-</tr>
-<tr><td><a class="reference internal" href="#pkgcore.ebuild.digest.serialize_digest" title="pkgcore.ebuild.digest.serialize_digest"><tt class="xref py py-obj docutils literal"><span class="pre">serialize_digest</span></tt></a>(handle,&nbsp;fetchables)</td>
-<td>write out a digest entry for a fetchable</td>
 </tr>
 <tr><td><a class="reference internal" href="#pkgcore.ebuild.digest.serialize_manifest" title="pkgcore.ebuild.digest.serialize_manifest"><tt class="xref py py-obj docutils literal"><span class="pre">serialize_manifest</span></tt></a>(pkgdir,&nbsp;fetchables)</td>
 <td>Write a manifest given a pkg_instance</td>
@@ -89,31 +83,6 @@
 </tr>
 </tbody>
 </table>
-<dl class="function">
-<dt id="pkgcore.ebuild.digest.parse_digest">
-<tt class="descclassname">pkgcore.ebuild.digest.</tt><tt class="descname">parse_digest</tt><big>(</big><em>source</em>, <em>throw_errors=True</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/digest.html#parse_digest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.digest.parse_digest" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="pkgcore.ebuild.digest.serialize_digest">
-<tt class="descclassname">pkgcore.ebuild.digest.</tt><tt class="descname">serialize_digest</tt><big>(</big><em>handle</em>, <em>fetchables</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/digest.html#serialize_digest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.digest.serialize_digest" title="Permalink to this definition">¶</a></dt>
-<dd><p>write out a digest entry for a fetchable</p>
-<p>throws KeyError if needed chksums are missing.  Requires at least md5
-and size chksums per fetchable.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>handle</strong> &#8211; file object to write to</li>
-<li><strong>fetchables</strong> &#8211; list of <a class="reference internal" href="pkgcore.fetch.html#pkgcore.fetch.fetchable" title="pkgcore.fetch.fetchable"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fetch.fetchable</span></tt></a> instances</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 <dl class="function">
 <dt id="pkgcore.ebuild.digest.serialize_manifest">
 <tt class="descclassname">pkgcore.ebuild.digest.</tt><tt class="descname">serialize_manifest</tt><big>(</big><em>pkgdir</em>, <em>fetchables</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/digest.html#serialize_manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.digest.serialize_manifest" title="Permalink to this definition">¶</a></dt>
@@ -134,7 +103,7 @@ and size chksums per fetchable.</p>
 
 <dl class="function">
 <dt id="pkgcore.ebuild.digest.parse_manifest">
-<tt class="descclassname">pkgcore.ebuild.digest.</tt><tt class="descname">parse_manifest</tt><big>(</big><em>source</em>, <em>throw_errors=True</em>, <em>ignore_gpg=True</em>, <em>kls_override=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/digest.html#parse_manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.digest.parse_manifest" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pkgcore.ebuild.digest.</tt><tt class="descname">parse_manifest</tt><big>(</big><em>source</em>, <em>ignore_gpg=True</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/digest.html#parse_manifest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.digest.parse_manifest" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="class">
@@ -154,11 +123,6 @@ and size chksums per fetchable.</p>
 <dl class="attribute">
 <dt id="pkgcore.ebuild.digest.Manifest.required_files">
 <tt class="descname">required_files</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/digest.html#Manifest.required_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.digest.Manifest.required_files" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pkgcore.ebuild.digest.Manifest.version">
-<tt class="descname">version</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/digest.html#Manifest.version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.digest.Manifest.version" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
