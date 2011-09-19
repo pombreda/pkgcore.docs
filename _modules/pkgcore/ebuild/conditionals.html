@@ -272,12 +272,10 @@
             <span class="k">return</span> <span class="bp">self</span>
 
         <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">boolean</span><span class="o">.</span><span class="n">AndRestriction</span><span class="o">.</span><span class="n">evaluate_conditionals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_conditionals</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span>
             <span class="n">cond_dict</span><span class="p">,</span> <span class="n">tristate_filter</span><span class="p">,</span> <span class="n">force_collapse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
-        <span class="n">flat_deps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">((),</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_class</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
-        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="n">flat_deps</span><span class="p">,</span> <span class="s">&quot;restrictions&quot;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">results</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">flat_deps</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">results</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_class</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
 </div>
     <span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="DepSet.find_cond_nodes"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.conditionals.html#pkgcore.ebuild.conditionals.DepSet.find_cond_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">find_cond_nodes</span><span class="p">(</span><span class="n">restriction_set</span><span class="p">,</span> <span class="n">yield_non_conditionals</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
