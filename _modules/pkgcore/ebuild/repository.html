@@ -62,6 +62,7 @@
 <span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">eclass_cache</span> <span class="k">as</span> <span class="n">eclass_cache_module</span>
 <span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">ConfigHint</span>
 <span class="kn">from</span> <span class="nn">pkgcore.plugin</span> <span class="kn">import</span> <span class="n">get_plugin</span>
+<span class="kn">from</span> <span class="nn">pkgcore.operations</span> <span class="kn">import</span> <span class="n">repo</span> <span class="k">as</span> <span class="n">_repo_ops</span>
 
 <span class="kn">from</span> <span class="nn">snakeoil.fileutils</span> <span class="kn">import</span> <span class="n">read_dict</span><span class="p">,</span> <span class="n">iter_read_bash</span>
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">currying</span><span class="p">,</span> <span class="n">klass</span>
@@ -75,13 +76,57 @@
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
     <span class="s">&#39;pkgcore.ebuild:ebd&#39;</span><span class="p">,</span>
     <span class="s">&#39;snakeoil.data_source:local_source&#39;</span><span class="p">,</span>
+    <span class="s">&#39;snakeoil.chksum:get_chksums&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.ebuild:digest,repo_objs,atom&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.ebuild:errors@ebuild_errors&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.ebuild:profiles&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.package:errors@pkg_errors&#39;</span><span class="p">,</span>
+    <span class="s">&#39;pkgcore.util.packages:groupby_pkg&#39;</span><span class="p">,</span>
+    <span class="s">&#39;operator:attrgetter&#39;</span><span class="p">,</span>
     <span class="s">&#39;random:shuffle&#39;</span><span class="p">,</span>
     <span class="s">&#39;errno&#39;</span><span class="p">,</span>
 <span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">repo_operations</span><span class="p">(</span><span class="n">_repo_ops</span><span class="o">.</span><span class="n">operations</span><span class="p">):</span>
+
+    <span class="n">_manifest_chksums</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;size&quot;</span><span class="p">,</span> <span class="s">&quot;rmd160&quot;</span><span class="p">,</span> <span class="s">&quot;sha1&quot;</span><span class="p">,</span> <span class="s">&quot;sha256&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_cmd_implementation_digests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">matches</span><span class="p">,</span> <span class="n">observer</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">key_query</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">unversioned_atom</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">)):</span>
+            <span class="n">observer</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;generating digests for </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">key_query</span><span class="p">)</span>
+            <span class="n">packages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">key_query</span><span class="p">)</span>
+            <span class="n">pkgdir_fetchables</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">packages</span><span class="p">:</span>
+                    <span class="c"># XXX: needs modification to grab all sources, and also to not</span>
+                    <span class="c"># bail if digests are missing</span>
+                    <span class="n">pkg</span><span class="o">.</span><span class="n">release_cached_data</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                    <span class="c"># heinous.</span>
+                    <span class="n">fetchables</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">_get_attr</span><span class="p">[</span><span class="s">&#39;fetchables&#39;</span><span class="p">](</span><span class="n">pkg</span><span class="p">,</span> <span class="n">allow_missing_checksums</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                    <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;fetchables&#39;</span><span class="p">,</span> <span class="n">fetchables</span><span class="p">)</span>
+                    <span class="n">pkg_ops</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">pkg_operations</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="n">observer</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">pkg_ops</span><span class="o">.</span><span class="n">supports</span><span class="p">(</span><span class="s">&quot;fetch&quot;</span><span class="p">):</span>
+                        <span class="n">observer</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;pkg </span><span class="si">%s</span><span class="s"> doesn&#39;t support fetching, can&#39;t generate manifest/digest info</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
+                            <span class="n">pkg</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">pkg_ops</span><span class="o">.</span><span class="n">mirror</span><span class="p">(</span><span class="n">observer</span><span class="p">):</span>
+                        <span class="n">observer</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;failed fetching for pkg </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pkg</span><span class="p">,))</span>
+                        <span class="k">return</span> <span class="bp">False</span>
+
+                    <span class="n">fetchables</span> <span class="o">=</span> <span class="n">pkg_ops</span><span class="o">.</span><span class="n">_mirror_op</span><span class="o">.</span><span class="n">verified_files</span>
+                    <span class="n">required</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manifest_chksums</span>
+                    <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">fetchable</span> <span class="ow">in</span> <span class="n">fetchables</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                        <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">required</span><span class="p">,</span> <span class="n">get_chksums</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">*</span><span class="n">required</span><span class="p">)))</span>
+                        <span class="n">fetchable</span><span class="o">.</span><span class="n">chksums</span> <span class="o">=</span> <span class="n">d</span>
+                    <span class="n">pkgdir_fetchables</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">fetchables</span><span class="o">.</span><span class="n">itervalues</span><span class="p">())</span>
+
+                <span class="n">digest</span><span class="o">.</span><span class="n">serialize_manifest</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">ebuild</span><span class="o">.</span><span class="n">get_path</span><span class="p">()),</span>
+                    <span class="n">pkgdir_fetchables</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">packages</span><span class="p">:</span>
+                    <span class="c"># done since we do hackish shit above</span>
+                    <span class="c"># should be uneeded once this is cleaned up</span>
+                    <span class="n">pkg</span><span class="o">.</span><span class="n">release_cached_data</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
 
 <span class="n">metadata_offset</span> <span class="o">=</span> <span class="s">&quot;profiles&quot;</span>
@@ -104,6 +149,8 @@
     <span class="n">format_magic</span> <span class="o">=</span> <span class="s">&quot;ebuild_src&quot;</span>
     <span class="n">enable_gpg</span> <span class="o">=</span> <span class="bp">False</span>
     <span class="n">extension</span> <span class="o">=</span> <span class="s">&#39;.ebuild&#39;</span>
+
+    <span class="n">operations_kls</span> <span class="o">=</span> <span class="n">repo_operations</span>
 
     <span class="n">pkgcore_config_type</span> <span class="o">=</span> <span class="n">ConfigHint</span><span class="p">(</span>
         <span class="p">{</span><span class="s">&#39;location&#39;</span><span class="p">:</span> <span class="s">&#39;str&#39;</span><span class="p">,</span> <span class="s">&#39;cache&#39;</span><span class="p">:</span> <span class="s">&#39;refs:cache&#39;</span><span class="p">,</span>
