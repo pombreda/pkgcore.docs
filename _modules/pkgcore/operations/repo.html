@@ -267,9 +267,9 @@
         <span class="n">observer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_observer</span><span class="p">(</span><span class="n">observer</span><span class="p">)</span>
         <span class="n">matches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">matches</span><span class="p">:</span>
-            <span class="n">observer</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;skipping digest: nothing matched query </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">query</span><span class="p">,))</span>
-            <span class="k">return</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cmd_implementation_digests</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">matches</span><span class="p">,</span>
+            <span class="n">observer</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;skipping digest of query </span><span class="si">%s</span><span class="s">; no matches</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">query</span><span class="p">,))</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmd_implementation_digests</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">matches</span><span class="p">,</span>
             <span class="n">observer</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
 
 </div>

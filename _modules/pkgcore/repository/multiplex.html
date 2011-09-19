@@ -85,15 +85,18 @@
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_proxy_op</span><span class="p">,</span> <span class="n">op</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_proxy_op</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">singleton</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">trees</span><span class="p">:</span>
             <span class="n">ops</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">operations</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ops</span><span class="o">.</span><span class="n">supports</span><span class="p">(</span><span class="n">op_name</span><span class="p">):</span>
                 <span class="k">continue</span>
-            <span class="n">ret</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ops</span><span class="p">,</span> <span class="n">op_name</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+            <span class="c"># track the success for return.</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ops</span><span class="p">,</span> <span class="n">op_name</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ret</span>
             <span class="k">if</span> <span class="n">op_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ops_stop_after_first_supported</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">ret</span>
-            <span class="k">return</span> <span class="n">ret</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="n">singleton</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
 
 </div>
 <div class="viewcode-block" id="tree"><a class="viewcode-back" href="../../../api/pkgcore.repository.multiplex.html#pkgcore.repository.multiplex.tree">[docs]</a><span class="k">class</span> <span class="nc">tree</span><span class="p">(</span><span class="n">prototype</span><span class="o">.</span><span class="n">tree</span><span class="p">):</span>

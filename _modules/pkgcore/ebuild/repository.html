@@ -93,10 +93,11 @@
     <span class="n">_manifest_chksums</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;size&quot;</span><span class="p">,</span> <span class="s">&quot;rmd160&quot;</span><span class="p">,</span> <span class="s">&quot;sha1&quot;</span><span class="p">,</span> <span class="s">&quot;sha256&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_cmd_implementation_digests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">matches</span><span class="p">,</span> <span class="n">observer</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+        <span class="n">required</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manifest_chksums</span>
         <span class="k">for</span> <span class="n">key_query</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">unversioned_atom</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">)):</span>
-            <span class="n">observer</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;generating digests for </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">key_query</span><span class="p">)</span>
-            <span class="n">packages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">key_query</span><span class="p">)</span>
-            <span class="n">pkgdir_fetchables</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">observer</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;generating digests for </span><span class="si">%s</span><span class="s"> for repo </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">key_query</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+            <span class="n">packages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">key_query</span><span class="p">,</span> <span class="n">sorter</span><span class="o">=</span><span class="nb">sorted</span><span class="p">)</span>
+            <span class="n">pkgdir_fetchables</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">packages</span><span class="p">:</span>
                     <span class="c"># XXX: needs modification to grab all sources, and also to not</span>
@@ -114,14 +115,15 @@
                         <span class="k">return</span> <span class="bp">False</span>
 
                     <span class="n">fetchables</span> <span class="o">=</span> <span class="n">pkg_ops</span><span class="o">.</span><span class="n">_mirror_op</span><span class="o">.</span><span class="n">verified_files</span>
-                    <span class="n">required</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manifest_chksums</span>
                     <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">fetchable</span> <span class="ow">in</span> <span class="n">fetchables</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
                         <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">required</span><span class="p">,</span> <span class="n">get_chksums</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">*</span><span class="n">required</span><span class="p">)))</span>
                         <span class="n">fetchable</span><span class="o">.</span><span class="n">chksums</span> <span class="o">=</span> <span class="n">d</span>
-                    <span class="n">pkgdir_fetchables</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">fetchables</span><span class="o">.</span><span class="n">itervalues</span><span class="p">())</span>
+                    <span class="c"># should report on conflicts here...</span>
+                    <span class="n">pkgdir_fetchables</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">fetchables</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
 
+                <span class="n">pkgdir_fetchables</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pkgdir_fetchables</span><span class="o">.</span><span class="n">itervalues</span><span class="p">())</span>
                 <span class="n">digest</span><span class="o">.</span><span class="n">serialize_manifest</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">ebuild</span><span class="o">.</span><span class="n">get_path</span><span class="p">()),</span>
-                    <span class="n">pkgdir_fetchables</span><span class="p">)</span>
+                    <span class="n">pkgdir_fetchables</span><span class="p">,</span> <span class="n">chfs</span><span class="o">=</span><span class="n">required</span><span class="p">)</span>
             <span class="k">finally</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">packages</span><span class="p">:</span>
                     <span class="c"># done since we do hackish shit above</span>
