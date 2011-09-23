@@ -110,6 +110,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_sync_rate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_sync_rate</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">updates</span> <span class="o">=</span> <span class="mi">0</span>
 
+    <span class="k">def</span> <span class="nf">_sync_if_needed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">increment</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">autocommits</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">increment</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">updates</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">updates</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_rate</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">updates</span> <span class="o">=</span> <span class="mi">0</span>
+
     <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cpv</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;set a cpv to values</span>
 
@@ -117,9 +126,7 @@
 <span class="sd">        handles the __eclasses__ conversion. That said, if the class</span>
 <span class="sd">        handles it, they can override it.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">updates</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_rate</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">updates</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sync_if_needed</span><span class="p">()</span>
         <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getitem</span><span class="p">(</span><span class="n">cpv</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize_eclasses</span> <span class="ow">and</span> <span class="s">&quot;_eclasses_&quot;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
             <span class="n">d</span><span class="p">[</span><span class="s">&quot;_eclasses_&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct_eclasses</span><span class="p">(</span><span class="n">cpv</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s">&quot;_eclasses_&quot;</span><span class="p">])</span>
@@ -153,11 +160,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">d</span> <span class="o">=</span> <span class="n">values</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_setitem</span><span class="p">(</span><span class="n">cpv</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">autocommits</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">updates</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">updates</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_rate</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">updates</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sync_if_needed</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_setitem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;__setitem__ calls this after readonly checks.</span>
@@ -175,12 +178,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">readonly</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ReadOnly</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">autocommits</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">updates</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_delitem</span><span class="p">(</span><span class="n">cpv</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">updates</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_rate</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">updates</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sync_if_needed</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_delitem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cpv</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;__delitem__ calls this after readonly checks.</span>
