@@ -340,16 +340,16 @@
     <span class="k">return</span> <span class="mi">0</span>
 
 
-<span class="n">digests</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;digests&quot;</span><span class="p">,</span>
+<span class="n">digest</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;digest&quot;</span><span class="p">,</span>
     <span class="n">description</span><span class="o">=</span><span class="s">&quot;update a repositories package manifest/digest information&quot;</span><span class="p">,</span>
     <span class="n">parents</span><span class="o">=</span><span class="p">(</span><span class="n">commandline</span><span class="o">.</span><span class="n">mk_argparser</span><span class="p">(</span><span class="n">add_help</span><span class="o">=</span><span class="bp">False</span><span class="p">),))</span>
-<span class="n">digests</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--repository&quot;</span><span class="p">,</span> <span class="s">&quot;--repo&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store&#39;</span><span class="p">,</span>
+<span class="n">digest</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--repository&quot;</span><span class="p">,</span> <span class="s">&quot;--repo&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store&#39;</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="s">&quot;force a specific repository, rather than spceifying it via a repo atom&quot;</span><span class="p">)</span>
-<span class="n">commandline</span><span class="o">.</span><span class="n">make_query</span><span class="p">(</span><span class="n">digests</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;+&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;query&#39;</span><span class="p">,</span>
+<span class="n">commandline</span><span class="o">.</span><span class="n">make_query</span><span class="p">(</span><span class="n">digest</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;+&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;query&#39;</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="s">&quot;packages matching any of these restrictions will have their&quot;</span>
     <span class="s">&quot; manifest/digest updated&quot;</span><span class="p">)</span>
-<span class="nd">@digests.bind_main_func</span>
-<span class="k">def</span> <span class="nf">digests_main</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
+<span class="nd">@digest.bind_main_func</span>
+<span class="k">def</span> <span class="nf">digest_main</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
     <span class="n">domain</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">domain</span>
     <span class="n">repos</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">all_repos</span>
     <span class="n">repo_ops</span> <span class="o">=</span> <span class="n">repos</span><span class="o">.</span><span class="n">operations</span>
