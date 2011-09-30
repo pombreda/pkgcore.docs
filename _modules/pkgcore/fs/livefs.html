@@ -97,8 +97,6 @@
             <span class="k">if</span> <span class="n">stat_func</span> <span class="o">==</span> <span class="n">os</span><span class="o">.</span><span class="n">lstat</span> <span class="ow">or</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
                 <span class="k">raise</span>
             <span class="n">stat</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">lstat</span><span class="p">(</span><span class="n">real_location</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">chksum_handlers</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">chksum_handlers</span> <span class="o">=</span> <span class="n">get_handlers</span><span class="p">()</span>
 
     <span class="n">mode</span> <span class="o">=</span> <span class="n">stat</span><span class="o">.</span><span class="n">st_mode</span>
     <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;mtime&quot;</span><span class="p">:</span><span class="n">stat</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">,</span> <span class="s">&quot;mode&quot;</span><span class="p">:</span><span class="n">S_IMODE</span><span class="p">(</span><span class="n">mode</span><span class="p">),</span>
@@ -108,6 +106,8 @@
     <span class="k">elif</span> <span class="n">S_ISREG</span><span class="p">(</span><span class="n">mode</span><span class="p">):</span>
         <span class="n">d</span><span class="p">[</span><span class="s">&quot;size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stat</span><span class="o">.</span><span class="n">st_size</span>
         <span class="n">d</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_source</span><span class="p">(</span><span class="n">real_location</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">chksum_handlers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s">&quot;chf_types&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">chksum_handlers</span>
         <span class="k">return</span> <span class="n">fsFile</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">d</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">S_ISLNK</span><span class="p">(</span><span class="n">mode</span><span class="p">):</span>
         <span class="n">d</span><span class="p">[</span><span class="s">&quot;target&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">readlink</span><span class="p">(</span><span class="n">real_location</span><span class="p">)</span>
@@ -173,7 +173,7 @@
                 <span class="n">dirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="iter_scan"><a class="viewcode-back" href="../../../api/pkgcore.fs.livefs.html#pkgcore.fs.livefs.iter_scan">[docs]</a><span class="k">def</span> <span class="nf">iter_scan</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">follow_symlinks</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="iter_scan"><a class="viewcode-back" href="../../../api/pkgcore.fs.livefs.html#pkgcore.fs.livefs.iter_scan">[docs]</a><span class="k">def</span> <span class="nf">iter_scan</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">follow_symlinks</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">chksum_types</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Recursively scan a path.</span>
 
@@ -186,7 +186,7 @@
 <span class="sd">    :param offset: if not None, prefix to strip from each objects location.</span>
 <span class="sd">        if offset is /tmp, /tmp/blah becomes /blah</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">chksum_handlers</span> <span class="o">=</span> <span class="n">get_handlers</span><span class="p">()</span>
+    <span class="n">chksum_handlers</span> <span class="o">=</span> <span class="n">get_handlers</span><span class="p">(</span><span class="n">chksum_types</span><span class="p">)</span>
 
     <span class="n">stat_func</span> <span class="o">=</span> <span class="n">follow_symlinks</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">lstat</span>
     <span class="k">if</span> <span class="n">offset</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
