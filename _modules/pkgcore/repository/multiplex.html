@@ -91,7 +91,11 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ops</span><span class="o">.</span><span class="n">supports</span><span class="p">(</span><span class="n">op_name</span><span class="p">):</span>
                 <span class="k">continue</span>
             <span class="c"># track the success for return.</span>
-            <span class="n">ret</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ops</span><span class="p">,</span> <span class="n">op_name</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ret</span>
+            <span class="n">ret2</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ops</span><span class="p">,</span> <span class="n">op_name</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="n">singleton</span><span class="p">:</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="n">ret2</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span> <span class="ow">or</span> <span class="n">ret2</span>
             <span class="k">if</span> <span class="n">op_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ops_stop_after_first_supported</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">ret</span>
         <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="n">singleton</span><span class="p">:</span>

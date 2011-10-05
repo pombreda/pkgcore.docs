@@ -96,9 +96,12 @@
 
     <span class="k">def</span> <span class="nf">_cmd_implementation_digests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">matches</span><span class="p">,</span> <span class="n">observer</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
         <span class="n">required</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_manifest_chksums</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="k">for</span> <span class="n">key_query</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">unversioned_atom</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">)):</span>
             <span class="n">observer</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;generating digests for </span><span class="si">%s</span><span class="s"> for repo </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">key_query</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
             <span class="n">packages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">key_query</span><span class="p">,</span> <span class="n">sorter</span><span class="o">=</span><span class="nb">sorted</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">packages</span><span class="p">:</span>
+                <span class="n">observer</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;generating digests for </span><span class="si">%s</span><span class="s"> for repo </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">key_query</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="p">)</span>
             <span class="n">pkgdir_fetchables</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">packages</span><span class="p">:</span>
@@ -126,11 +129,14 @@
                 <span class="n">pkgdir_fetchables</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pkgdir_fetchables</span><span class="o">.</span><span class="n">itervalues</span><span class="p">())</span>
                 <span class="n">digest</span><span class="o">.</span><span class="n">serialize_manifest</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">ebuild</span><span class="o">.</span><span class="n">get_path</span><span class="p">()),</span>
                     <span class="n">pkgdir_fetchables</span><span class="p">,</span> <span class="n">chfs</span><span class="o">=</span><span class="n">required</span><span class="p">)</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="bp">True</span>
             <span class="k">finally</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">packages</span><span class="p">:</span>
                     <span class="c"># done since we do hackish shit above</span>
                     <span class="c"># should be uneeded once this is cleaned up</span>
                     <span class="n">pkg</span><span class="o">.</span><span class="n">release_cached_data</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
 
 
 <span class="n">metadata_offset</span> <span class="o">=</span> <span class="s">&quot;profiles&quot;</span>
