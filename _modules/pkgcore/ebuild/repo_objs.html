@@ -61,13 +61,14 @@
 <span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
 <span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">pjoin</span><span class="p">,</span> <span class="n">listdir_files</span>
 <span class="kn">from</span> <span class="nn">snakeoil.caching</span> <span class="kn">import</span> <span class="n">WeakInstMeta</span>
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">mappings</span>
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">klass</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
     <span class="s">&#39;snakeoil.xml:etree&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.log:logger&#39;</span><span class="p">,</span>
-    <span class="s">&#39;snakeoil:mappings&#39;</span><span class="p">,</span>
     <span class="s">&#39;snakeoil:fileutils&#39;</span><span class="p">,</span>
+    <span class="s">&#39;snakeoil.lists:iter_stable_unique&#39;</span><span class="p">,</span>
     <span class="s">&#39;errno&#39;</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -313,7 +314,58 @@
             <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s">&#39;licenses&#39;</span><span class="p">):</span>
                 <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">licenses</span><span class="p">)</span>
         <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_license_instances&#39;</span><span class="p">,</span>
-            <span class="nb">tuple</span><span class="p">(</span><span class="n">l</span><span class="p">))</span></div>
+            <span class="nb">tuple</span><span class="p">(</span><span class="n">l</span><span class="p">))</span>
+
+</div>
+<span class="k">class</span> <span class="nc">_immutable_attr_dict</span><span class="p">(</span><span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="n">mappings</span><span class="o">.</span><span class="n">inject_getitem_as_getattr</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+
+
+<span class="k">class</span> <span class="nc">RepoConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;repo_location&quot;</span><span class="p">,</span> <span class="s">&quot;manifests&quot;</span><span class="p">,</span> <span class="s">&quot;masters&quot;</span><span class="p">,</span> <span class="s">&quot;aliases&quot;</span><span class="p">,</span> <span class="s">&quot;authoritative_cache&quot;</span><span class="p">)</span>
+
+    <span class="n">layout_offset</span> <span class="o">=</span> <span class="s">&quot;metadata/layout.conf&quot;</span>
+
+    <span class="n">default_hashes</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;size&#39;</span><span class="p">,</span> <span class="s">&#39;rmd160&#39;</span><span class="p">,</span> <span class="s">&#39;sha1&#39;</span><span class="p">,</span> <span class="s">&#39;sha256&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_location</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repo_location</span> <span class="o">=</span> <span class="n">repo_location</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parse_config</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">load_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_location</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout_offset</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fileutils</span><span class="o">.</span><span class="n">read_dict</span><span class="p">(</span><span class="n">fileutils</span><span class="o">.</span><span class="n">readlines_ascii</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">),</span>
+            <span class="n">source_isiter</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">strip</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">parse_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_config</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">authoritative_cache</span> <span class="o">=</span> \
+            <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;authoritative-cache&#39;</span><span class="p">,</span> <span class="s">&#39;false&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;true&#39;</span><span class="p">)</span>
+
+        <span class="n">hashes</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;manifest-hashes&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">hashes</span><span class="p">:</span>
+            <span class="n">hashes</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;size&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">hashes</span>
+            <span class="n">hashes</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">iter_stable_unique</span><span class="p">(</span><span class="n">hashes</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">hashes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_hashes</span>
+
+        <span class="n">manifest_policy</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;use-manifests&#39;</span><span class="p">,</span> <span class="s">&#39;strict&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;disabled&#39;</span><span class="p">:(</span><span class="n">manifest_policy</span> <span class="o">==</span> <span class="s">&#39;false&#39;</span><span class="p">),</span>
+            <span class="s">&#39;strict&#39;</span><span class="p">:(</span><span class="n">manifest_policy</span> <span class="o">==</span> <span class="s">&#39;strict&#39;</span><span class="p">),</span>
+            <span class="s">&#39;thin&#39;</span><span class="p">:(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;thin-manifests&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;true&#39;</span><span class="p">),</span>
+            <span class="s">&#39;signed&#39;</span><span class="p">:(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;sign-manifests&#39;</span><span class="p">,</span> <span class="s">&#39;true&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;true&#39;</span><span class="p">),</span>
+            <span class="s">&#39;hashes&#39;</span><span class="p">:</span><span class="n">hashes</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">manifests</span> <span class="o">=</span> <span class="n">_immutable_attr_dict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">masters</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">iter_stable_unique</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;masters&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aliases</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">iter_stable_unique</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;aliases&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
 </pre></div>
 
           </div>
