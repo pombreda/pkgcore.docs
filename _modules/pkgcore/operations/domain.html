@@ -66,6 +66,7 @@
     <span class="s">&#39;errno&#39;</span><span class="p">,</span>
     <span class="s">&quot;shutil&quot;</span><span class="p">,</span>
     <span class="s">&quot;tempfile&quot;</span><span class="p">,</span>
+    <span class="s">&#39;snakeoil:osutils&#39;</span><span class="p">,</span>
     <span class="p">)</span>
 
 
@@ -116,7 +117,9 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;create_repo_op&#39;</span><span class="p">)</span>
 </div>
     <span class="k">def</span> <span class="nf">_create_tempspace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tempspace</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">_get_tempspace</span><span class="p">(),</span>
+        <span class="n">location</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">_get_tempspace</span><span class="p">()</span>
+        <span class="n">osutils</span><span class="o">.</span><span class="n">ensure_dirs</span><span class="p">(</span><span class="n">location</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tempspace</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
             <span class="n">prefix</span><span class="o">=</span><span class="s">&quot;merge-engine-tmp&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_add_triggers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">):</span>
