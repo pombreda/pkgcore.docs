@@ -69,64 +69,11 @@
 <span class="p">)</span>
 
 
-<span class="c"># ordering here matters; pkgcore does a trick to commandline to avoid the</span>
-<span class="c"># heavy inspect loadup hit.</span>
-<span class="kn">import</span> <span class="nn">optparse</span>
-
 <div class="viewcode-block" id="mk_strregex"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.mk_strregex">[docs]</a><span class="k">def</span> <span class="nf">mk_strregex</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">values</span><span class="o">.</span><span class="n">StrRegex</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">re</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">optparse</span><span class="o">.</span><span class="n">OptionValueError</span><span class="p">(</span><span class="s">&quot;invalid regex: </span><span class="si">%r</span><span class="s">, </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
-
-
-<span class="c"># To add a new restriction you have to do the following:</span>
-<span class="c"># - add a parse function for it here.</span>
-<span class="c"># - add the parse function to the PARSE_FUNCS dict.</span>
-<span class="c"># - add an optparse option using the name you used in the dict as</span>
-<span class="c">#   both the typename and the long option name.</span>
-</div>
-<div class="viewcode-block" id="parse_revdep"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.parse_revdep">[docs]</a><span class="k">def</span> <span class="nf">parse_revdep</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Value should be an atom, packages with deps intersecting that match.&quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">targetatom</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">atom</span><span class="o">.</span><span class="n">MalformedAtom</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">parserestrict</span><span class="o">.</span><span class="n">ParseError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-    <span class="n">val_restrict</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">FlatteningRestriction</span><span class="p">(</span>
-        <span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">,</span>
-        <span class="n">values</span><span class="o">.</span><span class="n">AnyMatch</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">FunctionRestriction</span><span class="p">(</span><span class="n">targetatom</span><span class="o">.</span><span class="n">intersects</span><span class="p">)))</span>
-    <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">OrRestriction</span><span class="p">(</span><span class="o">*</span><span class="nb">list</span><span class="p">(</span>
-            <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">(</span><span class="n">dep</span><span class="p">,</span> <span class="n">val_restrict</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;depends&#39;</span><span class="p">,</span> <span class="s">&#39;rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;post_rdepends&#39;</span><span class="p">)))</span>
-</div>
-<div class="viewcode-block" id="parse_description"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.parse_description">[docs]</a><span class="k">def</span> <span class="nf">parse_description</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Value is used as a regexp matching description or longdescription.&quot;&quot;&quot;</span>
-    <span class="n">matcher</span> <span class="o">=</span> <span class="n">mk_strregex</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">OrRestriction</span><span class="p">(</span><span class="o">*</span><span class="nb">list</span><span class="p">(</span>
-            <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">matcher</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="s">&#39;longdescription&#39;</span><span class="p">)))</span>
-</div>
-<div class="viewcode-block" id="parse_ownsre"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.parse_ownsre">[docs]</a><span class="k">def</span> <span class="nf">parse_ownsre</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Value is a regexp matched against the string form of an fs object.</span>
-
-<span class="sd">    This means the object kind is prepended to the path the regexp has</span>
-<span class="sd">    to match.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">(</span>
-        <span class="s">&#39;contents&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">.</span><span class="n">AnyMatch</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">GetAttrRestriction</span><span class="p">(</span>
-            <span class="s">&#39;location&#39;</span><span class="p">,</span> <span class="n">mk_strregex</span><span class="p">(</span><span class="n">value</span><span class="p">))))</span>
-</div>
-<div class="viewcode-block" id="parse_owns"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.parse_owns">[docs]</a><span class="k">def</span> <span class="nf">parse_owns</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-    <span class="s">&quot;Value is a comma delimited set of paths to search contents for&quot;</span>
-    <span class="c"># yes it would be easier to do this without using parserestrict-</span>
-    <span class="c"># we use defer to using it for the sake of a common parsing</span>
-    <span class="c"># exposed to the commandline however.</span>
-    <span class="c"># the problem here is we don&#39;t want to trigger fs* module loadup</span>
-    <span class="c"># unless needed- hence this function.</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">parserestrict</span><span class="o">.</span><span class="n">comma_separated_containment</span><span class="p">(</span><span class="s">&#39;contents&#39;</span><span class="p">,</span>
-        <span class="n">values_kls</span><span class="o">=</span><span class="n">contents_module</span><span class="o">.</span><span class="n">contentsSet</span><span class="p">,</span>
-        <span class="n">token_kls</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="n">fs_module</span><span class="o">.</span><span class="n">fsBase</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="bp">False</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">parser</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;invalid regex: </span><span class="si">%r</span><span class="s">, </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
 
 </div>
 <div class="viewcode-block" id="DataSourceRestriction"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.DataSourceRestriction">[docs]</a><span class="k">class</span> <span class="nc">DataSourceRestriction</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
@@ -154,507 +101,16 @@
     <span class="n">__hash__</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">__hash__</span>
 
 </div>
-<div class="viewcode-block" id="parse_envmatch"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.parse_envmatch">[docs]</a><span class="k">def</span> <span class="nf">parse_envmatch</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Apply a regexp to the environment.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">(</span>
-        <span class="s">&#39;environment&#39;</span><span class="p">,</span> <span class="n">DataSourceRestriction</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">AnyMatch</span><span class="p">(</span>
-                <span class="n">mk_strregex</span><span class="p">(</span><span class="n">value</span><span class="p">))))</span>
-
-</div>
-<div class="viewcode-block" id="parse_maintainer_email"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.parse_maintainer_email">[docs]</a><span class="k">def</span> <span class="nf">parse_maintainer_email</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Case insensitive Regex match on the email bit of metadata.xml&#39;s</span>
-<span class="sd">    maintainer data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">(</span>
-        <span class="s">&#39;maintainers&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">.</span><span class="n">AnyMatch</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">GetAttrRestriction</span><span class="p">(</span>
-                <span class="s">&#39;email&#39;</span><span class="p">,</span> <span class="n">mk_strregex</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
-                <span class="n">case_sensitive</span><span class="o">=</span><span class="bp">False</span><span class="p">))))</span>
-</div>
-<div class="viewcode-block" id="parse_maintainer_name"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.parse_maintainer_name">[docs]</a><span class="k">def</span> <span class="nf">parse_maintainer_name</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Case insensitive Regex match on the name bit of metadata.xml&#39;s</span>
-<span class="sd">    maintainer data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">(</span>
-        <span class="s">&#39;maintainers&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">.</span><span class="n">AnyMatch</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">GetAttrRestriction</span><span class="p">(</span>
-                <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">mk_strregex</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
-                    <span class="n">case_sensitive</span><span class="o">=</span><span class="bp">False</span><span class="p">))))</span>
-</div>
-<div class="viewcode-block" id="parse_maintainer"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.parse_maintainer">[docs]</a><span class="k">def</span> <span class="nf">parse_maintainer</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Case insensitive Regex match on the combined &#39;name &lt;email&gt;&#39; bit of</span>
-<span class="sd">    metadata.xml&#39;s maintainer data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">(</span>
-        <span class="s">&#39;maintainers&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">.</span><span class="n">AnyMatch</span><span class="p">(</span>
-            <span class="n">values</span><span class="o">.</span><span class="n">UnicodeConversion</span><span class="p">(</span>
-                <span class="n">mk_strregex</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
-                    <span class="n">case_sensitive</span><span class="o">=</span><span class="bp">False</span><span class="p">))))</span>
-
-</div>
-<div class="viewcode-block" id="parse_expression"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.parse_expression">[docs]</a><span class="k">def</span> <span class="nf">parse_expression</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Convert a string to a restriction object using pyparsing.&quot;&quot;&quot;</span>
-    <span class="c"># Two reasons to delay this import: we want to deal if it is</span>
-    <span class="c"># not there and the import is slow (needs to compile a bunch</span>
-    <span class="c"># of regexps).</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="kn">import</span> <span class="nn">pyparsing</span> <span class="kn">as</span> <span class="nn">pyp</span>
-    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">parserestrict</span><span class="o">.</span><span class="n">ParseError</span><span class="p">(</span><span class="s">&#39;pyparsing is not installed.&#39;</span><span class="p">)</span>
-
-    <span class="n">grammar</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">parse_expression</span><span class="p">,</span> <span class="s">&#39;grammar&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">grammar</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-
-        <span class="n">anystring</span> <span class="o">=</span> <span class="n">pyp</span><span class="o">.</span><span class="n">quotedString</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">removeQuotes</span><span class="p">)</span>
-        <span class="n">anystring</span> <span class="o">|=</span> <span class="n">pyp</span><span class="o">.</span><span class="n">Word</span><span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">alphanums</span> <span class="o">+</span> <span class="s">&#39;,&#39;</span><span class="p">)</span>
-
-        <span class="k">def</span> <span class="nf">funcall</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
-            <span class="sd">&quot;&quot;&quot;Create a pyparsing expression from a name and parse func.&quot;&quot;&quot;</span>
-            <span class="c"># This function cannot be inlined below: we use its scope to</span>
-            <span class="c"># &quot;store&quot; the parser function. If we store the parser function</span>
-            <span class="c"># as default argument to the _parse function pyparsing passes</span>
-            <span class="c"># different arguments (it detects the number of arguments the</span>
-            <span class="c"># function takes).</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">(&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span> <span class="o">+</span> <span class="n">anystring</span> <span class="o">+</span>
-                      <span class="n">pyp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&#39;)&#39;</span><span class="p">))</span>
-            <span class="k">def</span> <span class="nf">_parse</span><span class="p">(</span><span class="n">tokens</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">parser</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">result</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="n">_parse</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">result</span>
+<span class="n">printable_attrs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">((</span><span class="s">&#39;rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;depends&#39;</span><span class="p">,</span> <span class="s">&#39;post_rdepends&#39;</span><span class="p">,</span>
+    <span class="s">&#39;provides&#39;</span><span class="p">,</span> <span class="s">&#39;use&#39;</span><span class="p">,</span> <span class="s">&#39;iuse&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="s">&#39;longdescription&#39;</span><span class="p">,</span>
+    <span class="s">&#39;herds&#39;</span><span class="p">,</span> <span class="s">&#39;license&#39;</span><span class="p">,</span> <span class="s">&#39;uris&#39;</span><span class="p">,</span> <span class="s">&#39;files&#39;</span><span class="p">,</span> <span class="s">&#39;category&#39;</span><span class="p">,</span> <span class="s">&#39;package&#39;</span><span class="p">,</span>  <span class="s">&#39;slot&#39;</span><span class="p">,</span>
+    <span class="s">&#39;maintainers&#39;</span><span class="p">,</span> <span class="s">&#39;restrict&#39;</span><span class="p">,</span> <span class="s">&#39;repo&#39;</span><span class="p">,</span> <span class="s">&#39;source_repository&#39;</span><span class="p">,</span>
+    <span class="s">&#39;alldepends&#39;</span><span class="p">,</span> <span class="s">&#39;path&#39;</span><span class="p">,</span> <span class="s">&#39;version&#39;</span><span class="p">,</span>
+    <span class="s">&#39;revision&#39;</span><span class="p">,</span> <span class="s">&#39;fullver&#39;</span><span class="p">,</span> <span class="s">&#39;environment&#39;</span><span class="p">,</span> <span class="s">&#39;keywords&#39;</span><span class="p">,</span> <span class="s">&#39;homepage&#39;</span><span class="p">,</span>
+    <span class="s">&#39;fetchables&#39;</span><span class="p">,</span> <span class="s">&#39;eapi&#39;</span><span class="p">,</span> <span class="s">&#39;inherited&#39;</span><span class="p">,</span> <span class="s">&#39;chost&#39;</span><span class="p">,</span> <span class="s">&#39;cbuild&#39;</span><span class="p">,</span> <span class="s">&#39;ctarget&#39;</span><span class="p">,</span>
+    <span class="s">&#39;all&#39;</span><span class="p">,</span> <span class="s">&#39;allmetadata&#39;</span><span class="p">,</span> <span class="s">&#39;properties&#39;</span><span class="p">,</span> <span class="s">&#39;defined_phases&#39;</span><span class="p">,</span> <span class="s">&#39;required_use&#39;</span><span class="p">))</span>
 
 
-        <span class="n">boolcall</span> <span class="o">=</span> <span class="n">pyp</span><span class="o">.</span><span class="n">Forward</span><span class="p">()</span>
-        <span class="n">expr</span> <span class="o">=</span> <span class="n">boolcall</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">PARSE_FUNCS</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-            <span class="n">expr</span> <span class="o">|=</span> <span class="n">funcall</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
-
-        <span class="n">andcall</span> <span class="o">=</span> <span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">CaselessLiteral</span><span class="p">(</span><span class="s">&#39;and&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;(&#39;</span><span class="p">)</span> <span class="o">+</span>
-                   <span class="n">pyp</span><span class="o">.</span><span class="n">delimitedList</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span> <span class="o">+</span> <span class="n">pyp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&#39;)&#39;</span><span class="p">))</span>
-        <span class="k">def</span> <span class="nf">_parse_and</span><span class="p">(</span><span class="n">tokens</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">AndRestriction</span><span class="p">(</span><span class="o">*</span><span class="n">tokens</span><span class="p">)</span>
-        <span class="n">andcall</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="n">_parse_and</span><span class="p">)</span>
-
-        <span class="n">orcall</span> <span class="o">=</span> <span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">CaselessLiteral</span><span class="p">(</span><span class="s">&#39;or&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;(&#39;</span><span class="p">)</span> <span class="o">+</span>
-                   <span class="n">pyp</span><span class="o">.</span><span class="n">delimitedList</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span> <span class="o">+</span> <span class="n">pyp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&#39;)&#39;</span><span class="p">))</span>
-        <span class="k">def</span> <span class="nf">_parse_or</span><span class="p">(</span><span class="n">tokens</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">OrRestriction</span><span class="p">(</span><span class="o">*</span><span class="n">tokens</span><span class="p">)</span>
-        <span class="n">orcall</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="n">_parse_or</span><span class="p">)</span>
-
-        <span class="n">notcall</span> <span class="o">=</span> <span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="n">pyp</span><span class="o">.</span><span class="n">CaselessLiteral</span><span class="p">(</span><span class="s">&#39;not&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;(&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">expr</span> <span class="o">+</span>
-                   <span class="n">pyp</span><span class="o">.</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&#39;)&#39;</span><span class="p">))</span>
-        <span class="k">def</span> <span class="nf">_parse_not</span><span class="p">(</span><span class="n">tokens</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">restriction</span><span class="o">.</span><span class="n">Negate</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">notcall</span><span class="o">.</span><span class="n">setParseAction</span><span class="p">(</span><span class="n">_parse_not</span><span class="p">)</span>
-
-        <span class="c"># &quot;Statement seems to have no effect&quot;</span>
-        <span class="c"># pylint: disable-msg=W0104</span>
-        <span class="n">boolcall</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">notcall</span> <span class="o">|</span> <span class="n">andcall</span> <span class="o">|</span> <span class="n">orcall</span><span class="p">)</span>
-
-        <span class="c"># This forces a match on the entire thing, without it trailing</span>
-        <span class="c"># unparsed data is ignored.</span>
-        <span class="n">grammar</span> <span class="o">=</span> <span class="n">pyp</span><span class="o">.</span><span class="n">stringStart</span> <span class="o">+</span> <span class="n">expr</span> <span class="o">+</span> <span class="n">pyp</span><span class="o">.</span><span class="n">stringEnd</span>
-
-        <span class="c"># grammar.validate()</span>
-
-        <span class="n">parse_expression</span><span class="o">.</span><span class="n">grammar</span> <span class="o">=</span> <span class="n">grammar</span>
-
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">grammar</span><span class="o">.</span><span class="n">parseString</span><span class="p">(</span><span class="n">string</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">except</span> <span class="n">pyp</span><span class="o">.</span><span class="n">ParseException</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">parserestrict</span><span class="o">.</span><span class="n">ParseError</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">msg</span><span class="p">)</span>
-
-</div>
-<span class="n">PARSE_FUNCS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s">&#39;restrict_revdep&#39;</span><span class="p">:</span> <span class="n">parse_revdep</span><span class="p">,</span>
-    <span class="s">&#39;description&#39;</span><span class="p">:</span> <span class="n">parse_description</span><span class="p">,</span>
-    <span class="s">&#39;owns&#39;</span><span class="p">:</span> <span class="n">parse_owns</span><span class="p">,</span>
-    <span class="s">&#39;ownsre&#39;</span><span class="p">:</span> <span class="n">parse_ownsre</span><span class="p">,</span>
-    <span class="s">&#39;environment&#39;</span><span class="p">:</span> <span class="n">parse_envmatch</span><span class="p">,</span>
-    <span class="s">&#39;expr&#39;</span><span class="p">:</span> <span class="n">parse_expression</span><span class="p">,</span>
-    <span class="s">&#39;maintainer&#39;</span><span class="p">:</span> <span class="n">parse_maintainer</span><span class="p">,</span>
-    <span class="s">&#39;maintainer_name&#39;</span><span class="p">:</span> <span class="n">parse_maintainer_name</span><span class="p">,</span>
-    <span class="s">&#39;maintainer_email&#39;</span><span class="p">:</span> <span class="n">parse_maintainer_email</span><span class="p">,</span>
-    <span class="p">}</span>
-
-<span class="c"># This is not just a blind &quot;update&quot; because we really need a config</span>
-<span class="c"># option for everything in this dict (so parserestrict growing parsers</span>
-<span class="c"># would break us).</span>
-<span class="k">for</span> <span class="n">_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;match&#39;</span><span class="p">]:</span>
-    <span class="n">PARSE_FUNCS</span><span class="p">[</span><span class="n">_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">parserestrict</span><span class="o">.</span><span class="n">parse_funcs</span><span class="p">[</span><span class="n">_name</span><span class="p">]</span>
-
-<span class="k">for</span> <span class="n">_name</span><span class="p">,</span> <span class="n">_attr</span> <span class="ow">in</span> <span class="p">[</span>
-    <span class="p">(</span><span class="s">&#39;herd&#39;</span><span class="p">,</span> <span class="s">&#39;herds&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;license&#39;</span><span class="p">,</span> <span class="s">&#39;license&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;hasuse&#39;</span><span class="p">,</span> <span class="s">&#39;iuse&#39;</span><span class="p">),</span>
-    <span class="p">]:</span>
-    <span class="n">PARSE_FUNCS</span><span class="p">[</span><span class="n">_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">parserestrict</span><span class="o">.</span><span class="n">comma_separated_containment</span><span class="p">(</span><span class="n">_attr</span><span class="p">)</span>
-
-<span class="k">del</span> <span class="n">_name</span><span class="p">,</span> <span class="n">_attr</span>
-
-
-<div class="viewcode-block" id="optparse_type"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.optparse_type">[docs]</a><span class="k">def</span> <span class="nf">optparse_type</span><span class="p">(</span><span class="n">parsefunc</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Wrap a parsefunc shared with the expression-style code for optparse.&quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">_typecheck</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">opt</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">parsefunc</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">parserestrict</span><span class="o">.</span><span class="n">ParseError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">optparse</span><span class="o">.</span><span class="n">OptionValueError</span><span class="p">(</span><span class="s">&#39;option </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">_typecheck</span>
-
-</div>
-<div class="viewcode-block" id="atom_type"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.atom_type">[docs]</a><span class="k">def</span> <span class="nf">atom_type</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">opt</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">atom</span><span class="o">.</span><span class="n">MalformedAtom</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">optparse</span><span class="o">.</span><span class="n">OptionValueError</span><span class="p">(</span><span class="s">&#39;option </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
-
-</div>
-<span class="n">extras</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">parser_name</span><span class="p">,</span> <span class="n">optparse_type</span><span class="p">(</span><span class="n">parser_func</span><span class="p">))</span>
-              <span class="k">for</span> <span class="n">parser_name</span><span class="p">,</span> <span class="n">parser_func</span> <span class="ow">in</span> <span class="n">PARSE_FUNCS</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
-<span class="n">extras</span><span class="p">[</span><span class="s">&#39;atom&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">atom_type</span>
-
-<div class="viewcode-block" id="Option"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.Option">[docs]</a><span class="k">class</span> <span class="nc">Option</span><span class="p">(</span><span class="n">commandline</span><span class="o">.</span><span class="n">Option</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;C{optparse.Option} subclass supporting our custom types.&quot;&quot;&quot;</span>
-    <span class="n">TYPES</span> <span class="o">=</span> <span class="n">optparse</span><span class="o">.</span><span class="n">Option</span><span class="o">.</span><span class="n">TYPES</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">extras</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-    <span class="c"># Copy the original dict</span>
-    <span class="n">TYPE_CHECKER</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">optparse</span><span class="o">.</span><span class="n">Option</span><span class="o">.</span><span class="n">TYPE_CHECKER</span><span class="p">)</span>
-    <span class="n">TYPE_CHECKER</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">extras</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="append_const_callback"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.append_const_callback">[docs]</a><span class="k">def</span> <span class="nf">append_const_callback</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">opt_str</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">const</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Callback version of python 2.5&#39;s append_const action.&quot;&quot;&quot;</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ensure_value</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">dest</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">const</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="revdep_callback"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.revdep_callback">[docs]</a><span class="k">def</span> <span class="nf">revdep_callback</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">opt_str</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ensure_value</span><span class="p">(</span><span class="s">&#39;restrict_revdep&#39;</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">parse_revdep</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ensure_value</span><span class="p">(</span><span class="s">&#39;print_revdep&#39;</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
-    <span class="k">except</span> <span class="p">(</span><span class="n">parserestrict</span><span class="o">.</span><span class="n">ParseError</span><span class="p">,</span> <span class="n">atom</span><span class="o">.</span><span class="n">MalformedAtom</span><span class="p">),</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">optparse</span><span class="o">.</span><span class="n">OptionValueError</span><span class="p">(</span><span class="s">&#39;option </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">opt_str</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
-</div>
-<div class="viewcode-block" id="revdep_pkgs_callback"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.revdep_pkgs_callback">[docs]</a><span class="k">def</span> <span class="nf">revdep_pkgs_callback</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">opt_str</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ensure_value</span><span class="p">(</span><span class="s">&#39;restrict_revdep_pkgs&#39;</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ensure_value</span><span class="p">(</span><span class="s">&#39;print_revdep&#39;</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
-    <span class="k">except</span> <span class="p">(</span><span class="n">parserestrict</span><span class="o">.</span><span class="n">ParseError</span><span class="p">,</span> <span class="n">atom</span><span class="o">.</span><span class="n">MalformedAtom</span><span class="p">),</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">optparse</span><span class="o">.</span><span class="n">OptionValueError</span><span class="p">(</span><span class="s">&#39;option </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">opt_str</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
-</div>
-<div class="viewcode-block" id="revdep_pkgs_match"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.revdep_pkgs_match">[docs]</a><span class="k">def</span> <span class="nf">revdep_pkgs_match</span><span class="p">(</span><span class="n">pkgs</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-    <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pkg</span><span class="p">)</span> <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">pkgs</span><span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="OptionParser"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.OptionParser">[docs]</a><span class="k">class</span> <span class="nc">OptionParser</span><span class="p">(</span><span class="n">commandline</span><span class="o">.</span><span class="n">OptionParser</span><span class="p">):</span>
-
-    <span class="sd">&quot;&quot;&quot;Option parser with custom option postprocessing and validation.&quot;&quot;&quot;</span>
-
-    <span class="n">description</span> <span class="o">=</span> <span class="n">__doc__</span>
-    <span class="n">option_class</span> <span class="o">=</span> <span class="n">Option</span>
-    <span class="n">enable_domain_options</span> <span class="o">=</span> <span class="bp">True</span>
-
-    <span class="n">printable_attrs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">((</span><span class="s">&#39;rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;depends&#39;</span><span class="p">,</span> <span class="s">&#39;post_rdepends&#39;</span><span class="p">,</span>
-        <span class="s">&#39;provides&#39;</span><span class="p">,</span> <span class="s">&#39;use&#39;</span><span class="p">,</span> <span class="s">&#39;iuse&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="s">&#39;longdescription&#39;</span><span class="p">,</span>
-        <span class="s">&#39;herds&#39;</span><span class="p">,</span> <span class="s">&#39;license&#39;</span><span class="p">,</span> <span class="s">&#39;uris&#39;</span><span class="p">,</span> <span class="s">&#39;files&#39;</span><span class="p">,</span> <span class="s">&#39;category&#39;</span><span class="p">,</span> <span class="s">&#39;package&#39;</span><span class="p">,</span>  <span class="s">&#39;slot&#39;</span><span class="p">,</span>
-        <span class="s">&#39;maintainers&#39;</span><span class="p">,</span> <span class="s">&#39;restrict&#39;</span><span class="p">,</span> <span class="s">&#39;repo&#39;</span><span class="p">,</span> <span class="s">&#39;source_repository&#39;</span><span class="p">,</span>
-        <span class="s">&#39;alldepends&#39;</span><span class="p">,</span> <span class="s">&#39;path&#39;</span><span class="p">,</span> <span class="s">&#39;version&#39;</span><span class="p">,</span>
-        <span class="s">&#39;revision&#39;</span><span class="p">,</span> <span class="s">&#39;fullver&#39;</span><span class="p">,</span> <span class="s">&#39;environment&#39;</span><span class="p">,</span> <span class="s">&#39;keywords&#39;</span><span class="p">,</span> <span class="s">&#39;homepage&#39;</span><span class="p">,</span>
-        <span class="s">&#39;fetchables&#39;</span><span class="p">,</span> <span class="s">&#39;eapi&#39;</span><span class="p">,</span> <span class="s">&#39;inherited&#39;</span><span class="p">,</span> <span class="s">&#39;chost&#39;</span><span class="p">,</span> <span class="s">&#39;cbuild&#39;</span><span class="p">,</span> <span class="s">&#39;ctarget&#39;</span><span class="p">,</span>
-        <span class="s">&#39;all&#39;</span><span class="p">,</span> <span class="s">&#39;allmetadata&#39;</span><span class="p">,</span> <span class="s">&#39;properties&#39;</span><span class="p">,</span> <span class="s">&#39;defined_phases&#39;</span><span class="p">,</span> <span class="s">&#39;required_use&#39;</span><span class="p">))</span>
-
-    <span class="n">metadata_attrs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">printable_attrs</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;all&quot;</span><span class="p">)</span>
-        <span class="ow">and</span> <span class="n">x</span> <span class="o">!=</span> <span class="s">&#39;environment&#39;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_register_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_default</span><span class="p">(</span><span class="s">&#39;pkgset&#39;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_default</span><span class="p">(</span><span class="s">&#39;restrict&#39;</span><span class="p">,</span> <span class="p">[])</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--repo&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;callback&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;string&#39;</span><span class="p">,</span>
-                        <span class="n">callback</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">config_callback</span><span class="p">,</span>
-                        <span class="n">callback_args</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;repo&#39;</span><span class="p">,),</span>
-                        <span class="n">help</span><span class="o">=</span><span class="s">&#39;repo to use (default from domain if omitted).&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--early-out&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;earlyout&#39;</span><span class="p">,</span>
-                        <span class="n">help</span><span class="o">=</span><span class="s">&#39;stop when first match is found.&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--no-version&#39;</span><span class="p">,</span> <span class="s">&#39;-n&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-                        <span class="n">dest</span><span class="o">=</span><span class="s">&#39;noversion&#39;</span><span class="p">,</span>
-                        <span class="n">help</span><span class="o">=</span><span class="s">&#39;collapse multiple matching versions together&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--min&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-                        <span class="n">help</span><span class="o">=</span><span class="s">&#39;show only the lowest version for each package.&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--max&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-                        <span class="n">help</span><span class="o">=</span><span class="s">&#39;show only the highest version for each package.&#39;</span><span class="p">)</span>
-
-        <span class="n">repo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="s">&#39;Source repo&#39;</span><span class="p">)</span>
-        <span class="n">repo</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--raw&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-                        <span class="n">help</span><span class="o">=</span><span class="s">&#39;Without this switch your configuration affects &#39;</span>
-                        <span class="s">&#39;what packages are visible (through masking) and what &#39;</span>
-                        <span class="s">&#39;USE flags are applied to depends and fetchables. &#39;</span>
-                        <span class="s">&quot;With this switch your configuration values aren&#39;t &quot;</span>
-                        <span class="s">&#39;used and you see the &quot;raw&quot; repository data.&#39;</span><span class="p">)</span>
-        <span class="n">repo</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
-            <span class="s">&#39;--virtuals&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;only&#39;</span><span class="p">,</span> <span class="s">&#39;disable&#39;</span><span class="p">),</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;arg &quot;only&quot; for only matching virtuals, &quot;disable&quot; to not &#39;</span>
-            <span class="s">&#39;match virtuals at all. Default is to match everything.&#39;</span><span class="p">)</span>
-        <span class="n">repo</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--vdb&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-                        <span class="n">help</span><span class="o">=</span><span class="s">&#39;match only vdb (installed) packages.&#39;</span><span class="p">)</span>
-        <span class="n">repo</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--all-repos&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-                        <span class="n">help</span><span class="o">=</span><span class="s">&#39;search all repos, vdb included&#39;</span><span class="p">)</span>
-
-        <span class="n">restrict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span>
-            <span class="s">&#39;Package matching&#39;</span><span class="p">,</span>
-            <span class="s">&#39;Each option specifies a restriction packages must match.  &#39;</span>
-            <span class="s">&#39;Specifying the same option twice means &quot;or&quot; unless stated &#39;</span>
-            <span class="s">&#39;otherwise. Specifying multiple types of restrictions means &quot;and&quot; &#39;</span>
-            <span class="s">&#39;unless stated otherwise.&#39;</span><span class="p">)</span>
-        <span class="n">restrict</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--all&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;callback&#39;</span><span class="p">,</span>
-                            <span class="n">callback</span><span class="o">=</span><span class="n">append_const_callback</span><span class="p">,</span>
-                            <span class="n">callback_args</span><span class="o">=</span><span class="p">(</span><span class="n">packages</span><span class="o">.</span><span class="n">AlwaysTrue</span><span class="p">,),</span>
-                            <span class="n">dest</span><span class="o">=</span><span class="s">&#39;restrict&#39;</span><span class="p">,</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s">&#39;Match all packages (equivalent to -m &quot;*&quot;)&#39;</span><span class="p">)</span>
-        <span class="n">restrict</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
-            <span class="s">&#39;--match&#39;</span><span class="p">,</span> <span class="s">&#39;-m&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;match&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;Glob-like match on category/package-version.&#39;</span><span class="p">)</span>
-        <span class="n">restrict</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--has-use&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;hasuse&#39;</span><span class="p">,</span>
-                            <span class="n">dest</span><span class="o">=</span><span class="s">&#39;hasuse&#39;</span><span class="p">,</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s">&#39;Exact string match on a USE flag.&#39;</span><span class="p">)</span>
-        <span class="n">restrict</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
-            <span class="s">&#39;--revdep&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;callback&#39;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">revdep_callback</span><span class="p">,</span>
-            <span class="nb">type</span><span class="o">=</span><span class="s">&#39;string&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;shorthand for --restrict-revdep atom --print-revdep atom. &#39;</span>
-            <span class="s">&#39;--print-revdep is slow, use just --restrict-revdep if you just &#39;</span>
-            <span class="s">&#39;need a list.&#39;</span><span class="p">)</span>
-        <span class="n">restrict</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
-            <span class="s">&#39;--revdep-pkgs&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;callback&#39;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">revdep_pkgs_callback</span><span class="p">,</span>
-            <span class="nb">type</span><span class="o">=</span><span class="s">&#39;string&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;shorthand for --restrict-revdep-pkgs atom &#39;</span>
-                <span class="s">&#39;--print-revdep-pkgs atom. --print-revdep is slow, use just &#39;</span>
-                <span class="s">&#39;--restrict-revdep if you just need a list.&#39;</span><span class="p">)</span>
-        <span class="n">restrict</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
-                <span class="s">&#39;--restrict-revdep&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;restrict_revdep&#39;</span><span class="p">,</span>
-                <span class="n">help</span><span class="o">=</span><span class="s">&#39;Dependency on an atom.&#39;</span><span class="p">)</span>
-        <span class="n">restrict</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
-                <span class="s">&#39;--restrict-revdep-pkgs&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;atom&#39;</span><span class="p">,</span>
-                <span class="n">help</span><span class="o">=</span><span class="s">&#39;Dependency on pkgs that match a specific atom.&#39;</span><span class="p">)</span>
-        <span class="n">restrict</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--description&#39;</span><span class="p">,</span> <span class="s">&#39;-S&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span>
-            <span class="nb">type</span><span class="o">=</span><span class="s">&#39;description&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;regexp search on description and longdescription.&#39;</span><span class="p">)</span>
-        <span class="n">restrict</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--herd&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;herd&#39;</span><span class="p">,</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s">&#39;exact match on a herd.&#39;</span><span class="p">)</span>
-        <span class="n">restrict</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--license&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;license&#39;</span><span class="p">,</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s">&#39;exact match on a license.&#39;</span><span class="p">)</span>
-        <span class="n">restrict</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--owns&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;owns&#39;</span><span class="p">,</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s">&#39;exact match on an owned file/dir.&#39;</span><span class="p">)</span>
-        <span class="n">restrict</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
-            <span class="s">&#39;--owns-re&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;ownsre&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;ownsre&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;like &quot;owns&quot; but using a regexp for matching.&#39;</span><span class="p">)</span>
-        <span class="n">restrict</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--maintainer&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;maintainer&#39;</span><span class="p">,</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s">&#39;comma-separated list of regexes to search for &#39;</span>
-                            <span class="s">&#39;maintainers.&#39;</span><span class="p">)</span>
-        <span class="n">restrict</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--maintainer-name&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;maintainer_name&#39;</span><span class="p">,</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s">&#39;comma-separated list of maintainer name regexes &#39;</span>
-                            <span class="s">&#39;to search for.&#39;</span><span class="p">)</span>
-        <span class="n">restrict</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--maintainer-email&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;maintainer_email&#39;</span><span class="p">,</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s">&#39;comma-separated list of maintainer email regexes &#39;</span>
-                            <span class="s">&#39;to search for.&#39;</span><span class="p">)</span>
-        <span class="n">restrict</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
-            <span class="s">&#39;--environment&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;environment&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;regexp search in environment.bz2.&#39;</span><span class="p">)</span>
-        <span class="n">restrict</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
-            <span class="s">&#39;--expr&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;expr&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;Boolean combinations of other restrictions, like &#39;</span>
-            <span class="s">&#39;</span><span class="se">\&#39;</span><span class="s">and(not(herd(&quot;python&quot;)), match(&quot;dev-python/*&quot;))</span><span class="se">\&#39;</span><span class="s">.&#39;</span>
-            <span class="s">&#39;WARNING: currently not completely reliable.&#39;</span><span class="p">,</span>
-            <span class="n">long_help</span><span class="o">=</span><span class="s">&#39;Boolean combinations of other restrictions, like &#39;</span>
-            <span class="s">&#39;``and(not(herd(&quot;python&quot;)), match(&quot;dev-python/*&quot;))``. &#39;</span>
-            <span class="s">&#39;*WARNING*: currently not completely reliable.&#39;</span>
-            <span class="p">)</span>
-        <span class="c"># XXX fix the negate stuff and remove that warning.</span>
-        <span class="n">restrict</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
-            <span class="s">&#39;--pkgset&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;callback&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;string&#39;</span><span class="p">,</span>
-            <span class="n">callback</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">config_append_callback</span><span class="p">,</span>
-            <span class="n">callback_args</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;pkgset&#39;</span><span class="p">,),</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;is inside a named set of packages (like &quot;world&quot;).&#39;</span><span class="p">)</span>
-
-        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="s">&#39;Output formatting&#39;</span><span class="p">)</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
-            <span class="s">&#39;--cpv&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;Print the category/package-version. This is done &#39;</span>
-            <span class="s">&#39;by default, this option re-enables this if another &#39;</span>
-            <span class="s">&#39;output option (like --contents) disabled it.&#39;</span><span class="p">)</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--atom&#39;</span><span class="p">,</span> <span class="s">&#39;-a&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-                          <span class="n">help</span><span class="o">=</span><span class="s">&#39;print =cat/pkg-3 instead of cat/pkg-3. &#39;</span>
-                          <span class="s">&#39;Implies --cpv, has no effect with --no-version&#39;</span><span class="p">)</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--attr&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">printable_attrs</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;Print this attribute&#39;s value (can be specified more than &quot;</span>
-            <span class="s">&quot;once).  --attr=help will get you the list of valid attrs.&quot;</span><span class="p">)</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--one-attr&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">printable_attrs</span><span class="p">,</span>
-                          <span class="n">help</span><span class="o">=</span><span class="s">&quot;Print one attribute. Suppresses other output.&quot;</span><span class="p">)</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--force-attr&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;attr&#39;</span><span class="p">,</span>
-                          <span class="n">help</span><span class="o">=</span><span class="s">&#39;Like --attr but accepts any string as &#39;</span>
-                          <span class="s">&#39;attribute name instead of only explicitly &#39;</span>
-                          <span class="s">&#39;supported names.&#39;</span><span class="p">)</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--force-one-attr&#39;</span><span class="p">,</span>
-                          <span class="n">help</span><span class="o">=</span><span class="s">&#39;Like --oneattr but accepts any string as &#39;</span>
-                          <span class="s">&#39;attribute name instead of only explicitly &#39;</span>
-                          <span class="s">&#39;supported names.&#39;</span><span class="p">)</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
-            <span class="s">&#39;--contents&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;list files owned by the package. Implies --vdb.&#39;</span><span class="p">)</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--verbose&#39;</span><span class="p">,</span> <span class="s">&#39;-v&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-                          <span class="n">help</span><span class="o">=</span><span class="s">&#39;human-readable multi-line output per package&#39;</span><span class="p">)</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--highlight-dep&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;atom&#39;</span><span class="p">,</span>
-                          <span class="n">help</span><span class="o">=</span><span class="s">&#39;highlight dependencies matching this atom&#39;</span><span class="p">)</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
-            <span class="s">&#39;--blame&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;shorthand for --attr maintainers --attr herds&#39;</span><span class="p">)</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
-            <span class="s">&#39;--print-revdep&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;atom&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;print what condition(s) trigger a dep.&#39;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_check_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vals</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-        <span class="c"># Interpret args with parens in them as --expr additions, the</span>
-        <span class="c"># rest as --match additions (since parens are invalid in --match).</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s">&#39;(&#39;</span> <span class="ow">in</span> <span class="n">arg</span><span class="p">:</span>
-                    <span class="n">vals</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parse_expression</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">vals</span><span class="o">.</span><span class="n">match</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parse_restrict</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">arg</span><span class="p">)))</span>
-        <span class="k">except</span> <span class="n">parserestrict</span><span class="o">.</span><span class="n">ParseError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-
-        <span class="c"># TODO come up with something better than &quot;match&quot; for this.</span>
-        <span class="k">for</span> <span class="n">highlight</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">highlight_dep</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">highlight</span><span class="p">,</span> <span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;highlight-dep must be an atom&#39;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">contents</span> <span class="ow">or</span> <span class="n">vals</span><span class="o">.</span><span class="n">owns</span> <span class="ow">or</span> <span class="n">vals</span><span class="o">.</span><span class="n">ownsre</span><span class="p">:</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">vdb</span> <span class="o">=</span> <span class="bp">True</span>
-
-        <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">atom</span><span class="p">:</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">cpv</span> <span class="o">=</span> <span class="bp">True</span>
-
-        <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">noversion</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">contents</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="s">&#39;both --no-version and --contents does not make sense.&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">min</span> <span class="ow">or</span> <span class="n">vals</span><span class="o">.</span><span class="n">max</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="s">&#39;--no-version with --min or --max does not make sense.&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">print_revdep</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="s">&#39;--print-revdep with --no-version does not make sense.&#39;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">blame</span><span class="p">:</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s">&#39;herds&#39;</span><span class="p">,</span> <span class="s">&#39;maintainers&#39;</span><span class="p">])</span>
-
-        <span class="k">if</span> <span class="s">&#39;all&#39;</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">:</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">printable_attrs</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span> <span class="o">==</span> <span class="s">&#39;all&#39;</span><span class="p">)</span>
-            <span class="c"># startswith is used to filter out --attr all --attr allmetadata, etc.</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;all&#39;</span><span class="p">)]</span>
-        <span class="k">elif</span> <span class="s">&#39;allmetadata&#39;</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">:</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata_attrs</span><span class="p">)</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;all&#39;</span><span class="p">)]</span>
-        <span class="k">elif</span> <span class="s">&#39;alldepends&#39;</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">:</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s">&#39;alldepends&#39;</span><span class="p">)</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s">&#39;depends&#39;</span><span class="p">,</span> <span class="s">&#39;rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;post_rdepends&#39;</span><span class="p">])</span>
-
-        <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-            <span class="c"># slice assignment to an empty range; behaves as an insertion.</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;repo&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="s">&#39;homepage&#39;</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">force_one_attr</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">one_attr</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="s">&#39;--one-attr and --force-one-attr are mutually exclusive.&#39;</span><span class="p">)</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">one_attr</span> <span class="o">=</span> <span class="n">vals</span><span class="o">.</span><span class="n">force_one_attr</span>
-
-        <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">one_attr</span> <span class="ow">and</span> <span class="n">vals</span><span class="o">.</span><span class="n">print_revdep</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s">&#39;--print-revdep with --force-one-attr or --one-attr does not &#39;</span>
-                <span class="s">&#39;make sense.&#39;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">repo</span> <span class="ow">and</span> <span class="p">(</span><span class="n">vals</span><span class="o">.</span><span class="n">vdb</span> <span class="ow">or</span> <span class="n">vals</span><span class="o">.</span><span class="n">all_repos</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s">&#39;--repo with --vdb, --all-repos makes no sense&#39;</span><span class="p">)</span>
-
-        <span class="c"># Get the vdb if we need it.</span>
-        <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">verbose</span> <span class="ow">and</span> <span class="n">vals</span><span class="o">.</span><span class="n">noversion</span><span class="p">:</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">vdbs</span> <span class="o">=</span> <span class="n">vals</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">vdb</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">vdbs</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="c"># Get repo(s) to operate on.</span>
-        <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">vdb</span><span class="p">:</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">repos</span> <span class="o">=</span> <span class="n">vals</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">vdb</span>
-        <span class="k">elif</span> <span class="n">vals</span><span class="o">.</span><span class="n">all_repos</span><span class="p">:</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">repos</span> <span class="o">=</span> <span class="n">vals</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">repos</span> <span class="o">+</span> <span class="n">vals</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">vdb</span>
-        <span class="k">elif</span> <span class="n">vals</span><span class="o">.</span><span class="n">repo</span><span class="p">:</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">repos</span> <span class="o">=</span> <span class="p">[</span><span class="n">vals</span><span class="o">.</span><span class="n">repo</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">repos</span> <span class="o">=</span> <span class="n">vals</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">repos</span>
-        <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">raw</span> <span class="ow">or</span> <span class="n">vals</span><span class="o">.</span><span class="n">virtuals</span><span class="p">:</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">repos</span> <span class="o">=</span> <span class="n">repo_utils</span><span class="o">.</span><span class="n">get_raw_repos</span><span class="p">(</span><span class="n">vals</span><span class="o">.</span><span class="n">repos</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">virtuals</span><span class="p">:</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">repos</span> <span class="o">=</span> <span class="n">repo_utils</span><span class="o">.</span><span class="n">get_virtual_repos</span><span class="p">(</span>
-                <span class="n">vals</span><span class="o">.</span><span class="n">repos</span><span class="p">,</span> <span class="n">vals</span><span class="o">.</span><span class="n">virtuals</span> <span class="o">==</span> <span class="s">&#39;only&#39;</span><span class="p">)</span>
-
-        <span class="n">revdep_pkgs</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="s">&#39;restrict_revdep_pkgs&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">revdep_pkgs</span><span class="p">:</span>
-            <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="c"># odd?  a bit; we allow strs to reuse parse_revdep</span>
-            <span class="k">for</span> <span class="n">atom_inst</span> <span class="ow">in</span> <span class="n">revdep_pkgs</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>
-                    <span class="n">l</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">itermatch</span><span class="p">(</span><span class="n">atom_inst</span><span class="p">))</span>
-            <span class="c"># have our pkgs; now build the restrict.</span>
-            <span class="n">r</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">FlatteningRestriction</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">,</span>
-                <span class="n">values</span><span class="o">.</span><span class="n">AnyMatch</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">FunctionRestriction</span><span class="p">(</span>
-                    <span class="n">partial</span><span class="p">(</span><span class="n">revdep_pkgs_match</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">l</span><span class="p">))</span>
-                <span class="p">)))</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">restrict_revdep_pkgs</span> <span class="o">=</span> <span class="n">packages</span><span class="o">.</span><span class="n">OrRestriction</span><span class="p">(</span>
-                <span class="o">*</span><span class="nb">list</span><span class="p">(</span>
-                    <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">(</span><span class="n">dep</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
-                        <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;depends&#39;</span><span class="p">,</span> <span class="s">&#39;rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;post_rdepends&#39;</span><span class="p">)))</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">restrict</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vals</span><span class="o">.</span><span class="n">restrict_revdep_pkgs</span><span class="p">)</span>
-
-        <span class="c"># Build up a restriction.</span>
-        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">PARSE_FUNCS</span><span class="p">:</span>
-            <span class="n">val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="c"># Omit the boolean.</span>
-                <span class="n">vals</span><span class="o">.</span><span class="n">restrict</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="k">elif</span> <span class="n">val</span><span class="p">:</span>
-                <span class="n">vals</span><span class="o">.</span><span class="n">restrict</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">packages</span><span class="o">.</span><span class="n">OrRestriction</span><span class="p">(</span><span class="o">*</span><span class="n">val</span><span class="p">))</span>
-
-        <span class="n">all_atoms</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c"># this should use options.get_pkgset, delayed loadup... potentially.</span>
-        <span class="k">for</span> <span class="n">pkgset</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">pkgset</span><span class="p">:</span>
-            <span class="n">atoms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pkgset</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">atoms</span><span class="p">:</span>
-                <span class="c"># This is currently an error because I am unsure what</span>
-                <span class="c"># it should do.</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Cannot use empty pkgsets&#39;</span><span class="p">)</span>
-            <span class="n">all_atoms</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">all_atoms</span><span class="p">:</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">restrict</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">packages</span><span class="o">.</span><span class="n">OrRestriction</span><span class="p">(</span><span class="o">*</span><span class="n">all_atoms</span><span class="p">))</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">vals</span><span class="o">.</span><span class="n">restrict</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;No restrictions specified.&#39;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vals</span><span class="o">.</span><span class="n">restrict</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="c"># Single restriction, omit the AndRestriction for a bit of speed</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">restrict</span> <span class="o">=</span> <span class="n">vals</span><span class="o">.</span><span class="n">restrict</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c"># &quot;And&quot; them all together</span>
-            <span class="n">vals</span><span class="o">.</span><span class="n">restrict</span> <span class="o">=</span> <span class="n">packages</span><span class="o">.</span><span class="n">AndRestriction</span><span class="p">(</span><span class="o">*</span><span class="n">vals</span><span class="o">.</span><span class="n">restrict</span><span class="p">)</span>
-
-        <span class="c"># finally, uniquify the attrs.</span>
-        <span class="n">vals</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">iter_stable_unique</span><span class="p">(</span><span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">))</span>
-
-        <span class="k">return</span> <span class="n">vals</span><span class="p">,</span> <span class="p">()</span>
-
-</div>
 <div class="viewcode-block" id="stringify_attr"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.stringify_attr">[docs]</a><span class="k">def</span> <span class="nf">stringify_attr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Grab a package attr and convert it to a string.&quot;&quot;&quot;</span>
     <span class="c"># config is currently unused but may affect display in the future.</span>
@@ -960,19 +416,393 @@
         <span class="n">out</span><span class="o">.</span><span class="n">autoline</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
 
+
+<span class="c"># note the usage of priorities throughout this argparse setup;</span>
+<span class="c"># priority 0 (commandline sets this):</span>
+<span class="c">#  basically, sort the config first (additions/removals/etc),</span>
+<span class="c"># priority 30:</span>
+<span class="c">#   sort the repositories</span>
+<span class="c"># priority 50:</span>
+<span class="c">#  sort the query args individually (potentially accessing the config) along</span>
+<span class="c">#  or lines for each (thus multiple revdep args are or&#39;d together)</span>
+<span class="c"># priority 90:</span>
+<span class="c">#  finally generate a final query object, a boolean and of all previous</span>
+<span class="c">#  queries.</span>
+<span class="c"># priority 100:</span>
+<span class="c">#  default priority for DelayedValue; anything else is setup then.</span>
 </div>
+<span class="n">argparser</span> <span class="o">=</span> <span class="n">commandline</span><span class="o">.</span><span class="n">mk_argparser</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&quot;pkgcore query interface&quot;</span><span class="p">)</span>
+
+<span class="n">repo_group</span> <span class="o">=</span> <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s">&#39;Repository matching options&#39;</span><span class="p">,</span>
+    <span class="s">&#39;options controlling which repositories to inspect.&#39;</span><span class="p">)</span>
+<span class="n">repo_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--raw&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;Without this switch your configuration affects what packages are &quot;</span>
+        <span class="s">&quot;visible (through masking) and what USE flags are applied to depends &quot;</span>
+        <span class="s">&quot;and fetchables.  With this switch your configuration values aren&#39;t &quot;</span>
+        <span class="s">&#39;used and you see the &quot;raw&quot; repository data.&#39;</span><span class="p">)</span>
+<span class="n">repo_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--virtuals&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;only&#39;</span><span class="p">,</span> <span class="s">&#39;disable&#39;</span><span class="p">),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;arg &quot;only&quot; for only matching virtuals, &quot;disable&quot; to not match &#39;</span>
+        <span class="s">&#39;virtuals at all. Default is to match everything.&#39;</span><span class="p">)</span>
+
+<span class="n">repo_mux</span> <span class="o">=</span> <span class="n">repo_group</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">()</span>
+
+<span class="n">repo_mux</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--repo&#39;</span><span class="p">,</span> <span class="n">config_type</span><span class="o">=</span><span class="s">&#39;repo&#39;</span><span class="p">,</span>
+    <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">StoreConfigObject</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">29</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;repo to use (default from domain if omitted).&#39;</span><span class="p">)</span>
+<span class="n">repo_mux</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--vdb&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;match only vdb (installed) packages.&#39;</span><span class="p">)</span>
+<span class="n">repo_mux</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--all-repos&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;search all repos, vdb included&#39;</span><span class="p">)</span>
+
+<span class="nd">@argparser.bind_delayed_default</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="s">&#39;repos&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="setup_repos"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.setup_repos">[docs]</a><span class="k">def</span> <span class="nf">setup_repos</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+    <span class="c"># Get the vdb if we need it.  This shouldn&#39;t be here...</span>
+    <span class="k">if</span> <span class="n">namespace</span><span class="o">.</span><span class="n">verbose</span> <span class="ow">and</span> <span class="n">namespace</span><span class="o">.</span><span class="n">noversion</span><span class="p">:</span>
+        <span class="n">namespace</span><span class="o">.</span><span class="n">vdbs</span><span class="p">,</span> <span class="n">namespace</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">vdb</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">namespace</span><span class="o">.</span><span class="n">vdbs</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">if</span> <span class="n">namespace</span><span class="o">.</span><span class="n">contents</span> <span class="ow">or</span> <span class="n">namespace</span><span class="o">.</span><span class="n">_owns</span> <span class="ow">or</span> <span class="n">namespace</span><span class="o">.</span><span class="n">_owns_re</span><span class="p">:</span>
+        <span class="n">namespace</span><span class="o">.</span><span class="n">vdb</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="c"># Get repo(s) to operate on.</span>
+    <span class="k">if</span> <span class="n">namespace</span><span class="o">.</span><span class="n">vdb</span><span class="p">:</span>
+        <span class="n">repos</span> <span class="o">=</span> <span class="n">namespace</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">vdb</span>
+    <span class="k">elif</span> <span class="n">namespace</span><span class="o">.</span><span class="n">all_repos</span><span class="p">:</span>
+        <span class="n">repos</span> <span class="o">=</span> <span class="n">namespace</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">repos</span> <span class="o">+</span> <span class="n">namespace</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">vdb</span>
+    <span class="k">elif</span> <span class="n">namespace</span><span class="o">.</span><span class="n">repo</span><span class="p">:</span>
+        <span class="n">repos</span> <span class="o">=</span> <span class="p">[</span><span class="n">namespace</span><span class="o">.</span><span class="n">repo</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">repos</span> <span class="o">=</span> <span class="n">namespace</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">repos</span>
+
+    <span class="k">if</span> <span class="n">namespace</span><span class="o">.</span><span class="n">raw</span> <span class="ow">or</span> <span class="n">namespace</span><span class="o">.</span><span class="n">virtuals</span><span class="p">:</span>
+        <span class="n">repos</span> <span class="o">=</span> <span class="n">repo_utils</span><span class="o">.</span><span class="n">get_raw_repos</span><span class="p">(</span><span class="n">repos</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">namespace</span><span class="o">.</span><span class="n">virtuals</span><span class="p">:</span>
+        <span class="n">repos</span> <span class="o">=</span> <span class="n">repo_utils</span><span class="o">.</span><span class="n">get_virtual_repos</span><span class="p">(</span>
+            <span class="n">repos</span><span class="p">,</span> <span class="n">namespace</span><span class="o">.</span><span class="n">virtuals</span> <span class="o">==</span> <span class="s">&#39;only&#39;</span><span class="p">)</span>
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">repos</span><span class="p">)</span>
+</div>
+<span class="n">query</span> <span class="o">=</span> <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s">&#39;Package matching options&#39;</span><span class="p">,</span>
+    <span class="s">&#39;Each option specifies a restriction packages must match.  &#39;</span>
+    <span class="s">&#39;Specifying the same option twice means &quot;or&quot; unless stated &#39;</span>
+    <span class="s">&#39;otherwise. Specifying multiple types of restrictions means &quot;and&quot; &#39;</span>
+    <span class="s">&#39;unless stated otherwise.&#39;</span><span class="p">)</span>
+
+<span class="c"># for queries, use add_query always; this has the bookkeeping</span>
+<span class="c"># necessary to ensure the sub-query gets bound into the</span>
+<span class="c"># finalized query</span>
+<span class="n">_query_items</span> <span class="o">=</span> <span class="p">[]</span>
+<div class="viewcode-block" id="add_query"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.add_query">[docs]</a><span class="k">def</span> <span class="nf">add_query</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+    <span class="n">_query_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kwds</span><span class="p">[</span><span class="s">&quot;dest&quot;</span><span class="p">])</span>
+    <span class="n">kwds</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s">&#39;final_priority&#39;</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="n">kwds</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s">&#39;default&#39;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">kwds</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;suppress_nargs&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">kwds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;action&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="o">!=</span> <span class="s">&#39;append&#39;</span><span class="p">:</span>
+            <span class="n">kwds</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s">&#39;nargs&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">commandline</span><span class="o">.</span><span class="n">make_query</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="bind_add_query"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.bind_add_query">[docs]</a><span class="k">def</span> <span class="nf">bind_add_query</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">functor</span><span class="p">):</span>
+        <span class="n">kwds</span><span class="p">[</span><span class="n">kwds</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;bind&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">functor</span>
+        <span class="n">add_query</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">functor</span>
+    <span class="k">return</span> <span class="n">f</span>
+</div>
+<span class="n">add_query</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s">&#39;*&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;matches&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;extended atom matching of pkgs&quot;</span><span class="p">)</span>
+<span class="n">add_query</span><span class="p">(</span><span class="s">&#39;--all&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append_const&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;all&#39;</span><span class="p">,</span>
+    <span class="n">const</span><span class="o">=</span><span class="n">packages</span><span class="o">.</span><span class="n">AlwaysTrue</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">suppress_nargs</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;Match all packages (equivalent to &quot;pquery *&quot;).  &#39;</span>
+        <span class="s">&#39;If no query options are specified, this option is enabled.&#39;</span><span class="p">)</span>
+<span class="n">add_query</span><span class="p">(</span><span class="s">&#39;--has-use&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;has_use&#39;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">parserestrict</span><span class="o">.</span><span class="n">comma_separated_containment</span><span class="p">(</span><span class="s">&#39;iuse&#39;</span><span class="p">),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;Exact string match on a USE flag.&#39;</span><span class="p">)</span>
+<span class="n">add_query</span><span class="p">(</span><span class="s">&#39;--license&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;license&#39;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">parserestrict</span><span class="o">.</span><span class="n">comma_separated_containment</span><span class="p">(</span><span class="s">&#39;license&#39;</span><span class="p">),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;exact match on a license.&#39;</span><span class="p">)</span>
+<span class="n">add_query</span><span class="p">(</span><span class="s">&#39;--herd&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;herd&#39;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">parserestrict</span><span class="o">.</span><span class="n">comma_separated_containment</span><span class="p">(</span><span class="s">&#39;herds&#39;</span><span class="p">),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;exact match on a herd.&#39;</span><span class="p">)</span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--revdep&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">Expansion</span><span class="p">,</span>
+    <span class="n">subst</span><span class="o">=</span><span class="p">((</span><span class="s">&#39;--restrict-revdep&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="si">%(0)s</span><span class="s">&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;--print-revdep&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="si">%(0)s</span><span class="s">&#39;</span><span class="p">)),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;shorthand for --restrict-revdep atom --print-revdep atom. &#39;</span>
+        <span class="s">&#39;--print-revdep is slow, use just --restrict-revdep if you just &#39;</span>
+        <span class="s">&#39;need a list.&#39;</span><span class="p">)</span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--revdep-pkgs&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">Expansion</span><span class="p">,</span>
+    <span class="n">subst</span><span class="o">=</span><span class="p">((</span><span class="s">&#39;--restrict-revdep-pkgs&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="si">%(0)s</span><span class="s">&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;--print-revdep&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="si">%(0)s</span><span class="s">&#39;</span><span class="p">)),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;shorthand for --restrict-revdep-pkgs atom &#39;</span>
+        <span class="s">&#39;--print-revdep atom. --print-revdep is slow, use just &#39;</span>
+        <span class="s">&#39;--restrict-revdep if you just need a list.&#39;</span><span class="p">)</span>
+
+<span class="nd">@bind_add_query</span><span class="p">(</span><span class="s">&#39;--restrict-revdep&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="p">[],</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;restrict_revdep&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;Dependency on an atom.&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="parse_revdep"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.parse_revdep">[docs]</a><span class="k">def</span> <span class="nf">parse_revdep</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Value should be an atom, packages with deps intersecting that match.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">targetatom</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">atom</span><span class="o">.</span><span class="n">MalformedAtom</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">parserestrict</span><span class="o">.</span><span class="n">ParseError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+    <span class="n">val_restrict</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">FlatteningRestriction</span><span class="p">(</span>
+        <span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">,</span>
+        <span class="n">values</span><span class="o">.</span><span class="n">AnyMatch</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">FunctionRestriction</span><span class="p">(</span><span class="n">targetatom</span><span class="o">.</span><span class="n">intersects</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">OrRestriction</span><span class="p">(</span><span class="o">*</span><span class="nb">list</span><span class="p">(</span>
+            <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">(</span><span class="n">dep</span><span class="p">,</span> <span class="n">val_restrict</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;depends&#39;</span><span class="p">,</span> <span class="s">&#39;rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;post_rdepends&#39;</span><span class="p">)))</span>
+</div>
+<span class="k">def</span> <span class="nf">_revdep_pkgs_match</span><span class="p">(</span><span class="n">pkgs</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pkg</span><span class="p">)</span> <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">pkgs</span><span class="p">)</span>
+
+<span class="nd">@bind_add_query</span><span class="p">(</span><span class="s">&#39;--restrict-revdep-pkgs&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="p">[],</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;restrict_revdep_pkgs&#39;</span><span class="p">,</span>
+    <span class="n">bind</span><span class="o">=</span><span class="s">&#39;final_converter&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;Dependency on pkgs that match a specific atom.&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="revdep_pkgs_finalize"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.revdep_pkgs_finalize">[docs]</a><span class="k">def</span> <span class="nf">revdep_pkgs_finalize</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">namespace</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sequence</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">atom_inst</span> <span class="ow">in</span> <span class="n">sequence</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="n">namespace</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">itermatch</span><span class="p">(</span><span class="n">atom_inst</span><span class="p">))</span>
+    <span class="c"># have our pkgs; now build the restrict.</span>
+    <span class="n">any_restrict</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">AnyMatch</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">FunctionRestriction</span><span class="p">(</span>
+            <span class="n">partial</span><span class="p">(</span><span class="n">_revdep_pkgs_match</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">l</span><span class="p">))))</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">FlatteningRestriction</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">,</span> <span class="n">any_restrict</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">(</span><span class="n">dep</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;depends&#39;</span><span class="p">,</span> <span class="s">&#39;rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;post_rdepends&#39;</span><span class="p">))</span>
+</div>
+<span class="nd">@bind_add_query</span><span class="p">(</span><span class="s">&#39;--description&#39;</span><span class="p">,</span> <span class="s">&#39;-S&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;description&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;regexp search on description and longdescription.&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="parse_description"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.parse_description">[docs]</a><span class="k">def</span> <span class="nf">parse_description</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Value is used as a regexp matching description or longdescription.&quot;&quot;&quot;</span>
+    <span class="n">matcher</span> <span class="o">=</span> <span class="n">mk_strregex</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">OrRestriction</span><span class="p">(</span><span class="o">*</span><span class="nb">list</span><span class="p">(</span>
+            <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">matcher</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="s">&#39;longdescription&#39;</span><span class="p">)))</span>
+</div>
+<span class="nd">@bind_add_query</span><span class="p">(</span><span class="s">&#39;--owns&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;owns&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;exact match on an owned file/dir.&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="parse_owns"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.parse_owns">[docs]</a><span class="k">def</span> <span class="nf">parse_owns</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="s">&quot;Value is a comma delimited set of paths to search contents for&quot;</span>
+    <span class="c"># yes it would be easier to do this without using parserestrict-</span>
+    <span class="c"># we use defer to using it for the sake of a common parsing</span>
+    <span class="c"># exposed to the commandline however.</span>
+    <span class="c"># the problem here is we don&#39;t want to trigger fs* module loadup</span>
+    <span class="c"># unless needed- hence this function.</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">parserestrict</span><span class="o">.</span><span class="n">comma_separated_containment</span><span class="p">(</span><span class="s">&#39;contents&#39;</span><span class="p">,</span>
+        <span class="n">values_kls</span><span class="o">=</span><span class="n">contents_module</span><span class="o">.</span><span class="n">contentsSet</span><span class="p">,</span>
+        <span class="n">token_kls</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="n">fs_module</span><span class="o">.</span><span class="n">fsBase</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="bp">False</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</div>
+<span class="nd">@bind_add_query</span><span class="p">(</span><span class="s">&#39;--owns-re&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;owns_re&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;like &quot;owns&quot; but using a regexp for matching.&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="parse_ownsre"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.parse_ownsre">[docs]</a><span class="k">def</span> <span class="nf">parse_ownsre</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Value is a regexp matched against the string form of an fs object.</span>
+
+<span class="sd">    This means the object kind is prepended to the path the regexp has</span>
+<span class="sd">    to match.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">(</span><span class="s">&#39;contents&#39;</span><span class="p">,</span>
+        <span class="n">values</span><span class="o">.</span><span class="n">AnyMatch</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">GetAttrRestriction</span><span class="p">(</span>
+        <span class="s">&#39;location&#39;</span><span class="p">,</span> <span class="n">mk_strregex</span><span class="p">(</span><span class="n">value</span><span class="p">))))</span>
+</div>
+<span class="nd">@bind_add_query</span><span class="p">(</span><span class="s">&#39;--maintainer&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;maintainer&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;comma-separated list of regexes to search for &#39;</span>
+        <span class="s">&#39;maintainers.&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="parse_maintainer"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.parse_maintainer">[docs]</a><span class="k">def</span> <span class="nf">parse_maintainer</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Case insensitive Regex match on the combined &#39;name &lt;email&gt;&#39; bit of</span>
+<span class="sd">    metadata.xml&#39;s maintainer data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">(</span><span class="s">&#39;maintainers&#39;</span><span class="p">,</span>
+        <span class="n">values</span><span class="o">.</span><span class="n">AnyMatch</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">UnicodeConversion</span><span class="p">(</span>
+        <span class="n">mk_strregex</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="bp">False</span><span class="p">))))</span>
+</div>
+<span class="nd">@bind_add_query</span><span class="p">(</span><span class="s">&#39;--maintainer-name&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;maintainer_name&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;comma-separated list of maintainer name regexes to search for.&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="parse_maintainer_name"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.parse_maintainer_name">[docs]</a><span class="k">def</span> <span class="nf">parse_maintainer_name</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Case insensitive Regex match on the name bit of metadata.xml&#39;s</span>
+<span class="sd">    maintainer data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">(</span><span class="s">&#39;maintainers&#39;</span><span class="p">,</span>
+        <span class="n">values</span><span class="o">.</span><span class="n">AnyMatch</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">GetAttrRestriction</span><span class="p">(</span>
+        <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">mk_strregex</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="bp">False</span><span class="p">))))</span>
+</div>
+<span class="nd">@bind_add_query</span><span class="p">(</span><span class="s">&#39;--maintainer-email&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;maintainer_email&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;comma-separated list of maintainer email regexes to search for.&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="parse_maintainer_email"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.parse_maintainer_email">[docs]</a><span class="k">def</span> <span class="nf">parse_maintainer_email</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Case insensitive Regex match on the email bit of metadata.xml&#39;s</span>
+<span class="sd">    maintainer data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">(</span>
+        <span class="s">&#39;maintainers&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">.</span><span class="n">AnyMatch</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">GetAttrRestriction</span><span class="p">(</span>
+                <span class="s">&#39;email&#39;</span><span class="p">,</span> <span class="n">mk_strregex</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+                <span class="n">case_sensitive</span><span class="o">=</span><span class="bp">False</span><span class="p">))))</span>
+</div>
+<span class="nd">@bind_add_query</span><span class="p">(</span><span class="s">&#39;--environment&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;environment&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;regexp search in environment.bz2.&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="parse_envmatch"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.parse_envmatch">[docs]</a><span class="k">def</span> <span class="nf">parse_envmatch</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Apply a regexp to the environment.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">(</span>
+        <span class="s">&#39;environment&#39;</span><span class="p">,</span> <span class="n">DataSourceRestriction</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">AnyMatch</span><span class="p">(</span>
+                <span class="n">mk_strregex</span><span class="p">(</span><span class="n">value</span><span class="p">))))</span>
+
+<span class="c"># note the type=str; this is to suppress the default</span>
+<span class="c"># fallback of using match parsing.</span></div>
+<span class="n">add_query</span><span class="p">(</span><span class="s">&#39;--pkgset&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;pkgset&#39;</span><span class="p">,</span>
+    <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">StoreConfigObject</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+    <span class="n">priority</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span>
+    <span class="n">config_type</span><span class="o">=</span><span class="s">&#39;pkgset&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;find packages that match the given package set (world for example).&#39;</span><span class="p">)</span>
+
+<span class="c"># add a fallback if no restrictions are specified.</span>
+<span class="n">_query_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;_fallback_all&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_add_all_if_needed</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="p">[</span><span class="n">packages</span><span class="o">.</span><span class="n">AlwaysTrue</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">query_attr</span> <span class="ow">in</span> <span class="n">_query_items</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="s">&#39;_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">query_attr</span><span class="p">,),</span> <span class="bp">None</span><span class="p">):</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">break</span>
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+
+<span class="n">argparser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">_fallback_all</span><span class="o">=</span>
+    <span class="n">commandline</span><span class="o">.</span><span class="n">DelayedValue</span><span class="p">(</span><span class="n">_add_all_if_needed</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">89</span><span class="p">))</span>
+
+<span class="n">argparser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">query</span><span class="o">=</span>
+    <span class="n">commandline</span><span class="o">.</span><span class="n">BooleanQuery</span><span class="p">(</span><span class="n">_query_items</span><span class="p">,</span> <span class="n">klass_type</span><span class="o">=</span><span class="s">&#39;and&#39;</span><span class="p">,</span>
+        <span class="n">priority</span><span class="o">=</span><span class="mi">90</span><span class="p">))</span>
+
+
+<span class="n">output</span> <span class="o">=</span> <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s">&#39;Output formatting&#39;</span><span class="p">)</span>
+
+<span class="n">output</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--early-out&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;earlyout&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;stop when first match is found.&#39;</span><span class="p">)</span>
+<span class="n">output_mux</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">()</span>
+<span class="n">output_mux</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--no-version&#39;</span><span class="p">,</span> <span class="s">&#39;-n&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">dest</span><span class="o">=</span><span class="s">&#39;noversion&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;collapse multiple matching versions together&#39;</span><span class="p">)</span>
+<span class="n">output_mux</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--min&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;show only the lowest version for each package.&#39;</span><span class="p">)</span>
+<span class="n">output_mux</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--max&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;show only the highest version for each package.&#39;</span><span class="p">)</span>
+<span class="k">del</span> <span class="n">output_mux</span>
+<span class="n">output</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--cpv&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;Print the category/package-version. This is done &#39;</span>
+    <span class="s">&#39;by default, this option re-enables this if another &#39;</span>
+    <span class="s">&#39;output option (like --contents) disabled it.&#39;</span><span class="p">)</span>
+<span class="n">output</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--atom&#39;</span><span class="p">,</span> <span class="s">&#39;-a&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">Expansion</span><span class="p">,</span>
+    <span class="n">subst</span><span class="o">=</span><span class="p">((</span><span class="s">&#39;--cpv&#39;</span><span class="p">,),),</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;print =cat/pkg-3 instead of cat/pkg-3. &#39;</span>
+        <span class="s">&#39;Implies --cpv, has no effect with --no-version&#39;</span><span class="p">)</span>
+<span class="n">output</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--attr&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">printable_attrs</span><span class="p">,</span>
+    <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;attribute&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;Print this attribute&#39;s value (can be specified more than &quot;</span>
+    <span class="s">&quot;once).  --attr=help will get you the list of valid attrs.&quot;</span><span class="p">)</span>
+<span class="n">output</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--force-attr&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;attr&#39;</span><span class="p">,</span>
+    <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;attribute&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;Like --attr but accepts any string as &#39;</span>
+    <span class="s">&#39;attribute name instead of only explicitly &#39;</span>
+    <span class="s">&#39;supported names.&#39;</span><span class="p">)</span>
+<span class="n">one_attr_mux</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">()</span>
+<span class="n">one_attr_mux</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--one-attr&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">printable_attrs</span><span class="p">,</span>
+    <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;attribute&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;Print one attribute. Suppresses other output.&quot;</span><span class="p">)</span>
+<span class="n">one_attr_mux</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--force-one-attr&#39;</span><span class="p">,</span>
+    <span class="n">metavar</span><span class="o">=</span><span class="s">&#39;attribute&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;Like --one-attr but accepts any string as &#39;</span>
+    <span class="s">&#39;attribute name instead of only explicitly &#39;</span>
+    <span class="s">&#39;supported names.&#39;</span><span class="p">)</span>
+<span class="k">del</span> <span class="n">one_attr_mux</span>
+<span class="n">output</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--contents&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;list files owned by the package. Implies --vdb.&#39;</span><span class="p">)</span>
+<span class="n">output</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--verbose&#39;</span><span class="p">,</span> <span class="s">&#39;-v&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;human-readable multi-line output per package&#39;</span><span class="p">)</span>
+<span class="n">output</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--highlight-dep&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;highlight dependencies matching this atom&#39;</span><span class="p">)</span>
+<span class="n">output</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--blame&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">Expansion</span><span class="p">,</span>
+    <span class="n">subst</span><span class="o">=</span><span class="p">((</span><span class="s">&quot;--attr&quot;</span><span class="p">,</span> <span class="s">&quot;maintainers&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s">&quot;--attr&quot;</span><span class="p">,</span> <span class="s">&quot;herds&quot;</span><span class="p">)),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;shorthand for --attr maintainers --attr herds&#39;</span><span class="p">)</span>
+<span class="n">output</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--print-revdep&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;print what condition(s) trigger a dep.&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_Fail</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<div class="viewcode-block" id="mangle_values"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.mangle_values">[docs]</a><span class="k">def</span> <span class="nf">mangle_values</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">error_out</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="n">err</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">_Fail</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">noversion</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">contents</span><span class="p">:</span>
+            <span class="n">error_out</span><span class="p">(</span>
+                <span class="s">&#39;both --no-version and --contents does not make sense.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">min</span> <span class="ow">or</span> <span class="n">vals</span><span class="o">.</span><span class="n">max</span><span class="p">:</span>
+            <span class="n">error_out</span><span class="p">(</span>
+                <span class="s">&#39;--no-version with --min or --max does not make sense.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">print_revdep</span><span class="p">:</span>
+            <span class="n">error_out</span><span class="p">(</span>
+                <span class="s">&#39;--print-revdep with --no-version does not make sense.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s">&#39;all&#39;</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">:</span>
+        <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">printable_attrs</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span> <span class="o">==</span> <span class="s">&#39;all&#39;</span><span class="p">)</span>
+        <span class="c"># startswith is used to filter out --attr all --attr allmetadata, etc.</span>
+        <span class="n">vals</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;all&#39;</span><span class="p">)]</span>
+    <span class="k">elif</span> <span class="s">&#39;allmetadata&#39;</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">:</span>
+        <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata_attrs</span><span class="p">)</span>
+        <span class="n">vals</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;all&#39;</span><span class="p">)]</span>
+    <span class="k">elif</span> <span class="s">&#39;alldepends&#39;</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">:</span>
+        <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s">&#39;alldepends&#39;</span><span class="p">)</span>
+        <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s">&#39;depends&#39;</span><span class="p">,</span> <span class="s">&#39;rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;post_rdepends&#39;</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+        <span class="c"># slice assignment to an empty range; behaves as an insertion.</span>
+        <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;repo&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="s">&#39;homepage&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">one_attr</span> <span class="ow">and</span> <span class="n">vals</span><span class="o">.</span><span class="n">print_revdep</span><span class="p">:</span>
+        <span class="n">error_out</span><span class="p">(</span>
+            <span class="s">&#39;--print-revdep with --force-one-attr or --one-attr does not &#39;</span>
+            <span class="s">&#39;make sense.&#39;</span><span class="p">)</span>
+
+    <span class="c"># finally, uniquify the attrs.</span>
+    <span class="n">vals</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">iter_stable_unique</span><span class="p">(</span><span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">vals</span><span class="p">,</span> <span class="p">()</span>
+
+</div>
+<span class="nd">@argparser.bind_main_func</span>
 <div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Run a query.&quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">mangle_values</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">_Fail</span><span class="p">:</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>
             <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;repo: </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">repo</span><span class="p">,))</span>
-        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;restrict: </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">restrict</span><span class="p">,))</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;restrict: </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">query</span><span class="p">,))</span>
         <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
 
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">query</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">pkgs</span> <span class="ow">in</span> <span class="n">pkgutils</span><span class="o">.</span><span class="n">groupby_pkg</span><span class="p">(</span>
-                <span class="n">repo</span><span class="o">.</span><span class="n">itermatch</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">restrict</span><span class="p">,</span> <span class="n">sorter</span><span class="o">=</span><span class="nb">sorted</span><span class="p">)):</span>
+                <span class="n">repo</span><span class="o">.</span><span class="n">itermatch</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">sorter</span><span class="o">=</span><span class="nb">sorted</span><span class="p">)):</span>
                 <span class="n">pkgs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pkgs</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">noversion</span><span class="p">:</span>
                     <span class="n">print_packages_noversion</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">pkgs</span><span class="p">)</span>
@@ -997,7 +827,7 @@
                 <span class="k">return</span>
             <span class="n">err</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;caught an exception!&#39;</span><span class="p">)</span>
             <span class="n">err</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;repo: </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">repo</span><span class="p">,))</span>
-            <span class="n">err</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;restrict: </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">restrict</span><span class="p">,))</span>
+            <span class="n">err</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;restrict: </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">query</span><span class="p">,))</span>
             <span class="k">raise</span></div>
 </pre></div>
 
