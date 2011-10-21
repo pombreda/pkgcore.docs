@@ -73,10 +73,11 @@
 
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
     <span class="s">&#39;snakeoil.data_source:local_source&#39;</span><span class="p">,</span>
-    <span class="s">&#39;pkgcore.ebuild:cpv,atom&#39;</span><span class="p">,</span>
+    <span class="s">&#39;pkgcore.ebuild:cpv,atom,repo_objs&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.ebuild.eapi:get_eapi&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.repository:util&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.restrictions:packages&#39;</span><span class="p">,</span>
+    <span class="s">&#39;pkgcore.fs.livefs:iter_scan&#39;</span><span class="p">,</span>
     <span class="s">&#39;snakeoil:mappings&#39;</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -92,17 +93,46 @@
 
 </div>
 <span class="k">def</span> <span class="nf">load_property</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">handler</span><span class="o">=</span><span class="n">iter_read_bash</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">(),</span>
-    <span class="n">read_func</span><span class="o">=</span><span class="n">readlines_utf8</span><span class="p">):</span>
+    <span class="n">read_func</span><span class="o">=</span><span class="n">readlines_utf8</span><span class="p">,</span> <span class="n">allow_recurse</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
         <span class="n">f2</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">jit_attr_named</span><span class="p">(</span><span class="s">&#39;_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">__name__</span><span class="p">,))</span>
         <span class="k">return</span> <span class="n">f2</span><span class="p">(</span><span class="n">currying</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">_load_and_invoke</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">fallback</span><span class="p">,</span>
-            <span class="n">read_func</span><span class="p">))</span>
+            <span class="n">read_func</span><span class="p">,</span> <span class="n">allow_recurse</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">f</span>
 
-<span class="k">def</span> <span class="nf">_load_and_invoke</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">fallback</span><span class="p">,</span> <span class="n">read_func</span><span class="p">,</span> <span class="bp">self</span><span class="p">):</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_load_and_invoke</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">fallback</span><span class="p">,</span> <span class="n">read_func</span><span class="p">,</span>
+    <span class="n">allow_recurse</span><span class="p">,</span> <span class="bp">self</span><span class="p">):</span>
+    <span class="n">profile_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">read_func</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">profile_path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pms_strict</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">allow_recurse</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">read_func</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">errno</span><span class="o">.</span><span class="n">EISDIR</span> <span class="o">==</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span><span class="p">:</span>
+                    <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">ProfileError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span>
+                        <span class="s">&quot;path is a directory, but this profile is PMS format- &quot;</span>
+                        <span class="s">&quot;directories aren&#39;t allowed.  See layout.conf profile-format &quot;</span>
+                        <span class="s">&quot;to enable directory support&quot;</span><span class="p">))</span>
+                <span class="k">raise</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">profile_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">profile_path</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">files</span> <span class="o">=</span> <span class="n">iter_scan</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+                <span class="n">files</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">location</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">is_reg</span><span class="p">)</span>
+                <span class="n">files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span> <span class="o">!=</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span><span class="p">:</span>
+                    <span class="k">raise</span>
+                <span class="n">files</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">files</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">location</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>
+                    <span class="n">filename</span> <span class="o">=</span> <span class="n">location</span><span class="p">[</span><span class="n">profile_len</span><span class="p">:]</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">read_func</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">))</span>
+
         <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fallback</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">handler</span><span class="p">:</span>
@@ -114,7 +144,7 @@
         <span class="c"># no point in wrapping/throwing..</span>
         <span class="k">raise</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">ProfileError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+        <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">ProfileError</span><span class="p">(</span><span class="n">profile_path</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
 
 
 <span class="n">_make_incrementals_dict</span> <span class="o">=</span> <span class="n">currying</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">IncrementalsDict</span><span class="p">,</span> <span class="n">const</span><span class="o">.</span><span class="n">incrementals</span><span class="p">)</span>
@@ -135,10 +165,11 @@
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">caching</span><span class="o">.</span><span class="n">WeakInstMeta</span>
     <span class="n">__inst_caching__</span> <span class="o">=</span> <span class="bp">True</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">pms_strict</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">ProfileError</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;profile doesn&#39;t exist&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pms_strict</span> <span class="o">=</span> <span class="n">pms_strict</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s">&quot;Profile at </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span>
@@ -171,12 +202,16 @@
             <span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">neg_vis</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">vis</span><span class="p">)))</span>
 </div>
     <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;parent&quot;</span><span class="p">)</span>
-<div class="viewcode-block" id="ProfileNode.parents"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.parents">[docs]</a>    <span class="k">def</span> <span class="nf">parents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="n">kls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;parent_node_kls&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">kls</span><span class="p">(</span><span class="n">abspath</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">x</span><span class="p">)))</span>
+<div class="viewcode-block" id="ProfileNode.parent_paths"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.parent_paths">[docs]</a>    <span class="k">def</span> <span class="nf">parent_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">abspath</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
             <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">)</span>
 </div>
-    <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;package.provided&quot;</span><span class="p">)</span>
+    <span class="nd">@klass.jit_attr</span>
+<div class="viewcode-block" id="ProfileNode.parents"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.parents">[docs]</a>    <span class="k">def</span> <span class="nf">parents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">kls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;parent_node_kls&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">kls</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent_paths</span><span class="p">)</span>
+</div>
+    <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;package.provided&quot;</span><span class="p">,</span> <span class="n">allow_recurse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 <div class="viewcode-block" id="ProfileNode.pkg_provided"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.pkg_provided">[docs]</a>    <span class="k">def</span> <span class="nf">pkg_provided</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">split_negations</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">cpv</span><span class="o">.</span><span class="n">versioned_CPV</span><span class="p">)</span>
 </div>
@@ -190,7 +225,7 @@
             <span class="n">d</span><span class="p">[</span><span class="n">cpv</span><span class="o">.</span><span class="n">CPV</span><span class="o">.</span><span class="n">unversioned</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">package</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eapi_atom</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
 </div>
-    <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;package.mask&quot;</span><span class="p">)</span>
+    <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;package.mask&quot;</span><span class="p">,</span> <span class="n">allow_recurse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 <div class="viewcode-block" id="ProfileNode.masks"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.masks">[docs]</a>    <span class="k">def</span> <span class="nf">masks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">split_negations</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eapi_atom</span><span class="p">)</span>
 </div>
@@ -223,15 +258,15 @@
         <span class="k">return</span> <span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">_build_cp_atom_payload</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="n">k</span><span class="p">)))</span>
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
 
-    <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;package.use.force&quot;</span><span class="p">)</span>
+    <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;package.use.force&quot;</span><span class="p">,</span> <span class="n">allow_recurse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 <div class="viewcode-block" id="ProfileNode.pkg_use_force"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.pkg_use_force">[docs]</a>    <span class="k">def</span> <span class="nf">pkg_use_force</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_package_use</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 </div>
-    <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;package.use.mask&quot;</span><span class="p">)</span>
+    <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;package.use.mask&quot;</span><span class="p">,</span> <span class="n">allow_recurse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 <div class="viewcode-block" id="ProfileNode.pkg_use_mask"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.pkg_use_mask">[docs]</a>    <span class="k">def</span> <span class="nf">pkg_use_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_package_use</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 </div>
-    <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;package.use&quot;</span><span class="p">)</span>
+    <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;package.use&quot;</span><span class="p">,</span> <span class="n">allow_recurse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 <div class="viewcode-block" id="ProfileNode.pkg_use"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.pkg_use">[docs]</a>    <span class="k">def</span> <span class="nf">pkg_use</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">ChunkedDataDict</span><span class="p">()</span>
         <span class="n">c</span><span class="o">.</span><span class="n">update_from_stream</span><span class="p">(</span>
@@ -239,7 +274,7 @@
         <span class="n">c</span><span class="o">.</span><span class="n">freeze</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">c</span>
 </div>
-    <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;use.force&quot;</span><span class="p">)</span>
+    <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;use.force&quot;</span><span class="p">,</span> <span class="n">allow_recurse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 <div class="viewcode-block" id="ProfileNode.forced_use"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.forced_use">[docs]</a>    <span class="k">def</span> <span class="nf">forced_use</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">ChunkedDataDict</span><span class="p">()</span>
         <span class="n">neg</span><span class="p">,</span> <span class="n">pos</span> <span class="o">=</span> <span class="n">split_negations</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -250,7 +285,7 @@
         <span class="n">c</span><span class="o">.</span><span class="n">freeze</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">c</span>
 </div>
-    <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;use.mask&quot;</span><span class="p">)</span>
+    <span class="nd">@load_property</span><span class="p">(</span><span class="s">&quot;use.mask&quot;</span><span class="p">,</span> <span class="n">allow_recurse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 <div class="viewcode-block" id="ProfileNode.masked_use"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.masked_use">[docs]</a>    <span class="k">def</span> <span class="nf">masked_use</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">ChunkedDataDict</span><span class="p">()</span>
         <span class="n">neg</span><span class="p">,</span> <span class="n">pos</span> <span class="o">=</span> <span class="n">split_negations</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -293,6 +328,41 @@
     <span class="n">eapi</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&quot;eapi_obj.magic&quot;</span><span class="p">)</span>
     <span class="n">eapi_atom</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&quot;eapi_obj.atom_kls&quot;</span><span class="p">)</span>
 
+    <span class="nd">@klass.jit_attr</span>
+<div class="viewcode-block" id="ProfileNode.repoconfig"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.ProfileNode.repoconfig">[docs]</a>    <span class="k">def</span> <span class="nf">repoconfig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_repoconfig_from_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+</div>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_load_repoconfig_from_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">abspath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="c"># strip &#39;/&#39; so we don&#39;t get &#39;/usr/portage&#39; == (&#39;&#39;, &#39;usr&#39;, &#39;portage&#39;)</span>
+        <span class="n">chunks</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pindex</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s">&#39;profiles&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="c"># not in a repo...</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="n">repo_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">chunks</span><span class="p">[:</span><span class="n">pindex</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">repo_objs</span><span class="o">.</span><span class="n">RepoConfig</span><span class="p">(</span><span class="n">repo_path</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_autodetect_and_create</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="n">repo_config</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_load_repoconfig_from_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="c"># note while this else seems pointless, we do it this</span>
+        <span class="c"># way so that we&#39;re not passing an arg unless needed- instance</span>
+        <span class="c"># caching is a bit overprotective, even if pms_strict defaults to True,</span>
+        <span class="c"># cls(path) is not cls(path, pms_strict=True)</span>
+
+        <span class="k">if</span> <span class="n">repo_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">repo_config</span><span class="o">.</span><span class="n">profile_format</span> <span class="o">!=</span> <span class="s">&#39;pms&#39;</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">pms_strict</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="c"># optimization to avoid re-parsing what we already did.</span>
+        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s">&#39;_repoconfig&#39;</span><span class="p">,</span> <span class="n">repo_config</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span>
+
 </div>
 <div class="viewcode-block" id="EmptyRootNode"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.EmptyRootNode">[docs]</a><span class="k">class</span> <span class="nc">EmptyRootNode</span><span class="p">(</span><span class="n">ProfileNode</span><span class="p">):</span>
 
@@ -333,11 +403,12 @@
     <span class="nd">@klass.jit_attr</span>
     <span class="k">def</span> <span class="nf">stack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">parents</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">parent_paths</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_kls</span><span class="o">.</span><span class="n">_autodetect_and_create</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
                     <span class="k">yield</span> <span class="n">y</span>
             <span class="k">yield</span> <span class="n">node</span>
-
+        <span class="n">l</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">))</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_collapse_use_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
@@ -486,7 +557,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">parent_path</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">override_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">parent_path</span><span class="p">)</span>
-        <span class="n">ProfileNode</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="n">ProfileNode</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">pms_strict</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 
     <span class="nd">@klass.jit_attr</span>
     <span class="k">def</span> <span class="nf">parents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -499,6 +570,8 @@
         <span class="s">&#39;parent_profile&#39;</span><span class="p">:</span><span class="s">&#39;str&#39;</span><span class="p">,</span> <span class="s">&#39;incrementals&#39;</span><span class="p">:</span><span class="s">&#39;list&#39;</span><span class="p">},</span>
         <span class="n">required</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;user_path&#39;</span><span class="p">,</span><span class="s">&#39;parent_path&#39;</span><span class="p">,</span> <span class="s">&#39;parent_profile&#39;</span><span class="p">),</span>
         <span class="n">typename</span><span class="o">=</span><span class="s">&#39;profile&#39;</span><span class="p">)</span>
+
+    <span class="n">_node_kls</span> <span class="o">=</span> <span class="n">currying</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">ProfileNode</span><span class="p">,</span> <span class="n">pms_strict</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_path</span><span class="p">,</span> <span class="n">parent_path</span><span class="p">,</span> <span class="n">parent_profile</span><span class="p">,</span>
         <span class="n">load_profiles_base</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>

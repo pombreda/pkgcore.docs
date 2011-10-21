@@ -65,7 +65,7 @@
 <tr><td><a class="reference internal" href="#pkgcore.ebuild.profiles.AliasedVirtuals" title="pkgcore.ebuild.profiles.AliasedVirtuals"><tt class="xref py py-obj docutils literal"><span class="pre">AliasedVirtuals</span></tt></a>(virtuals,&nbsp;repo,&nbsp;*overrides)</td>
 <td>repository generated from a profiles default virtuals</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.ebuild.profiles.EmptyRootNode" title="pkgcore.ebuild.profiles.EmptyRootNode"><tt class="xref py py-obj docutils literal"><span class="pre">EmptyRootNode</span></tt></a>(path)</td>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.profiles.EmptyRootNode" title="pkgcore.ebuild.profiles.EmptyRootNode"><tt class="xref py py-obj docutils literal"><span class="pre">EmptyRootNode</span></tt></a>(path[,&nbsp;pms_strict])</td>
 <td></td>
 </tr>
 <tr><td><a class="reference internal" href="#pkgcore.ebuild.profiles.OnDiskProfile" title="pkgcore.ebuild.profiles.OnDiskProfile"><tt class="xref py py-obj docutils literal"><span class="pre">OnDiskProfile</span></tt></a>(basepath,&nbsp;profile[,&nbsp;...])</td>
@@ -74,7 +74,7 @@
 <tr><td><a class="reference internal" href="#pkgcore.ebuild.profiles.PkgProvided" title="pkgcore.ebuild.profiles.PkgProvided"><tt class="xref py py-obj docutils literal"><span class="pre">PkgProvided</span></tt></a>(*a,&nbsp;**kwds)</td>
 <td></td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.ebuild.profiles.ProfileNode" title="pkgcore.ebuild.profiles.ProfileNode"><tt class="xref py py-obj docutils literal"><span class="pre">ProfileNode</span></tt></a>(path)</td>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.profiles.ProfileNode" title="pkgcore.ebuild.profiles.ProfileNode"><tt class="xref py py-obj docutils literal"><span class="pre">ProfileNode</span></tt></a>(path[,&nbsp;pms_strict])</td>
 <td></td>
 </tr>
 <tr><td><a class="reference internal" href="#pkgcore.ebuild.profiles.UserProfile" title="pkgcore.ebuild.profiles.UserProfile"><tt class="xref py py-obj docutils literal"><span class="pre">UserProfile</span></tt></a>(user_path,&nbsp;parent_path,&nbsp;...[,&nbsp;...])</td>
@@ -112,7 +112,7 @@
 
 <dl class="class">
 <dt id="pkgcore.ebuild.profiles.ProfileNode">
-<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.profiles.</tt><tt class="descname">ProfileNode</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/profiles.html#ProfileNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.profiles.ProfileNode" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.profiles.</tt><tt class="descname">ProfileNode</tt><big>(</big><em>path</em>, <em>pms_strict=True</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/profiles.html#ProfileNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.profiles.ProfileNode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <dl class="attribute">
 <dt id="pkgcore.ebuild.profiles.ProfileNode.bashrc">
@@ -191,6 +191,14 @@ instead of directly consuming this.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.ProfileNode.parent_paths">
+<tt class="descname">parent_paths</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/profiles.html#ProfileNode.parent_paths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.profiles.ProfileNode.parent_paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="pkgcore.ebuild.profiles.ProfileNode.parents">
 <tt class="descname">parents</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/profiles.html#ProfileNode.parents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.profiles.ProfileNode.parents" title="Permalink to this definition">¶</a></dt>
 <dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
@@ -231,6 +239,14 @@ instead of directly consuming this.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.ProfileNode.repoconfig">
+<tt class="descname">repoconfig</tt><a class="reference internal" href="../_modules/pkgcore/ebuild/profiles.html#ProfileNode.repoconfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.profiles.ProfileNode.repoconfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="pkgcore.ebuild.profiles.ProfileNode.system">
 <tt class="descname">system</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.ProfileNode.system" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias to packages.system</p>
@@ -254,7 +270,7 @@ instead of directly consuming this.</p>
 
 <dl class="class">
 <dt id="pkgcore.ebuild.profiles.EmptyRootNode">
-<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.profiles.</tt><tt class="descname">EmptyRootNode</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/profiles.html#EmptyRootNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.profiles.EmptyRootNode" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">pkgcore.ebuild.profiles.</tt><tt class="descname">EmptyRootNode</tt><big>(</big><em>path</em>, <em>pms_strict=True</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/profiles.html#EmptyRootNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.profiles.EmptyRootNode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pkgcore.ebuild.profiles.ProfileNode" title="pkgcore.ebuild.profiles.ProfileNode"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.ebuild.profiles.ProfileNode</span></tt></a></p>
 <dl class="attribute">
 <dt id="pkgcore.ebuild.profiles.EmptyRootNode.bashrc">
@@ -303,6 +319,22 @@ instead of directly consuming this.</p>
 <dl class="attribute">
 <dt id="pkgcore.ebuild.profiles.EmptyRootNode.packages">
 <tt class="descname">packages</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.EmptyRootNode.packages" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.EmptyRootNode.parent_paths">
+<tt class="descname">parent_paths</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.EmptyRootNode.parent_paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.profiles.EmptyRootNode.repoconfig">
+<tt class="descname">repoconfig</tt><a class="headerlink" href="#pkgcore.ebuild.profiles.EmptyRootNode.repoconfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
 <p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
 instead of directly consuming this.</p>

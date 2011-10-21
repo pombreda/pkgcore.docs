@@ -326,14 +326,20 @@
 
 <span class="k">class</span> <span class="nc">RepoConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;repo_location&quot;</span><span class="p">,</span> <span class="s">&quot;manifests&quot;</span><span class="p">,</span> <span class="s">&quot;masters&quot;</span><span class="p">,</span> <span class="s">&quot;aliases&quot;</span><span class="p">,</span> <span class="s">&quot;cache_format&quot;</span><span class="p">)</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;repo_location&quot;</span><span class="p">,</span> <span class="s">&quot;manifests&quot;</span><span class="p">,</span> <span class="s">&quot;masters&quot;</span><span class="p">,</span> <span class="s">&quot;aliases&quot;</span><span class="p">,</span> <span class="s">&quot;cache_format&quot;</span><span class="p">,</span>
+        <span class="s">&#39;profile_format&#39;</span><span class="p">)</span>
 
     <span class="n">layout_offset</span> <span class="o">=</span> <span class="s">&quot;metadata/layout.conf&quot;</span>
 
     <span class="n">default_hashes</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;size&#39;</span><span class="p">,</span> <span class="s">&#39;rmd160&#39;</span><span class="p">,</span> <span class="s">&#39;sha1&#39;</span><span class="p">,</span> <span class="s">&#39;sha256&#39;</span><span class="p">)</span>
 
+    <span class="n">klass</span><span class="o">.</span><span class="n">inject_immutable_instance</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">WeakInstMeta</span>
+    <span class="n">__inst_caching__</span> <span class="o">=</span> <span class="bp">True</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_location</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">repo_location</span> <span class="o">=</span> <span class="n">repo_location</span>
+        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;repo_location&#39;</span><span class="p">,</span> <span class="n">repo_location</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parse_config</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">load_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -343,6 +349,8 @@
 
     <span class="k">def</span> <span class="nf">parse_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_config</span><span class="p">()</span>
+
+        <span class="n">sf</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span>
 
         <span class="n">hashes</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;manifest-hashes&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">hashes</span><span class="p">:</span>
@@ -360,13 +368,20 @@
             <span class="s">&#39;hashes&#39;</span><span class="p">:</span><span class="n">hashes</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">manifests</span> <span class="o">=</span> <span class="n">_immutable_attr_dict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">masters</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">iter_stable_unique</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;masters&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">aliases</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">iter_stable_unique</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;aliases&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
+        <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;manifests&#39;</span><span class="p">,</span> <span class="n">_immutable_attr_dict</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+        <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;masters&#39;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">iter_stable_unique</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;masters&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">())))</span>
+        <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;aliases&#39;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">iter_stable_unique</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;aliases&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">())))</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;cache-format&#39;</span><span class="p">,</span> <span class="s">&#39;pms&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;md5-dict&#39;</span><span class="p">,</span> <span class="s">&#39;pms&#39;</span><span class="p">):</span>
             <span class="n">v</span> <span class="o">=</span> <span class="s">&#39;pms&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cache_format</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;cache_format&#39;</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+        <span class="n">v</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;profile-format&#39;</span><span class="p">,</span> <span class="s">&#39;pms&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;pms&#39;</span><span class="p">,</span> <span class="s">&#39;portage-1&#39;</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;repository at </span><span class="si">%r</span><span class="s"> has an unsupported profile format: </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_location</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="s">&#39;pms&#39;</span>
+        <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;profile_format&#39;</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
 </pre></div>
 
           </div>
