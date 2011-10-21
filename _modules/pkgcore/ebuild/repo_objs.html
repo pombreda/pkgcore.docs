@@ -326,7 +326,7 @@
 
 <span class="k">class</span> <span class="nc">RepoConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;repo_location&quot;</span><span class="p">,</span> <span class="s">&quot;manifests&quot;</span><span class="p">,</span> <span class="s">&quot;masters&quot;</span><span class="p">,</span> <span class="s">&quot;aliases&quot;</span><span class="p">,</span> <span class="s">&quot;authoritative_cache&quot;</span><span class="p">)</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;repo_location&quot;</span><span class="p">,</span> <span class="s">&quot;manifests&quot;</span><span class="p">,</span> <span class="s">&quot;masters&quot;</span><span class="p">,</span> <span class="s">&quot;aliases&quot;</span><span class="p">,</span> <span class="s">&quot;cache_format&quot;</span><span class="p">)</span>
 
     <span class="n">layout_offset</span> <span class="o">=</span> <span class="s">&quot;metadata/layout.conf&quot;</span>
 
@@ -343,9 +343,6 @@
 
     <span class="k">def</span> <span class="nf">parse_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_config</span><span class="p">()</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">authoritative_cache</span> <span class="o">=</span> \
-            <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;authoritative-cache&#39;</span><span class="p">,</span> <span class="s">&#39;false&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;true&#39;</span><span class="p">)</span>
 
         <span class="n">hashes</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;manifest-hashes&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">hashes</span><span class="p">:</span>
@@ -366,6 +363,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">manifests</span> <span class="o">=</span> <span class="n">_immutable_attr_dict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">masters</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">iter_stable_unique</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;masters&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">aliases</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">iter_stable_unique</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;aliases&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;cache-format&#39;</span><span class="p">,</span> <span class="s">&#39;pms&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;md5-dict&#39;</span><span class="p">,</span> <span class="s">&#39;pms&#39;</span><span class="p">):</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="s">&#39;pms&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_format</span> <span class="o">=</span> <span class="n">v</span>
 </pre></div>
 
           </div>
