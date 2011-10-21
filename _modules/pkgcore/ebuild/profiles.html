@@ -392,7 +392,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">profile</span> <span class="o">=</span> <span class="n">profile</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_kls</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_kls</span><span class="o">.</span><span class="n">_autodetect_and_create</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -547,7 +547,7 @@
 <div class="viewcode-block" id="OnDiskProfile.stack"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.OnDiskProfile.stack">[docs]</a>    <span class="k">def</span> <span class="nf">stack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">l</span> <span class="o">=</span> <span class="n">ProfileStack</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_profile_base</span><span class="p">:</span>
-            <span class="n">l</span> <span class="o">=</span> <span class="p">(</span><span class="n">EmptyRootNode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basepath</span><span class="p">),)</span> <span class="o">+</span> <span class="n">l</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="p">(</span><span class="n">EmptyRootNode</span><span class="o">.</span><span class="n">_autodetect_and_create</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basepath</span><span class="p">),)</span> <span class="o">+</span> <span class="n">l</span>
         <span class="k">return</span> <span class="n">l</span>
 
 </div></div>
