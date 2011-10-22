@@ -182,13 +182,7 @@
 
 
 <span class="k">class</span> <span class="nc">_LazyChksums</span><span class="p">(</span><span class="n">LazyFullValLoadDict</span><span class="p">):</span>
-
-    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;_requested_chfs&#39;</span><span class="p">,)</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">chf_types</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">chf_types</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">chf_types</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">get_handlers</span><span class="p">())</span>
-        <span class="n">LazyFullValLoadDict</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chf_types</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
 
 <div class="viewcode-block" id="fsFile"><a class="viewcode-back" href="../../../api/pkgcore.fs.fs.html#pkgcore.fs.fs.fsFile">[docs]</a><span class="k">class</span> <span class="nc">fsFile</span><span class="p">(</span><span class="n">fsBase</span><span class="p">):</span>
@@ -214,7 +208,10 @@
         <span class="k">if</span> <span class="n">chksums</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="c"># this can be problematic offhand if the file is modified</span>
             <span class="c"># but chksum not triggered</span>
-            <span class="n">chksums</span> <span class="o">=</span> <span class="n">_LazyChksums</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_chksum_callback</span><span class="p">,</span> <span class="n">chf_types</span><span class="o">=</span><span class="n">kwds</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;chf_types&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
+            <span class="n">chf_types</span> <span class="o">=</span> <span class="n">kwds</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;chf_types&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">chf_types</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">chf_types</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">get_handlers</span><span class="p">())</span>
+            <span class="n">chksums</span> <span class="o">=</span> <span class="n">_LazyChksums</span><span class="p">(</span><span class="n">chf_types</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chksum_callback</span><span class="p">)</span>
         <span class="n">kwds</span><span class="p">[</span><span class="s">&quot;chksums&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">chksums</span>
         <span class="n">fsBase</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
     <span class="n">gen_doc_additions</span><span class="p">(</span><span class="n">__init__</span><span class="p">,</span> <span class="n">__slots__</span><span class="p">)</span>

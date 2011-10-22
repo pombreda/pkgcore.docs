@@ -147,6 +147,8 @@
 
             <span class="n">pkg_ops</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">pkg_operations</span><span class="p">(</span><span class="n">plan_op</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="n">observer</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">pkg_ops</span><span class="o">.</span><span class="n">supports</span><span class="p">(</span><span class="s">&quot;sanity_check&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">observer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">observer</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;running sanity_check for </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">plan_op</span><span class="o">.</span><span class="n">pkg</span><span class="p">,))</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">pkg_ops</span><span class="o">.</span><span class="n">sanity_check</span><span class="p">():</span>
                     <span class="k">return</span> <span class="bp">False</span>
         <span class="k">return</span> <span class="bp">True</span>
