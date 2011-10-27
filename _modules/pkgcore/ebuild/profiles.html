@@ -563,6 +563,10 @@
     <span class="k">def</span> <span class="nf">parents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">ProfileNode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">override_path</span><span class="p">),)</span>
 
+    <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">parent_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">override_path</span><span class="p">,)</span>
+
 
 <div class="viewcode-block" id="UserProfile"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.profiles.html#pkgcore.ebuild.profiles.UserProfile">[docs]</a><span class="k">class</span> <span class="nc">UserProfile</span><span class="p">(</span><span class="n">OnDiskProfile</span><span class="p">):</span>
 
@@ -570,8 +574,6 @@
         <span class="s">&#39;parent_profile&#39;</span><span class="p">:</span><span class="s">&#39;str&#39;</span><span class="p">,</span> <span class="s">&#39;incrementals&#39;</span><span class="p">:</span><span class="s">&#39;list&#39;</span><span class="p">},</span>
         <span class="n">required</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;user_path&#39;</span><span class="p">,</span><span class="s">&#39;parent_path&#39;</span><span class="p">,</span> <span class="s">&#39;parent_profile&#39;</span><span class="p">),</span>
         <span class="n">typename</span><span class="o">=</span><span class="s">&#39;profile&#39;</span><span class="p">)</span>
-
-    <span class="n">_node_kls</span> <span class="o">=</span> <span class="n">currying</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">ProfileNode</span><span class="p">,</span> <span class="n">pms_strict</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_path</span><span class="p">,</span> <span class="n">parent_path</span><span class="p">,</span> <span class="n">parent_profile</span><span class="p">,</span>
         <span class="n">load_profiles_base</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
