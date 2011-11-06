@@ -91,6 +91,9 @@
 
     <span class="n">supported_uris</span> <span class="o">=</span> <span class="p">()</span>
 
+    <span class="c"># plugin system uses this.</span>
+    <span class="n">disabled</span> <span class="o">=</span> <span class="bp">False</span>
+
     <span class="n">pkgcore_config_type</span> <span class="o">=</span> <span class="n">ConfigHint</span><span class="p">(</span>
         <span class="p">{</span><span class="s">&#39;path&#39;</span><span class="p">:</span><span class="s">&#39;str&#39;</span><span class="p">,</span> <span class="s">&#39;uri&#39;</span><span class="p">:</span><span class="s">&#39;str&#39;</span><span class="p">},</span> <span class="n">typename</span><span class="o">=</span><span class="s">&#39;syncer&#39;</span><span class="p">)</span>
 
@@ -152,12 +155,8 @@
             <span class="k">if</span> <span class="n">uri</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">level</span>
         <span class="k">return</span> <span class="mi">0</span>
-</div>
-    <span class="nd">@descriptors.classproperty</span>
-    <span class="k">def</span> <span class="nf">disabled</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">False</span>
 
-</div>
+</div></div>
 <div class="viewcode-block" id="ExternalSyncer"><a class="viewcode-back" href="../../../api/pkgcore.sync.base.html#pkgcore.sync.base.ExternalSyncer">[docs]</a><span class="k">class</span> <span class="nc">ExternalSyncer</span><span class="p">(</span><span class="n">syncer</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;Base class for syncers that spawn a binary to do the the actual work.&quot;&quot;&quot;</span>
@@ -181,8 +180,8 @@
                 <span class="k">raise</span> <span class="n">missing_binary</span><span class="p">(</span><span class="n">bin_name</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">None</span>
 </div>
-    <span class="nd">@descriptors.classproperty</span>
-    <span class="k">def</span> <span class="nf">disabled</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_plugin_disabled_check</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
         <span class="n">disabled</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="s">&#39;_disabled&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">disabled</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">path</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="s">&#39;binary_path&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>

@@ -46,8 +46,8 @@
           <div class="body">
             
   <h1>Source code for pkgcore.plugin</h1><div class="highlight"><pre>
+<span class="c"># Copyright: 2009-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
 <span class="c"># Copyright: 2006 Marien Zwart &lt;marienz@gentoo.org&gt;</span>
-<span class="c"># Copyright: 2009 Brian Harring &lt;ferringb@gmail.com&gt;</span>
 <span class="c"># License: BSD/GPL2</span>
 
 
@@ -245,8 +245,12 @@
     <span class="k">for</span> <span class="n">modname</span><span class="p">,</span> <span class="n">max_prio</span> <span class="ow">in</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">()):</span>
         <span class="n">module</span> <span class="o">=</span> <span class="n">modules</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">package</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">modname</span><span class="p">)))</span>
         <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">pkgcore_plugins</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">()):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s">&#39;disabled&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
-                <span class="k">yield</span> <span class="n">obj</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s">&#39;disabled&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+               <span class="k">continue</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s">&#39;_plugin_disabled_check&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">f</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">f</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="k">yield</span> <span class="n">obj</span>
 
 </div>
 <div class="viewcode-block" id="get_plugin"><a class="viewcode-back" href="../../api/pkgcore.plugin.html#pkgcore.plugin.get_plugin">[docs]</a><span class="k">def</span> <span class="nf">get_plugin</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="n">plugins</span><span class="p">):</span>
