@@ -137,7 +137,12 @@
                 <span class="k">yield</span> <span class="n">pkg</span>
 
     <span class="k">def</span> <span class="nf">_visibility_limiters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">default_visibility_limiters</span><span class="p">]</span></div>
+        <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">:</span>
+            <span class="n">neg</span><span class="p">,</span> <span class="n">pos</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">_visibility_limiters</span><span class="p">()</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">difference_update</span><span class="p">(</span><span class="n">neg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[[],</span> <span class="nb">list</span><span class="p">(</span><span class="n">s</span><span class="p">)]</span></div>
 </pre></div>
 
           </div>

@@ -62,6 +62,7 @@
 <span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="nb">all</span><span class="p">,</span> <span class="n">sorted_cmp</span>
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">klass</span>
 <span class="kn">from</span> <span class="nn">pkgcore.operations</span> <span class="kn">import</span> <span class="n">repo</span> <span class="k">as</span> <span class="n">repo_interface</span>
+<span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">configurable</span>
 
 
 <div class="viewcode-block" id="operations"><a class="viewcode-back" href="../../../api/pkgcore.repository.multiplex.html#pkgcore.repository.multiplex.operations">[docs]</a><span class="k">class</span> <span class="nc">operations</span><span class="p">(</span><span class="n">repo_interface</span><span class="o">.</span><span class="n">operations_proxy</span><span class="p">):</span>
@@ -103,6 +104,11 @@
         <span class="k">return</span> <span class="n">ret</span>
 
 </div>
+<span class="nd">@configurable</span><span class="p">({</span><span class="s">&#39;repositories&#39;</span><span class="p">:</span> <span class="s">&#39;refs:repo&#39;</span><span class="p">},</span>
+    <span class="n">typename</span><span class="o">=</span><span class="s">&#39;repo&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">config_tree</span><span class="p">(</span><span class="n">repositories</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">tree</span><span class="p">(</span><span class="o">*</span><span class="n">repositories</span><span class="p">)</span>
+
 <div class="viewcode-block" id="tree"><a class="viewcode-back" href="../../../api/pkgcore.repository.multiplex.html#pkgcore.repository.multiplex.tree">[docs]</a><span class="k">class</span> <span class="nc">tree</span><span class="p">(</span><span class="n">prototype</span><span class="o">.</span><span class="n">tree</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;repository combining multiple repositories into one&quot;&quot;&quot;</span>
@@ -212,7 +218,12 @@
             <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_visibility_limiters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">default_visibility_limiters</span><span class="p">]</span>
+        <span class="n">neg</span><span class="p">,</span> <span class="n">pos</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(),</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">tree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">_visibility_limiters</span><span class="p">()</span>
+            <span class="n">neg</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">pos</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">neg</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><span class="n">pos</span><span class="p">)]</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="tree.frozen"><a class="viewcode-back" href="../../../api/pkgcore.repository.multiplex.html#pkgcore.repository.multiplex.tree.frozen">[docs]</a>    <span class="k">def</span> <span class="nf">frozen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

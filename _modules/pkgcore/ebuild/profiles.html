@@ -500,6 +500,11 @@
         <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_collapse_generic</span><span class="p">(</span><span class="s">&quot;masks&quot;</span><span class="p">),</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_collapse_generic</span><span class="p">(</span><span class="s">&quot;visibility&quot;</span><span class="p">)))</span>
 
+    <span class="k">def</span> <span class="nf">_incremental_masks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stack_override</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">stack_override</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">stack_override</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stack</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">masks</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">stack_override</span><span class="p">]</span>
+
     <span class="nd">@klass.jit_attr</span>
     <span class="k">def</span> <span class="nf">bashrcs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">bashrc</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stack</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">bashrc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
@@ -549,8 +554,14 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_profile_base</span><span class="p">:</span>
             <span class="n">l</span> <span class="o">=</span> <span class="p">(</span><span class="n">EmptyRootNode</span><span class="o">.</span><span class="n">_autodetect_and_create</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basepath</span><span class="p">),)</span> <span class="o">+</span> <span class="n">l</span>
         <span class="k">return</span> <span class="n">l</span>
+</div>
+    <span class="k">def</span> <span class="nf">_incremental_masks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">stack</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stack</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_profile_base</span><span class="p">:</span>
+            <span class="n">stack</span> <span class="o">=</span> <span class="n">stack</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">return</span> <span class="n">ProfileStack</span><span class="o">.</span><span class="n">_incremental_masks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stack_override</span><span class="o">=</span><span class="n">stack</span><span class="p">)</span>
 
-</div></div>
+</div>
 <span class="k">class</span> <span class="nc">UserProfileNode</span><span class="p">(</span><span class="n">ProfileNode</span><span class="p">):</span>
 
     <span class="n">parent_node_kls</span> <span class="o">=</span> <span class="n">ProfileNode</span>

@@ -534,8 +534,8 @@
 
         <span class="n">new_config</span><span class="p">[</span><span class="s">&#39;repo-stack&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">FakeIncrementalDictConfigSection</span><span class="p">(</span>
             <span class="n">my_convert_hybrid</span><span class="p">,</span> <span class="p">{</span>
-                <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;pkgcore.ebuild.overlay_repository.OverlayRepo&#39;</span><span class="p">,</span>
-                <span class="s">&#39;trees&#39;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">reversed</span><span class="p">([</span><span class="n">portdir</span><span class="p">]</span> <span class="o">+</span> <span class="n">portdir_overlays</span><span class="p">))})</span>
+                <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;pkgcore.repository.multiplex.config_tree&#39;</span><span class="p">,</span>
+                <span class="s">&#39;repositories&#39;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">reversed</span><span class="p">([</span><span class="n">portdir</span><span class="p">]</span> <span class="o">+</span> <span class="n">portdir_overlays</span><span class="p">))})</span>
 
     <span class="n">new_config</span><span class="p">[</span><span class="s">&#39;vuln&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">AutoConfigSection</span><span class="p">({</span>
             <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="n">SecurityUpgradesViaProfile</span><span class="p">,</span>
@@ -546,7 +546,7 @@
         <span class="n">SecurityUpgradesViaProfile</span><span class="o">.</span><span class="n">pkgcore_config_type</span><span class="o">.</span><span class="n">typename</span><span class="p">)</span>
     <span class="c">#binpkg.</span>
     <span class="n">pkgdir</span> <span class="o">=</span> <span class="n">conf_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;PKGDIR&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
-    <span class="n">default_repos</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;repo-stack&#39;</span><span class="p">,)</span>
+    <span class="n">default_repos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">portdir_overlays</span><span class="p">))</span> <span class="o">+</span> <span class="p">[</span><span class="n">portdir</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">pkgdir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">pkgdir</span> <span class="o">=</span> <span class="n">abspath</span><span class="p">(</span><span class="n">pkgdir</span><span class="p">)</span>
@@ -582,7 +582,7 @@
                     <span class="s">&#39;location&#39;</span><span class="p">:</span> <span class="n">pkgdir</span><span class="p">,</span>
                     <span class="s">&#39;ignore_paludis_versioning&#39;</span><span class="p">:</span>
                         <span class="nb">str</span><span class="p">(</span><span class="s">&#39;ignore-paludis-versioning&#39;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">)})</span>
-                <span class="n">default_repos</span> <span class="o">+=</span> <span class="p">(</span><span class="s">&#39;binpkg&#39;</span><span class="p">,)</span>
+                <span class="n">default_repos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;binpkg&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="s">&#39;buildpkg&#39;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
             <span class="n">add_trigger</span><span class="p">(</span><span class="s">&#39;buildpkg_trigger&#39;</span><span class="p">,</span> <span class="s">&#39;pkgcore.merge.triggers.SavePkg&#39;</span><span class="p">,</span>
@@ -628,7 +628,7 @@
     <span class="c"># finally... domain.</span>
     <span class="n">conf_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
             <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;pkgcore.ebuild.domain.domain&#39;</span><span class="p">,</span>
-            <span class="s">&#39;repositories&#39;</span><span class="p">:</span> <span class="n">default_repos</span><span class="p">,</span>
+            <span class="s">&#39;repositories&#39;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">default_repos</span><span class="p">),</span>
             <span class="s">&#39;fetcher&#39;</span><span class="p">:</span> <span class="s">&#39;fetcher&#39;</span><span class="p">,</span>
             <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
             <span class="s">&#39;vdb&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;vdb&#39;</span><span class="p">,),</span>

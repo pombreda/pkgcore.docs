@@ -389,24 +389,27 @@
 
     <span class="k">def</span> <span class="nf">_visibility_limiters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="s">&#39;profiles&#39;</span><span class="p">,</span> <span class="s">&#39;package.mask&#39;</span><span class="p">)</span>
+        <span class="n">pos</span><span class="p">,</span> <span class="n">neg</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">profile_format</span> <span class="o">!=</span> <span class="s">&#39;pms&#39;</span><span class="p">:</span>
                 <span class="n">paths</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">location</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">iter_scan</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">is_reg</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span><span class="p">]</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
-                <span class="n">data</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span>
-                    <span class="n">iter_read_bash</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
-            <span class="k">return</span> <span class="n">data</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">iter_read_bash</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                    <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;-&#39;</span><span class="p">):</span>
+                        <span class="n">neg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">pos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">IOError</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
                 <span class="k">raise</span>
-            <span class="k">return</span> <span class="p">[]</span>
         <span class="k">except</span> <span class="n">ebuild_errors</span><span class="o">.</span><span class="n">MalformedAtom</span><span class="p">,</span> <span class="n">ma</span><span class="p">:</span>
             <span class="n">raise_from</span><span class="p">(</span><span class="n">profiles</span><span class="o">.</span><span class="n">ProfileError</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="s">&#39;profiles&#39;</span><span class="p">),</span>
                 <span class="s">&#39;package.mask&#39;</span><span class="p">,</span> <span class="n">ma</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">neg</span><span class="p">,</span> <span class="n">pos</span><span class="p">]</span>
 
 </div>
 <div class="viewcode-block" id="SlavedTree"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repository.html#pkgcore.ebuild.repository.SlavedTree">[docs]</a><span class="k">class</span> <span class="nc">SlavedTree</span><span class="p">(</span><span class="n">UnconfiguredTree</span><span class="p">):</span>
