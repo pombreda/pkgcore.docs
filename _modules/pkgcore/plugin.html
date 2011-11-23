@@ -82,6 +82,7 @@
 
 
 <span class="n">CACHE_HEADER</span> <span class="o">=</span> <span class="s">&#39;pkgcore plugin cache v2&#39;</span>
+<span class="n">CACHE_FILENAME</span> <span class="o">=</span> <span class="s">&#39;plugincache2&#39;</span>
 
 <span class="k">def</span> <span class="nf">_process_plugins</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">modname</span><span class="p">,</span> <span class="n">sequence</span><span class="p">,</span> <span class="n">filter_disabled</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">plug</span> <span class="ow">in</span> <span class="n">sequence</span><span class="p">:</span>
@@ -103,6 +104,73 @@
 
         <span class="k">yield</span> <span class="n">plug</span>
 
+<span class="k">def</span> <span class="nf">_read_cache_file</span><span class="p">(</span><span class="n">cache_path</span><span class="p">):</span>
+    <span class="n">stored_cache</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">cache_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">fileutils</span><span class="o">.</span><span class="n">readlines_ascii</span><span class="p">(</span><span class="n">cache_path</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cache_data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">cache_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">CACHE_HEADER</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;plugin cache has a wrong header: </span><span class="si">%r</span><span class="s">, regenerating&quot;</span><span class="p">,</span>
+                <span class="n">cache_data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">cache_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cache_data</span> <span class="o">=</span> <span class="n">cache_data</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cache_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">cache_data</span><span class="p">:</span>
+            <span class="n">module</span><span class="p">,</span> <span class="n">mtime</span><span class="p">,</span> <span class="n">entries</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">mtime</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mtime</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="c"># Needed because &#39;&#39;.split(&#39;:&#39;) == [&#39;&#39;], not []</span>
+            <span class="k">if</span> <span class="n">entries</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">entries</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">):</span>
+                    <span class="n">name</span><span class="p">,</span> <span class="n">max_prio</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">max_prio</span><span class="p">:</span>
+                        <span class="n">max_prio</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_prio</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">max_prio</span> <span class="o">=</span> <span class="bp">None</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">max_prio</span><span class="p">))</span>
+            <span class="n">stored_cache</span><span class="p">[</span><span class="n">module</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">mtime</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">IGNORED_EXCEPTIONS</span><span class="p">:</span>
+        <span class="k">raise</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c"># corrupt cache, or bug in this code.</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;failed reading cache; exception </span><span class="si">%s</span><span class="s">.  Regenerating.&quot;</span><span class="p">,</span>
+            <span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="k">return</span> <span class="n">stored_cache</span>
+
+<span class="k">def</span> <span class="nf">_write_cache_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="c"># Write a new cache.</span>
+    <span class="n">cachefile</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cachefile</span> <span class="o">=</span> <span class="n">fileutils</span><span class="o">.</span><span class="n">AtomicWriteFile</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">perms</span><span class="o">=</span><span class="mo">0664</span><span class="p">)</span>
+            <span class="n">cachefile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">CACHE_HEADER</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">module</span><span class="p">,</span> <span class="p">(</span><span class="n">mtime</span><span class="p">,</span> <span class="n">entries</span><span class="p">)</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="n">strings</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">plugname</span><span class="p">,</span> <span class="n">max_prio</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">max_prio</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                        <span class="n">strings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plugname</span> <span class="o">+</span> <span class="s">&#39;,&#39;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">strings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">,</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">plugname</span><span class="p">,</span> <span class="n">max_prio</span><span class="p">))</span>
+                <span class="n">cachefile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">:</span><span class="si">%s</span><span class="s">:</span><span class="si">%s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">mtime</span><span class="p">,</span> <span class="s">&#39;:&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">strings</span><span class="p">)))</span>
+            <span class="n">cachefile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c"># We cannot write a new cache. We should log this</span>
+            <span class="c"># since it will have a performance impact.</span>
+
+            <span class="c"># Use error, not exception for this one: the traceback</span>
+            <span class="c"># is not necessary and too alarming.</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Cannot write cache for </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">. &#39;</span>
+                         <span class="s">&#39;Try running pplugincache.&#39;</span><span class="p">,</span>
+                         <span class="n">path</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">cachefile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">cachefile</span><span class="o">.</span><span class="n">discard</span><span class="p">()</span>
+
+
 <div class="viewcode-block" id="initialize_cache"><a class="viewcode-back" href="../../api/pkgcore.plugin.html#pkgcore.plugin.initialize_cache">[docs]</a><span class="k">def</span> <span class="nf">initialize_cache</span><span class="p">(</span><span class="n">package</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Determine available plugins in a package.</span>
 
@@ -121,38 +189,8 @@
             <span class="k">continue</span>
         <span class="c"># Directory cache, mapping modulename to</span>
         <span class="c"># (mtime, set([keys]))</span>
-        <span class="n">stored_cache</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">stored_cache_name</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&#39;plugincache2&#39;</span><span class="p">)</span>
-        <span class="n">cache_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">fileutils</span><span class="o">.</span><span class="n">readlines_ascii</span><span class="p">(</span><span class="n">stored_cache_name</span><span class="p">,</span>
-            <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">))</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cache_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">cache_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">CACHE_HEADER</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;plugin cache has a wrong header: </span><span class="si">%r</span><span class="s">, regenerating&quot;</span><span class="p">,</span>
-                    <span class="n">cache_data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                <span class="n">cache_data</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">cache_data</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-                    <span class="n">module</span><span class="p">,</span> <span class="n">mtime</span><span class="p">,</span> <span class="n">entries</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-                    <span class="n">mtime</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mtime</span><span class="p">)</span>
-                    <span class="n">result</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-                    <span class="c"># Needed because &#39;&#39;.split(&#39;:&#39;) == [&#39;&#39;], not []</span>
-                    <span class="k">if</span> <span class="n">entries</span><span class="p">:</span>
-                        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">entries</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">):</span>
-                            <span class="n">name</span><span class="p">,</span> <span class="n">max_prio</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
-                            <span class="k">if</span> <span class="n">max_prio</span><span class="p">:</span>
-                                <span class="n">max_prio</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_prio</span><span class="p">)</span>
-                            <span class="k">else</span><span class="p">:</span>
-                                <span class="n">max_prio</span> <span class="o">=</span> <span class="bp">None</span>
-                            <span class="n">result</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">max_prio</span><span class="p">))</span>
-                    <span class="n">stored_cache</span><span class="p">[</span><span class="n">module</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">mtime</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
-
-            <span class="k">except</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">IGNORED_EXCEPTIONS</span><span class="p">:</span>
-                <span class="k">raise</span>
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-                <span class="c"># corrupt cache, or bug in this code.</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;failed reading cache; exception </span><span class="si">%s</span><span class="s">.  Regenerating.&quot;</span><span class="p">,</span>
-                    <span class="n">e</span><span class="p">)</span>
-                <span class="n">stored_cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">stored_cache_name</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">CACHE_FILENAME</span><span class="p">)</span>
+        <span class="n">stored_cache</span> <span class="o">=</span> <span class="n">_read_cache_file</span><span class="p">(</span><span class="n">stored_cache_name</span><span class="p">)</span>
         <span class="n">cache_stale</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="c"># Hunt for modules.</span>
         <span class="n">actual_cache</span> <span class="o">=</span> <span class="p">{}</span>
@@ -217,35 +255,7 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;stale due to </span><span class="si">%r</span><span class="s"> no longer existing&#39;</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">stale</span><span class="p">))</span>
             <span class="n">cache_stale</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">if</span> <span class="n">cache_stale</span><span class="p">:</span>
-            <span class="c"># Write a new cache.</span>
-            <span class="n">cachefile</span> <span class="o">=</span> <span class="bp">None</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">cachefile</span> <span class="o">=</span> <span class="n">fileutils</span><span class="o">.</span><span class="n">AtomicWriteFile</span><span class="p">(</span><span class="n">stored_cache_name</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                        <span class="n">perms</span><span class="o">=</span><span class="mo">0644</span><span class="p">)</span>
-                    <span class="n">cachefile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">CACHE_HEADER</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">module</span><span class="p">,</span> <span class="p">(</span><span class="n">mtime</span><span class="p">,</span> <span class="n">entries</span><span class="p">)</span> <span class="ow">in</span> <span class="n">actual_cache</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-                        <span class="n">strings</span> <span class="o">=</span> <span class="p">[]</span>
-                        <span class="k">for</span> <span class="n">plugname</span><span class="p">,</span> <span class="n">max_prio</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
-                            <span class="k">if</span> <span class="n">max_prio</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                                <span class="n">strings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plugname</span> <span class="o">+</span> <span class="s">&#39;,&#39;</span><span class="p">)</span>
-                            <span class="k">else</span><span class="p">:</span>
-                                <span class="n">strings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">,</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">plugname</span><span class="p">,</span> <span class="n">max_prio</span><span class="p">))</span>
-                        <span class="n">cachefile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                            <span class="s">&#39;</span><span class="si">%s</span><span class="s">:</span><span class="si">%s</span><span class="s">:</span><span class="si">%s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">mtime</span><span class="p">,</span> <span class="s">&#39;:&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">strings</span><span class="p">)))</span>
-                    <span class="n">cachefile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-                <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="c"># We cannot write a new cache. We should log this</span>
-                    <span class="c"># since it will have a performance impact.</span>
-
-                    <span class="c"># Use error, not exception for this one: the traceback</span>
-                    <span class="c"># is not necessary and too alarming.</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Cannot write cache for </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">. &#39;</span>
-                             <span class="s">&#39;Try running pplugincache.&#39;</span><span class="p">,</span>
-                             <span class="n">stored_cache_name</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-            <span class="k">finally</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">cachefile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-                    <span class="n">cachefile</span><span class="o">.</span><span class="n">discard</span><span class="p">()</span>
+            <span class="n">_write_cache_file</span><span class="p">(</span><span class="n">stored_cache_name</span><span class="p">,</span> <span class="n">actual_cache</span><span class="p">)</span>
 
         <span class="c"># Update the package_cache.</span>
         <span class="k">for</span> <span class="n">module</span><span class="p">,</span> <span class="p">(</span><span class="n">mtime</span><span class="p">,</span> <span class="n">entries</span><span class="p">)</span> <span class="ow">in</span> <span class="n">actual_cache</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
@@ -283,6 +293,7 @@
     <span class="n">compatibility</span><span class="o">.</span><span class="n">sort_cmp</span><span class="p">(</span><span class="n">modlist</span><span class="p">,</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">cmp</span><span class="p">,</span>
         <span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="n">plugs</span> <span class="o">=</span> <span class="p">[]</span>
+
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">modname</span><span class="p">,</span> <span class="n">max_prio</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">modlist</span><span class="p">):</span>
         <span class="n">module</span> <span class="o">=</span> <span class="n">modules</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">package</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">modname</span><span class="p">)))</span>
         <span class="k">for</span> <span class="n">plug</span> <span class="ow">in</span> <span class="n">_process_plugins</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">modname</span><span class="p">,</span> <span class="n">module</span><span class="o">.</span><span class="n">pkgcore_plugins</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">()),</span>
