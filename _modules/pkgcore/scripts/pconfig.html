@@ -247,7 +247,13 @@
 <span class="nd">@configurables.bind_main_func</span>
 <div class="viewcode-block" id="configurables_main"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pconfig.html#pkgcore.scripts.pconfig.configurables_main">[docs]</a><span class="k">def</span> <span class="nf">configurables_main</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;List registered configurables.&quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">configurable</span> <span class="ow">in</span> <span class="n">get_plugins</span><span class="p">(</span><span class="s">&#39;configurable&#39;</span><span class="p">):</span>
+
+    <span class="c"># try and sort this beast.</span>
+    <span class="k">def</span> <span class="nf">key_func</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s">&#39;__module__&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">),</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s">&#39;__name__&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">configurable</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">get_plugins</span><span class="p">(</span><span class="s">&#39;configurable&#39;</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="n">key_func</span><span class="p">):</span>
         <span class="n">type_obj</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">ConfigType</span><span class="p">(</span><span class="n">configurable</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">typename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">type_obj</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">options</span><span class="o">.</span><span class="n">typename</span><span class="p">:</span>
             <span class="k">continue</span>
