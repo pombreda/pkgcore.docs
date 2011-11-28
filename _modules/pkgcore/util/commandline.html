@@ -582,19 +582,19 @@
     <span class="k">return</span> <span class="n">d</span>
 
 <span class="k">def</span> <span class="nf">store_config</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
-    <span class="n">prepend</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">_convert_config_mods</span><span class="p">,</span>
+    <span class="n">configs</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">_convert_config_mods</span><span class="p">,</span>
         <span class="p">[</span><span class="n">namespace</span><span class="o">.</span><span class="n">new_config</span><span class="p">,</span> <span class="n">namespace</span><span class="o">.</span><span class="n">add_config</span><span class="p">])</span>
     <span class="c"># add necessary inherits for add_config</span>
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">prepend</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">configs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
         <span class="n">vals</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s">&#39;inherit&#39;</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
 
-    <span class="n">prepend</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">((</span><span class="n">section</span><span class="p">,</span> <span class="n">basics</span><span class="o">.</span><span class="n">ConfigSectionFromStringDict</span><span class="p">(</span><span class="n">vals</span><span class="p">))</span>
+    <span class="n">configs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">((</span><span class="n">section</span><span class="p">,</span> <span class="n">basics</span><span class="o">.</span><span class="n">ConfigSectionFromStringDict</span><span class="p">(</span><span class="n">vals</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">section</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
-            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">prepend</span> <span class="k">if</span> <span class="n">d</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">configs</span> <span class="k">if</span> <span class="n">d</span><span class="p">]</span>
 
     <span class="n">config</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="n">skip_config_files</span><span class="o">=</span><span class="n">namespace</span><span class="o">.</span><span class="n">empty_config</span><span class="p">,</span>
         <span class="n">debug</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="s">&#39;debug&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">),</span>
-        <span class="n">prepend_sources</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">prepend</span><span class="p">))</span>
+        <span class="n">append_sources</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">configs</span><span class="p">))</span>
     <span class="nb">setattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 
 

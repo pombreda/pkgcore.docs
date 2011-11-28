@@ -58,9 +58,12 @@
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;CollapsedConfig&quot;</span><span class="p">,</span> <span class="s">&quot;ConfigManager&quot;</span><span class="p">,)</span>
 
+<span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">errors</span><span class="p">,</span> <span class="n">basics</span>
-<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">mappings</span><span class="p">,</span> <span class="n">compatibility</span>
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">mappings</span><span class="p">,</span> <span class="n">compatibility</span><span class="p">,</span> <span class="n">sequences</span><span class="p">,</span> <span class="n">klass</span><span class="p">,</span> <span class="n">iterables</span>
 
+
+<span class="n">_section_data</span> <span class="o">=</span> <span class="n">sequences</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s">&#39;_section_data&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;section&#39;</span><span class="p">])</span>
 
 <span class="k">class</span> <span class="nc">_ConfigMapping</span><span class="p">(</span><span class="n">mappings</span><span class="o">.</span><span class="n">DictMixin</span><span class="p">):</span>
 
@@ -106,6 +109,45 @@
     <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">collapse_named_section</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">raise_on_missing</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">conf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">conf</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">typename</span>
+
+
+<span class="k">class</span> <span class="nc">_ConfigStack</span><span class="p">(</span><span class="n">mappings</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">mappings</span><span class="o">.</span><span class="n">defaultdict</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">render_vals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manager</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">type_name</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">()):</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">section</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">data</span><span class="o">.</span><span class="n">section</span><span class="o">.</span><span class="n">render_value</span><span class="p">(</span><span class="n">manager</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">type_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">render_val</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manager</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">type_name</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_vals</span><span class="p">(</span><span class="n">manager</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">type_name</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">val</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">render_prepends</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manager</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">type_name</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c"># keep in mind that the sequence we get is a top -&gt; bottom walk of the config</span>
+        <span class="c"># as such for this operation we have to reverse it when building the content-</span>
+        <span class="c"># specifically, reverse the ordering, but not the content of each item.</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">content</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_vals</span><span class="p">(</span><span class="n">manager</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">type_name</span><span class="p">):</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">content</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">break</span>
+
+        <span class="k">for</span> <span class="n">prepend</span><span class="p">,</span> <span class="n">this_content</span><span class="p">,</span> <span class="n">append</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">this_content</span><span class="p">:</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">this_content</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">prepend</span><span class="p">:</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">prepend</span><span class="p">]</span> <span class="o">+</span> <span class="n">results</span>
+            <span class="k">if</span> <span class="n">append</span><span class="p">:</span>
+                <span class="n">results</span> <span class="o">+=</span> <span class="p">[</span><span class="n">append</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">flatten</span><span class="p">:</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">iterables</span><span class="o">.</span><span class="n">chain_from_iterable</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="CollapsedConfig"><a class="viewcode-back" href="../../../api/pkgcore.config.central.html#pkgcore.config.central.CollapsedConfig">[docs]</a><span class="k">class</span> <span class="nc">CollapsedConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -197,9 +239,9 @@
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
                 <span class="k">raise</span>
-            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">InstantiationError</span><span class="p">(</span><span class="n">exception</span><span class="o">=</span><span class="n">e</span><span class="p">,</span>
+            <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">InstantiationError</span><span class="p">(</span><span class="n">exception</span><span class="o">=</span><span class="n">e</span><span class="p">,</span>
                                             <span class="n">callable_obj</span><span class="o">=</span><span class="n">callable_obj</span><span class="p">,</span>
-                                            <span class="n">pargs</span><span class="o">=</span><span class="n">pargs</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">configdict</span><span class="p">)</span>
+                                            <span class="n">pargs</span><span class="o">=</span><span class="n">pargs</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">configdict</span><span class="p">))</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instance</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">InstantiationError</span><span class="p">(</span>
                 <span class="s">&#39;No object returned&#39;</span><span class="p">,</span> <span class="n">callable_obj</span><span class="o">=</span><span class="n">callable_obj</span><span class="p">,</span> <span class="n">pargs</span><span class="o">=</span><span class="n">pargs</span><span class="p">,</span>
@@ -208,6 +250,27 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instance</span>
 
 </div></div>
+<span class="k">class</span> <span class="nc">_ConfigObjMap</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manager</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="o">=</span> <span class="n">manager</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_ConfigMapping</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">CompatConfigManager</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manager</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_manager</span> <span class="o">=</span> <span class="n">manager</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">singleton</span><span class="o">=</span><span class="nb">object</span><span class="p">()):</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">singleton</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="n">singleton</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_manager</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span>
+
+
 <div class="viewcode-block" id="ConfigManager"><a class="viewcode-back" href="../../../api/pkgcore.config.central.html#pkgcore.config.central.ConfigManager">[docs]</a><span class="k">class</span> <span class="nc">ConfigManager</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;Combine config type definitions and configuration sections.</span>
@@ -218,32 +281,33 @@
 <span class="sd">    The following special type names are recognized:</span>
 <span class="sd">      - configsection: instantiated and used the same way as an entry in the</span>
 <span class="sd">        configs :obj:`__init__` arg.</span>
-<span class="sd">      - remoteconfigsection: Instantiated and used the same way as an entry in</span>
-<span class="sd">        theremote_configs :obj:`__init__` arg.</span>
 
 <span class="sd">    These &quot;magic&quot; typenames are only recognized if they are used by a</span>
 <span class="sd">    section with a name starting with &quot;autoload&quot;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configs</span><span class="o">=</span><span class="p">(),</span> <span class="n">remote_configs</span><span class="o">=</span><span class="p">(),</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configs</span><span class="o">=</span><span class="p">(),</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize.</span>
 
 <span class="sd">        :type configs: sequence of mappings of string to ConfigSection.</span>
 <span class="sd">        :param configs: configuration to use.</span>
 <span class="sd">            Can define extra configs that are also loaded.</span>
-<span class="sd">        :type remote_configs: sequence of mappings of string to ConfigSection.</span>
-<span class="sd">        :param remote_configs: configuration to use.</span>
-<span class="sd">            Cannot define extra configs.</span>
 <span class="sd">        :param debug: if set to True exception wrapping is disabled.</span>
 <span class="sd">            This means things can raise other exceptions than</span>
 <span class="sd">            ConfigurationError but tracebacks are complete.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">original_configs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">original_remote_configs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">remote_configs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original_config_sources</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_compat_mangle_config</span><span class="p">,</span> <span class="n">configs</span><span class="p">))</span>
         <span class="c"># Set of encountered section names, used to catch recursive references.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_refs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reload</span><span class="p">()</span>
+        <span class="c"># cycle...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">objects</span> <span class="o">=</span> <span class="n">_ConfigObjMap</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_compat_mangle_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s">&#39;sections&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">config</span>
+        <span class="k">return</span> <span class="n">basics</span><span class="o">.</span><span class="n">GeneratedConfigSource</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s">&quot;unknown&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ConfigManager.reload"><a class="viewcode-back" href="../../../api/pkgcore.config.central.html#pkgcore.config.central.ConfigManager.reload">[docs]</a>    <span class="k">def</span> <span class="nf">reload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reinitialize us from the config sources originally passed in.</span>
@@ -252,63 +316,69 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># &quot;Attribute defined outside __init__&quot;</span>
         <span class="c"># pylint: disable-msg=W0201</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">configs</span> <span class="o">=</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_configs</span><span class="p">)</span> <span class="o">+</span>
-                        <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_remote_configs</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_sources</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c"># Cache mapping confname to CollapsedConfig.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">collapsed_configs</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_exec_configs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_configs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rendered_sections</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sections_lookup</span> <span class="o">=</span> <span class="n">mappings</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">deque</span><span class="p">)</span>
+        <span class="c"># force regeneration.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_types</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">_uncached_singleton</span>
+        <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_config_sources</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_config_source</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 </div>
-    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">_ConfigMapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_exec_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configs</span><span class="p">):</span>
+<div class="viewcode-block" id="ConfigManager.add_config_source"><a class="viewcode-back" href="../../../api/pkgcore.config.central.html#pkgcore.config.central.ConfigManager.add_config_source">[docs]</a>    <span class="k">def</span> <span class="nf">add_config_source</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_config_source</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_compat_mangle_config</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+</div>
+    <span class="k">def</span> <span class="nf">_add_config_source</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Pull extra type and config sections from configs and use them.</span>
 
 <span class="sd">        Things loaded this way are added after already loaded things</span>
 <span class="sd">        (meaning the config containing the autoload section overrides</span>
 <span class="sd">        the config(s) added by that section).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">new_configs</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">configs</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
-                <span class="c"># Do not even touch the ConfigSection if it&#39;s not an autoload.</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;autoload&#39;</span><span class="p">):</span>
-                    <span class="k">continue</span>
-                <span class="c"># If this matches something we previously instantiated</span>
-                <span class="c"># we should probably blow up to prevent massive</span>
-                <span class="c"># amounts of confusion (and recursive autoloads)</span>
-                <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">collapsed_configs</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
-                        <span class="s">&#39;section </span><span class="si">%r</span><span class="s"> from autoload is already collapsed!&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                            <span class="n">name</span><span class="p">,))</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">collapsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collapse_named_section</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-                <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Collapsing autoload </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
-                    <span class="k">raise</span>
-                <span class="k">if</span> <span class="n">collapsed</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span>
-                    <span class="s">&#39;configsection&#39;</span><span class="p">,</span> <span class="s">&#39;remoteconfigsection&#39;</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
-                        <span class="s">&#39;Section </span><span class="si">%r</span><span class="s"> is marked as autoload but type is </span><span class="si">%s</span><span class="s">, not &#39;</span>
-                        <span class="s">&#39;(remote)configsection&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">collapsed</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">instance</span> <span class="o">=</span> <span class="n">collapsed</span><span class="o">.</span><span class="n">instantiate</span><span class="p">()</span>
-                <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Instantiating autoload </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
-                    <span class="k">raise</span>
-                <span class="k">if</span> <span class="n">collapsed</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;configsection&#39;</span><span class="p">:</span>
-                    <span class="n">new_configs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">collapsed</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;remoteconfigsection&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">new_configs</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">new_configs</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_exec_configs</span><span class="p">(</span><span class="n">new_configs</span><span class="p">)</span>
+        <span class="n">config_data</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">sections</span><span class="p">()</span>
+
+        <span class="n">collision</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rendered_sections</span><span class="p">)</span>
+        <span class="n">collision</span><span class="o">.</span><span class="n">intersection_update</span><span class="p">(</span><span class="n">config_data</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">collision</span><span class="p">:</span>
+            <span class="c"># If this matches something we previously instantiated</span>
+            <span class="c"># we should probably blow up to prevent massive</span>
+            <span class="c"># amounts of confusion (and recursive autoloads)</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span><span class="s">&quot;New config is trying to &quot;</span>
+                <span class="s">&quot;modify existing section(s) </span><span class="si">%s</span><span class="s"> that was already instantiated.&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">collision</span><span class="p">)),))</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">config_data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">config_data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sections_lookup</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">appendleft</span><span class="p">(</span><span class="n">config_data</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+
+            <span class="c"># Do not even touch the ConfigSection if it&#39;s not an autoload.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;autoload&#39;</span><span class="p">):</span>
+                <span class="k">continue</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">collapsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collapse_named_section</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Collapsing autoload </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
+                <span class="k">raise</span>
+            <span class="k">if</span> <span class="n">collapsed</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s">&#39;configsection&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
+                   <span class="s">&#39;Section </span><span class="si">%r</span><span class="s"> is marked as autoload but type is </span><span class="si">%s</span><span class="s">, not &#39;</span>
+                   <span class="s">&#39;configsection&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">collapsed</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">instance</span> <span class="o">=</span> <span class="n">collapsed</span><span class="o">.</span><span class="n">instantiate</span><span class="p">()</span>
+            <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Instantiating autoload </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
+                <span class="k">raise</span>
+            <span class="k">if</span> <span class="n">collapsed</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;configsection&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_config_source</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ConfigManager.sections"><a class="viewcode-back" href="../../../api/pkgcore.config.central.html#pkgcore.config.central.ConfigManager.sections">[docs]</a>    <span class="k">def</span> <span class="nf">sections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return an iterator of all section names.&quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
-                <span class="k">yield</span> <span class="n">name</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections_lookup</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="ConfigManager.collapse_named_section"><a class="viewcode-back" href="../../../api/pkgcore.config.central.html#pkgcore.config.central.ConfigManager.collapse_named_section">[docs]</a>    <span class="k">def</span> <span class="nf">collapse_named_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">raise_on_missing</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Collapse a config by name, possibly returning a cached instance.</span>
@@ -323,56 +393,41 @@
                 <span class="s">&#39;Reference to </span><span class="si">%r</span><span class="s"> is recursive&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_refs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collapsed_configs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rendered_sections</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">result</span>
-            <span class="k">for</span> <span class="n">source_index</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
-                    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-                    <span class="k">break</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">raise_on_missing</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&quot;portdir&quot;</span><span class="p">:</span>
-                        <span class="c"># gentoo-related usability --jokey</span>
-                        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
-                            <span class="s">&quot;no section called </span><span class="si">%r</span><span class="s">, maybe you didn&#39;t add autoload-portage to your file&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
-                            <span class="s">&#39;no section called </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
-                <span class="k">return</span> <span class="bp">None</span>
+            <span class="n">section_stack</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">section_stack</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">raise_on_missing</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">None</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&quot;portdir&quot;</span><span class="p">:</span>
+                    <span class="c"># gentoo-related usability --jokey</span>
+                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
+                        <span class="s">&quot;no section called </span><span class="si">%r</span><span class="s">, maybe you didn&#39;t add autoload-portage to your file&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
+                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
+                   <span class="s">&#39;no section called </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collapse_section</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">source_index</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collapse_section</span><span class="p">(</span><span class="n">section_stack</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
                 <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
             <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
                 <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Collapsing section named </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
                 <span class="k">raise</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">collapsed_configs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rendered_sections</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
             <span class="k">return</span> <span class="n">result</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_refs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="ConfigManager.collapse_section"><a class="viewcode-back" href="../../../api/pkgcore.config.central.html#pkgcore.config.central.ConfigManager.collapse_section">[docs]</a>    <span class="k">def</span> <span class="nf">collapse_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">_index</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Collapse a ConfigSection to a :obj:`CollapsedConfig`.&quot;&quot;&quot;</span>
-
-        <span class="c"># Bail if this is an inherit-only (uncollapsable) section.</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">inherit_only</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;inherit-only&#39;</span><span class="p">,</span> <span class="s">&#39;bool&#39;</span><span class="p">)</span>
-        <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
-            <span class="k">pass</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">inherit_only</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">CollapseInheritOnly</span><span class="p">(</span>
-                    <span class="s">&#39;cannot collapse inherit-only section&#39;</span><span class="p">)</span>
-
+    <span class="k">def</span> <span class="nf">_get_inherited_sections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">sections</span><span class="p">):</span>
         <span class="c"># List of (name, ConfigSection, index) tuples, most specific first.</span>
-        <span class="n">slist</span> <span class="o">=</span> <span class="p">[(</span><span class="n">_name</span><span class="p">,</span> <span class="n">section</span><span class="p">,</span> <span class="n">_index</span><span class="p">)]</span>
+        <span class="n">slist</span> <span class="o">=</span> <span class="p">[(</span><span class="n">name</span><span class="p">,</span> <span class="n">sections</span><span class="p">)]</span>
 
         <span class="c"># first map out inherits.</span>
-        <span class="n">inherit_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">_name</span><span class="p">])</span>
-        <span class="k">for</span> <span class="n">current_section</span><span class="p">,</span> <span class="n">current_conf</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">slist</span><span class="p">:</span>
+        <span class="n">inherit_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">name</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">current_section</span><span class="p">,</span> <span class="n">section_stack</span> <span class="ow">in</span> <span class="n">slist</span><span class="p">:</span>
+            <span class="n">current_conf</span> <span class="o">=</span> <span class="n">section_stack</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="s">&#39;inherit&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">current_conf</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="n">prepend</span><span class="p">,</span> <span class="n">inherits</span><span class="p">,</span> <span class="n">append</span> <span class="o">=</span> <span class="n">current_conf</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span>
+            <span class="n">prepend</span><span class="p">,</span> <span class="n">inherits</span><span class="p">,</span> <span class="n">append</span> <span class="o">=</span> <span class="n">current_conf</span><span class="o">.</span><span class="n">render_value</span><span class="p">(</span>
                 <span class="bp">self</span><span class="p">,</span> <span class="s">&#39;inherit&#39;</span><span class="p">,</span> <span class="s">&#39;list&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">prepend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">append</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
@@ -380,169 +435,149 @@
                     <span class="s">&#39;sense&#39;</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">inherit</span> <span class="ow">in</span> <span class="n">inherits</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">inherit</span> <span class="o">==</span> <span class="n">current_section</span><span class="p">:</span>
-                    <span class="c"># Self-inherit is a bit special.</span>
-                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">[</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]):</span>
-                        <span class="k">if</span> <span class="n">inherit</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
-                            <span class="n">slist</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">inherit</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="n">inherit</span><span class="p">],</span>
-                                          <span class="n">index</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
-                            <span class="k">break</span>
-                    <span class="k">else</span><span class="p">:</span>
+                    <span class="c"># self-inherit.  Mkae use of section_stack to handle this.</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">section_stack</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="c"># nothing else to self inherit.</span>
                         <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
                             <span class="s">&#39;Self-inherit </span><span class="si">%r</span><span class="s"> cannot be found&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">inherit</span><span class="p">,))</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">section_stack</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">deque</span><span class="p">):</span>
+                        <span class="n">slist</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">inherit</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">section_stack</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">slist</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">inherit</span><span class="p">,</span> <span class="n">section_stack</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">inherit</span> <span class="ow">in</span> <span class="n">inherit_names</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
                             <span class="s">&#39;Inherit </span><span class="si">%r</span><span class="s"> is recursive&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">inherit</span><span class="p">,))</span>
                     <span class="n">inherit_names</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">inherit</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">):</span>
-                        <span class="k">if</span> <span class="n">inherit</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
-                            <span class="n">slist</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">inherit</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="n">inherit</span><span class="p">],</span> <span class="n">i</span><span class="p">))</span>
-                            <span class="k">break</span>
-                    <span class="k">else</span><span class="p">:</span>
+                    <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">inherit</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
                             <span class="s">&#39;inherit target </span><span class="si">%r</span><span class="s"> cannot be found&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">inherit</span><span class="p">,))</span>
+                    <span class="n">slist</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">inherit</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">_section_data</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">stack</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">stack</span><span class="p">)</span> <span class="ow">in</span> <span class="n">slist</span><span class="p">]</span>
 
-        <span class="c"># Grab the &quot;class&quot; setting first (we need it to get a type obj</span>
-        <span class="c"># to collapse to the right type in the more general loop)</span>
-        <span class="k">for</span> <span class="n">inherit_name</span><span class="p">,</span> <span class="n">inherit_conf</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">slist</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s">&quot;class&quot;</span> <span class="ow">in</span> <span class="n">inherit_conf</span><span class="p">:</span>
-                <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_section_is_inherit_only</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s">&#39;inherit-only&#39;</span> <span class="ow">in</span> <span class="n">section</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">render_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;inherit-only&#39;</span><span class="p">,</span> <span class="s">&#39;bool&#39;</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+<div class="viewcode-block" id="ConfigManager.collapse_section"><a class="viewcode-back" href="../../../api/pkgcore.config.central.html#pkgcore.config.central.ConfigManager.collapse_section">[docs]</a>    <span class="k">def</span> <span class="nf">collapse_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sections</span><span class="p">,</span> <span class="n">_name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Collapse a ConfigSection to a :obj:`CollapsedConfig`.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section_is_inherit_only</span><span class="p">(</span><span class="n">sections</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">sections</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">render_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;inherit-only&#39;</span><span class="p">,</span> <span class="s">&#39;bool&#39;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">CollapseInheritOnly</span><span class="p">(</span>
+                    <span class="s">&#39;cannot collapse inherit-only section&#39;</span><span class="p">)</span>
+
+        <span class="n">relevant_sections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_inherited_sections</span><span class="p">(</span><span class="n">_name</span><span class="p">,</span> <span class="n">sections</span><span class="p">)</span>
+
+        <span class="n">config_stack</span> <span class="o">=</span> <span class="n">_ConfigStack</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">relevant_sections</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">section</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">config_stack</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="n">kls</span> <span class="o">=</span> <span class="n">config_stack</span><span class="o">.</span><span class="n">render_val</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;class&#39;</span><span class="p">,</span> <span class="s">&#39;callable&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kls</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span><span class="s">&#39;no class specified&#39;</span><span class="p">)</span>
+        <span class="n">type_obj</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">ConfigType</span><span class="p">(</span><span class="n">kls</span><span class="p">)</span>
+        <span class="n">is_default</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">config_stack</span><span class="o">.</span><span class="n">render_val</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;default&#39;</span><span class="p">,</span> <span class="s">&#39;bool&#39;</span><span class="p">))</span>
 
-        <span class="n">type_obj</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">ConfigType</span><span class="p">(</span><span class="n">inherit_conf</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;class&#39;</span><span class="p">,</span>
-                                                            <span class="s">&#39;callable&#39;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;inherit&#39;</span><span class="p">,</span> <span class="s">&#39;inherit-only&#39;</span><span class="p">,</span> <span class="s">&#39;class&#39;</span><span class="p">,</span> <span class="s">&#39;default&#39;</span><span class="p">):</span>
+            <span class="n">config_stack</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
 
-        <span class="n">conf</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">section_nr</span><span class="p">,</span> <span class="p">(</span><span class="n">inherit_name</span><span class="p">,</span> <span class="n">inherit_conf</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span> <span class="ow">in</span> \
-                <span class="nb">enumerate</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">slist</span><span class="p">)):</span>
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">inherit_conf</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;class&#39;</span><span class="p">,</span> <span class="s">&#39;inherit&#39;</span><span class="p">,</span> <span class="s">&#39;inherit-only&#39;</span><span class="p">):</span>
-                    <span class="k">continue</span>
-                <span class="n">typename</span> <span class="o">=</span> <span class="n">type_obj</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">typename</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s">&#39;default&#39;</span><span class="p">:</span>
-                        <span class="n">typename</span> <span class="o">=</span> <span class="s">&#39;bool&#39;</span>
-                    <span class="k">elif</span> <span class="ow">not</span> <span class="n">type_obj</span><span class="o">.</span><span class="n">allow_unknowns</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">section_nr</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">slist</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-                            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
-                                <span class="s">&#39;Type of </span><span class="si">%r</span><span class="s"> inherited from </span><span class="si">%r</span><span class="s"> unknown&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                                    <span class="n">key</span><span class="p">,</span> <span class="n">inherit_name</span><span class="p">))</span>
-                        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
-                            <span class="s">&#39;Type of </span><span class="si">%r</span><span class="s"> unknown&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,))</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">typename</span> <span class="o">=</span> <span class="s">&#39;str&#39;</span>
-                <span class="n">is_ref</span> <span class="o">=</span> <span class="n">typename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;ref:&#39;</span><span class="p">)</span>
-                <span class="n">is_refs</span> <span class="o">=</span> <span class="n">typename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;refs:&#39;</span><span class="p">)</span>
-                <span class="c"># The sections do not care about lazy vs nonlazy.</span>
-                <span class="k">if</span> <span class="n">typename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;lazy_&#39;</span><span class="p">):</span>
-                    <span class="n">typename</span> <span class="o">=</span> <span class="n">typename</span><span class="p">[</span><span class="mi">5</span><span class="p">:]</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">inherit_conf</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">typename</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">is_ref</span><span class="p">:</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">collapse</span><span class="p">()</span>
-                    <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-                        <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="s">&#39;Collapsing section ref </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,))</span>
-                        <span class="k">raise</span>
-                <span class="k">elif</span> <span class="n">is_refs</span><span class="p">:</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">result</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-                            <span class="nb">list</span><span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">collapse</span><span class="p">()</span> <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">subresult</span> <span class="ow">or</span> <span class="p">())</span>
-                            <span class="k">for</span> <span class="n">subresult</span> <span class="ow">in</span> <span class="n">result</span><span class="p">)</span>
-                    <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-                        <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="s">&#39;Collapsing section refs </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,))</span>
-                        <span class="k">raise</span>
-                <span class="k">if</span> <span class="n">typename</span> <span class="o">==</span> <span class="s">&#39;list&#39;</span> <span class="ow">or</span> <span class="n">typename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;refs:&#39;</span><span class="p">):</span>
-                    <span class="n">prepend</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">append</span> <span class="o">=</span> <span class="n">result</span>
-                    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">conf</span><span class="p">:</span>
-                            <span class="n">result</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
-                    <span class="k">if</span> <span class="n">prepend</span><span class="p">:</span>
-                        <span class="n">result</span> <span class="o">=</span> <span class="n">prepend</span> <span class="o">+</span> <span class="n">result</span>
-                    <span class="k">if</span> <span class="n">append</span><span class="p">:</span>
-                        <span class="n">result</span> <span class="o">+=</span> <span class="n">append</span>
-                <span class="k">elif</span> <span class="n">typename</span> <span class="o">==</span> <span class="s">&#39;str&#39;</span><span class="p">:</span>
-                    <span class="n">prepend</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">append</span> <span class="o">=</span> <span class="n">result</span>
-                    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">conf</span><span class="p">:</span>
-                        <span class="n">result</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-                    <span class="n">result</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                        <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span><span class="n">prepend</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">append</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span><span class="p">)</span>
-                <span class="n">conf</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
-        <span class="n">default</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;default&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">CollapsedConfig</span><span class="p">(</span>
-            <span class="n">type_obj</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span>
+        <span class="n">collapsed</span> <span class="o">=</span> <span class="n">CollapsedConfig</span><span class="p">(</span><span class="n">type_obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_config_stack</span><span class="p">(</span><span class="n">type_obj</span><span class="p">,</span> <span class="n">config_stack</span><span class="p">),</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">is_default</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">collapsed</span>
 </div>
+    <span class="nd">@klass.jit_attr</span>
+<div class="viewcode-block" id="ConfigManager.types"><a class="viewcode-back" href="../../../api/pkgcore.config.central.html#pkgcore.config.central.ConfigManager.types">[docs]</a>    <span class="k">def</span> <span class="nf">types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">type_map</span> <span class="o">=</span> <span class="n">mappings</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">sections</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections_lookup</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section_is_inherit_only</span><span class="p">(</span><span class="n">sections</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="k">continue</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collapse_named_section</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">type_map</span><span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj</span>
+        <span class="k">return</span> <span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">type_map</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
+</div>
+    <span class="k">def</span> <span class="nf">_render_config_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_obj</span><span class="p">,</span> <span class="n">config_stack</span><span class="p">):</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">config_stack</span><span class="p">:</span>
+            <span class="n">typename</span> <span class="o">=</span> <span class="n">type_obj</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">typename</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">type_obj</span><span class="o">.</span><span class="n">allow_unknowns</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
+                        <span class="s">&#39;Type of </span><span class="si">%r</span><span class="s"> unknown&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,))</span>
+                <span class="n">typename</span> <span class="o">=</span> <span class="s">&#39;str&#39;</span>
+
+            <span class="n">is_ref</span> <span class="o">=</span> <span class="n">typename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;ref:&#39;</span><span class="p">)</span>
+            <span class="n">is_refs</span> <span class="o">=</span> <span class="n">typename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;refs:&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">typename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;lazy_&#39;</span><span class="p">):</span>
+                <span class="n">typename</span> <span class="o">=</span> <span class="n">typename</span><span class="p">[</span><span class="mi">5</span><span class="p">:]</span>
+
+            <span class="k">if</span> <span class="n">typename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;refs:&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">typename</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;list&#39;</span><span class="p">,</span> <span class="s">&#39;str&#39;</span><span class="p">):</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">config_stack</span><span class="o">.</span><span class="n">render_prepends</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">typename</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="p">(</span><span class="n">typename</span> <span class="o">!=</span> <span class="s">&#39;str&#39;</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">typename</span> <span class="o">==</span> <span class="s">&#39;str&#39;</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">config_stack</span><span class="o">.</span><span class="n">render_val</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">typename</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">is_ref</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span>
+                <span class="n">is_refs</span> <span class="o">=</span> <span class="bp">True</span>
+
+            <span class="k">if</span> <span class="n">is_refs</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">ref</span><span class="o">.</span><span class="n">collapse</span><span class="p">()</span> <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">result</span><span class="p">]</span>
+                <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                       <span class="s">&#39;Collapsing section key </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,))</span>
+                    <span class="k">raise</span>
+            <span class="k">if</span> <span class="n">is_ref</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">conf</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
+
+        <span class="c"># Check if we got all values required to instantiate.</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">type_obj</span><span class="o">.</span><span class="n">required</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
+                <span class="s">&#39;type </span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s"> needs settings for </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="n">type_obj</span><span class="o">.</span><span class="n">callable</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
+                    <span class="n">type_obj</span><span class="o">.</span><span class="n">callable</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
+                    <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">missing</span><span class="p">)))</span>
+
+        <span class="k">return</span> <span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+
 <div class="viewcode-block" id="ConfigManager.get_default"><a class="viewcode-back" href="../../../api/pkgcore.config.central.html#pkgcore.config.central.ConfigManager.get_default">[docs]</a>    <span class="k">def</span> <span class="nf">get_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Finds the configuration specified default obj of type_name.</span>
 
 <span class="sd">        Returns C{None} if no defaults.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># The name of the &quot;winning&quot; default or None if there is none.</span>
-        <span class="n">default_name</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="c"># The collapsed default section or None.</span>
-        <span class="n">default</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">source</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-                <span class="n">collapsed</span> <span class="o">=</span> <span class="bp">None</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">is_default</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;default&#39;</span><span class="p">,</span> <span class="s">&#39;bool&#39;</span><span class="p">)</span>
-                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                    <span class="n">is_default</span> <span class="o">=</span> <span class="bp">False</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">is_default</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="c"># We need to know the type name of this section, for</span>
-                <span class="c"># which we need the class. Try to grab this from the</span>
-                <span class="c"># section directly:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">klass</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;class&#39;</span><span class="p">,</span> <span class="s">&#39;callable&#39;</span><span class="p">)</span>
-                <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">:</span>
-                    <span class="c"># There is a class setting but it is not valid.</span>
-                    <span class="c"># This means it is definitely not the one we are</span>
-                    <span class="c"># interested in, so just skip this.</span>
-                    <span class="k">continue</span>
-                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                    <span class="c"># There is no class value on the section. Collapse</span>
-                    <span class="c"># it to see if it inherits one:</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">collapsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collapse_named_section</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-                    <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">:</span>
-                        <span class="c"># Uncollapsable. Just ignore this, since we</span>
-                        <span class="c"># have no clean way of determining if this</span>
-                        <span class="c"># would be an &quot;interesting&quot; section if it</span>
-                        <span class="c"># could be collapsed (and complaining about</span>
-                        <span class="c"># every uncollapsable section with</span>
-                        <span class="c"># default=true would be too much).</span>
-                        <span class="k">continue</span>
-                    <span class="n">type_obj</span> <span class="o">=</span> <span class="n">collapsed</span><span class="o">.</span><span class="n">type</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="c"># Grabbed the class directly from the section.</span>
-                    <span class="n">type_obj</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">ConfigType</span><span class="p">(</span><span class="n">klass</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">type_obj</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">type_name</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="k">if</span> <span class="n">default_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
-                        <span class="s">&#39;both </span><span class="si">%r</span><span class="s"> and </span><span class="si">%r</span><span class="s"> are default for </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                            <span class="n">default_name</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">type_name</span><span class="p">))</span>
-                <span class="n">default_name</span> <span class="o">=</span> <span class="n">name</span>
-                <span class="n">default</span> <span class="o">=</span> <span class="n">collapsed</span>
-            <span class="k">if</span> <span class="n">default_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collapse_named_section</span><span class="p">(</span><span class="n">default_name</span><span class="p">)</span>
-                    <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-                        <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Collapsing default </span><span class="si">%s</span><span class="s"> </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                                <span class="n">type_name</span><span class="p">,</span> <span class="n">default_name</span><span class="p">))</span>
-                        <span class="k">raise</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">default</span><span class="o">.</span><span class="n">instantiate</span><span class="p">()</span>
-                <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Instantiating default </span><span class="si">%s</span><span class="s"> </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span>
-                                   <span class="p">(</span><span class="n">type_name</span><span class="p">,</span> <span class="n">default_name</span><span class="p">))</span>
-                    <span class="k">raise</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">defaults</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">type_name</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Collapsing defaults for </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">type_name</span><span class="p">,))</span>
+            <span class="k">raise</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="p">[(</span><span class="n">name</span><span class="p">,</span> <span class="n">section</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">defaults</span> <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">default</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">defaults</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">defaults</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">defaults</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">defaults</span><span class="p">]</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
+                <span class="s">&#39;type </span><span class="si">%s</span><span class="s"> incorrectly has multiple default sections: </span><span class="si">%s</span><span class="s">&#39;</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">type_name</span><span class="p">,</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span> <span class="n">defaults</span><span class="p">))))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">defaults</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">instantiate</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Instantiating default </span><span class="si">%s</span><span class="s"> </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span>
+                          <span class="p">(</span><span class="n">type_name</span><span class="p">,</span> <span class="n">defaults</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="k">raise</span>
         <span class="k">return</span> <span class="bp">None</span></div></div>
 </pre></div>
 

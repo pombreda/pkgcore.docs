@@ -60,8 +60,8 @@
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;ConfigType&quot;</span><span class="p">,</span> <span class="s">&quot;LazySectionRef&quot;</span><span class="p">,</span> <span class="s">&quot;LazyNamedSectionRef&quot;</span><span class="p">,</span> <span class="s">&quot;ConfigSection&quot;</span><span class="p">,</span>
     <span class="s">&quot;DictConfigSection&quot;</span><span class="p">,</span> <span class="s">&quot;FakeIncrementalDictConfigSection&quot;</span><span class="p">,</span> <span class="s">&quot;convert_string&quot;</span><span class="p">,</span>
-    <span class="s">&quot;convert_asis&quot;</span><span class="p">,</span> <span class="s">&quot;convert_hybrid&quot;</span><span class="p">,</span> <span class="s">&quot;section_alias&quot;</span><span class="p">,</span> <span class="s">&quot;list_parser&quot;</span><span class="p">,</span> <span class="s">&quot;str_parser&quot;</span><span class="p">,</span>
-    <span class="s">&quot;bool_parser&quot;</span><span class="p">,</span> <span class="s">&quot;int_parser&quot;</span><span class="p">,</span> <span class="s">&quot;parse_config_file&quot;</span>
+    <span class="s">&quot;convert_asis&quot;</span><span class="p">,</span> <span class="s">&quot;convert_hybrid&quot;</span><span class="p">,</span> <span class="s">&quot;section_alias&quot;</span><span class="p">,</span> <span class="s">&quot;str_to_list&quot;</span><span class="p">,</span> <span class="s">&quot;str_to_str&quot;</span><span class="p">,</span>
+    <span class="s">&quot;str_to_bool&quot;</span><span class="p">,</span> <span class="s">&quot;str_to_int&quot;</span><span class="p">,</span> <span class="s">&quot;parse_config_file&quot;</span>
 <span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">errors</span><span class="p">,</span> <span class="n">configurable</span>
@@ -240,7 +240,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">section</span> <span class="o">=</span> <span class="n">section</span>
 
     <span class="k">def</span> <span class="nf">_collapse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">central</span><span class="o">.</span><span class="n">collapse_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">section</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">central</span><span class="o">.</span><span class="n">collapse_section</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">section</span><span class="p">])</span>
 
 
 <div class="viewcode-block" id="ConfigSection"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.ConfigSection">[docs]</a><span class="k">class</span> <span class="nc">ConfigSection</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -260,9 +260,9 @@
         <span class="sd">&quot;&quot;&quot;Return a list of keys.&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="ConfigSection.get_value"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.ConfigSection.get_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">central</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">):</span>
+<div class="viewcode-block" id="ConfigSection.render_value"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.ConfigSection.render_value">[docs]</a>    <span class="k">def</span> <span class="nf">render_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">central</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a setting, converted to the requested type.&quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;render_value&#39;</span><span class="p">)</span>
 
 </div></div>
 <div class="viewcode-block" id="DictConfigSection"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.DictConfigSection">[docs]</a><span class="k">class</span> <span class="nc">DictConfigSection</span><span class="p">(</span><span class="n">ConfigSection</span><span class="p">):</span>
@@ -287,7 +287,7 @@
 <div class="viewcode-block" id="DictConfigSection.keys"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.DictConfigSection.keys">[docs]</a>    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="DictConfigSection.get_value"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.DictConfigSection.get_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">central</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">):</span>
+<div class="viewcode-block" id="DictConfigSection.render_value"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.DictConfigSection.render_value">[docs]</a>    <span class="k">def</span> <span class="nf">render_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">central</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">central</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">arg_type</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
@@ -331,7 +331,7 @@
             <span class="n">keys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="FakeIncrementalDictConfigSection.get_value"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.FakeIncrementalDictConfigSection.get_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">central</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">):</span>
+<div class="viewcode-block" id="FakeIncrementalDictConfigSection.render_value"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.FakeIncrementalDictConfigSection.render_value">[docs]</a>    <span class="k">def</span> <span class="nf">render_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">central</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">):</span>
         <span class="c"># Check if we need our special incremental magic.</span>
         <span class="k">if</span> <span class="n">arg_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;list&#39;</span><span class="p">,</span> <span class="s">&#39;str&#39;</span><span class="p">,</span> <span class="s">&#39;repr&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">arg_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;refs:&#39;</span><span class="p">):</span>
             <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
@@ -430,7 +430,76 @@
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Converting argument </span><span class="si">%r</span><span class="s"> to </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">))</span>
             <span class="k">raise</span>
+
 </div></div>
+<div class="viewcode-block" id="str_to_list"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.str_to_list">[docs]</a><span class="k">def</span> <span class="nf">str_to_list</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;split on whitespace honoring quoting for new tokens&quot;&quot;&quot;</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+    <span class="c"># check for stringness because we return something interesting if</span>
+    <span class="c"># feeded a sequence of strings</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;expected a string, got </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">string</span><span class="p">,))</span>
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">isspace</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s">&#39;&quot;&#39;</span><span class="p">):</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="n">i</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">e</span> <span class="ow">and</span> <span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">string</span><span class="p">[</span><span class="n">q</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;</span><span class="se">\\</span><span class="s">&#39;</span><span class="p">:</span>
+                        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">QuoteInterpretationError</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+                <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">e</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">isspace</span><span class="p">()</span> <span class="ow">or</span>
+                                     <span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s">&#39;&quot;&#39;</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;</span><span class="se">\\</span><span class="s">&#39;</span><span class="p">:</span>
+                        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">e</span> <span class="ow">and</span> <span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s">&#39;&quot;&#39;</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">QuoteInterpretationError</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+                <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res</span><span class="p">))</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">l</span>
+</div>
+<div class="viewcode-block" id="str_to_str"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.str_to_str">[docs]</a><span class="k">def</span> <span class="nf">str_to_str</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;yank leading/trailing whitespace and quotation, along with newlines&quot;&quot;&quot;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s">&#39;&quot;</span><span class="se">\&#39;</span><span class="s">&#39;</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\t</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="str_to_bool"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.str_to_bool">[docs]</a><span class="k">def</span> <span class="nf">str_to_bool</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;convert a string to a boolean&quot;&quot;&quot;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">str_to_str</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;no&quot;</span><span class="p">,</span> <span class="s">&quot;false&quot;</span><span class="p">,</span> <span class="s">&quot;0&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;yes&quot;</span><span class="p">,</span> <span class="s">&quot;true&quot;</span><span class="p">,</span> <span class="s">&quot;1&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">True</span>
+    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%r</span><span class="s"> is not a boolean&#39;</span> <span class="o">%</span> <span class="n">s</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="str_to_int"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.str_to_int">[docs]</a><span class="k">def</span> <span class="nf">str_to_int</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;convert a string to a integer&quot;&quot;&quot;</span>
+    <span class="n">string</span> <span class="o">=</span> <span class="n">str_to_str</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%r</span><span class="s"> is not an integer&#39;</span> <span class="o">%</span> <span class="n">string</span><span class="p">)</span>
+</div>
+<span class="n">_str_converters</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;list&#39;</span><span class="p">:</span> <span class="n">str_to_list</span><span class="p">,</span>
+    <span class="s">&#39;str&#39;</span><span class="p">:</span> <span class="n">str_to_str</span><span class="p">,</span>
+    <span class="s">&#39;bool&#39;</span><span class="p">:</span> <span class="n">str_to_bool</span><span class="p">,</span>
+    <span class="s">&#39;int&#39;</span><span class="p">:</span> <span class="n">str_to_int</span>
+<span class="p">}</span>
+
 <div class="viewcode-block" id="convert_string"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.convert_string">[docs]</a><span class="k">def</span> <span class="nf">convert_string</span><span class="p">(</span><span class="n">central</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Conversion func for a string-based DictConfigSection.&quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">),</span> <span class="n">value</span>
@@ -444,19 +513,13 @@
         <span class="k">return</span> <span class="n">func</span>
     <span class="k">elif</span> <span class="n">arg_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;refs:&#39;</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">LazyNamedSectionRef</span><span class="p">(</span><span class="n">central</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">,</span> <span class="n">ref</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">list_parser</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">str_to_list</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
     <span class="k">elif</span> <span class="n">arg_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;ref:&#39;</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">LazyNamedSectionRef</span><span class="p">(</span><span class="n">central</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">,</span> <span class="n">str_parser</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">LazyNamedSectionRef</span><span class="p">(</span><span class="n">central</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">,</span> <span class="n">str_to_str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
     <span class="k">elif</span> <span class="n">arg_type</span> <span class="o">==</span> <span class="s">&#39;repr&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="s">&#39;str&#39;</span><span class="p">,</span> <span class="n">value</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">func</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s">&#39;list&#39;</span><span class="p">:</span> <span class="n">list_parser</span><span class="p">,</span>
-            <span class="s">&#39;str&#39;</span><span class="p">:</span> <span class="n">str_parser</span><span class="p">,</span>
-            <span class="s">&#39;bool&#39;</span><span class="p">:</span> <span class="n">bool_parser</span><span class="p">,</span>
-            <span class="s">&#39;int&#39;</span><span class="p">:</span> <span class="n">int_parser</span><span class="p">,</span>
-            <span class="p">}[</span><span class="n">arg_type</span><span class="p">]</span>
-    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+    <span class="n">func</span> <span class="o">=</span> <span class="n">_str_converters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">arg_type</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">func</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span><span class="s">&#39;Unknown type </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">arg_type</span><span class="p">,))</span>
     <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 </div>
@@ -536,67 +599,6 @@
     <span class="k">return</span> <span class="n">AutoConfigSection</span><span class="p">({</span><span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="n">section_alias</span><span class="p">,</span> <span class="s">&#39;target&#39;</span><span class="p">:</span> <span class="n">target</span><span class="p">})</span>
 
 </div>
-<div class="viewcode-block" id="list_parser"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.list_parser">[docs]</a><span class="k">def</span> <span class="nf">list_parser</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;split on whitespace honoring quoting for new tokens&quot;&quot;&quot;</span>
-    <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">e</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
-    <span class="c"># check for stringness because we return something interesting if</span>
-    <span class="c"># feeded a sequence of strings</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;expected a string, got </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">string</span><span class="p">,))</span>
-    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">isspace</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s">&#39;&quot;&#39;</span><span class="p">):</span>
-                <span class="n">q</span> <span class="o">=</span> <span class="n">i</span>
-                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">e</span> <span class="ow">and</span> <span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">string</span><span class="p">[</span><span class="n">q</span><span class="p">]:</span>
-                    <span class="k">if</span> <span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;</span><span class="se">\\</span><span class="s">&#39;</span><span class="p">:</span>
-                        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
-                    <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">QuoteInterpretationError</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
-                <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res</span><span class="p">))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">e</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">isspace</span><span class="p">()</span> <span class="ow">or</span>
-                                     <span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s">&#39;&quot;&#39;</span><span class="p">)):</span>
-                    <span class="k">if</span> <span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;</span><span class="se">\\</span><span class="s">&#39;</span><span class="p">:</span>
-                        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
-                    <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">e</span> <span class="ow">and</span> <span class="n">string</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s">&#39;&quot;&#39;</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">QuoteInterpretationError</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
-                <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res</span><span class="p">))</span>
-        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
-    <span class="k">return</span> <span class="n">l</span>
-</div>
-<div class="viewcode-block" id="str_parser"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.str_parser">[docs]</a><span class="k">def</span> <span class="nf">str_parser</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;yank leading/trailing whitespace and quotation, along with newlines&quot;&quot;&quot;</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s">&#39;&quot;</span><span class="se">\&#39;</span><span class="s">&#39;</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\t</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="bool_parser"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.bool_parser">[docs]</a><span class="k">def</span> <span class="nf">bool_parser</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;convert a string to a boolean&quot;&quot;&quot;</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">str_parser</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;no&quot;</span><span class="p">,</span> <span class="s">&quot;false&quot;</span><span class="p">,</span> <span class="s">&quot;0&quot;</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">False</span>
-    <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;yes&quot;</span><span class="p">,</span> <span class="s">&quot;true&quot;</span><span class="p">,</span> <span class="s">&quot;1&quot;</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">True</span>
-    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%r</span><span class="s"> is not a boolean&#39;</span> <span class="o">%</span> <span class="n">s</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="int_parser"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.int_parser">[docs]</a><span class="k">def</span> <span class="nf">int_parser</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;convert a string to a integer&quot;&quot;&quot;</span>
-    <span class="n">string</span> <span class="o">=</span> <span class="n">str_parser</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%r</span><span class="s"> is not an integer&#39;</span> <span class="o">%</span> <span class="n">string</span><span class="p">)</span>
-</div>
 <span class="nd">@configurable</span><span class="p">({</span><span class="s">&#39;path&#39;</span><span class="p">:</span> <span class="s">&#39;str&#39;</span><span class="p">,</span> <span class="s">&#39;parser&#39;</span><span class="p">:</span> <span class="s">&#39;callable&#39;</span><span class="p">},</span> <span class="n">typename</span><span class="o">=</span><span class="s">&#39;configsection&#39;</span><span class="p">)</span>
 <div class="viewcode-block" id="parse_config_file"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.parse_config_file">[docs]</a><span class="k">def</span> <span class="nf">parse_config_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
@@ -606,7 +608,24 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">parser</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
     <span class="k">finally</span><span class="p">:</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+</div>
+<span class="k">class</span> <span class="nc">ConfigSource</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="n">description</span> <span class="o">=</span> <span class="s">&quot;No description available&quot;</span>
+    <span class="k">def</span> <span class="nf">sections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;sections&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">GeneratedConfigSource</span><span class="p">(</span><span class="n">ConfigSource</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section_data</span><span class="p">,</span> <span class="n">description</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">section_data</span> <span class="o">=</span> <span class="n">section_data</span>
+
+    <span class="k">def</span> <span class="nf">sections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_data</span>
 </pre></div>
 
           </div>

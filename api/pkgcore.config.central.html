@@ -67,7 +67,7 @@
 <tr><td><a class="reference internal" href="#pkgcore.config.central.CollapsedConfig" title="pkgcore.config.central.CollapsedConfig"><tt class="xref py py-obj docutils literal"><span class="pre">CollapsedConfig</span></tt></a>(type_obj,&nbsp;config,&nbsp;manager[,&nbsp;...])</td>
 <td>A collapsed config section.</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.config.central.ConfigManager" title="pkgcore.config.central.ConfigManager"><tt class="xref py py-obj docutils literal"><span class="pre">ConfigManager</span></tt></a>([configs,&nbsp;remote_configs,&nbsp;debug])</td>
+<tr><td><a class="reference internal" href="#pkgcore.config.central.ConfigManager" title="pkgcore.config.central.ConfigManager"><tt class="xref py py-obj docutils literal"><span class="pre">ConfigManager</span></tt></a>([configs,&nbsp;debug])</td>
 <td>Combine config type definitions and configuration sections.</td>
 </tr>
 </tbody>
@@ -101,7 +101,7 @@
 
 <dl class="class">
 <dt id="pkgcore.config.central.ConfigManager">
-<em class="property">class </em><tt class="descclassname">pkgcore.config.central.</tt><tt class="descname">ConfigManager</tt><big>(</big><em>configs=()</em>, <em>remote_configs=()</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/central.html#ConfigManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.central.ConfigManager" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">pkgcore.config.central.</tt><tt class="descname">ConfigManager</tt><big>(</big><em>configs=()</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/central.html#ConfigManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.central.ConfigManager" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Combine config type definitions and configuration sections.</p>
 <p>Creates instances of a requested type and name by pulling the
@@ -111,13 +111,16 @@ required data from any number of provided configuration sources.</p>
 <dd><ul class="first last simple">
 <li>configsection: instantiated and used the same way as an entry in the
 configs <tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt> arg.</li>
-<li>remoteconfigsection: Instantiated and used the same way as an entry in
-theremote_configs <tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt> arg.</li>
 </ul>
 </dd>
 </dl>
 <p>These &#8220;magic&#8221; typenames are only recognized if they are used by a
 section with a name starting with &#8220;autoload&#8221;.</p>
+<dl class="method">
+<dt id="pkgcore.config.central.ConfigManager.add_config_source">
+<tt class="descname">add_config_source</tt><big>(</big><em>config</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/central.html#ConfigManager.add_config_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.central.ConfigManager.add_config_source" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pkgcore.config.central.ConfigManager.collapse_named_section">
 <tt class="descname">collapse_named_section</tt><big>(</big><em>name</em>, <em>raise_on_missing=True</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/central.html#ConfigManager.collapse_named_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.central.ConfigManager.collapse_named_section" title="Permalink to this definition">¶</a></dt>
@@ -129,7 +132,7 @@ unless raise_on_missing is False in which case None is returned.</p>
 
 <dl class="method">
 <dt id="pkgcore.config.central.ConfigManager.collapse_section">
-<tt class="descname">collapse_section</tt><big>(</big><em>section</em>, <em>_name=None</em>, <em>_index=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/central.html#ConfigManager.collapse_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.central.ConfigManager.collapse_section" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">collapse_section</tt><big>(</big><em>sections</em>, <em>_name=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/central.html#ConfigManager.collapse_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.central.ConfigManager.collapse_section" title="Permalink to this definition">¶</a></dt>
 <dd><p>Collapse a ConfigSection to a <a class="reference internal" href="#pkgcore.config.central.CollapsedConfig" title="pkgcore.config.central.CollapsedConfig"><tt class="xref py py-obj docutils literal"><span class="pre">CollapsedConfig</span></tt></a>.</p>
 </dd></dl>
 
@@ -151,6 +154,14 @@ unless raise_on_missing is False in which case None is returned.</p>
 <dt id="pkgcore.config.central.ConfigManager.sections">
 <tt class="descname">sections</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/central.html#ConfigManager.sections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.central.ConfigManager.sections" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an iterator of all section names.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.config.central.ConfigManager.types">
+<tt class="descname">types</tt><a class="reference internal" href="../_modules/pkgcore/config/central.html#ConfigManager.types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.central.ConfigManager.types" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
 </dd></dl>
 
 </dd></dl>

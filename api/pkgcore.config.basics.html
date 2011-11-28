@@ -64,9 +64,6 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><a class="reference internal" href="#pkgcore.config.basics.bool_parser" title="pkgcore.config.basics.bool_parser"><tt class="xref py py-obj docutils literal"><span class="pre">bool_parser</span></tt></a>(string)</td>
-<td>convert a string to a boolean</td>
-</tr>
 <tr><td><a class="reference internal" href="#pkgcore.config.basics.convert_asis" title="pkgcore.config.basics.convert_asis"><tt class="xref py py-obj docutils literal"><span class="pre">convert_asis</span></tt></a>(central,&nbsp;value,&nbsp;arg_type)</td>
 <td>&#8220;Conversion&#8221; func assuming the types are already correct.</td>
 </tr>
@@ -76,19 +73,22 @@
 <tr><td><a class="reference internal" href="#pkgcore.config.basics.convert_string" title="pkgcore.config.basics.convert_string"><tt class="xref py py-obj docutils literal"><span class="pre">convert_string</span></tt></a>(central,&nbsp;value,&nbsp;arg_type)</td>
 <td>Conversion func for a string-based DictConfigSection.</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.config.basics.int_parser" title="pkgcore.config.basics.int_parser"><tt class="xref py py-obj docutils literal"><span class="pre">int_parser</span></tt></a>(string)</td>
-<td>convert a string to a integer</td>
-</tr>
-<tr><td><a class="reference internal" href="#pkgcore.config.basics.list_parser" title="pkgcore.config.basics.list_parser"><tt class="xref py py-obj docutils literal"><span class="pre">list_parser</span></tt></a>(string)</td>
-<td>split on whitespace honoring quoting for new tokens</td>
-</tr>
 <tr><td><a class="reference internal" href="#pkgcore.config.basics.parse_config_file" title="pkgcore.config.basics.parse_config_file"><tt class="xref py py-obj docutils literal"><span class="pre">parse_config_file</span></tt></a>(path,&nbsp;parser)</td>
 <td></td>
 </tr>
 <tr><td><a class="reference internal" href="#pkgcore.config.basics.section_alias" title="pkgcore.config.basics.section_alias"><tt class="xref py py-obj docutils literal"><span class="pre">section_alias</span></tt></a>(target,&nbsp;typename)</td>
 <td>Build a ConfigSection that instantiates a named reference.</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.config.basics.str_parser" title="pkgcore.config.basics.str_parser"><tt class="xref py py-obj docutils literal"><span class="pre">str_parser</span></tt></a>(string)</td>
+<tr><td><a class="reference internal" href="#pkgcore.config.basics.str_to_bool" title="pkgcore.config.basics.str_to_bool"><tt class="xref py py-obj docutils literal"><span class="pre">str_to_bool</span></tt></a>(string)</td>
+<td>convert a string to a boolean</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.config.basics.str_to_int" title="pkgcore.config.basics.str_to_int"><tt class="xref py py-obj docutils literal"><span class="pre">str_to_int</span></tt></a>(string)</td>
+<td>convert a string to a integer</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.config.basics.str_to_list" title="pkgcore.config.basics.str_to_list"><tt class="xref py py-obj docutils literal"><span class="pre">str_to_list</span></tt></a>(string)</td>
+<td>split on whitespace honoring quoting for new tokens</td>
+</tr>
+<tr><td><a class="reference internal" href="#pkgcore.config.basics.str_to_str" title="pkgcore.config.basics.str_to_str"><tt class="xref py py-obj docutils literal"><span class="pre">str_to_str</span></tt></a>(string)</td>
 <td>yank leading/trailing whitespace and quotation, along with newlines</td>
 </tr>
 </tbody>
@@ -181,15 +181,15 @@
 <p>Not much of an object this, if we were using zope.interface it&#8217;d
 be an Interface.</p>
 <dl class="method">
-<dt id="pkgcore.config.basics.ConfigSection.get_value">
-<tt class="descname">get_value</tt><big>(</big><em>central</em>, <em>name</em>, <em>arg_type</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#ConfigSection.get_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.ConfigSection.get_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a setting, converted to the requested type.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="pkgcore.config.basics.ConfigSection.keys">
 <tt class="descname">keys</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#ConfigSection.keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.ConfigSection.keys" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of keys.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.config.basics.ConfigSection.render_value">
+<tt class="descname">render_value</tt><big>(</big><em>central</em>, <em>name</em>, <em>arg_type</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#ConfigSection.render_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.ConfigSection.render_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a setting, converted to the requested type.</p>
 </dd></dl>
 
 </dd></dl>
@@ -200,13 +200,13 @@ be an Interface.</p>
 <dd><p>Bases: <a class="reference internal" href="#pkgcore.config.basics.ConfigSection" title="pkgcore.config.basics.ConfigSection"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.config.basics.ConfigSection</span></tt></a></p>
 <p>Turns a dict and a conversion function into a ConfigSection.</p>
 <dl class="method">
-<dt id="pkgcore.config.basics.DictConfigSection.get_value">
-<tt class="descname">get_value</tt><big>(</big><em>central</em>, <em>name</em>, <em>arg_type</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#DictConfigSection.get_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.DictConfigSection.get_value" title="Permalink to this definition">¶</a></dt>
+<dt id="pkgcore.config.basics.DictConfigSection.keys">
+<tt class="descname">keys</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#DictConfigSection.keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.DictConfigSection.keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="pkgcore.config.basics.DictConfigSection.keys">
-<tt class="descname">keys</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#DictConfigSection.keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.DictConfigSection.keys" title="Permalink to this definition">¶</a></dt>
+<dt id="pkgcore.config.basics.DictConfigSection.render_value">
+<tt class="descname">render_value</tt><big>(</big><em>central</em>, <em>name</em>, <em>arg_type</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#DictConfigSection.render_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.DictConfigSection.render_value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -217,13 +217,13 @@ be an Interface.</p>
 <dd><p>Bases: <a class="reference internal" href="#pkgcore.config.basics.ConfigSection" title="pkgcore.config.basics.ConfigSection"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.config.basics.ConfigSection</span></tt></a></p>
 <p>Turns a dict and a conversion function into a ConfigSection.</p>
 <dl class="method">
-<dt id="pkgcore.config.basics.FakeIncrementalDictConfigSection.get_value">
-<tt class="descname">get_value</tt><big>(</big><em>central</em>, <em>name</em>, <em>arg_type</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#FakeIncrementalDictConfigSection.get_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.FakeIncrementalDictConfigSection.get_value" title="Permalink to this definition">¶</a></dt>
+<dt id="pkgcore.config.basics.FakeIncrementalDictConfigSection.keys">
+<tt class="descname">keys</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#FakeIncrementalDictConfigSection.keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.FakeIncrementalDictConfigSection.keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="pkgcore.config.basics.FakeIncrementalDictConfigSection.keys">
-<tt class="descname">keys</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#FakeIncrementalDictConfigSection.keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.FakeIncrementalDictConfigSection.keys" title="Permalink to this definition">¶</a></dt>
+<dt id="pkgcore.config.basics.FakeIncrementalDictConfigSection.render_value">
+<tt class="descname">render_value</tt><big>(</big><em>central</em>, <em>name</em>, <em>arg_type</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#FakeIncrementalDictConfigSection.render_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.FakeIncrementalDictConfigSection.render_value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -259,26 +259,26 @@ identical to our target&#8217;s.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pkgcore.config.basics.list_parser">
-<tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">list_parser</tt><big>(</big><em>string</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#list_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.list_parser" title="Permalink to this definition">¶</a></dt>
+<dt id="pkgcore.config.basics.str_to_list">
+<tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">str_to_list</tt><big>(</big><em>string</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#str_to_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.str_to_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>split on whitespace honoring quoting for new tokens</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pkgcore.config.basics.str_parser">
-<tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">str_parser</tt><big>(</big><em>string</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#str_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.str_parser" title="Permalink to this definition">¶</a></dt>
+<dt id="pkgcore.config.basics.str_to_str">
+<tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">str_to_str</tt><big>(</big><em>string</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#str_to_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.str_to_str" title="Permalink to this definition">¶</a></dt>
 <dd><p>yank leading/trailing whitespace and quotation, along with newlines</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pkgcore.config.basics.bool_parser">
-<tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">bool_parser</tt><big>(</big><em>string</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#bool_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.bool_parser" title="Permalink to this definition">¶</a></dt>
+<dt id="pkgcore.config.basics.str_to_bool">
+<tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">str_to_bool</tt><big>(</big><em>string</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#str_to_bool"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.str_to_bool" title="Permalink to this definition">¶</a></dt>
 <dd><p>convert a string to a boolean</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pkgcore.config.basics.int_parser">
-<tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">int_parser</tt><big>(</big><em>string</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#int_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.int_parser" title="Permalink to this definition">¶</a></dt>
+<dt id="pkgcore.config.basics.str_to_int">
+<tt class="descclassname">pkgcore.config.basics.</tt><tt class="descname">str_to_int</tt><big>(</big><em>string</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/config/basics.html#str_to_int"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.config.basics.str_to_int" title="Permalink to this definition">¶</a></dt>
 <dd><p>convert a string to a integer</p>
 </dd></dl>
 
