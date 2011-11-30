@@ -58,10 +58,9 @@
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;CollapsedConfig&quot;</span><span class="p">,</span> <span class="s">&quot;ConfigManager&quot;</span><span class="p">,)</span>
 
-<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">collections</span><span class="o">,</span> <span class="nn">weakref</span>
 <span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">errors</span><span class="p">,</span> <span class="n">basics</span>
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">mappings</span><span class="p">,</span> <span class="n">compatibility</span><span class="p">,</span> <span class="n">sequences</span><span class="p">,</span> <span class="n">klass</span><span class="p">,</span> <span class="n">iterables</span>
-
 
 <span class="n">_section_data</span> <span class="o">=</span> <span class="n">sequences</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s">&#39;_section_data&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;section&#39;</span><span class="p">])</span>
 
@@ -178,6 +177,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
         <span class="c"># Cached instance if we have one.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_instance</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="n">manager</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">manager</span> <span class="o">=</span> <span class="n">weakref</span><span class="o">.</span><span class="n">ref</span><span class="p">(</span><span class="n">manager</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span> <span class="o">=</span> <span class="n">manager</span>
 
 <div class="viewcode-block" id="CollapsedConfig.instantiate"><a class="viewcode-back" href="../../../api/pkgcore.config.central.html#pkgcore.config.central.CollapsedConfig.instantiate">[docs]</a>    <span class="k">def</span> <span class="nf">instantiate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instance</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -226,6 +228,19 @@
                 <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
                     <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Instantiating refs </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
                     <span class="k">raise</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">requires_config</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;configuration internal error; &quot;</span>
+                    <span class="s">&quot;requires_config is enabled &quot;</span>
+                    <span class="s">&quot;but we have no config manager to return &quot;</span><span class="p">)</span>
+            <span class="n">manager</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Configuration internal error, potentially &quot;</span>
+                    <span class="s">&quot;client code error; manager requested, but the config &quot;</span>
+                    <span class="s">&quot;manager is no longer in memory&quot;</span><span class="p">)</span>
+
+            <span class="n">config</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">requires_config</span><span class="p">]</span> <span class="o">=</span> <span class="n">manager</span>
 
         <span class="n">callable_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">callable</span>
 

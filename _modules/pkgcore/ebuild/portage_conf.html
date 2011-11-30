@@ -213,13 +213,13 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">d</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;pkgcore.sync.base.GenericSyncer&#39;</span>
 
-    <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> syncer&#39;</span> <span class="o">%</span> <span class="n">basedir</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;sync:</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">basedir</span>
     <span class="n">new_config</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">AutoConfigSection</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">name</span>
 
 </div>
 <span class="k">def</span> <span class="nf">make_autodetect_syncer</span><span class="p">(</span><span class="n">new_config</span><span class="p">,</span> <span class="n">basedir</span><span class="p">):</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> syncer&#39;</span> <span class="o">%</span> <span class="n">basedir</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;sync:</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">basedir</span>
     <span class="n">new_config</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">AutoConfigSection</span><span class="p">({</span>
         <span class="s">&#39;class&#39;</span><span class="p">:</span><span class="s">&#39;pkgcore.sync.base.AutodetectSyncer&#39;</span><span class="p">,</span>
         <span class="s">&#39;basedir&#39;</span><span class="p">:</span><span class="n">basedir</span><span class="p">})</span>
@@ -417,21 +417,10 @@
         <span class="n">normpath</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">conf_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;PORTDIR_OVERLAY&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
 
 
-    <span class="c"># define the eclasses now.</span>
-    <span class="n">all_ecs</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="n">portdir</span><span class="p">]</span> <span class="o">+</span> <span class="n">portdir_overlays</span><span class="p">:</span>
-        <span class="n">ec_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s">&quot;eclass&quot;</span><span class="p">)</span>
-        <span class="n">new_config</span><span class="p">[</span><span class="n">ec_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">AutoConfigSection</span><span class="p">({</span>
-                <span class="s">&quot;class&quot;</span><span class="p">:</span> <span class="s">&quot;pkgcore.ebuild.eclass_cache.cache&quot;</span><span class="p">,</span>
-                <span class="s">&quot;path&quot;</span><span class="p">:</span> <span class="n">ec_path</span><span class="p">,</span>
-                <span class="s">&quot;portdir&quot;</span><span class="p">:</span> <span class="n">portdir</span><span class="p">})</span>
-        <span class="n">all_ecs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ec_path</span><span class="p">)</span>
-
     <span class="n">new_config</span><span class="p">[</span><span class="s">&#39;ebuild-repo-common&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">AutoConfigSection</span><span class="p">({</span>
             <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;pkgcore.ebuild.repository.tree&#39;</span><span class="p">,</span>
             <span class="s">&#39;default_mirrors&#39;</span><span class="p">:</span> <span class="n">gentoo_mirrors</span><span class="p">,</span>
             <span class="s">&#39;inherit-only&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-            <span class="s">&#39;eclass_cache&#39;</span><span class="p">:</span> <span class="s">&#39;eclass stack&#39;</span><span class="p">,</span>
             <span class="s">&#39;ignore_paludis_versioning&#39;</span><span class="p">:</span>
                 <span class="p">(</span><span class="s">&#39;ignore-paludis-versioning&#39;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">),</span>
             <span class="s">&#39;allow_missing_manifests&#39;</span><span class="p">:</span>
@@ -456,13 +445,11 @@
     <span class="k">for</span> <span class="n">tree_loc</span> <span class="ow">in</span> <span class="n">portdir_overlays</span><span class="p">:</span>
         <span class="n">kwds</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s">&#39;inherit&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;ebuild-repo-common&#39;</span><span class="p">,),</span>
-                <span class="s">&#39;location&#39;</span><span class="p">:</span> <span class="n">tree_loc</span><span class="p">,</span>
                 <span class="s">&#39;cache&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">mk_simple_cache</span><span class="p">(</span><span class="n">config_root</span><span class="p">,</span> <span class="n">tree_loc</span><span class="p">),),</span>
-                <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;pkgcore.ebuild.repository.SlavedTree&#39;</span><span class="p">,</span>
-                <span class="s">&#39;parent_repo&#39;</span><span class="p">:</span> <span class="s">&#39;portdir&#39;</span>
+                <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;pkgcore.ebuild.repository.slavedtree&#39;</span><span class="p">,</span>
+                <span class="s">&#39;raw_repo&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;raw:&#39;</span> <span class="o">+</span> <span class="n">tree_loc</span><span class="p">),</span>
+                <span class="s">&#39;parent_repo&#39;</span><span class="p">:</span> <span class="s">&#39;portdir&#39;</span><span class="p">,</span>
         <span class="p">}</span>
-        <span class="k">if</span> <span class="n">tree_loc</span> <span class="ow">in</span> <span class="n">overlay_syncers</span><span class="p">:</span>
-            <span class="n">kwds</span><span class="p">[</span><span class="s">&#39;sync&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">overlay_syncers</span><span class="p">[</span><span class="n">tree_loc</span><span class="p">]</span>
         <span class="n">new_config</span><span class="p">[</span><span class="n">tree_loc</span><span class="p">]</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">AutoConfigSection</span><span class="p">(</span><span class="n">kwds</span><span class="p">)</span>
 
     <span class="n">rsync_portdir_cache</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">portdir</span><span class="p">,</span> <span class="s">&quot;metadata&quot;</span><span class="p">,</span> <span class="s">&quot;cache&quot;</span><span class="p">))</span> \
@@ -472,22 +459,21 @@
     <span class="k">if</span> <span class="n">rsync_portdir_cache</span><span class="p">:</span>
         <span class="n">new_config</span><span class="p">[</span><span class="s">&quot;portdir cache&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">AutoConfigSection</span><span class="p">({</span>
             <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;pkgcore.cache.metadata.database&#39;</span><span class="p">,</span> <span class="s">&#39;readonly&#39;</span><span class="p">:</span> <span class="s">&#39;yes&#39;</span><span class="p">,</span>
-            <span class="s">&#39;location&#39;</span><span class="p">:</span> <span class="n">portdir</span><span class="p">,</span> <span class="s">&#39;eclasses&#39;</span><span class="p">:</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">portdir</span><span class="p">,</span> <span class="s">&#39;eclass&#39;</span><span class="p">),</span>
+            <span class="s">&#39;location&#39;</span><span class="p">:</span> <span class="n">portdir</span><span class="p">,</span>
         <span class="p">})</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">new_config</span><span class="p">[</span><span class="s">&quot;portdir cache&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mk_simple_cache</span><span class="p">(</span><span class="n">config_root</span><span class="p">,</span> <span class="n">portdir</span><span class="p">)</span>
 
     <span class="n">base_portdir_config</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="n">portdir_syncer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">base_portdir_config</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;sync&quot;</span><span class="p">:</span> <span class="n">make_syncer</span><span class="p">(</span><span class="n">new_config</span><span class="p">,</span> <span class="n">portdir</span><span class="p">,</span>
-            <span class="n">portdir_syncer</span><span class="p">,</span> <span class="n">rsync_opts</span><span class="p">)}</span>
+        <span class="n">make_syncer</span><span class="p">(</span><span class="n">new_config</span><span class="p">,</span> <span class="n">portdir</span><span class="p">,</span> <span class="n">portdir_syncer</span><span class="p">,</span> <span class="n">rsync_opts</span><span class="p">)</span>
 
     <span class="c"># setup portdir.</span>
     <span class="n">cache</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;portdir cache&#39;</span><span class="p">,)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">portdir_overlays</span><span class="p">:</span>
         <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">base_portdir_config</span><span class="p">)</span>
         <span class="n">d</span><span class="p">[</span><span class="s">&#39;inherit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;ebuild-repo-common&#39;</span><span class="p">,)</span>
-        <span class="n">d</span><span class="p">[</span><span class="s">&#39;location&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">portdir</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&#39;portdir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;raw:&#39;</span> <span class="o">+</span> <span class="n">portdir</span>
         <span class="n">d</span><span class="p">[</span><span class="s">&#39;cache&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;portdir cache&#39;</span><span class="p">,)</span>
 
         <span class="n">new_config</span><span class="p">[</span><span class="n">portdir</span><span class="p">]</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">FakeIncrementalDictConfigSection</span><span class="p">(</span>
@@ -505,7 +491,7 @@
 
         <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">base_portdir_config</span><span class="p">)</span>
         <span class="n">d</span><span class="p">[</span><span class="s">&#39;inherit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;ebuild-repo-common&#39;</span><span class="p">,)</span>
-        <span class="n">d</span><span class="p">[</span><span class="s">&#39;location&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">portdir</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&#39;raw_repo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;raw:&#39;</span> <span class="o">+</span> <span class="n">portdir</span>
         <span class="n">d</span><span class="p">[</span><span class="s">&#39;cache&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cache</span>
 
         <span class="n">new_config</span><span class="p">[</span><span class="n">portdir</span><span class="p">]</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">FakeIncrementalDictConfigSection</span><span class="p">(</span>
@@ -520,22 +506,24 @@
         <span class="n">new_config</span><span class="p">[</span><span class="s">&#39;portdir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">FakeIncrementalDictConfigSection</span><span class="p">(</span>
             <span class="n">my_convert_hybrid</span><span class="p">,</span> <span class="p">{</span>
                 <span class="s">&#39;inherit&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;ebuild-repo-common&#39;</span><span class="p">,),</span>
-                <span class="s">&#39;location&#39;</span><span class="p">:</span> <span class="n">portdir</span><span class="p">,</span>
+                <span class="s">&#39;raw_repo&#39;</span><span class="p">:</span> <span class="s">&#39;raw:&#39;</span> <span class="o">+</span> <span class="n">portdir</span><span class="p">,</span>
                 <span class="s">&#39;cache&#39;</span><span class="p">:</span> <span class="n">cache</span><span class="p">,</span>
-                <span class="s">&#39;eclass_cache&#39;</span><span class="p">:</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">portdir</span><span class="p">,</span> <span class="s">&#39;eclass&#39;</span><span class="p">)})</span>
-
-        <span class="c"># reverse the ordering so that overlays override portdir</span>
-        <span class="c"># (portage default)</span>
-        <span class="n">new_config</span><span class="p">[</span><span class="s">&quot;eclass stack&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">FakeIncrementalDictConfigSection</span><span class="p">(</span>
-            <span class="n">my_convert_hybrid</span><span class="p">,</span> <span class="p">{</span>
-                <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;pkgcore.ebuild.eclass_cache.StackedCaches&#39;</span><span class="p">,</span>
-                <span class="s">&#39;eclassdir&#39;</span><span class="p">:</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">portdir</span><span class="p">,</span> <span class="s">&quot;eclass&quot;</span><span class="p">),</span>
-                <span class="s">&#39;caches&#39;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">all_ecs</span><span class="p">))})</span>
+            <span class="p">})</span>
 
         <span class="n">new_config</span><span class="p">[</span><span class="s">&#39;repo-stack&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">FakeIncrementalDictConfigSection</span><span class="p">(</span>
             <span class="n">my_convert_hybrid</span><span class="p">,</span> <span class="p">{</span>
                 <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;pkgcore.repository.multiplex.config_tree&#39;</span><span class="p">,</span>
                 <span class="s">&#39;repositories&#39;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">reversed</span><span class="p">([</span><span class="n">portdir</span><span class="p">]</span> <span class="o">+</span> <span class="n">portdir_overlays</span><span class="p">))})</span>
+
+    <span class="k">for</span> <span class="n">tree_loc</span> <span class="ow">in</span> <span class="p">[</span><span class="n">portdir</span><span class="p">]</span> <span class="o">+</span> <span class="n">portdir_overlays</span><span class="p">:</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;class&#39;</span><span class="p">:</span><span class="s">&#39;pkgcore.ebuild.repo_objs.RepoConfig&#39;</span><span class="p">,</span>
+             <span class="s">&#39;location&#39;</span><span class="p">:</span><span class="n">tree_loc</span><span class="p">}</span>
+        <span class="k">if</span> <span class="s">&#39;sync:</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tree_loc</span><span class="p">,)</span> <span class="ow">in</span> <span class="n">new_config</span><span class="p">:</span>
+            <span class="n">conf</span><span class="p">[</span><span class="s">&#39;syncer&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;sync:</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tree_loc</span><span class="p">,)</span>
+        <span class="k">if</span> <span class="n">tree_loc</span> <span class="o">==</span> <span class="n">portdir</span><span class="p">:</span>
+            <span class="n">conf</span><span class="p">[</span><span class="s">&#39;default&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">new_config</span><span class="p">[</span><span class="s">&#39;raw:&#39;</span> <span class="o">+</span> <span class="n">tree_loc</span><span class="p">]</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">AutoConfigSection</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+
 
     <span class="n">new_config</span><span class="p">[</span><span class="s">&#39;vuln&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">AutoConfigSection</span><span class="p">({</span>
             <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="n">SecurityUpgradesViaProfile</span><span class="p">,</span>

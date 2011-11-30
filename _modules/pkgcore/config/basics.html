@@ -164,6 +164,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">types</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;str&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">positional</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">allow_unknowns</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">requires_config</span> <span class="o">=</span> <span class="bp">False</span>
 
         <span class="c"># Process ConfigHint (if any)</span>
         <span class="k">if</span> <span class="n">hint_overrides</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
@@ -177,6 +178,10 @@
             <span class="k">if</span> <span class="n">hint_overrides</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">hint_overrides</span><span class="o">.</span><span class="n">doc</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">allow_unknowns</span> <span class="o">=</span> <span class="n">hint_overrides</span><span class="o">.</span><span class="n">allow_unknowns</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">requires_config</span> <span class="o">=</span> <span class="n">hint_overrides</span><span class="o">.</span><span class="n">requires_config</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">requires_config</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">requires_config</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">requires_config</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">varargs</span> <span class="ow">or</span> <span class="n">varkw</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                 <span class="s">&#39;func </span><span class="si">%s</span><span class="s"> accepts *args or **kwargs, and no ConfigHint is &#39;</span>
@@ -189,7 +194,7 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">callable</span><span class="p">,</span> <span class="n">var</span><span class="p">))</span>
 
         <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">positional</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="ow">and</span> <span class="n">var</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">requires_config</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">TypeDefinitionError</span><span class="p">(</span>
                     <span class="s">&#39;</span><span class="si">%s</span><span class="s">: </span><span class="si">%r</span><span class="s"> is in positionals but not in required&#39;</span> <span class="o">%</span>
                     <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">callable</span><span class="p">,</span> <span class="n">var</span><span class="p">))</span>

@@ -64,6 +64,7 @@
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">mappings</span>
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">klass</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
+<span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">ConfigHint</span>
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
     <span class="s">&#39;snakeoil.xml:etree&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.log:logger&#39;</span><span class="p">,</span>
@@ -326,8 +327,8 @@
 
 <span class="k">class</span> <span class="nc">RepoConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;repo_location&quot;</span><span class="p">,</span> <span class="s">&quot;manifests&quot;</span><span class="p">,</span> <span class="s">&quot;masters&quot;</span><span class="p">,</span> <span class="s">&quot;aliases&quot;</span><span class="p">,</span> <span class="s">&quot;cache_format&quot;</span><span class="p">,</span>
-        <span class="s">&#39;profile_format&#39;</span><span class="p">)</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;location&quot;</span><span class="p">,</span> <span class="s">&quot;manifests&quot;</span><span class="p">,</span> <span class="s">&quot;masters&quot;</span><span class="p">,</span> <span class="s">&quot;aliases&quot;</span><span class="p">,</span> <span class="s">&quot;cache_format&quot;</span><span class="p">,</span>
+        <span class="s">&#39;profile_format&#39;</span><span class="p">,</span> <span class="s">&#39;syncer&#39;</span><span class="p">,</span> <span class="s">&#39;_repo_id&#39;</span><span class="p">)</span>
 
     <span class="n">layout_offset</span> <span class="o">=</span> <span class="s">&quot;metadata/layout.conf&quot;</span>
 
@@ -338,12 +339,16 @@
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">WeakInstMeta</span>
     <span class="n">__inst_caching__</span> <span class="o">=</span> <span class="bp">True</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_location</span><span class="p">):</span>
-        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;repo_location&#39;</span><span class="p">,</span> <span class="n">repo_location</span><span class="p">)</span>
+    <span class="n">pkgcore_config_type</span> <span class="o">=</span> <span class="n">ConfigHint</span><span class="p">(</span><span class="n">typename</span><span class="o">=</span><span class="s">&#39;raw_repo&#39;</span><span class="p">,</span>
+        <span class="n">types</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;syncer&#39;</span><span class="p">:</span><span class="s">&#39;lazy_ref:syncer&#39;</span><span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">syncer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;location&#39;</span><span class="p">,</span> <span class="n">location</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;syncer&#39;</span><span class="p">,</span> <span class="n">syncer</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parse_config</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">load_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_location</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout_offset</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout_offset</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fileutils</span><span class="o">.</span><span class="n">read_dict</span><span class="p">(</span><span class="n">bash</span><span class="o">.</span><span class="n">iter_read_bash</span><span class="p">(</span><span class="n">fileutils</span><span class="o">.</span><span class="n">readlines_ascii</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">)),</span>
             <span class="n">source_isiter</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">strip</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
 
@@ -369,7 +374,16 @@
         <span class="p">}</span>
 
         <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;manifests&#39;</span><span class="p">,</span> <span class="n">_immutable_attr_dict</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
-        <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;masters&#39;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">iter_stable_unique</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;masters&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">())))</span>
+        <span class="n">masters</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;masters&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">masters</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo_id</span> <span class="o">!=</span> <span class="s">&#39;gentoo&#39;</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;repository at </span><span class="si">%r</span><span class="s">, named </span><span class="si">%r</span><span class="s">, doesn&#39;t specify masters in layout.conf. &quot;</span>
+                    <span class="s">&quot;Defaulting to whatever repository is defined as &#39;default&#39; (gentoo usually). &quot;</span>
+                    <span class="s">&quot;Please explicitly set the masters, or set masters = &#39;&#39; if the repository &quot;</span>
+                    <span class="s">&quot;is standalone.&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo_id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">masters</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">iter_stable_unique</span><span class="p">(</span><span class="n">masters</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
+        <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;masters&#39;</span><span class="p">,</span> <span class="n">masters</span><span class="p">)</span>
         <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;aliases&#39;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">iter_stable_unique</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;aliases&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">())))</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;cache-format&#39;</span><span class="p">,</span> <span class="s">&#39;pms&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;md5-dict&#39;</span><span class="p">,</span> <span class="s">&#39;pms&#39;</span><span class="p">):</span>
@@ -383,9 +397,18 @@
         <span class="n">unknown</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">difference</span><span class="p">([</span><span class="s">&#39;pms&#39;</span><span class="p">,</span> <span class="s">&#39;portage-1&#39;</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">unknown</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;repository at </span><span class="si">%r</span><span class="s"> has an unsupported profile formats: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
-                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_location</span><span class="p">,</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">v</span><span class="p">))))</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">v</span><span class="p">))))</span>
             <span class="n">v</span> <span class="o">=</span> <span class="s">&#39;pms&#39;</span>
         <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;profile_format&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">v</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">repo_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">fileutils</span><span class="o">.</span><span class="n">readfile</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="s">&#39;profiles&#39;</span><span class="p">,</span> <span class="s">&#39;repo_name&#39;</span><span class="p">),</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;repository at location </span><span class="si">%r</span><span class="s"> lacks a defined repo_name&quot;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="s">&#39;&lt;unlabeled repository </span><span class="si">%s</span><span class="s">&gt;&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span>
+        <span class="k">return</span> <span class="n">val</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 </pre></div>
 
           </div>

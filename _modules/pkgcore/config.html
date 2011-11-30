@@ -68,10 +68,11 @@
     <span class="c"># be aware this is used in clone</span>
     <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s">&quot;types&quot;</span><span class="p">,</span> <span class="s">&quot;positional&quot;</span><span class="p">,</span> <span class="s">&quot;required&quot;</span><span class="p">,</span> <span class="s">&quot;typename&quot;</span><span class="p">,</span> <span class="s">&quot;allow_unknowns&quot;</span><span class="p">,</span>
-        <span class="s">&quot;doc&quot;</span><span class="p">,</span> <span class="s">&quot;authorative&quot;</span><span class="p">)</span>
+        <span class="s">&quot;doc&quot;</span><span class="p">,</span> <span class="s">&quot;authorative&quot;</span><span class="p">,</span> <span class="s">&#39;requires_config&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">types</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">typename</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">allow_unknowns</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">authorative</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+                 <span class="n">typename</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">allow_unknowns</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">authorative</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">requires_config</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">types</span> <span class="o">=</span> <span class="n">types</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">positional</span> <span class="o">=</span> <span class="n">positional</span> <span class="ow">or</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="n">required</span> <span class="ow">or</span> <span class="p">[]</span>
@@ -79,6 +80,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">allow_unknowns</span> <span class="o">=</span> <span class="n">allow_unknowns</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">doc</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">authorative</span> <span class="o">=</span> <span class="n">authorative</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">requires_config</span> <span class="o">=</span> <span class="n">requires_config</span>
 
 <div class="viewcode-block" id="ConfigHint.clone"><a class="viewcode-back" href="../../api/pkgcore.config.html#pkgcore.config.ConfigHint.clone">[docs]</a>    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
         <span class="n">new_kwds</span> <span class="o">=</span> <span class="p">{}</span>
