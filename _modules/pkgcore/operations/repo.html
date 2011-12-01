@@ -180,11 +180,30 @@
         <span class="n">install</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">newpkg</span><span class="p">,</span> <span class="n">observer</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="operations"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.operations">[docs]</a><span class="k">class</span> <span class="nc">operations</span><span class="p">(</span><span class="n">_operations_mod</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">sync_operations</span><span class="p">(</span><span class="n">_operations_mod</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repository</span><span class="p">,</span> <span class="n">disable_overrides</span><span class="o">=</span><span class="p">(),</span> <span class="n">enable_overrides</span><span class="o">=</span><span class="p">()):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">repo</span> <span class="o">=</span> <span class="n">repository</span>
         <span class="n">_operations_mod</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disable_overrides</span><span class="p">,</span> <span class="n">enable_overrides</span><span class="p">)</span>
+
+    <span class="nd">@_operations_mod.is_standalone</span>
+    <span class="k">def</span> <span class="nf">_cmd_api_sync</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="c"># often enough, the syncer is a lazy_ref</span>
+        <span class="n">syncer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_syncer</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">syncer</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_get_syncer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">syncer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">_syncer</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">syncer</span><span class="p">,</span> <span class="n">_sync_base</span><span class="o">.</span><span class="n">syncer</span><span class="p">):</span>
+            <span class="n">syncer</span> <span class="o">=</span> <span class="n">syncer</span><span class="o">.</span><span class="n">instantiate</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">syncer</span>
+
+    <span class="k">def</span> <span class="nf">_cmd_check_support_sync</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> <span class="s">&#39;_syncer&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> \
+            <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_syncer</span><span class="p">()</span><span class="o">.</span><span class="n">disabled</span>
+
+
+<div class="viewcode-block" id="operations"><a class="viewcode-back" href="../../../api/pkgcore.operations.repo.html#pkgcore.operations.repo.operations">[docs]</a><span class="k">class</span> <span class="nc">operations</span><span class="p">(</span><span class="n">sync_operations</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">_disabled_if_frozen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">frozen</span><span class="p">:</span>
@@ -229,22 +248,6 @@
     <span class="k">def</span> <span class="nf">_cmd_api_configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmd_implementation_configure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repository</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_observer</span><span class="p">(</span><span class="n">observer</span><span class="p">))</span>
-
-    <span class="nd">@_operations_mod.is_standalone</span>
-    <span class="k">def</span> <span class="nf">_cmd_api_sync</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="c"># often enough, the syncer is a lazy_ref</span>
-        <span class="n">syncer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_syncer</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">syncer</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">_get_syncer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">syncer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">_syncer</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">syncer</span><span class="p">,</span> <span class="n">_sync_base</span><span class="o">.</span><span class="n">syncer</span><span class="p">):</span>
-            <span class="n">syncer</span> <span class="o">=</span> <span class="n">syncer</span><span class="o">.</span><span class="n">instantiate</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">syncer</span>
-
-    <span class="k">def</span> <span class="nf">_cmd_check_support_sync</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span> <span class="s">&#39;_syncer&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> \
-            <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_syncer</span><span class="p">()</span><span class="o">.</span><span class="n">disabled</span>
 
     <span class="nd">@_operations_mod.is_standalone</span>
     <span class="k">def</span> <span class="nf">_cmd_api_regen_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
