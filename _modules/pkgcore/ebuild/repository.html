@@ -58,7 +58,7 @@
 <span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">stat</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">imap</span><span class="p">,</span> <span class="n">ifilterfalse</span>
 
-<span class="kn">from</span> <span class="nn">pkgcore.repository</span> <span class="kn">import</span> <span class="n">prototype</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">configured</span><span class="p">,</span> <span class="n">syncable</span>
+<span class="kn">from</span> <span class="nn">pkgcore.repository</span> <span class="kn">import</span> <span class="n">prototype</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">configured</span>
 <span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">eclass_cache</span> <span class="k">as</span> <span class="n">eclass_cache_module</span>
 <span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">ConfigHint</span><span class="p">,</span> <span class="n">configurable</span>
 <span class="kn">from</span> <span class="nn">pkgcore.plugin</span> <span class="kn">import</span> <span class="n">get_plugin</span>
@@ -195,13 +195,13 @@
 <span class="nd">@configurable</span><span class="p">(</span><span class="n">typename</span><span class="o">=</span><span class="s">&#39;repo&#39;</span><span class="p">,</span>
         <span class="n">types</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;raw_repo&#39;</span><span class="p">:</span> <span class="s">&#39;ref:raw_repo&#39;</span><span class="p">,</span> <span class="s">&#39;cache&#39;</span><span class="p">:</span> <span class="s">&#39;refs:cache&#39;</span><span class="p">,</span>
          <span class="s">&#39;eclass_override&#39;</span><span class="p">:</span> <span class="s">&#39;ref:eclass_cache&#39;</span><span class="p">,</span>
-         <span class="s">&#39;default_mirrors&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span> <span class="s">&#39;sync&#39;</span><span class="p">:</span> <span class="s">&#39;lazy_ref:syncer&#39;</span><span class="p">,</span>
+         <span class="s">&#39;default_mirrors&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
          <span class="s">&#39;override_repo_id&#39;</span><span class="p">:</span><span class="s">&#39;str&#39;</span><span class="p">,</span>
          <span class="s">&#39;ignore_paludis_versioning&#39;</span><span class="p">:</span><span class="s">&#39;bool&#39;</span><span class="p">,</span>
          <span class="s">&#39;allow_missing_manifests&#39;</span><span class="p">:</span><span class="s">&#39;bool&#39;</span><span class="p">},</span>
          <span class="n">requires_config</span><span class="o">=</span><span class="s">&#39;config&#39;</span><span class="p">)</span>
 <div class="viewcode-block" id="tree"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repository.html#pkgcore.ebuild.repository.tree">[docs]</a><span class="k">def</span> <span class="nf">tree</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">raw_repo</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="p">(),</span> <span class="n">eclass_override</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">default_mirrors</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-    <span class="n">ignore_paludis_versioning</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">allow_missing_manifests</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">ignore_paludis_versioning</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">allow_missing_manifests</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
 
     <span class="n">eclass_override</span> <span class="o">=</span> <span class="n">_sort_eclasses</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">raw_repo</span><span class="p">,</span> <span class="n">eclass_override</span><span class="p">)</span>
 
@@ -209,19 +209,19 @@
         <span class="n">default_mirrors</span><span class="o">=</span><span class="n">default_mirrors</span><span class="p">,</span>
         <span class="n">ignore_paludis_versioning</span><span class="o">=</span><span class="n">ignore_paludis_versioning</span><span class="p">,</span>
         <span class="n">allow_missing_manifests</span><span class="o">=</span><span class="n">allow_missing_manifests</span><span class="p">,</span>
-        <span class="n">repo_config</span><span class="o">=</span><span class="n">raw_repo</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="n">sync</span><span class="p">)</span>
+        <span class="n">repo_config</span><span class="o">=</span><span class="n">raw_repo</span><span class="p">)</span>
 </div>
 <span class="nd">@configurable</span><span class="p">(</span><span class="n">typename</span><span class="o">=</span><span class="s">&#39;repo&#39;</span><span class="p">,</span>
         <span class="n">types</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;raw_repo&#39;</span><span class="p">:</span> <span class="s">&#39;ref:raw_repo&#39;</span><span class="p">,</span> <span class="s">&#39;cache&#39;</span><span class="p">:</span> <span class="s">&#39;refs:cache&#39;</span><span class="p">,</span>
          <span class="s">&#39;parent_repo&#39;</span><span class="p">:</span><span class="s">&#39;ref:repo&#39;</span><span class="p">,</span>
          <span class="s">&#39;eclass_override&#39;</span><span class="p">:</span> <span class="s">&#39;ref:eclass_cache&#39;</span><span class="p">,</span>
-         <span class="s">&#39;default_mirrors&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span> <span class="s">&#39;sync&#39;</span><span class="p">:</span> <span class="s">&#39;lazy_ref:syncer&#39;</span><span class="p">,</span>
+         <span class="s">&#39;default_mirrors&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
          <span class="s">&#39;override_repo_id&#39;</span><span class="p">:</span><span class="s">&#39;str&#39;</span><span class="p">,</span>
          <span class="s">&#39;ignore_paludis_versioning&#39;</span><span class="p">:</span><span class="s">&#39;bool&#39;</span><span class="p">,</span>
          <span class="s">&#39;allow_missing_manifests&#39;</span><span class="p">:</span><span class="s">&#39;bool&#39;</span><span class="p">},</span>
          <span class="n">requires_config</span><span class="o">=</span><span class="s">&#39;config&#39;</span><span class="p">)</span>
 <div class="viewcode-block" id="slavedtree"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repository.html#pkgcore.ebuild.repository.slavedtree">[docs]</a><span class="k">def</span> <span class="nf">slavedtree</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">raw_repo</span><span class="p">,</span> <span class="n">parent_repo</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="p">(),</span> <span class="n">eclass_override</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">default_mirrors</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-    <span class="n">ignore_paludis_versioning</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">allow_missing_manifests</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">ignore_paludis_versioning</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">allow_missing_manifests</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
 
     <span class="n">eclass_override</span> <span class="o">=</span> <span class="n">_sort_eclasses</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">raw_repo</span><span class="p">,</span> <span class="n">eclass_override</span><span class="p">)</span>
 
@@ -229,12 +229,12 @@
         <span class="n">default_mirrors</span><span class="o">=</span><span class="n">default_mirrors</span><span class="p">,</span>
         <span class="n">ignore_paludis_versioning</span><span class="o">=</span><span class="n">ignore_paludis_versioning</span><span class="p">,</span>
         <span class="n">allow_missing_manifests</span><span class="o">=</span><span class="n">allow_missing_manifests</span><span class="p">,</span>
-        <span class="n">repo_config</span><span class="o">=</span><span class="n">raw_repo</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="n">sync</span><span class="p">)</span>
+        <span class="n">repo_config</span><span class="o">=</span><span class="n">raw_repo</span><span class="p">)</span>
 
 </div>
 <span class="n">metadata_offset</span> <span class="o">=</span> <span class="s">&quot;profiles&quot;</span>
 
-<span class="k">class</span> <span class="nc">_UnconfiguredTree</span><span class="p">(</span><span class="n">syncable</span><span class="o">.</span><span class="n">tree</span><span class="p">,</span> <span class="n">prototype</span><span class="o">.</span><span class="n">tree</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">_UnconfiguredTree</span><span class="p">(</span><span class="n">prototype</span><span class="o">.</span><span class="n">tree</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    raw implementation supporting standard ebuild tree.</span>
@@ -258,7 +258,7 @@
     <span class="n">pkgcore_config_type</span> <span class="o">=</span> <span class="n">ConfigHint</span><span class="p">(</span>
         <span class="p">{</span><span class="s">&#39;location&#39;</span><span class="p">:</span> <span class="s">&#39;str&#39;</span><span class="p">,</span> <span class="s">&#39;cache&#39;</span><span class="p">:</span> <span class="s">&#39;refs:cache&#39;</span><span class="p">,</span>
          <span class="s">&#39;eclass_cache&#39;</span><span class="p">:</span> <span class="s">&#39;ref:eclass_cache&#39;</span><span class="p">,</span>
-         <span class="s">&#39;default_mirrors&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span> <span class="s">&#39;sync&#39;</span><span class="p">:</span> <span class="s">&#39;lazy_ref:syncer&#39;</span><span class="p">,</span>
+         <span class="s">&#39;default_mirrors&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
          <span class="s">&#39;override_repo_id&#39;</span><span class="p">:</span><span class="s">&#39;str&#39;</span><span class="p">,</span>
          <span class="s">&#39;ignore_paludis_versioning&#39;</span><span class="p">:</span><span class="s">&#39;bool&#39;</span><span class="p">,</span>
          <span class="s">&#39;allow_missing_manifests&#39;</span><span class="p">:</span><span class="s">&#39;bool&#39;</span><span class="p">,</span>
@@ -267,7 +267,7 @@
         <span class="n">typename</span><span class="o">=</span><span class="s">&#39;repo&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">eclass_cache</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="p">(),</span>
-                 <span class="n">default_mirrors</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">override_repo_id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">default_mirrors</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">override_repo_id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                  <span class="n">ignore_paludis_versioning</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">allow_missing_manifests</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
                  <span class="n">repo_config</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 
@@ -282,8 +282,6 @@
 <span class="sd">            fetching from first, then falling back to other uri</span>
 <span class="sd">        :param override_repo_id: Either None, or string to force as the</span>
 <span class="sd">            repository unique id</span>
-<span class="sd">        :param sync: Either None, or a syncer object to use for updating of this</span>
-<span class="sd">            repository.</span>
 <span class="sd">        :param ignore_paludis_versioning: If False, fail when -scm is encountred.  if True,</span>
 <span class="sd">            silently ignore -scm ebuilds.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -291,9 +289,6 @@
         <span class="n">prototype</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">repo_config</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">repo_config</span> <span class="o">=</span> <span class="n">repo_objs</span><span class="o">.</span><span class="n">RepoConfig</span><span class="p">(</span><span class="n">location</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">sync</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">sync</span> <span class="o">=</span> <span class="n">repo_config</span><span class="o">.</span><span class="n">syncer</span>
-        <span class="n">syncable</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sync</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">repo_config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_repo_id</span> <span class="o">=</span> <span class="n">override_repo_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span> <span class="o">=</span> <span class="n">location</span>
