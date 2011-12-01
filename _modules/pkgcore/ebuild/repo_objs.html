@@ -65,6 +65,7 @@
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">klass</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
 <span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">ConfigHint</span>
+<span class="kn">from</span> <span class="nn">pkgcore.repository</span> <span class="kn">import</span> <span class="n">syncable</span>
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
     <span class="s">&#39;snakeoil.xml:etree&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.log:logger&#39;</span><span class="p">,</span>
@@ -325,10 +326,10 @@
     <span class="n">mappings</span><span class="o">.</span><span class="n">inject_getitem_as_getattr</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
 
 
-<span class="k">class</span> <span class="nc">RepoConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">RepoConfig</span><span class="p">(</span><span class="n">syncable</span><span class="o">.</span><span class="n">tree</span><span class="p">):</span>
 
     <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;location&quot;</span><span class="p">,</span> <span class="s">&quot;manifests&quot;</span><span class="p">,</span> <span class="s">&quot;masters&quot;</span><span class="p">,</span> <span class="s">&quot;aliases&quot;</span><span class="p">,</span> <span class="s">&quot;cache_format&quot;</span><span class="p">,</span>
-        <span class="s">&#39;profile_format&#39;</span><span class="p">,</span> <span class="s">&#39;syncer&#39;</span><span class="p">,</span> <span class="s">&#39;_repo_id&#39;</span><span class="p">,</span> <span class="s">&#39;_is_empty&#39;</span><span class="p">)</span>
+        <span class="s">&#39;profile_format&#39;</span><span class="p">,</span> <span class="s">&#39;_syncer&#39;</span><span class="p">,</span> <span class="s">&#39;_repo_id&#39;</span><span class="p">,</span> <span class="s">&#39;_is_empty&#39;</span><span class="p">)</span>
 
     <span class="n">layout_offset</span> <span class="o">=</span> <span class="s">&quot;metadata/layout.conf&quot;</span>
 
@@ -344,7 +345,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">syncer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;location&#39;</span><span class="p">,</span> <span class="n">location</span><span class="p">)</span>
-        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;syncer&#39;</span><span class="p">,</span> <span class="n">syncer</span><span class="p">)</span>
+        <span class="n">syncable</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">syncer</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parse_config</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">load_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

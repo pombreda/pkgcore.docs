@@ -46,16 +46,27 @@
           <div class="body">
             
   <h1>Source code for pkgcore.repository.syncable</h1><div class="highlight"><pre>
-<span class="c"># Copyright: 2006-2008 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># Copyright: 2006-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
 <span class="c"># License: GPL2/BSD</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;tree_mixin&quot;</span><span class="p">,)</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;tree&quot;</span><span class="p">,)</span>
 
-<div class="viewcode-block" id="tree_mixin"><a class="viewcode-back" href="../../../api/pkgcore.repository.syncable.html#pkgcore.repository.syncable.tree_mixin">[docs]</a><span class="k">class</span> <span class="nc">tree_mixin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="kn">from</span> <span class="nn">pkgcore.operations.repo</span> <span class="kn">import</span> <span class="n">sync_operations</span>
+
+<div class="viewcode-block" id="tree"><a class="viewcode-back" href="../../../api/pkgcore.repository.syncable.html#pkgcore.repository.syncable.tree">[docs]</a><span class="k">class</span> <span class="nc">tree</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="n">operations_kls</span> <span class="o">=</span> <span class="n">sync_operations</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_syncer</span> <span class="o">=</span> <span class="n">sync</span></div>
-</pre></div>
+        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_syncer&#39;</span><span class="p">,</span> <span class="n">sync</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="tree.operations"><a class="viewcode-back" href="../../../api/pkgcore.repository.syncable.html#pkgcore.repository.syncable.tree.operations">[docs]</a>    <span class="k">def</span> <span class="nf">operations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_operations</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="tree.get_operations"><a class="viewcode-back" href="../../../api/pkgcore.repository.syncable.html#pkgcore.repository.syncable.tree.get_operations">[docs]</a>    <span class="k">def</span> <span class="nf">get_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations_kls</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</pre></div></div></div>
 
           </div>
         </div>

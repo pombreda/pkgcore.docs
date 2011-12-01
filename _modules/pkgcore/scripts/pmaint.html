@@ -93,16 +93,23 @@
 <span class="n">sync</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;sync&quot;</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="n">shared_options</span><span class="p">,</span>
     <span class="n">description</span><span class="o">=</span><span class="s">&quot;synchronize a local repository with it&#39;s defined remote&quot;</span><span class="p">)</span>
 <span class="n">sync</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;repos&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;*&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;repositories to sync&quot;</span><span class="p">,</span>
-    <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">StoreRepoObject</span><span class="p">,</span> <span class="n">store_name</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">StoreRepoObject</span><span class="p">,</span> <span class="n">store_name</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 <span class="nd">@sync.bind_main_func</span>
 <div class="viewcode-block" id="sync_main"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pmaint.html#pkgcore.scripts.pmaint.sync_main">[docs]</a><span class="k">def</span> <span class="nf">sync_main</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Update a local repositories to match their remote parent&quot;&quot;&quot;</span>
     <span class="n">succeeded</span><span class="p">,</span> <span class="n">failed</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
     <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">repo</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">repo</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+        <span class="c"># rewrite the name if it has the usual prefix</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;raw:&quot;</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s">&quot;raw:&quot;</span><span class="p">):]</span>
+        <span class="n">repo_id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="s">&#39;repo_id&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">repo</span> <span class="ow">in</span> <span class="n">seen</span> <span class="ow">or</span> <span class="n">repo_id</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
             <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;*** skipping </span><span class="si">%r</span><span class="s">, already synced&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
             <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">repo_id</span><span class="p">:</span>
+            <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">repo_id</span><span class="p">)</span>
         <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">repo</span><span class="p">)</span>
         <span class="n">ops</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">operations</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">ops</span><span class="o">.</span><span class="n">supports</span><span class="p">(</span><span class="s">&quot;sync&quot;</span><span class="p">):</span>
