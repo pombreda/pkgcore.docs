@@ -403,12 +403,17 @@
 
     <span class="nd">@klass.jit_attr</span>
     <span class="k">def</span> <span class="nf">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="c"># any files means it&#39;s not empty</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
                 <span class="k">raise</span>
-        <span class="k">return</span> <span class="bp">True</span>
+
+        <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;repository at </span><span class="si">%r</span><span class="s"> is empty&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,))</span>
+        <span class="k">return</span> <span class="n">result</span>
 
     <span class="nd">@klass.jit_attr</span>
     <span class="k">def</span> <span class="nf">repo_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
