@@ -200,6 +200,11 @@
 <span class="k">class</span> <span class="nc">ConfigError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span>
 
+
+<span class="k">class</span> <span class="nc">NoDefaultConfigError</span><span class="p">(</span><span class="n">ConfigError</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
 <span class="k">class</span> <span class="nc">StoreConfigObject</span><span class="p">(</span><span class="n">argparse</span><span class="o">.</span><span class="n">_StoreAction</span><span class="p">):</span>
 
     <span class="n">default_priority</span> <span class="o">=</span> <span class="mi">20</span>
@@ -250,6 +255,10 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;no config found.  Internal bug&quot;</span><span class="p">)</span>
 
         <span class="n">sections</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_type</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span> <span class="o">==</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ZERO_OR_MORE</span> <span class="ow">and</span> <span class="n">values</span> <span class="o">==</span> <span class="p">[]:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">sections</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="n">values</span> <span class="ow">is</span> <span class="n">CONFIG_ALL_DEFAULT</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_load_obj</span><span class="p">(</span><span class="n">sections</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">]</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
@@ -274,7 +283,7 @@
                     <span class="s">&quot;via the </span><span class="si">%s</span><span class="s"> option.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">config_type</span><span class="p">,</span> <span class="n">option_string</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">known_objs</span><span class="p">:</span>
                 <span class="n">msg</span> <span class="o">+=</span> <span class="s">&quot;Known </span><span class="si">%s</span><span class="s">s: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">config_type</span><span class="p">,</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span> <span class="n">known_objs</span><span class="p">)))</span>
-            <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">NoDefaultConfigError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
@@ -284,6 +293,33 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;no config found.  Internal bug&quot;</span><span class="p">)</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="p">[(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">config_type</span><span class="p">)</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()]</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">StoreRepoObject</span><span class="p">(</span><span class="n">StoreConfigObject</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s">&#39;config_type&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;StoreRepoObject: config_type keyword is redundant: got </span><span class="si">%s</span><span class="s">&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;config_type&#39;</span><span class="p">],))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;raw&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;config_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;raw_repo&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;config_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;repo&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allow_name_lookup</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;allow_name_lookup&quot;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="n">StoreConfigObject</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_load_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sections</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_name_lookup</span> <span class="ow">or</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">StoreConfigObject</span><span class="o">.</span><span class="n">_load_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sections</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+        <span class="c"># name wasn&#39;t found; search for it.</span>
+        <span class="k">for</span> <span class="n">repo_name</span><span class="p">,</span> <span class="n">repo</span> <span class="ow">in</span> <span class="n">sections</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="s">&#39;repo_id&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">repo_name</span>
+                <span class="k">break</span>
+
+        <span class="k">return</span> <span class="n">StoreConfigObject</span><span class="o">.</span><span class="n">_load_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sections</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">DomainFromPath</span><span class="p">(</span><span class="n">StoreConfigObject</span><span class="p">):</span>

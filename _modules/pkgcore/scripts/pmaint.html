@@ -90,23 +90,10 @@
     <span class="n">description</span><span class="o">=</span><span class="s">&quot;commandline access to various system/repository maintenance functionality&quot;</span><span class="p">)</span>
 <span class="n">subparsers</span> <span class="o">=</span> <span class="n">argparser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s">&quot;general system maintenance&quot;</span><span class="p">)</span>
 
-
-<span class="c"># inconsistant argparse POS; needed due to nargs=&#39;*&#39;, it tries supplying the</span>
-<span class="c"># default as if it was given via the commandline</span>
-<span class="k">class</span> <span class="nc">ReposStoreConfig</span><span class="p">(</span><span class="n">commandline</span><span class="o">.</span><span class="n">StoreConfigObject</span><span class="p">):</span>
-
-    <span class="k">def</span> <span class="nf">_real_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">option_string</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">values</span> <span class="o">==</span> <span class="p">[]:</span>
-            <span class="n">values</span> <span class="o">=</span> <span class="n">namespace</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">commandline</span><span class="o">.</span><span class="n">StoreConfigObject</span><span class="o">.</span><span class="n">_real_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span>
-            <span class="n">values</span><span class="p">,</span> <span class="n">option_string</span><span class="o">=</span><span class="n">option_string</span><span class="p">)</span>
-
-
 <span class="n">sync</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;sync&quot;</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="n">shared_options</span><span class="p">,</span>
     <span class="n">description</span><span class="o">=</span><span class="s">&quot;synchronize a local repository with it&#39;s defined remote&quot;</span><span class="p">)</span>
 <span class="n">sync</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;repos&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;*&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;repositories to sync&quot;</span><span class="p">,</span>
-    <span class="n">action</span><span class="o">=</span><span class="n">ReposStoreConfig</span><span class="p">,</span> <span class="n">store_name</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-    <span class="n">config_type</span><span class="o">=</span><span class="s">&#39;repo&#39;</span><span class="p">)</span>
+    <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">StoreRepoObject</span><span class="p">,</span> <span class="n">store_name</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 <span class="nd">@sync.bind_main_func</span>
 <div class="viewcode-block" id="sync_main"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pmaint.html#pkgcore.scripts.pmaint.sync_main">[docs]</a><span class="k">def</span> <span class="nf">sync_main</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Update a local repositories to match their remote parent&quot;&quot;&quot;</span>
@@ -147,11 +134,10 @@
 <span class="n">copy</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;copy&quot;</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="n">shared_options</span><span class="p">,</span>
     <span class="n">description</span><span class="o">=</span><span class="s">&quot;copy binpkgs between repositories; primarily useful for &quot;</span>
     <span class="s">&quot;quickpkging a livefs pkg&quot;</span><span class="p">)</span>
-<span class="n">copy</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;target_repo&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">StoreConfigObject</span><span class="p">,</span>
-    <span class="n">config_type</span><span class="o">=</span><span class="s">&#39;repo&#39;</span><span class="p">,</span> <span class="n">writable</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s">&quot;repository to add packages to&quot;</span><span class="p">)</span>
+<span class="n">copy</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;target_repo&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">StoreRepoObject</span><span class="p">,</span>
+    <span class="n">writable</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;repository to add packages to&quot;</span><span class="p">)</span>
 <span class="n">copy</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--source-repo&#39;</span><span class="p">,</span> <span class="s">&#39;-s&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-    <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">StoreConfigObject</span><span class="p">,</span> <span class="n">config_type</span><span class="o">=</span><span class="s">&#39;repo&#39;</span><span class="p">,</span>
+    <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">StoreRepoObject</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="s">&quot;copy strictly from the supplied repository; else it copies from &quot;</span>
     <span class="s">&quot;wherever a match is found&quot;</span><span class="p">)</span>
 <span class="n">commandline</span><span class="o">.</span><span class="n">make_query</span><span class="p">(</span><span class="n">copy</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;+&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;query&#39;</span><span class="p">,</span>
@@ -227,8 +213,8 @@
     <span class="n">default</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">DelayedValue</span><span class="p">(</span><span class="n">_get_default_jobs</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
     <span class="n">help</span><span class="o">=</span><span class="s">&quot;number of threads to use for regeneration.  Defaults to using all &quot;</span>
     <span class="s">&quot;available processors&quot;</span><span class="p">)</span>
-<span class="n">regen</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;repo&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">StoreConfigObject</span><span class="p">,</span>
-    <span class="n">config_type</span><span class="o">=</span><span class="s">&#39;repo&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;repository to regenerate caches for&quot;</span><span class="p">)</span>
+<span class="n">regen</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;repo&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">StoreRepoObject</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;repository to regenerate caches for&quot;</span><span class="p">)</span>
 <span class="nd">@regen.bind_main_func</span>
 <div class="viewcode-block" id="regen_main"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pmaint.html#pkgcore.scripts.pmaint.regen_main">[docs]</a><span class="k">def</span> <span class="nf">regen_main</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Regenerate a repository cache.&quot;&quot;&quot;</span>
