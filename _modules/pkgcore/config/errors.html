@@ -65,7 +65,7 @@
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">compatibility</span>
 <span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
-    <span class="s">&quot;snakeoil.currying:pretty_docs,post_curry&quot;</span><span class="p">,</span>
+    <span class="s">&#39;snakeoil:currying&#39;</span><span class="p">,</span>
 <span class="p">)</span>
 
 <div class="viewcode-block" id="BaseError"><a class="viewcode-back" href="../../../api/pkgcore.config.errors.html#pkgcore.config.errors.BaseError">[docs]</a><span class="k">class</span> <span class="nc">BaseError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -135,25 +135,10 @@
 
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="ParsingError.wrap_exception"><a class="viewcode-back" href="../../../api/pkgcore.config.errors.html#pkgcore.config.errors.ParsingError.wrap_exception">[docs]</a>    <span class="k">def</span> <span class="nf">wrap_exception</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">post_curry</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_inner_wrap_exception</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
-</div>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_inner_wrap_exception</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">functor</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">currying</span><span class="o">.</span><span class="n">wrap_exception</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
+            <span class="n">pass_error</span><span class="o">=</span><span class="s">&#39;exception&#39;</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">functor</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="k">except</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">IGNORED_EXCEPTIONS</span><span class="p">:</span>
-                <span class="k">raise</span>
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">BaseError</span><span class="p">):</span>
-                    <span class="k">raise</span>
-                <span class="k">raise</span> <span class="n">cls</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span> <span class="n">exception</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">functor</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">__name__</span> <span class="o">=</span> <span class="n">functor</span><span class="o">.</span><span class="n">__name__</span>
-        <span class="k">return</span> <span class="n">pretty_docs</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-
-</div>
+</div></div>
 <div class="viewcode-block" id="CollapseInheritOnly"><a class="viewcode-back" href="../../../api/pkgcore.config.errors.html#pkgcore.config.errors.CollapseInheritOnly">[docs]</a><span class="k">class</span> <span class="nc">CollapseInheritOnly</span><span class="p">(</span><span class="n">ConfigurationError</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Attempt was made to collapse an uncollapsable section.</span>
 
