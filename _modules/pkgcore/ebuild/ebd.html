@@ -898,8 +898,13 @@
         <span class="n">env</span> <span class="o">=</span> <span class="n">expected_ebuild_env</span><span class="p">(</span><span class="n">pkg</span><span class="p">)</span>
         <span class="n">env</span><span class="p">[</span><span class="s">&quot;ROOT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">root</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">run_generic_phase</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="s">&quot;pretend&quot;</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;running ebuild pkg_pretend sanity check for </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">pkg</span><span class="p">)</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">run_generic_phase</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="s">&quot;pretend&quot;</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span>
                 <span class="n">extra_handlers</span><span class="o">=</span><span class="n">commands</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;pkg_pretend sanity check for </span><span class="si">%s</span><span class="s"> took </span><span class="si">%2.2f</span><span class="s"> seconds&quot;</span><span class="p">,</span>
+                <span class="n">pkg</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ret</span>
         <span class="k">except</span> <span class="n">format</span><span class="o">.</span><span class="n">GenericBuildError</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">False</span>
 
