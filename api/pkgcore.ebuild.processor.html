@@ -73,10 +73,10 @@ design) reduces regen time by over 40% compared to portage-2.1</p>
 <tr><td><a class="reference internal" href="#pkgcore.ebuild.processor.expected_ebuild_env" title="pkgcore.ebuild.processor.expected_ebuild_env"><tt class="xref py py-obj docutils literal"><span class="pre">expected_ebuild_env</span></tt></a>(pkg[,&nbsp;d,&nbsp;...])</td>
 <td>setup expected ebuild vars</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.ebuild.processor.release_ebuild_processor" title="pkgcore.ebuild.processor.release_ebuild_processor"><tt class="xref py py-obj docutils literal"><span class="pre">release_ebuild_processor</span></tt></a>(ebp)</td>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.processor.release_ebuild_processor" title="pkgcore.ebuild.processor.release_ebuild_processor"><tt class="xref py py-obj docutils literal"><span class="pre">release_ebuild_processor</span></tt></a>(*args,&nbsp;**kwds)</td>
 <td>the inverse of request_ebuild_processor.</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.ebuild.processor.request_ebuild_processor" title="pkgcore.ebuild.processor.request_ebuild_processor"><tt class="xref py py-obj docutils literal"><span class="pre">request_ebuild_processor</span></tt></a>([userpriv,&nbsp;...])</td>
+<tr><td><a class="reference internal" href="#pkgcore.ebuild.processor.request_ebuild_processor" title="pkgcore.ebuild.processor.request_ebuild_processor"><tt class="xref py py-obj docutils literal"><span class="pre">request_ebuild_processor</span></tt></a>(*args,&nbsp;**kwds)</td>
 <td>request an ebuild_processor instance, creating a new one if needed.</td>
 </tr>
 </tbody>
@@ -107,7 +107,7 @@ design) reduces regen time by over 40% compared to portage-2.1</p>
 </table>
 <dl class="function">
 <dt id="pkgcore.ebuild.processor.request_ebuild_processor">
-<tt class="descclassname">pkgcore.ebuild.processor.</tt><tt class="descname">request_ebuild_processor</tt><big>(</big><em>userpriv=False</em>, <em>sandbox=None</em>, <em>fakeroot=False</em>, <em>save_file=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#request_ebuild_processor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.request_ebuild_processor" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pkgcore.ebuild.processor.</tt><tt class="descname">request_ebuild_processor</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#request_ebuild_processor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.request_ebuild_processor" title="Permalink to this definition">¶</a></dt>
 <dd><p>request an ebuild_processor instance, creating a new one if needed.</p>
 <p>Note that fakeroot processes are B{never} reused due to the fact
 the fakeroot env becomes localized to the pkg it&#8217;s handling.</p>
@@ -134,7 +134,7 @@ mutually exclusive to sandbox, and requires save_file to be set.</li>
 
 <dl class="function">
 <dt id="pkgcore.ebuild.processor.release_ebuild_processor">
-<tt class="descclassname">pkgcore.ebuild.processor.</tt><tt class="descname">release_ebuild_processor</tt><big>(</big><em>ebp</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#release_ebuild_processor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.release_ebuild_processor" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pkgcore.ebuild.processor.</tt><tt class="descname">release_ebuild_processor</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/processor.html#release_ebuild_processor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.processor.release_ebuild_processor" title="Permalink to this definition">¶</a></dt>
 <dd><p>the inverse of request_ebuild_processor.</p>
 <p>Any processor requested via request_ebuild_processor B{must} be released
 via this function once it&#8217;s no longer in use.

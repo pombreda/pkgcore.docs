@@ -71,6 +71,18 @@
     <span class="s">&quot;request_ebuild_processor&quot;</span><span class="p">,</span> <span class="s">&quot;release_ebuild_processor&quot;</span><span class="p">,</span> <span class="s">&quot;EbuildProcessor&quot;</span><span class="p">,</span>
     <span class="s">&quot;UnhandledCommand&quot;</span><span class="p">,</span> <span class="s">&quot;expected_ebuild_env&quot;</span><span class="p">)</span>
 
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">threading</span>
+    <span class="n">_global_ebp_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+    <span class="n">_acquire_global_ebp_lock</span> <span class="o">=</span> <span class="n">_global_ebp_lock</span><span class="o">.</span><span class="n">acquire</span>
+    <span class="n">_release_global_ebp_lock</span> <span class="o">=</span> <span class="n">_global_ebp_lock</span><span class="o">.</span><span class="n">release</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_acquire_global_ebp_lock</span><span class="p">():</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_release_global_ebp_lock</span><span class="p">():</span>
+        <span class="k">pass</span>
+
 
 <span class="n">inactive_ebp_list</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">active_ebp_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -79,7 +91,7 @@
 <span class="kn">from</span> <span class="nn">pkgcore</span> <span class="kn">import</span> <span class="n">const</span><span class="p">,</span> <span class="n">os_data</span>
 <span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">const</span> <span class="k">as</span> <span class="n">e_const</span>
 
-<span class="kn">from</span> <span class="nn">snakeoil.currying</span> <span class="kn">import</span> <span class="n">post_curry</span><span class="p">,</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">snakeoil.currying</span> <span class="kn">import</span> <span class="n">post_curry</span><span class="p">,</span> <span class="n">partial</span><span class="p">,</span> <span class="n">pretty_docs</span>
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">klass</span>
 <span class="kn">from</span> <span class="nn">snakeoil.weakrefs</span> <span class="kn">import</span> <span class="n">WeakRefFinalizer</span>
 <span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="nb">any</span>
@@ -93,6 +105,18 @@
 
 <span class="kn">import</span> <span class="nn">traceback</span>
 
+<span class="k">def</span> <span class="nf">_single_thread_allowed</span><span class="p">(</span><span class="n">functor</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_inner</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="n">_acquire_global_ebp_lock</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">functor</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">_release_global_ebp_lock</span><span class="p">()</span>
+    <span class="n">_inner</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">functor</span>
+    <span class="n">pretty_docs</span><span class="p">(</span><span class="n">_inner</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">functor</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_inner</span>
+
+<span class="nd">@_single_thread_allowed</span>
 <span class="k">def</span> <span class="nf">shutdown_all_processors</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;kill off all known processors&quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
@@ -116,6 +140,7 @@
 
 <span class="n">pkgcore</span><span class="o">.</span><span class="n">spawn</span><span class="o">.</span><span class="n">atexit_register</span><span class="p">(</span><span class="n">shutdown_all_processors</span><span class="p">)</span>
 
+<span class="nd">@_single_thread_allowed</span>
 <div class="viewcode-block" id="request_ebuild_processor"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.request_ebuild_processor">[docs]</a><span class="k">def</span> <span class="nf">request_ebuild_processor</span><span class="p">(</span><span class="n">userpriv</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">sandbox</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fakeroot</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
                              <span class="n">save_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -149,8 +174,8 @@
     <span class="n">e</span> <span class="o">=</span> <span class="n">EbuildProcessor</span><span class="p">(</span><span class="n">userpriv</span><span class="p">,</span> <span class="n">sandbox</span><span class="p">,</span> <span class="n">fakeroot</span><span class="p">,</span> <span class="n">save_file</span><span class="p">)</span>
     <span class="n">active_ebp_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">e</span>
-
 </div>
+<span class="nd">@_single_thread_allowed</span>
 <div class="viewcode-block" id="release_ebuild_processor"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.release_ebuild_processor">[docs]</a><span class="k">def</span> <span class="nf">release_ebuild_processor</span><span class="p">(</span><span class="n">ebp</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    the inverse of request_ebuild_processor.</span>
