@@ -64,8 +64,16 @@
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;both position and optional args cannot be &quot;</span>
                 <span class="s">&quot;supplied: given msg(</span><span class="si">%r</span><span class="s">), args(</span><span class="si">%r</span><span class="s">), kwds(</span><span class="si">%r</span><span class="s">)&quot;</span>
                 <span class="o">%</span> <span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwds</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">msg</span> <span class="o">%</span> <span class="n">args</span>
-    <span class="k">return</span> <span class="n">msg</span> <span class="o">%</span> <span class="n">kwds</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">msg</span> <span class="o">%</span> <span class="n">args</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;observer interpolation error: </span><span class="si">%s</span><span class="s">, msg=</span><span class="si">%r</span><span class="s">, args=</span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span>
+                <span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">args</span><span class="p">))</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">msg</span> <span class="o">%</span> <span class="n">kwds</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;observer interpolation error: </span><span class="si">%s</span><span class="s">, msg=</span><span class="si">%r</span><span class="s">, kwds=</span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span>
+            <span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">kwds</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="null_output"><a class="viewcode-back" href="../../../api/pkgcore.operations.observer.html#pkgcore.operations.observer.null_output">[docs]</a><span class="k">class</span> <span class="nc">null_output</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>

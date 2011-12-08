@@ -81,7 +81,7 @@
 <div class="viewcode-block" id="install"><a class="viewcode-back" href="../../../api/pkgcore.vdb.repo_ops.html#pkgcore.vdb.repo_ops.install">[docs]</a><span class="k">class</span> <span class="nc">install</span><span class="p">(</span><span class="n">repo_ops</span><span class="o">.</span><span class="n">install</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">newpkg</span><span class="p">,</span> <span class="n">observer</span><span class="p">):</span>
-        <span class="n">base</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="n">newpkg</span><span class="o">.</span><span class="n">category</span><span class="p">)</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">newpkg</span><span class="o">.</span><span class="n">category</span><span class="p">)</span>
         <span class="n">dirname</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">-</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">newpkg</span><span class="o">.</span><span class="n">package</span><span class="p">,</span> <span class="n">newpkg</span><span class="o">.</span><span class="n">fullver</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">install_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">dirname</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tmp_write_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="s">&#39;.tmp.</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dirname</span><span class="p">,))</span>
@@ -91,7 +91,7 @@
         <span class="c"># error checking?</span>
         <span class="n">dirpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmp_write_path</span>
         <span class="n">ensure_dirs</span><span class="p">(</span><span class="n">dirpath</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="mo">0755</span><span class="p">,</span> <span class="n">minimal</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-        <span class="n">update_mtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">base</span><span class="p">)</span>
+        <span class="n">update_mtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
         <span class="n">rewrite</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">_metadata_rewrites</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_pkg</span><span class="o">.</span><span class="n">tracked_attributes</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s">&quot;contents&quot;</span><span class="p">:</span>
@@ -156,7 +156,7 @@
 </div>
 <div class="viewcode-block" id="install.finalize_data"><a class="viewcode-back" href="../../../api/pkgcore.vdb.repo_ops.html#pkgcore.vdb.repo_ops.install.finalize_data">[docs]</a>    <span class="k">def</span> <span class="nf">finalize_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmp_write_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">install_path</span><span class="p">)</span>
-        <span class="n">update_mtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">base</span><span class="p">)</span>
+        <span class="n">update_mtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">True</span>
 
 </div></div>
@@ -164,16 +164,16 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">remove_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span>
-            <span class="n">repo</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="n">pkg</span><span class="o">.</span><span class="n">category</span><span class="p">,</span> <span class="n">pkg</span><span class="o">.</span><span class="n">package</span><span class="o">+</span><span class="s">&quot;-&quot;</span><span class="o">+</span><span class="n">pkg</span><span class="o">.</span><span class="n">fullver</span><span class="p">)</span>
+            <span class="n">repo</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">pkg</span><span class="o">.</span><span class="n">category</span><span class="p">,</span> <span class="n">pkg</span><span class="o">.</span><span class="n">package</span><span class="o">+</span><span class="s">&quot;-&quot;</span><span class="o">+</span><span class="n">pkg</span><span class="o">.</span><span class="n">fullver</span><span class="p">)</span>
         <span class="n">repo_ops</span><span class="o">.</span><span class="n">uninstall</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">observer</span><span class="p">)</span>
 
 <div class="viewcode-block" id="uninstall.remove_data"><a class="viewcode-back" href="../../../api/pkgcore.vdb.repo_ops.html#pkgcore.vdb.repo_ops.uninstall.remove_data">[docs]</a>    <span class="k">def</span> <span class="nf">remove_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">True</span>
 </div>
 <div class="viewcode-block" id="uninstall.finalize_data"><a class="viewcode-back" href="../../../api/pkgcore.vdb.repo_ops.html#pkgcore.vdb.repo_ops.uninstall.finalize_data">[docs]</a>    <span class="k">def</span> <span class="nf">finalize_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">update_mtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">base</span><span class="p">)</span>
+        <span class="n">update_mtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">remove_path</span><span class="p">)</span>
-        <span class="n">update_mtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">base</span><span class="p">)</span>
+        <span class="n">update_mtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">True</span>
 
 
