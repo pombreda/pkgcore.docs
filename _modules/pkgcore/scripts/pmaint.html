@@ -213,13 +213,15 @@
     <span class="n">help</span><span class="o">=</span><span class="s">&quot;For regen operation, pkgcore internally turns on an &quot;</span>
     <span class="s">&quot;optimization that preloads eclasses into individual functions &quot;</span>
     <span class="s">&quot;thus parsing the eclass only once per EBD processor.  Disabling &quot;</span>
-    <span class="s">&quot;this optimization via this option results in ~50</span><span class="si">%%</span><span class="s"> slower &quot;</span>
+    <span class="s">&quot;this optimization via this option results in ~2x slower &quot;</span>
     <span class="s">&quot;regeneration. Disable it only if you suspect the optimization &quot;</span>
     <span class="s">&quot;is somehow causing issues.&quot;</span><span class="p">)</span>
 <span class="n">regen</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--threads&quot;</span><span class="p">,</span> <span class="s">&quot;-t&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
     <span class="n">default</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">DelayedValue</span><span class="p">(</span><span class="n">_get_default_jobs</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
     <span class="n">help</span><span class="o">=</span><span class="s">&quot;number of threads to use for regeneration.  Defaults to using all &quot;</span>
     <span class="s">&quot;available processors&quot;</span><span class="p">)</span>
+<span class="n">regen</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--force&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;force regeneration to occur regardless of staleness checks&quot;</span><span class="p">)</span>
 <span class="n">regen</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;repo&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">StoreRepoObject</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="s">&quot;repository to regenerate caches for&quot;</span><span class="p">)</span>
 <span class="nd">@regen.bind_main_func</span>
@@ -231,12 +233,10 @@
         <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;repository </span><span class="si">%s</span><span class="s"> doesn&#39;t support cache regeneration&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">repo</span><span class="p">,))</span>
         <span class="k">return</span> <span class="mi">0</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">disable_eclass_preloading</span><span class="p">:</span>
-        <span class="n">processor</span><span class="o">.</span><span class="n">_global_enable_eclass_preloading</span> <span class="o">=</span> <span class="bp">True</span>
-
     <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
     <span class="n">repo</span><span class="o">.</span><span class="n">operations</span><span class="o">.</span><span class="n">regen_cache</span><span class="p">(</span><span class="n">threads</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">threads</span><span class="p">,</span>
-        <span class="n">observer</span><span class="o">=</span><span class="n">observer</span><span class="o">.</span><span class="n">formatter_output</span><span class="p">(</span><span class="n">out</span><span class="p">))</span>
+        <span class="n">observer</span><span class="o">=</span><span class="n">observer</span><span class="o">.</span><span class="n">formatter_output</span><span class="p">(</span><span class="n">out</span><span class="p">),</span> <span class="n">force</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">force</span><span class="p">,</span>
+            <span class="n">preload_eclasses</span><span class="o">=</span><span class="p">(</span><span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">disable_eclass_preloading</span><span class="p">))</span>
     <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
     <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;finished </span><span class="si">%d</span><span class="s"> nodes in in </span><span class="si">%.2f</span><span class="s"> seconds&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">repo</span><span class="p">),</span>
         <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>

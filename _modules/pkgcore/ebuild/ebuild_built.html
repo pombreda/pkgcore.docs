@@ -108,6 +108,8 @@
 <span class="n">_empty_fetchable</span> <span class="o">=</span> <span class="n">conditionals</span><span class="o">.</span><span class="n">DepSet</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">ebuild_src</span><span class="o">.</span><span class="n">fetchable</span><span class="p">,</span>
     <span class="n">operators</span><span class="o">=</span><span class="p">{})</span>
 
+<span class="k">def</span> <span class="nf">_get_inherited</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;INHERITED&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
 
 <div class="viewcode-block" id="package"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebuild_built.html#pkgcore.ebuild.ebuild_built.package">[docs]</a><span class="k">class</span> <span class="nc">package</span><span class="p">(</span><span class="n">ebuild_src</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
 
@@ -148,6 +150,8 @@
 
     <span class="n">_get_attr</span><span class="p">[</span><span class="s">&quot;use&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span><span class="n">DelayedInstantiation</span><span class="p">(</span><span class="nb">frozenset</span><span class="p">,</span>
         <span class="k">lambda</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;USE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
+
+    <span class="n">_get_attr</span><span class="p">[</span><span class="s">&quot;inherited&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_get_inherited</span>
 
     <span class="k">def</span> <span class="nf">_chost_fallback</span><span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="bp">self</span><span class="p">):</span>
         <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">initial</span><span class="p">)</span>
