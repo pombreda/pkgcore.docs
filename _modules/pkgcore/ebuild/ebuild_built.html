@@ -80,7 +80,14 @@
 <span class="k">def</span> <span class="nf">passthrough_repo</span><span class="p">(</span><span class="n">inst</span><span class="p">):</span>
     <span class="n">repo</span> <span class="o">=</span> <span class="n">inst</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;source_repository&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">repo</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">repo</span> <span class="o">=</span> <span class="n">inst</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;REPO&#39;</span><span class="p">)</span>
+        <span class="n">repo</span> <span class="o">=</span> <span class="n">inst</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;repository&#39;</span><span class="p">)</span>
+        <span class="c"># work around managers storing this in different places.</span>
+        <span class="k">if</span> <span class="n">repo</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c"># finally, do the strip ourselves since this can come</span>
+            <span class="c"># back as &#39;\n&#39; from binpkg Packages caches...</span>
+            <span class="n">repo</span> <span class="o">=</span> <span class="n">inst</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;REPO&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">repo</span><span class="p">:</span>
+                <span class="n">repo</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="k">if</span> <span class="n">repo</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">repo</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="k">return</span> <span class="bp">None</span>
