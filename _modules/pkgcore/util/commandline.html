@@ -361,6 +361,27 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">invokable</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
 
 
+<span class="k">class</span> <span class="nc">DelayedDefault</span><span class="p">(</span><span class="n">DelayedValue</span><span class="p">):</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">wipe</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">attrs</span><span class="p">,</span> <span class="n">priority</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attrs</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+            <span class="n">attrs</span> <span class="o">=</span> <span class="p">(</span><span class="n">attrs</span><span class="p">,)</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">currying</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">cls</span><span class="o">.</span><span class="n">_wipe</span><span class="p">,</span> <span class="n">attrs</span><span class="p">),</span> <span class="n">priority</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_wipe</span><span class="p">(</span><span class="n">attrs</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">triggering_attr</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">delattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">delattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">triggering_attr</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+
 <span class="k">class</span> <span class="nc">DelayedParse</span><span class="p">(</span><span class="n">DelayedValue</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">invokable</span><span class="p">,</span> <span class="n">priority</span><span class="p">):</span>
@@ -568,7 +589,23 @@
     <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
 
-        <span class="c"># bleh.  direct access...</span>
+        <span class="c"># two runs are required; first, handle any suppression defaults</span>
+        <span class="c"># introduced.  subparsers defaults cannot override the parent parser,</span>
+        <span class="c"># as such a subparser can&#39;t turn off config/domain for example.</span>
+        <span class="c"># so we first find all DelayedDefault</span>
+        <span class="c"># run them, then rescan for delayeds to run.</span>
+        <span class="c"># this allows subparsers to introduce a default named for themselves</span>
+        <span class="c"># that suppresses the parent.</span>
+
+        <span class="c"># intentionally no protection of suppression code; this should</span>
+        <span class="c"># just work.</span>
+
+        <span class="n">i</span> <span class="o">=</span> <span class="p">((</span><span class="n">attr</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">DelayedDefault</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">functor</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">val</span><span class="p">:</span><span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">priority</span><span class="p">):</span>
+            <span class="n">functor</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+
+        <span class="c"># now run the delays.</span>
         <span class="n">i</span> <span class="o">=</span> <span class="p">((</span><span class="n">attr</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">DelayedValue</span><span class="p">))</span>
         <span class="k">try</span><span class="p">:</span>
