@@ -61,14 +61,25 @@
 <span class="sd">occur down the line if dependencies can be kept as minimal as possible.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">klass</span>
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">klass</span><span class="p">,</span> <span class="n">currying</span><span class="p">,</span> <span class="n">compatibility</span>
 <span class="kn">from</span> <span class="nn">pkgcore.operations</span> <span class="kn">import</span> <span class="n">observer</span> <span class="k">as</span> <span class="n">_observer</span>
 
+
+<div class="viewcode-block" id="OperationError"><a class="viewcode-back" href="../../api/pkgcore.operations.html#pkgcore.operations.OperationError">[docs]</a><span class="k">class</span> <span class="nc">OperationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_api</span> <span class="o">=</span> <span class="n">api</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;Unhandled exception in </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="p">,)</span>
+
+</div>
 <div class="viewcode-block" id="base"><a class="viewcode-back" href="../../api/pkgcore.operations.html#pkgcore.operations.base">[docs]</a><span class="k">class</span> <span class="nc">base</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
     <span class="n">__required__</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">()</span>
 
     <span class="n">UNSUPPORTED</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
+    <span class="n">__casting_exception__</span> <span class="o">=</span> <span class="n">OperationError</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disable_overrides</span><span class="o">=</span><span class="p">(),</span> <span class="n">enable_overrides</span><span class="o">=</span><span class="p">()):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_force_disabled</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">disable_overrides</span><span class="p">)</span>
@@ -95,10 +106,31 @@
         <span class="n">ops</span><span class="o">.</span><span class="n">difference_update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_force_disabled</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ops</span>
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_recast_exception_decorator</span><span class="p">(</span><span class="n">exc_class</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">functor</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">functor</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">IGNORED_EXCEPTIONS</span><span class="p">:</span>
+            <span class="k">raise</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exc_class</span><span class="p">):</span>
+                <span class="k">raise</span>
+            <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">exc_class</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_wrap_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">functor</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">currying</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recast_exception_decorator</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__casting_exception__</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">functor</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">currying</span><span class="o">.</span><span class="n">pretty_docs</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">_setup_api</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">recast_exc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__casting_exception__</span>
+        <span class="k">if</span> <span class="n">recast_exc</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span><span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_exception</span>
         <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled_operations</span><span class="p">:</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span>
-                <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_cmd_api_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">op</span><span class="p">))</span>
+                <span class="n">f</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_cmd_api_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">op</span><span class="p">),</span> <span class="n">op</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_filter_disabled_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sequence</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">sequence</span><span class="p">:</span>

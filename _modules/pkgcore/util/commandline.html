@@ -86,6 +86,7 @@
     <span class="s">&#39;pkgcore.config:basics&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.restrictions:packages,restriction&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.util:parserestrict&#39;</span><span class="p">,</span>
+    <span class="s">&#39;pkgcore:operations&#39;</span><span class="p">,</span>
 <span class="p">)</span>
 
 
@@ -822,6 +823,10 @@
         <span class="k">raise</span>
     <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">dump_error</span><span class="p">(</span><span class="n">errfile</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="s">&quot;Error in configuration&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&#39;debug&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+            <span class="k">raise</span>
+    <span class="k">except</span> <span class="n">operations</span><span class="o">.</span><span class="n">OperationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">dump_error</span><span class="p">(</span><span class="n">errfile</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="s">&quot;Error running an operation&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&#39;debug&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
             <span class="k">raise</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
