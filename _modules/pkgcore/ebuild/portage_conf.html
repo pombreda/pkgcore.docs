@@ -101,7 +101,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">arch</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">arch</span>
     <span class="k">if</span> <span class="n">arch</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">InstantiationError</span><span class="p">(</span><span class="s">&quot;arch wasn&#39;t set in profiles&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ComplexInstantiationError</span><span class="p">(</span><span class="s">&quot;arch wasn&#39;t set in profiles&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">SecurityUpgrades</span><span class="p">(</span><span class="n">ebuild_repo</span><span class="p">,</span> <span class="n">vdb</span><span class="p">,</span> <span class="n">arch</span><span class="p">)</span>
 
 </div>
@@ -269,10 +269,10 @@
                 <span class="n">profile</span> <span class="o">=</span> <span class="n">_find_profile_link</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s">&#39;portage&#39;</span><span class="p">),</span> <span class="bp">True</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">profile</span>
-            <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">InstantiationError</span><span class="p">(</span>
+            <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ComplexInstantiationError</span><span class="p">(</span>
                 <span class="s">&quot;</span><span class="si">%s</span><span class="s"> must be a symlink pointing to a real target&quot;</span> <span class="o">%</span> <span class="p">(</span>
                     <span class="n">make_profile</span><span class="p">,)))</span>
-        <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">InstantiationError</span><span class="p">(</span>
+        <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ComplexInstantiationError</span><span class="p">(</span>
             <span class="s">&quot;</span><span class="si">%s</span><span class="s">: unexpected error- </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">make_profile</span><span class="p">,</span> <span class="n">oe</span><span class="o">.</span><span class="n">strerror</span><span class="p">)))</span>
 
 <div class="viewcode-block" id="add_profile"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.portage_conf.html#pkgcore.ebuild.portage_conf.add_profile">[docs]</a><span class="k">def</span> <span class="nf">add_profile</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">base_path</span><span class="p">,</span> <span class="n">user_profile_path</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -280,7 +280,7 @@
 
     <span class="n">paths</span> <span class="o">=</span> <span class="n">profiles</span><span class="o">.</span><span class="n">OnDiskProfile</span><span class="o">.</span><span class="n">split_abspath</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">paths</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">InstantiationError</span><span class="p">(</span>
+        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ComplexInstantiationError</span><span class="p">(</span>
             <span class="s">&#39;</span><span class="si">%s</span><span class="s"> expands to </span><span class="si">%s</span><span class="s">, but no profile detected&#39;</span> <span class="o">%</span> <span class="p">(</span>
                 <span class="n">pjoin</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s">&#39;make.profile&#39;</span><span class="p">),</span> <span class="n">profile</span><span class="p">))</span>
 

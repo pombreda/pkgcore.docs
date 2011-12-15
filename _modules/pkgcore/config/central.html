@@ -186,14 +186,8 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate</span><span class="p">()</span>
             <span class="k">except</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">IGNORED_EXCEPTIONS</span><span class="p">:</span>
                 <span class="k">raise</span>
-            <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">BaseError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Instantiating named section </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,))</span>
-                <span class="k">raise</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">new_e</span> <span class="o">=</span> <span class="n">errors</span><span class="o">.</span><span class="n">InstantiationError</span><span class="p">(</span><span class="n">exception</span><span class="o">=</span><span class="n">e</span><span class="p">,</span>
-                    <span class="n">callable_obj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">callable</span><span class="p">)</span>
-                <span class="n">new_e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Instantiating named section </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,))</span>
-                <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">new_e</span><span class="p">)</span>
+                <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">InstantiationError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instance</span>
 </div>
     <span class="k">def</span> <span class="nf">_instantiate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -203,7 +197,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c"># Needed because this code can run twice even with instance</span>
-        <span class="c"># caching if we trigger an InstantiationError.</span>
+        <span class="c"># caching if we trigger an ComplexInstantiationError.</span>
         <span class="n">config</span> <span class="o">=</span> <span class="n">mappings</span><span class="o">.</span><span class="n">ProtectedDict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
 
         <span class="c"># Instantiate section refs.</span>
@@ -215,18 +209,24 @@
             <span class="k">if</span> <span class="n">typename</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="c"># central already checked the type, no need to repeat that here.</span>
+            <span class="n">unlist_it</span> <span class="o">=</span> <span class="bp">False</span>
             <span class="k">if</span> <span class="n">typename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;ref:&#39;</span><span class="p">):</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span><span class="p">]</span>
+                <span class="n">unlist_it</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="k">if</span> <span class="n">typename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;refs:&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">unlist_it</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">config</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">instantiate</span><span class="p">()</span>
-                <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Instantiating ref </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
+                    <span class="n">final_val</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">val</span><span class="p">:</span>
+                        <span class="n">final_val</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">instantiate</span><span class="p">())</span>
+                <span class="k">except</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">IGNORED_EXCEPTIONS</span><span class="p">:</span>
                     <span class="k">raise</span>
-            <span class="k">elif</span> <span class="n">typename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;refs:&#39;</span><span class="p">):</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">config</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">instantiate</span><span class="p">()</span> <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">val</span><span class="p">)</span>
-                <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Instantiating refs </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
-                    <span class="k">raise</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
+                        <span class="s">&quot;Instantiating reference </span><span class="si">%r</span><span class="s"> pointing at </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">ref</span><span class="o">.</span><span class="n">name</span><span class="p">)))</span>
+                <span class="k">if</span> <span class="n">unlist_it</span><span class="p">:</span>
+                    <span class="n">final_val</span> <span class="o">=</span> <span class="n">final_val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">config</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">final_val</span>
+
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">requires_config</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -251,23 +251,13 @@
         <span class="n">configdict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_instance</span> <span class="o">=</span> <span class="n">callable_obj</span><span class="p">(</span><span class="o">*</span><span class="n">pargs</span><span class="p">,</span> <span class="o">**</span><span class="n">configdict</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">InstantiationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-            <span class="c"># This is probably just paranoia, but better safe than sorry.</span>
-            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">callable</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="n">e</span><span class="o">.</span><span class="n">callable</span> <span class="o">=</span> <span class="n">callable_obj</span>
-                <span class="n">e</span><span class="o">.</span><span class="n">pargs</span> <span class="o">=</span> <span class="n">pargs</span>
-                <span class="n">e</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">configdict</span>
-            <span class="k">raise</span>
         <span class="k">except</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">IGNORED_EXCEPTIONS</span><span class="p">:</span>
             <span class="k">raise</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-                <span class="k">raise</span>
-            <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">InstantiationError</span><span class="p">(</span><span class="n">exception</span><span class="o">=</span><span class="n">e</span><span class="p">,</span>
-                                            <span class="n">callable_obj</span><span class="o">=</span><span class="n">callable_obj</span><span class="p">,</span>
-                                            <span class="n">pargs</span><span class="o">=</span><span class="n">pargs</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">configdict</span><span class="p">))</span>
+            <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">InstantiationError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s">&quot;exception caught from </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">_identify_functor_source</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">callable</span><span class="p">),)))</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instance</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">InstantiationError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ComplexInstantiationError</span><span class="p">(</span>
                 <span class="s">&#39;No object returned&#39;</span><span class="p">,</span> <span class="n">callable_obj</span><span class="o">=</span><span class="n">callable_obj</span><span class="p">,</span> <span class="n">pargs</span><span class="o">=</span><span class="n">pargs</span><span class="p">,</span>
                 <span class="n">kwargs</span><span class="o">=</span><span class="n">configdict</span><span class="p">)</span>
 
@@ -393,18 +383,22 @@
 
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">collapsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collapse_named_section</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-            <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Collapsing autoload </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
+            <span class="k">except</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">IGNORED_EXCEPTIONS</span><span class="p">:</span>
                 <span class="k">raise</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
+                    <span class="s">&quot;Failed collapsing autoload section </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,)))</span>
+
             <span class="k">if</span> <span class="n">collapsed</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s">&#39;configsection&#39;</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
                    <span class="s">&#39;Section </span><span class="si">%r</span><span class="s"> is marked as autoload but type is </span><span class="si">%s</span><span class="s">, not &#39;</span>
                    <span class="s">&#39;configsection&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">collapsed</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">instance</span> <span class="o">=</span> <span class="n">collapsed</span><span class="o">.</span><span class="n">instantiate</span><span class="p">()</span>
-            <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Instantiating autoload </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
-                <span class="k">raise</span>
+            <span class="k">except</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">IGNORED_EXCEPTIONS</span><span class="p">:</span>
+                <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">AutoloadInstantiationError</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">AutoloadInstantiationError</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">collapsed</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;configsection&#39;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_config_source</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
 
@@ -441,9 +435,11 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collapse_section</span><span class="p">(</span><span class="n">section_stack</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
                 <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-            <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Collapsing section named </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
+            <span class="k">except</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">IGNORED_EXCEPTIONS</span><span class="p">:</span>
                 <span class="k">raise</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
+                    <span class="s">&quot;Collapsing section named </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,)))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">rendered_sections</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
             <span class="k">return</span> <span class="n">result</span>
         <span class="k">finally</span><span class="p">:</span>
@@ -563,10 +559,11 @@
             <span class="k">if</span> <span class="n">is_refs</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">ref</span><span class="o">.</span><span class="n">collapse</span><span class="p">()</span> <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">result</span><span class="p">]</span>
-                <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                       <span class="s">&#39;Collapsing section key </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,))</span>
+                <span class="k">except</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">IGNORED_EXCEPTIONS</span><span class="p">:</span>
                     <span class="k">raise</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
+                        <span class="s">&quot;Failed collapsing section key </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,)))</span>
             <span class="k">if</span> <span class="n">is_ref</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -590,9 +587,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">defaults</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">type_name</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span>
-        <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Collapsing defaults for </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">type_name</span><span class="p">,))</span>
+        <span class="k">except</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">IGNORED_EXCEPTIONS</span><span class="p">:</span>
             <span class="k">raise</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
+                <span class="s">&quot;Collapsing defaults for </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">type_name</span><span class="p">,)))</span>
         <span class="n">defaults</span> <span class="o">=</span> <span class="p">[(</span><span class="n">name</span><span class="p">,</span> <span class="n">section</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">defaults</span> <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">default</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">defaults</span><span class="p">:</span>
@@ -606,10 +605,11 @@
 
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">defaults</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">instantiate</span><span class="p">()</span>
-        <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Instantiating default </span><span class="si">%s</span><span class="s"> </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span>
-                          <span class="p">(</span><span class="n">type_name</span><span class="p">,</span> <span class="n">defaults</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">except</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">IGNORED_EXCEPTIONS</span><span class="p">:</span>
             <span class="k">raise</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
+                <span class="s">&quot;Failed instantiating default </span><span class="si">%s</span><span class="s"> </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">type_name</span><span class="p">,</span> <span class="n">defaults</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])))</span>
         <span class="k">return</span> <span class="bp">None</span></div></div>
 </pre></div>
 

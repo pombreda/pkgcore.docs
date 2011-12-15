@@ -295,9 +295,12 @@
 <div class="viewcode-block" id="DictConfigSection.render_value"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.DictConfigSection.render_value">[docs]</a>    <span class="k">def</span> <span class="nf">render_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">central</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">central</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">arg_type</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Converting argument </span><span class="si">%r</span><span class="s"> to </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">IGNORED_EXCEPTIONS</span><span class="p">:</span>
             <span class="k">raise</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
+                <span class="s">&quot;Failed converting argument </span><span class="si">%r</span><span class="s"> to </span><span class="si">%s</span><span class="s">&quot;</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">)))</span>
 
 </div></div>
 <div class="viewcode-block" id="FakeIncrementalDictConfigSection"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.FakeIncrementalDictConfigSection">[docs]</a><span class="k">class</span> <span class="nc">FakeIncrementalDictConfigSection</span><span class="p">(</span><span class="n">ConfigSection</span><span class="p">):</span>
@@ -349,10 +352,12 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">try</span><span class="p">:</span>
                         <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">central</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">)</span>
-                    <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-                        <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Converting argument </span><span class="si">%r</span><span class="s"> to </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                                <span class="n">subname</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">))</span>
+                    <span class="k">except</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">IGNORED_EXCEPTIONS</span><span class="p">:</span>
                         <span class="k">raise</span>
+                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                        <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
+                            <span class="s">&quot;Failed converting argument </span><span class="si">%r</span><span class="s"> to </span><span class="si">%s</span><span class="s">&quot;</span>
+                                <span class="o">%</span> <span class="p">(</span><span class="n">subname</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">)))</span>
                 <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="n">result</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
@@ -432,9 +437,11 @@
         <span class="c"># Not incremental.</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">central</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">arg_type</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">e</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;Converting argument </span><span class="si">%r</span><span class="s"> to </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">IGNORED_EXCEPTIONS</span><span class="p">:</span>
             <span class="k">raise</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ConfigurationError</span><span class="p">(</span>
+                <span class="s">&quot;Failed converting argument </span><span class="si">%r</span><span class="s"> to </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">)))</span>
 
 </div></div>
 <div class="viewcode-block" id="str_to_list"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.str_to_list">[docs]</a><span class="k">def</span> <span class="nf">str_to_list</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
@@ -609,7 +616,7 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">),</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">InstantiationError</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">strerror</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">InstantiationError</span><span class="p">(</span><span class="s">&quot;Failed opening </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">path</span><span class="p">,))</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">parser</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
     <span class="k">finally</span><span class="p">:</span>

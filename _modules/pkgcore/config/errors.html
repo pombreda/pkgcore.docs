@@ -58,7 +58,7 @@
 <span class="sd">&quot;&quot;&quot;Exceptions raised by the config code.&quot;&quot;&quot;</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;BaseError&quot;</span><span class="p">,</span> <span class="s">&quot;TypeDefinitionError&quot;</span><span class="p">,</span> <span class="s">&quot;ConfigurationError&quot;</span><span class="p">,</span> <span class="s">&quot;ParsingError&quot;</span><span class="p">,</span>
-    <span class="s">&quot;CollapseInheritOnly&quot;</span><span class="p">,</span> <span class="s">&quot;InstantiationError&quot;</span><span class="p">,</span> <span class="s">&quot;QuoteInterpretationError&quot;</span><span class="p">,</span>
+    <span class="s">&quot;CollapseInheritOnly&quot;</span><span class="p">,</span> <span class="s">&quot;ComplexInstantiationError&quot;</span><span class="p">,</span> <span class="s">&quot;QuoteInterpretationError&quot;</span><span class="p">,</span>
     <span class="s">&quot;PermissionError&quot;</span><span class="p">,</span> <span class="s">&quot;PermissionDeniedError&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -67,6 +67,13 @@
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
     <span class="s">&#39;snakeoil:currying&#39;</span><span class="p">,</span>
 <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_identify_functor_source</span><span class="p">(</span><span class="n">functor</span><span class="p">):</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">functor</span><span class="p">,</span> <span class="s">&#39;__module__&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">module</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">functor</span><span class="o">.</span><span class="n">__name__</span>
+    <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">functor</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
 
 <div class="viewcode-block" id="BaseError"><a class="viewcode-back" href="../../../api/pkgcore.config.errors.html#pkgcore.config.errors.BaseError">[docs]</a><span class="k">class</span> <span class="nc">BaseError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span>
@@ -146,7 +153,29 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 </div>
-<div class="viewcode-block" id="InstantiationError"><a class="viewcode-back" href="../../../api/pkgcore.config.errors.html#pkgcore.config.errors.InstantiationError">[docs]</a><span class="k">class</span> <span class="nc">InstantiationError</span><span class="p">(</span><span class="n">ConfigurationError</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">InstantiationError</span><span class="p">(</span><span class="n">ConfigurationError</span><span class="p">):</span>
+
+    <span class="n">_txt</span> <span class="o">=</span> <span class="s">&quot;Failed instantiating section </span><span class="si">%r%s</span><span class="s">&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section_name</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">section_name</span> <span class="o">=</span> <span class="n">section_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span>
+        <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="s">&#39;: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">s</span><span class="p">,)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_txt</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">section_name</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">AutoloadInstantiationError</span><span class="p">(</span><span class="n">InstantiationError</span><span class="p">):</span>
+
+    <span class="n">_txt</span> <span class="o">=</span> <span class="s">&quot;Failed loading autoload section </span><span class="si">%r%s</span><span class="s">&quot;</span>
+
+
+<div class="viewcode-block" id="ComplexInstantiationError"><a class="viewcode-back" href="../../../api/pkgcore.config.errors.html#pkgcore.config.errors.ComplexInstantiationError">[docs]</a><span class="k">class</span> <span class="nc">ComplexInstantiationError</span><span class="p">(</span><span class="n">ConfigurationError</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;Exception occured during instantiation.</span>
 
