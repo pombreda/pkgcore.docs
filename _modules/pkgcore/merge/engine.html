@@ -79,6 +79,7 @@
     <span class="s">&quot;tempfile&quot;</span><span class="p">,</span>
     <span class="s">&quot;traceback&quot;</span><span class="p">,</span>
     <span class="s">&quot;snakeoil:stringio&quot;</span><span class="p">,</span>
+    <span class="s">&quot;snakeoil.process:get_proc_count&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
 <div class="viewcode-block" id="alias_cset"><a class="viewcode-back" href="../../../api/pkgcore.merge.engine.html#pkgcore.merge.engine.alias_cset">[docs]</a><span class="k">def</span> <span class="nf">alias_cset</span><span class="p">(</span><span class="n">alias</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">csets</span><span class="p">):</span>
@@ -131,7 +132,7 @@
 
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">tempdir</span><span class="p">,</span> <span class="n">hooks</span><span class="p">,</span> <span class="n">csets</span><span class="p">,</span> <span class="n">preserves</span><span class="p">,</span> <span class="n">observer</span><span class="p">,</span>
-        <span class="n">offset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">disable_plugins</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="n">offset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">disable_plugins</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">parallelism</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">observer</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">observer</span> <span class="o">=</span> <span class="n">observer_mod</span><span class="o">.</span><span class="n">repo_observer</span><span class="p">(</span><span class="n">observer_mod</span><span class="o">.</span><span class="n">null_output</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">observer</span> <span class="o">=</span> <span class="n">observer</span>
@@ -139,6 +140,11 @@
         <span class="k">if</span> <span class="n">tempdir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">tempdir</span> <span class="o">=</span> <span class="n">normpath</span><span class="p">(</span><span class="n">tempdir</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="n">tempdir</span>
+
+        <span class="k">if</span> <span class="n">parallelism</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">parallelism</span> <span class="o">=</span> <span class="n">get_proc_count</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallelism</span> <span class="o">=</span> <span class="n">parallelism</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">hooks</span> <span class="o">=</span> <span class="n">ImmutableDict</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="p">[])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">hooks</span><span class="p">)</span>
 
