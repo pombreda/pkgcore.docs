@@ -58,7 +58,7 @@
 <span id="pmaint-regen-manpage"></span><h1>pmaint regen<a class="headerlink" href="#pmaint-regen" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="synopsis">
 <h2>synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
-<p>pmaint regen [-h] [&#8211;version] [&#8211;debug] [&#8211;color BOOLEAN] [&#8211;add-config SECTION KEY VALUE] [&#8211;new-config SECTION KEY VALUE] [&#8211;empty-config] [&#8211;disable-eclass-preloading] [&#8211;threads THREADS] [&#8211;force] repo</p>
+<p>pmaint regen [-h] [&#8211;version] [&#8211;debug] [&#8211;color BOOLEAN] [&#8211;add-config SECTION KEY VALUE] [&#8211;new-config SECTION KEY VALUE] [&#8211;empty-config] [&#8211;disable-eclass-caching] [&#8211;threads THREADS] [&#8211;force] repo</p>
 </div>
 <div class="section" id="description">
 <h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
@@ -107,9 +107,9 @@
 </tr>
 <tr><td>&nbsp;</td><td>Do not load user/system configuration.</td></tr>
 <tr><td class="option-group" colspan="2">
-<kbd><span class="option">--disable-eclass-preloading</span></kbd></td>
+<kbd><span class="option">--disable-eclass-caching</span></kbd></td>
 </tr>
-<tr><td>&nbsp;</td><td>For regen operation, pkgcore internally turns on an optimization that preloads eclasses into individual functions thus parsing the eclass only once per EBD processor.  Disabling this optimization via this option results in ~2x slower regeneration. Disable it only if you suspect the optimization is somehow causing issues.</td></tr>
+<tr><td>&nbsp;</td><td>For regen operation, pkgcore internally turns on an optimization that caches eclasses into individual functions thus parsing the eclass only twice max per EBD processor.  Disabling this optimization via this option results in ~2x slower regeneration. Disable it only if you suspect the optimization is somehow causing issues.</td></tr>
 <tr><td class="option-group" colspan="2">
 <kbd><span class="option">--threads <var>THREADS</var></span>, <span class="option">-t <var>THREADS</var></span></kbd></td>
 </tr>

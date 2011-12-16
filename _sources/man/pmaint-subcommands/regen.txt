@@ -7,7 +7,7 @@ pmaint regen
 synopsis
 ========
 
-pmaint regen [-h] [--version] [--debug] [--color BOOLEAN] [--add-config SECTION KEY VALUE] [--new-config SECTION KEY VALUE] [--empty-config] [--disable-eclass-preloading] [--threads THREADS] [--force] repo
+pmaint regen [-h] [--version] [--debug] [--color BOOLEAN] [--add-config SECTION KEY VALUE] [--new-config SECTION KEY VALUE] [--empty-config] [--disable-eclass-caching] [--threads THREADS] [--force] repo
 
 DESCRIPTION
 ===========
@@ -29,6 +29,6 @@ optional arguments
 --add-config <SECTION KEY VALUE>  modify an existing configuration section.
 --new-config <SECTION KEY VALUE>  add a new configuration section.
 --empty-config, --config-empty  Do not load user/system configuration.
---disable-eclass-preloading     For regen operation, pkgcore internally turns on an optimization that preloads eclasses into individual functions thus parsing the eclass only once per EBD processor.  Disabling this optimization via this option results in ~2x slower regeneration. Disable it only if you suspect the optimization is somehow causing issues.
+--disable-eclass-caching        For regen operation, pkgcore internally turns on an optimization that caches eclasses into individual functions thus parsing the eclass only twice max per EBD processor.  Disabling this optimization via this option results in ~2x slower regeneration. Disable it only if you suspect the optimization is somehow causing issues.
 --threads THREADS, -t THREADS   number of threads to use for regeneration.  Defaults to using all available processors
 --force                         force regeneration to occur regardless of staleness checks

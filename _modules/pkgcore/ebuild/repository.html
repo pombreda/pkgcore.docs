@@ -490,24 +490,24 @@
 
     <span class="k">def</span> <span class="nf">_regen_operation_helper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_RegenOpHelper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">kwds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;force&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)),</span>
-            <span class="n">preload_eclasses</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">kwds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;preload_eclasses&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)))</span>
+            <span class="n">eclass_caching</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">kwds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;eclass_caching&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)))</span>
 
 
 <span class="k">class</span> <span class="nc">_RegenOpHelper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">preload_eclasses</span><span class="o">=</span><span class="s">&#39;preload_eclasses&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">eclass_caching</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="o">=</span><span class="n">force</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">preload_eclasses</span> <span class="o">=</span> <span class="n">preload_eclasses</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eclass_caching</span> <span class="o">=</span> <span class="n">eclass_caching</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ebp</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">request_ebuild_processor</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preload_eclasses</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ebp</span><span class="o">.</span><span class="n">preload_eclasses</span><span class="p">(</span><span class="n">repo</span><span class="o">.</span><span class="n">eclass_cache</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">eclass_caching</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ebp</span><span class="o">.</span><span class="n">allow_eclass_caching</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">pkg</span><span class="o">.</span><span class="n">_fetch_metadata</span><span class="p">(</span><span class="n">ebp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ebp</span><span class="p">,</span> <span class="n">force_regen</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preload_eclasses</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ebp</span><span class="o">.</span><span class="n">clear_preloaded_eclasses</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">eclass_caching</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ebp</span><span class="o">.</span><span class="n">disable_eclass_caching</span><span class="p">()</span>
         <span class="n">processor</span><span class="o">.</span><span class="n">release_ebuild_processor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ebp</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ebp</span> <span class="o">=</span> <span class="bp">None</span>
 
