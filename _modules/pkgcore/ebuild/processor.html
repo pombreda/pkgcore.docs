@@ -261,7 +261,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ebd</span> <span class="o">=</span> <span class="n">e_const</span><span class="o">.</span><span class="n">EBUILD_DAEMON_PATH</span>
-        <span class="n">spawn_opts</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">spawn_opts</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;umask&#39;</span><span class="p">:</span><span class="mo">0002</span><span class="p">}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_preloaded_eclasses</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_eclass_caching</span> <span class="o">=</span> <span class="bp">False</span>
@@ -279,7 +279,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">__userpriv</span> <span class="o">=</span> <span class="bp">True</span>
             <span class="n">spawn_opts</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
                     <span class="s">&quot;uid&quot;</span><span class="p">:</span><span class="n">os_data</span><span class="o">.</span><span class="n">portage_uid</span><span class="p">,</span> <span class="s">&quot;gid&quot;</span><span class="p">:</span><span class="n">os_data</span><span class="o">.</span><span class="n">portage_gid</span><span class="p">,</span>
-                    <span class="s">&quot;groups&quot;</span><span class="p">:[</span><span class="n">os_data</span><span class="o">.</span><span class="n">portage_gid</span><span class="p">],</span> <span class="s">&quot;umask&quot;</span><span class="p">:</span><span class="mo">002</span><span class="p">})</span>
+                    <span class="s">&quot;groups&quot;</span><span class="p">:[</span><span class="n">os_data</span><span class="o">.</span><span class="n">portage_gid</span><span class="p">]})</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">pkgcore</span><span class="o">.</span><span class="n">spawn</span><span class="o">.</span><span class="n">is_userpriv_capable</span><span class="p">():</span>
                 <span class="n">spawn_opts</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&quot;gid&quot;</span><span class="p">:</span><span class="n">os_data</span><span class="o">.</span><span class="n">portage_gid</span><span class="p">,</span>
