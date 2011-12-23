@@ -373,7 +373,19 @@
     <span class="c"># unfortunately</span>
 
     <span class="n">conf_dict</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">load_make_config</span><span class="p">(</span><span class="n">conf_dict</span><span class="p">,</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s">&#39;make.globals&#39;</span><span class="p">))</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">load_make_config</span><span class="p">(</span><span class="n">conf_dict</span><span class="p">,</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s">&#39;make.globals&#39;</span><span class="p">))</span>
+    <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">ParsingError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s">&#39;exc&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="s">&#39;errno&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="o">==</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
+           <span class="k">raise</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">load_make_config</span><span class="p">(</span><span class="n">conf_dict</span><span class="p">,</span>
+                <span class="n">pjoin</span><span class="p">(</span><span class="n">config_root</span><span class="p">,</span> <span class="s">&#39;usr/share/portage/config/make.globals&#39;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">IGNORED_EXCEPTIONS</span><span class="p">:</span>
+            <span class="k">raise</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ParsingError</span><span class="p">(</span>
+                <span class="s">&quot;failed to find a usable make.globals&quot;</span><span class="p">))</span>
     <span class="n">load_make_config</span><span class="p">(</span><span class="n">conf_dict</span><span class="p">,</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s">&#39;make.conf&#39;</span><span class="p">),</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
         <span class="n">allow_sourcing</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">incrementals</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="n">load_make_config</span><span class="p">(</span><span class="n">conf_dict</span><span class="p">,</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">portage_base</span><span class="p">,</span> <span class="s">&#39;make.conf&#39;</span><span class="p">),</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
