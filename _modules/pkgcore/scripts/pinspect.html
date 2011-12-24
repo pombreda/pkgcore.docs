@@ -392,8 +392,11 @@
         <span class="n">out</span><span class="o">.</span><span class="n">later_prefix</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
         <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">repo</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">count</span><span class="p">:</span>
-            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%i</span><span class="s"> out of </span><span class="si">%i</span><span class="s"> are broken (</span><span class="si">%2.2f%%</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">broken</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span>
-                <span class="nb">float</span><span class="p">(</span><span class="n">broken</span><span class="p">)</span><span class="o">/</span><span class="n">count</span><span class="p">))</span>
+            <span class="n">broken</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">broken</span><span class="p">)</span>
+            <span class="n">percent</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">broken</span><span class="o">/</span><span class="n">count</span><span class="p">)</span>
+            <span class="n">percent</span> <span class="o">*=</span> <span class="mi">100</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%i</span><span class="s"> out of </span><span class="si">%i</span><span class="s"> the tree has usable checksum data &quot;</span>
+                <span class="s">&quot;(</span><span class="si">%2.2f%%</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">broken</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">percent</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;repository has no packages&quot;</span><span class="p">)</span>
 
