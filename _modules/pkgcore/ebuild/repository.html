@@ -85,6 +85,7 @@
     <span class="s">&#39;pkgcore.package:errors@pkg_errors&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.util.packages:groupby_pkg&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.fs.livefs:iter_scan&#39;</span><span class="p">,</span>
+    <span class="s">&#39;pkgcore.log:logger&#39;</span><span class="p">,</span>
     <span class="s">&#39;operator:attrgetter&#39;</span><span class="p">,</span>
     <span class="s">&#39;random:shuffle&#39;</span><span class="p">,</span>
     <span class="s">&#39;errno&#39;</span><span class="p">,</span>
@@ -358,20 +359,25 @@
         <span class="n">o</span><span class="o">.</span><span class="n">versions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">versions</span>
         <span class="k">return</span> <span class="n">o</span>
 
+    <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">hardcoded_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># try reading $LOC/profiles/categories if it&#39;s available.</span>
+        <span class="n">cats</span> <span class="o">=</span> <span class="n">readlines</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="s">&#39;profiles&#39;</span><span class="p">,</span> <span class="s">&#39;categories&#39;</span><span class="p">),</span>
+            <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cats</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">cats</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">imap</span><span class="p">(</span><span class="nb">intern</span><span class="p">,</span> <span class="n">cats</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">cats</span>
+
     <span class="k">def</span> <span class="nf">_get_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">optional_category</span><span class="p">):</span>
         <span class="c"># why the auto return? current porttrees don&#39;t allow/support</span>
         <span class="c"># categories deeper then one dir.</span>
         <span class="k">if</span> <span class="n">optional_category</span><span class="p">:</span>
             <span class="c">#raise KeyError</span>
             <span class="k">return</span> <span class="p">()</span>
-
+        <span class="n">cats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hardcoded_categories</span>
+        <span class="k">if</span> <span class="n">cats</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cats</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="c"># try reading $LOC/profiles/categories if it&#39;s available.</span>
-            <span class="n">cats</span> <span class="o">=</span> <span class="n">readlines</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="s">&#39;profiles&#39;</span><span class="p">,</span> <span class="s">&#39;categories&#39;</span><span class="p">),</span>
-                <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">cats</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">imap</span><span class="p">(</span><span class="nb">intern</span><span class="p">,</span> <span class="n">cats</span><span class="p">))</span>
-
             <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">imap</span><span class="p">(</span><span class="nb">intern</span><span class="p">,</span>
                 <span class="n">ifilterfalse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">false_categories</span><span class="o">.</span><span class="n">__contains__</span><span class="p">,</span>
                     <span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">listdir_dirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;.&quot;</span><span class="p">)</span>
@@ -385,9 +391,14 @@
             <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">ifilterfalse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">false_packages</span><span class="o">.</span><span class="n">__contains__</span><span class="p">,</span>
                 <span class="n">listdir_dirs</span><span class="p">(</span><span class="n">cpath</span><span class="p">)))</span>
         <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hardcoded_categories</span> <span class="ow">and</span> <span class="n">category</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hardcoded_categories</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;repo </span><span class="si">%r</span><span class="s"> in profiles/categories incorrectly &quot;</span>
+                         <span class="s">&quot;states category </span><span class="si">%s</span><span class="s"> exists&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">category</span><span class="p">))</span>
+                    <span class="k">return</span> <span class="p">()</span>
             <span class="n">raise_from</span><span class="p">(</span><span class="ne">KeyError</span><span class="p">(</span><span class="s">&quot;failed fetching packages for category </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> \
-                    <span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="n">category</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">)),</span> \
-                    <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))))</span>
+                <span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="n">category</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">)),</span> \
+                <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))))</span>
 
     <span class="k">def</span> <span class="nf">_get_versions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">catpkg</span><span class="p">):</span>
         <span class="n">cppath</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="n">catpkg</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">catpkg</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
