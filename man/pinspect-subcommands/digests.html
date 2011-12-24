@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pinspect profiles &mdash; pkgcore vtrunk documentation</title>
+    <title>pinspect digests &mdash; pkgcore vtrunk documentation</title>
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -24,8 +24,8 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="top" title="pkgcore vtrunk documentation" href="../../index.html" />
     <link rel="up" title="pinspect" href="../pinspect.html" />
-    <link rel="next" title="pinspect digests" href="digests.html" />
-    <link rel="prev" title="pinspect portageq" href="portageq.html" /> 
+    <link rel="next" title="pmaint" href="../pmaint.html" />
+    <link rel="prev" title="pinspect profiles" href="profiles.html" /> 
   </head>
   <body>
     <div class="related">
@@ -38,10 +38,10 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="digests.html" title="pinspect digests"
+          <a href="../pmaint.html" title="pmaint"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="portageq.html" title="pinspect portageq"
+          <a href="profiles.html" title="pinspect profiles"
              accesskey="P">previous</a> |</li>
         <li><a href="../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
           <li><a href="../../man.html" >Man Pages</a> &raquo;</li>
@@ -54,15 +54,15 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="pinspect-profiles">
-<span id="pinspect-profiles-manpage"></span><h1>pinspect profiles<a class="headerlink" href="#pinspect-profiles" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="pinspect-digests">
+<span id="pinspect-digests-manpage"></span><h1>pinspect digests<a class="headerlink" href="#pinspect-digests" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="synopsis">
 <h2>synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
-<p>pinspect profiles [-h] {parent,eapi,deprecated,provided,system,use_expand,masks,virtuals,defaults,arch} ...</p>
+<p>pinspect digests [-h] [repos [repos ...]]</p>
 </div>
 <div class="section" id="description">
 <h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
-<p>ebuild profiles related querying</p>
+<p>identify what packages are missing digest info</p>
 </div>
 <div class="section" id="positional-arguments">
 <h2>positional arguments<a class="headerlink" href="#positional-arguments" title="Permalink to this headline">¶</a></h2>
@@ -70,34 +70,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name" colspan="2">{parent,eapi,deprecated,provided,system,use_expand,masks,virtuals,defaults,arch}:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body"><p class="first">profiles commands
-parent                                                                          output the linearized tree of inherited parents</p>
-<blockquote>
-<div><p>later lines override earlier lines</p>
-</div></blockquote>
-<p>eapi                                                                            output all eapi support required for reading this profile
-deprecated                                                                      dump deprecation notices, if any
-provided
-system                                                                          Output the system package set.
-use_expand                                                                      Output the USE_EXPAND configuration for this profile</p>
-<blockquote>
-<div><p>Outputs two fields of interest; USE_EXPAND (pseudo use groups), and
-USE_EXPAND_HIDDEN which is immutable by user configuration and use deps
-(primarily used for things like setting the kernel or OS type).</p>
-</div></blockquote>
-<p>masks                                                                           Inspect package masks
-virtuals                                                                        Inspect old style virtuals (aliasing) default targets</p>
-<blockquote>
-<div><p>In the absence of any package PROVIDE&#8217;ing one of these virtuals,
-the defined target will be used instead.</p>
-</div></blockquote>
-<p>defaults                                                                        Inspect defined configuration for this profile</p>
-<blockquote>
-<div><p>This is data parsed from make.defaults, containing things like ACCEPT_KEYWORDS.</p>
-</div></blockquote>
-<p class="last">arch                                                                            Output the arch defined for this profile</p>
-</td>
+<tr class="field"><th class="field-name">repos:</th><td class="field-body">repository to inspect</td>
 </tr>
 </tbody>
 </table>
@@ -124,7 +97,7 @@ the defined target will be used instead.</p>
         <div class="sphinxsidebarwrapper">
   <h3><a href="../../index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">pinspect profiles</a><ul>
+<li><a class="reference internal" href="#">pinspect digests</a><ul>
 <li><a class="reference internal" href="#synopsis">synopsis</a></li>
 <li><a class="reference internal" href="#description">DESCRIPTION</a></li>
 <li><a class="reference internal" href="#positional-arguments">positional arguments</a></li>
@@ -134,11 +107,11 @@ the defined target will be used instead.</p>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="portageq.html"
-                        title="previous chapter">pinspect portageq</a></p>
+  <p class="topless"><a href="profiles.html"
+                        title="previous chapter">pinspect profiles</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="digests.html"
-                        title="next chapter">pinspect digests</a></p>
+  <p class="topless"><a href="../pmaint.html"
+                        title="next chapter">pmaint</a></p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
@@ -166,10 +139,10 @@ the defined target will be used instead.</p>
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="digests.html" title="pinspect digests"
+          <a href="../pmaint.html" title="pmaint"
              >next</a> |</li>
         <li class="right" >
-          <a href="portageq.html" title="pinspect portageq"
+          <a href="profiles.html" title="pinspect profiles"
              >previous</a> |</li>
         <li><a href="../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
           <li><a href="../../man.html" >Man Pages</a> &raquo;</li>

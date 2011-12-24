@@ -65,7 +65,8 @@
     <span class="s">&#39;pkgcore:fetch&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.restrictions:packages&#39;</span><span class="p">,</span>
     <span class="s">&#39;itertools:groupby,islice&#39;</span><span class="p">,</span>
-    <span class="s">&#39;operator:attrgetter,itemgetter&#39;</span>
+    <span class="s">&#39;operator:attrgetter,itemgetter&#39;</span><span class="p">,</span>
+    <span class="s">&#39;pkgcore.package:errors&#39;</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">shared</span> <span class="o">=</span> <span class="p">(</span><span class="n">commandline</span><span class="o">.</span><span class="n">mk_argparser</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">add_help</span><span class="o">=</span><span class="bp">False</span><span class="p">),)</span>
@@ -366,6 +367,37 @@
 <span class="n">profiles</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;profiles&quot;</span><span class="p">,</span>
     <span class="n">description</span><span class="o">=</span><span class="s">&quot;ebuild profiles related querying&quot;</span><span class="p">)</span>
 <span class="n">inspect_profiles</span><span class="o">.</span><span class="n">bind_parser</span><span class="p">(</span><span class="n">profiles</span><span class="p">,</span> <span class="s">&#39;profiles&#39;</span><span class="p">)</span>
+
+<span class="n">digests</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;digests&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&quot;identify what packages are missing digest info&quot;</span><span class="p">)</span>
+<span class="n">digests</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;repos&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;*&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;repository to inspect&quot;</span><span class="p">,</span>
+    <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">StoreRepoObject</span><span class="p">,</span> <span class="n">store_name</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="nd">@digests.bind_main_func</span>
+<span class="k">def</span> <span class="nf">digest_manifest</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">repo</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>
+        <span class="n">broken</span> <span class="o">=</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;inspecting </span><span class="si">%r</span><span class="s">:&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">first_prefix</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;  &quot;</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">later_prefix</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;  &quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">repo</span><span class="p">:</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pkg</span><span class="o">.</span><span class="n">fetchables</span>
+            <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">MetadataException</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> is broken&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pkg</span><span class="p">,))</span>
+                <span class="n">broken</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">continue</span>
+
+        <span class="n">out</span><span class="o">.</span><span class="n">first_prefix</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">later_prefix</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">repo</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">count</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%i</span><span class="s"> out of </span><span class="si">%i</span><span class="s"> are broken (</span><span class="si">%2.2f%%</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">broken</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span>
+                <span class="nb">float</span><span class="p">(</span><span class="n">broken</span><span class="p">)</span><span class="o">/</span><span class="n">count</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;repository has no packages&quot;</span><span class="p">)</span>
+
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
 </pre></div>
 
           </div>
