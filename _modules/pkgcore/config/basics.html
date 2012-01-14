@@ -411,13 +411,22 @@
                     <span class="k">continue</span>
                 <span class="n">kind</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">val</span>
                 <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s">&#39;ref&#39;</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="n">target_kind</span> <span class="o">==</span> <span class="s">&#39;refs&#39;</span><span class="p">,</span> <span class="n">target_kind</span>
+                    <span class="k">if</span> <span class="n">target_kind</span> <span class="o">!=</span> <span class="s">&#39;refs&#39;</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Internal issue detected: kind(ref), &quot;</span>
+                            <span class="s">&quot;target_kind(</span><span class="si">%r</span><span class="s">), name(</span><span class="si">%r</span><span class="s">), val(</span><span class="si">%r</span><span class="s">), arg_type(</span><span class="si">%r</span><span class="s">)&quot;</span>
+                            <span class="o">%</span> <span class="p">(</span><span class="n">target_kind</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">))</span>
                     <span class="n">converted</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">val</span><span class="p">])</span>
                 <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s">&#39;refs&#39;</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="n">target_kind</span> <span class="o">==</span> <span class="s">&#39;refs&#39;</span><span class="p">,</span> <span class="n">target_kind</span>
+                    <span class="k">if</span> <span class="n">target_kind</span> <span class="o">!=</span> <span class="s">&#39;refs&#39;</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Internal issue detected: kind(refs), &quot;</span>
+                            <span class="s">&quot;target_kind(</span><span class="si">%r</span><span class="s">), name(</span><span class="si">%r</span><span class="s">), val(</span><span class="si">%r</span><span class="s">), arg_type(</span><span class="si">%r</span><span class="s">)&quot;</span>
+                            <span class="o">%</span> <span class="p">(</span><span class="n">target_kind</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">))</span>
                     <span class="n">converted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s">&#39;list&#39;</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="n">target_kind</span> <span class="o">!=</span> <span class="s">&#39;str&#39;</span><span class="p">,</span> <span class="n">target_kind</span>
+                    <span class="k">if</span> <span class="n">target_kind</span> <span class="o">==</span> <span class="s">&#39;str&#39;</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Internal issue detected: kind(str), &quot;</span>
+                            <span class="s">&quot;target_kind(</span><span class="si">%r</span><span class="s">), name(</span><span class="si">%r</span><span class="s">), val(</span><span class="si">%r</span><span class="s">), arg_type(</span><span class="si">%r</span><span class="s">)&quot;</span>
+                            <span class="o">%</span> <span class="p">(</span><span class="n">target_kind</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">))</span>
                     <span class="n">converted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c"># Everything else gets converted to a string first.</span>
@@ -514,7 +523,9 @@
 
 <div class="viewcode-block" id="convert_string"><a class="viewcode-back" href="../../../api/pkgcore.config.basics.html#pkgcore.config.basics.convert_string">[docs]</a><span class="k">def</span> <span class="nf">convert_string</span><span class="p">(</span><span class="n">central</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Conversion func for a string-based DictConfigSection.&quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">),</span> <span class="n">value</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;convert_string invoked with non basestring instance:&#39;</span>
+            <span class="s">&#39; val(</span><span class="si">%r</span><span class="s">), arg_type(</span><span class="si">%r</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">arg_type</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">arg_type</span> <span class="o">==</span> <span class="s">&#39;callable&#39;</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">func</span> <span class="o">=</span> <span class="n">modules</span><span class="o">.</span><span class="n">load_attribute</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
