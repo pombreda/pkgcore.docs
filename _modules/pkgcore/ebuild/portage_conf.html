@@ -573,8 +573,13 @@
                 <span class="n">platform</span><span class="o">=</span><span class="n">conf_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;DEB_ARCHITECTURE&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="s">&#39;splitdebug&#39;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+        <span class="n">kwds</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="s">&#39;compressdebug&#39;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+            <span class="n">kwds</span><span class="p">[</span><span class="s">&#39;compress&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;true&#39;</span>
+
         <span class="n">add_trigger</span><span class="p">(</span><span class="s">&#39;binary_debug_trigger&#39;</span><span class="p">,</span> <span class="s">&#39;pkgcore.merge.triggers.BinaryDebug&#39;</span><span class="p">,</span>
-            <span class="n">mode</span><span class="o">=</span><span class="s">&#39;split&#39;</span><span class="p">)</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s">&#39;split&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
     <span class="k">elif</span> <span class="s">&#39;strip&#39;</span> <span class="ow">in</span> <span class="n">features</span> <span class="ow">or</span> <span class="s">&#39;nostrip&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
         <span class="n">add_trigger</span><span class="p">(</span><span class="s">&#39;binary_debug_trigger&#39;</span><span class="p">,</span> <span class="s">&#39;pkgcore.merge.triggers.BinaryDebug&#39;</span><span class="p">,</span>
             <span class="n">mode</span><span class="o">=</span><span class="s">&#39;strip&#39;</span><span class="p">)</span>
