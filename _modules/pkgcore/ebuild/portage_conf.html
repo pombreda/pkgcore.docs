@@ -73,7 +73,6 @@
     <span class="s">&#39;pkgcore.log:logger&#39;</span><span class="p">,</span>
     <span class="s">&#39;ConfigParser:ConfigParser&#39;</span><span class="p">,</span>
     <span class="s">&#39;snakeoil.bash:read_bash_dict&#39;</span><span class="p">,</span>
-    <span class="s">&#39;pkgcore.util:bzip2&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.ebuild:profiles&#39;</span><span class="p">,</span>
     <span class="s">&#39;snakeoil.xml:etree&#39;</span><span class="p">,</span>
 <span class="p">)</span>
@@ -534,19 +533,13 @@
 
     <span class="c"># yes, round two; may be disabled from above and massive else block sucks</span>
     <span class="k">if</span> <span class="n">pkgdir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="c"># If we are not using the native bzip2 then the Tarfile.bz2open</span>
-        <span class="c"># the binpkg repository uses will fail.</span>
         <span class="k">if</span> <span class="n">pkgdir</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">pkgdir</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">bzip2</span><span class="o">.</span><span class="n">native</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;python&#39;s bz2 module isn&#39;t available: &quot;</span>
-                    <span class="s">&quot;disabling binpkg support&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">new_config</span><span class="p">[</span><span class="s">&#39;binpkg&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">ConfigSectionFromStringDict</span><span class="p">({</span>
-                    <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;pkgcore.binpkg.repository.tree&#39;</span><span class="p">,</span>
-                    <span class="s">&#39;location&#39;</span><span class="p">:</span> <span class="n">pkgdir</span><span class="p">,</span>
-                    <span class="s">&#39;ignore_paludis_versioning&#39;</span><span class="p">:</span>
-                        <span class="nb">str</span><span class="p">(</span><span class="s">&#39;ignore-paludis-versioning&#39;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">)})</span>
-                <span class="n">default_repos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;binpkg&#39;</span><span class="p">)</span>
+            <span class="n">new_config</span><span class="p">[</span><span class="s">&#39;binpkg&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">ConfigSectionFromStringDict</span><span class="p">({</span>
+                <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;pkgcore.binpkg.repository.tree&#39;</span><span class="p">,</span>
+                <span class="s">&#39;location&#39;</span><span class="p">:</span> <span class="n">pkgdir</span><span class="p">,</span>
+                <span class="s">&#39;ignore_paludis_versioning&#39;</span><span class="p">:</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="s">&#39;ignore-paludis-versioning&#39;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">)})</span>
+            <span class="n">default_repos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;binpkg&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="s">&#39;buildpkg&#39;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
             <span class="n">add_trigger</span><span class="p">(</span><span class="s">&#39;buildpkg_trigger&#39;</span><span class="p">,</span> <span class="s">&#39;pkgcore.merge.triggers.SavePkg&#39;</span><span class="p">,</span>

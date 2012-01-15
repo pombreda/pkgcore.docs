@@ -67,32 +67,13 @@
 
 <span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">listdir</span><span class="p">,</span> <span class="n">access</span>
 <span class="kn">from</span> <span class="nn">snakeoil.mappings</span> <span class="kn">import</span> <span class="n">ProtectedDict</span>
-<span class="kn">from</span> <span class="nn">snakeoil.process</span> <span class="kn">import</span> <span class="n">get_proc_count</span>
-
+<span class="kn">from</span> <span class="nn">snakeoil.process</span> <span class="kn">import</span> <span class="n">get_proc_count</span><span class="p">,</span> <span class="n">find_binary</span><span class="p">,</span> <span class="n">CommandNotFound</span><span class="p">,</span> <span class="n">closerange</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">resource</span>
     <span class="n">max_fd_limit</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">getrlimit</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">RLIMIT_NOFILE</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="n">max_fd_limit</span> <span class="o">=</span> <span class="mi">256</span>
-
-<span class="k">def</span> <span class="nf">slow_get_open_fds</span><span class="p">():</span>
-    <span class="k">return</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">max_fd_limit</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="s">&quot;/proc/</span><span class="si">%i</span><span class="s">/fd&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()):</span>
-    <span class="k">def</span> <span class="nf">get_open_fds</span><span class="p">():</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">listdir</span><span class="p">(</span><span class="s">&quot;/proc/</span><span class="si">%i</span><span class="s">/fd&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()))</span>
-        <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">slow_get_open_fds</span><span class="p">()</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span>
-            <span class="kn">import</span> <span class="nn">warnings</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s">&quot;extremely odd, got a value error &#39;</span><span class="si">%s</span><span class="s">&#39; while scanning &quot;</span>
-                <span class="s">&quot;/proc/</span><span class="si">%i</span><span class="s">/fd; OS allowing string names in fd?&quot;</span> <span class="o">%</span>
-                <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()))</span>
-            <span class="k">return</span> <span class="n">slow_get_open_fds</span><span class="p">()</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="n">get_open_fds</span> <span class="o">=</span> <span class="n">slow_get_open_fds</span>
 
 
 <div class="viewcode-block" id="spawn_bash"><a class="viewcode-back" href="../../api/pkgcore.spawn.html#pkgcore.spawn.spawn_bash">[docs]</a><span class="k">def</span> <span class="nf">spawn_bash</span><span class="p">(</span><span class="n">mycommand</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">opt_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">keywords</span><span class="p">):</span>
@@ -355,13 +336,13 @@
 
     <span class="c"># Then close _all_ fds that haven&#39;t been explictly</span>
     <span class="c"># requested to be kept open.</span>
-    <span class="k">for</span> <span class="n">fd</span> <span class="ow">in</span> <span class="n">get_open_fds</span><span class="p">():</span>
-        <span class="c"># if it&#39;s not a target fd, close it.</span>
-        <span class="k">if</span> <span class="n">fd</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fd_pipes</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
-                <span class="k">pass</span>
+    <span class="n">last</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">fd</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">fd_pipes</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">fd</span> <span class="o">!=</span> <span class="n">last</span><span class="p">:</span>
+            <span class="n">closerange</span><span class="p">(</span><span class="n">last</span><span class="p">,</span> <span class="n">fd</span><span class="p">)</span>
+        <span class="n">last</span> <span class="o">=</span> <span class="n">fd</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="n">closerange</span><span class="p">(</span><span class="n">last</span><span class="p">,</span> <span class="n">max_fd_limit</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">chdir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">chdir</span><span class="p">)</span>
@@ -388,24 +369,6 @@
     <span class="n">os</span><span class="o">.</span><span class="n">execve</span><span class="p">(</span><span class="n">binary</span><span class="p">,</span> <span class="n">myargs</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="find_binary"><a class="viewcode-back" href="../../api/pkgcore.spawn.html#pkgcore.spawn.find_binary">[docs]</a><span class="k">def</span> <span class="nf">find_binary</span><span class="p">(</span><span class="n">binary</span><span class="p">,</span> <span class="n">paths</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;look through the PATH environment, finding the binary to execute&quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">binary</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">binary</span><span class="p">)</span> <span class="ow">and</span> <span class="n">access</span><span class="p">(</span><span class="n">binary</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">X_OK</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="n">CommandNotFound</span><span class="p">(</span><span class="n">binary</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">binary</span>
-
-    <span class="k">if</span> <span class="n">paths</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">paths</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;PATH&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;:&quot;</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">binary</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">access</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">X_OK</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">filename</span>
-
-    <span class="k">raise</span> <span class="n">CommandNotFound</span><span class="p">(</span><span class="n">binary</span><span class="p">)</span>
-</div>
 <div class="viewcode-block" id="spawn_fakeroot"><a class="viewcode-back" href="../../api/pkgcore.spawn.html#pkgcore.spawn.spawn_fakeroot">[docs]</a><span class="k">def</span> <span class="nf">spawn_fakeroot</span><span class="p">(</span><span class="n">mycommand</span><span class="p">,</span> <span class="n">save_file</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">opt_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                    <span class="n">returnpid</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">keywords</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;spawn a process via fakeroot</span>
@@ -552,12 +515,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span>
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s">&quot;Execution Failure: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg</span>
-
-<span class="k">class</span> <span class="nc">CommandNotFound</span><span class="p">(</span><span class="n">ExecutionFailure</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
-        <span class="n">ExecutionFailure</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="s">&quot;CommandNotFound Exception: Couldn&#39;t find &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">command</span><span class="p">,))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
 
 <span class="c"># cached capabilities</span>
 

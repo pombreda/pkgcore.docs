@@ -58,8 +58,8 @@
 <span class="kn">from</span> <span class="nn">pkgcore.const</span> <span class="kn">import</span> <span class="n">VERSION</span>
 
 <span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">ensure_dirs</span><span class="p">,</span> <span class="n">pjoin</span>
-<span class="kn">from</span> <span class="nn">pkgcore.util</span> <span class="kn">import</span> <span class="n">bzip2</span>
 <span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">compression</span>
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
     <span class="s">&#39;time&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.ebuild:conditionals&#39;</span><span class="p">,</span>
@@ -100,7 +100,7 @@
                 <span class="n">v</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">new_pkg</span><span class="o">.</span><span class="n">contents</span><span class="p">)</span>
                 <span class="n">v</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
             <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="s">&quot;environment&quot;</span><span class="p">:</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="n">bzip2</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">compression</span><span class="o">.</span><span class="n">compress_data</span><span class="p">(</span><span class="s">&#39;bzip2&#39;</span><span class="p">,</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">new_pkg</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">bytes_fileobj</span><span class="p">()</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
                 <span class="nb">open</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">dirpath</span><span class="p">,</span> <span class="s">&quot;environment.bz2&quot;</span><span class="p">),</span> <span class="s">&quot;wb&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
                 <span class="k">del</span> <span class="n">data</span>

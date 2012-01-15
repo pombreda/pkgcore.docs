@@ -84,7 +84,7 @@
     <span class="s">&quot;errno&quot;</span><span class="p">,</span>
     <span class="s">&quot;pkgcore.fs.tar:generate_contents&quot;</span><span class="p">,</span>
     <span class="s">&quot;pkgcore.binpkg.xpak:Xpak&quot;</span><span class="p">,</span>
-    <span class="s">&quot;pkgcore.util.bzip2:decompress&quot;</span><span class="p">,</span>
+    <span class="s">&quot;snakeoil:compression&quot;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.binpkg:remote&#39;</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -196,7 +196,8 @@
                         <span class="s">&quot;environment.bz2 not found in xpak segment, &quot;</span>
                         <span class="s">&quot;malformed binpkg?&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="n">data_source</span><span class="p">(</span><span class="n">decompress</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">mutable</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">data_source</span><span class="p">(</span><span class="n">compression</span><span class="o">.</span><span class="n">decompress_data</span><span class="p">(</span><span class="s">&#39;bzip2&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">),</span>
+                    <span class="n">mutable</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s">&quot;ebuild&quot;</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xpak</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">-</span><span class="si">%s</span><span class="s">.ebuild&quot;</span> <span class="o">%</span>
                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pkg</span><span class="o">.</span><span class="n">package</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pkg</span><span class="o">.</span><span class="n">fullver</span><span class="p">),</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
