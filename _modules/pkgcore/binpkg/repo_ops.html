@@ -141,7 +141,8 @@
                 <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">start</span><span class="p">(</span><span class="s">&quot;generating tarball: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">tmp_path</span><span class="p">)</span>
-            <span class="n">tar</span><span class="o">.</span><span class="n">write_set</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">contents</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">compressor</span><span class="o">=</span><span class="s">&#39;bz2&#39;</span><span class="p">)</span>
+            <span class="n">tar</span><span class="o">.</span><span class="n">write_set</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">contents</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">compressor</span><span class="o">=</span><span class="s">&#39;bzip2&#39;</span><span class="p">,</span>
+                <span class="n">parallelize</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
             <span class="n">end</span><span class="p">(</span><span class="s">&quot;tarball created&quot;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
             <span class="n">start</span><span class="p">(</span><span class="s">&quot;writing Xpak&quot;</span><span class="p">)</span>
             <span class="c"># ok... got a tarball.  now add xpak.</span>

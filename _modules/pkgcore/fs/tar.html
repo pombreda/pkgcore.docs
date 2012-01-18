@@ -58,6 +58,7 @@
 <span class="kn">from</span> <span class="nn">snakeoil.data_source</span> <span class="kn">import</span> <span class="n">invokable_data_source</span>
 
 <span class="kn">from</span> <span class="nn">snakeoil.tar</span> <span class="kn">import</span> <span class="n">tarfile</span>
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">compression</span>
 <span class="kn">from</span> <span class="nn">snakeoil.currying</span> <span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="nb">cmp</span><span class="p">,</span> <span class="n">sorted_cmp</span>
 
@@ -66,16 +67,23 @@
     <span class="s">&quot;gz&quot;</span><span class="p">:</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">TarFile</span><span class="o">.</span><span class="n">gzopen</span><span class="p">,</span>
     <span class="bp">None</span><span class="p">:</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">TarFile</span><span class="o">.</span><span class="n">open</span><span class="p">}</span>
 
-<div class="viewcode-block" id="write_set"><a class="viewcode-back" href="../../../api/pkgcore.fs.tar.html#pkgcore.fs.tar.write_set">[docs]</a><span class="k">def</span> <span class="nf">write_set</span><span class="p">(</span><span class="n">contents_set</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">compressor</span><span class="o">=</span><span class="s">&#39;bz2&#39;</span><span class="p">,</span> <span class="n">absolute_paths</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">compressor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">known_compressors</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;compression must be one of </span><span class="si">%r</span><span class="s">, got </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span>
-            <span class="p">(</span><span class="n">known_compressors</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">compressor</span><span class="p">))</span>
-    <span class="n">tar_fd</span> <span class="o">=</span> <span class="n">known_compressors</span><span class="p">[</span><span class="n">compressor</span><span class="p">](</span><span class="n">filepath</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;w&quot;</span><span class="p">)</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">add_contents_to_tarfile</span><span class="p">(</span><span class="n">contents_set</span><span class="p">,</span> <span class="n">tar_fd</span><span class="p">)</span>
-    <span class="k">finally</span><span class="p">:</span>
-        <span class="n">tar_fd</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
+<div class="viewcode-block" id="write_set"><a class="viewcode-back" href="../../../api/pkgcore.fs.tar.html#pkgcore.fs.tar.write_set">[docs]</a><span class="k">def</span> <span class="nf">write_set</span><span class="p">(</span><span class="n">contents_set</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">compressor</span><span class="o">=</span><span class="s">&#39;bzip2&#39;</span><span class="p">,</span> <span class="n">absolute_paths</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">parallelize</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">compressor</span> <span class="o">==</span> <span class="s">&#39;bz2&#39;</span><span class="p">:</span>
+        <span class="n">compressor</span> <span class="o">=</span> <span class="s">&#39;bzip2&#39;</span>
+
+    <span class="n">tar_handle</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">handle</span> <span class="o">=</span> <span class="n">compression</span><span class="o">.</span><span class="n">compress_handle</span><span class="p">(</span><span class="n">compressor</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span>
+        <span class="n">parallelize</span><span class="o">=</span><span class="n">parallelize</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">tar_handle</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">TarFile</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">filepath</span><span class="p">,</span> <span class="n">fileobj</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">add_contents_to_tarfile</span><span class="p">(</span><span class="n">contents_set</span><span class="p">,</span> <span class="n">tar_handle</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">tar_handle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">tar_handle</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">handle</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="add_contents_to_tarfile"><a class="viewcode-back" href="../../../api/pkgcore.fs.tar.html#pkgcore.fs.tar.add_contents_to_tarfile">[docs]</a><span class="k">def</span> <span class="nf">add_contents_to_tarfile</span><span class="p">(</span><span class="n">contents_set</span><span class="p">,</span> <span class="n">tar_fd</span><span class="p">,</span> <span class="n">absolute_paths</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="c"># first add directories, then everything else</span>
@@ -151,24 +159,29 @@
     <span class="k">return</span> <span class="n">t</span>
 
 </div>
-<div class="viewcode-block" id="generate_contents"><a class="viewcode-back" href="../../../api/pkgcore.fs.tar.html#pkgcore.fs.tar.generate_contents">[docs]</a><span class="k">def</span> <span class="nf">generate_contents</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">compressor</span><span class="o">=</span><span class="s">&quot;bz2&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="generate_contents"><a class="viewcode-back" href="../../../api/pkgcore.fs.tar.html#pkgcore.fs.tar.generate_contents">[docs]</a><span class="k">def</span> <span class="nf">generate_contents</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">compressor</span><span class="o">=</span><span class="s">&quot;bz2&quot;</span><span class="p">,</span> <span class="n">parallelize</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    generate a contentset from a tarball</span>
 
-<span class="sd">    :param path: string path to location on disk</span>
+<span class="sd">    :param filepath: string path to location on disk</span>
 <span class="sd">    :param compressor: defaults to bz2; decompressor to use, see</span>
 <span class="sd">        :obj:`known_compressors` for list of valid compressors</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">compressor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">known_compressors</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;compressor needs to be one of </span><span class="si">%r</span><span class="s">, got </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span>
-            <span class="p">(</span><span class="n">known_compressors</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">compressor</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">compressor</span> <span class="o">==</span> <span class="s">&#39;bz2&#39;</span><span class="p">:</span>
+        <span class="n">compressor</span> <span class="o">=</span> <span class="s">&#39;bzip2&#39;</span>
+
+    <span class="n">tar_handle</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">handle</span> <span class="o">=</span> <span class="n">compression</span><span class="o">.</span><span class="n">decompress_handle</span><span class="p">(</span><span class="n">compressor</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span>
+        <span class="n">parallelize</span><span class="o">=</span><span class="n">parallelize</span><span class="p">)</span>
+
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="n">known_compressors</span><span class="p">[</span><span class="n">compressor</span><span class="p">](</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;r&quot;</span><span class="p">)</span>
+        <span class="n">tar_handle</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">TarFile</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">filepath</span><span class="p">,</span> <span class="n">fileobj</span><span class="o">=</span><span class="n">handle</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&#39;r&#39;</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">ReadError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;empty header&quot;</span><span class="p">):</span>
             <span class="k">raise</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">return</span> <span class="n">convert_archive</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">tar_handle</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="n">convert_archive</span><span class="p">(</span><span class="n">tar_handle</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="convert_archive"><a class="viewcode-back" href="../../../api/pkgcore.fs.tar.html#pkgcore.fs.tar.convert_archive">[docs]</a><span class="k">def</span> <span class="nf">convert_archive</span><span class="p">(</span><span class="n">archive</span><span class="p">):</span>
