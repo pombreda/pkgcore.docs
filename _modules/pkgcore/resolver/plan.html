@@ -60,6 +60,9 @@
 <span class="kn">from</span> <span class="nn">pkgcore.repository</span> <span class="kn">import</span> <span class="n">misc</span><span class="p">,</span> <span class="n">multiplex</span><span class="p">,</span> <span class="n">visibility</span>
 <span class="kn">from</span> <span class="nn">pkgcore.resolver</span> <span class="kn">import</span> <span class="n">state</span>
 
+<span class="c"># XXX: hack; see insert_blockers</span>
+<span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">atom</span> <span class="k">as</span> <span class="n">_atom</span>
+
 <span class="kn">from</span> <span class="nn">snakeoil.currying</span> <span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="nb">any</span><span class="p">,</span> <span class="nb">cmp</span><span class="p">,</span> <span class="n">sort_cmp</span>
 <span class="kn">from</span> <span class="nn">snakeoil.iterables</span> <span class="kn">import</span> <span class="n">caching_iter</span>
@@ -821,7 +824,17 @@
             <span class="k">if</span> <span class="n">l</span><span class="p">:</span>
                 <span class="c"># blocker caught something. yay.</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dprint</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> blocker </span><span class="si">%s</span><span class="s"> hit </span><span class="si">%s</span><span class="s"> for atom </span><span class="si">%s</span><span class="s"> pkg </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span>
-                       <span class="p">(</span><span class="n">stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">atom</span><span class="p">,</span> <span class="n">choices</span><span class="o">.</span><span class="n">current_pkg</span><span class="p">))</span>
+                    <span class="p">(</span><span class="n">stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">atom</span><span class="p">,</span> <span class="n">choices</span><span class="o">.</span><span class="n">current_pkg</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">weak_blocker</span><span class="p">:</span>
+                    <span class="c"># note that we use the top frame of the stacks&#39; dbs; this</span>
+                    <span class="c"># is to allow us to upgrade as needed.</span>
+                    <span class="c"># For this to match, it&#39;s *only* possible if the blocker is resolved</span>
+                    <span class="c"># since the limiter is already in place.</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_atom</span><span class="p">(</span><span class="n">packages</span><span class="o">.</span><span class="n">KeyedAndRestriction</span><span class="p">(</span>
+                        <span class="n">restriction</span><span class="o">.</span><span class="n">Negate</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">_atom</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">key</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">key</span><span class="p">),</span> <span class="n">stack</span><span class="p">,</span> <span class="n">stack</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dbs</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
+                        <span class="c"># ignore the blocker, we resolved past it.</span>
+                        <span class="k">continue</span>
                 <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">l</span>
         <span class="k">return</span> <span class="bp">None</span>
 </div>
