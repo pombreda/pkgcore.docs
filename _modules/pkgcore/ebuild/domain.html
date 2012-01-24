@@ -520,8 +520,6 @@
         <span class="n">pre_defaults</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pkg</span><span class="o">.</span><span class="n">iuse</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;+&#39;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">pre_defaults</span><span class="p">:</span>
             <span class="n">pre_defaults</span><span class="p">,</span> <span class="n">ue_flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_use_expand_flags</span><span class="p">(</span><span class="n">pre_defaults</span><span class="p">)</span>
-<span class="c">#            pre_defaults = izip(imap(self.use_expand_re.match, pre_defaults), pre_defaults)</span>
-<span class="c">#            flags, ue_flags = predicate_split(bool, pre_defaults, itemgetter(0))</span>
             <span class="n">pre_defaults</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
                 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ue_flags</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">)</span>
 
@@ -535,37 +533,19 @@
         <span class="n">disabled</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">disabled_use</span><span class="o">.</span><span class="n">pull_data</span><span class="p">(</span><span class="n">pkg</span><span class="p">)</span>
         <span class="n">immutable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forced_use</span><span class="o">.</span><span class="n">pull_data</span><span class="p">(</span><span class="n">pkg</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">disabled</span><span class="p">:</span>
-            <span class="k">pass</span>
-            <span class="c">#if enabled is self.enabled_use.defaults:</span>
-            <span class="c">#    enabled = set(enabled)</span>
-            <span class="c">#if immutable is self.forced_use.defaults:</span>
-            <span class="c">#    immutable = set(immutable)</span>
-        <span class="k">elif</span> <span class="n">immutable</span><span class="p">:</span>
-            <span class="k">pass</span>
-            <span class="c">#if enabled is self.enabled_use.defaults:</span>
-            <span class="c">#    enabled = set(enabled)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">immutable</span><span class="p">,</span> <span class="n">enabled</span><span class="p">,</span> <span class="n">disabled</span>
-        <span class="n">enabled</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">immutable</span><span class="p">)</span>
-        <span class="n">enabled</span><span class="o">.</span><span class="n">difference_update</span><span class="p">(</span><span class="n">disabled</span><span class="p">)</span>
-        <span class="n">immutable</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">disabled</span><span class="p">)</span>
-
         <span class="k">return</span> <span class="n">immutable</span><span class="p">,</span> <span class="n">enabled</span><span class="p">,</span> <span class="n">disabled</span>
 </div>
 <div class="viewcode-block" id="domain.get_package_use_buildable"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.domain.html#pkgcore.ebuild.domain.domain.get_package_use_buildable">[docs]</a>    <span class="k">def</span> <span class="nf">get_package_use_buildable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">):</span>
-        <span class="c"># we append USE_EXPAND flags into the build env;</span>
-        <span class="c"># this is done for things like linguas.</span>
-        <span class="n">changed_use</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">use</span><span class="p">)</span>
-        <span class="n">immutable</span><span class="p">,</span> <span class="n">enabled</span><span class="p">,</span> <span class="n">disabled</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_package_use_unconfigured</span><span class="p">(</span><span class="n">pkg</span><span class="p">)</span>
-        <span class="n">new_enabled</span> <span class="o">=</span> <span class="n">enabled</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">changed_use</span><span class="p">)</span>
-        <span class="n">new_disabled</span> <span class="o">=</span> <span class="n">changed_use</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">enabled</span><span class="p">)</span>
-        <span class="c"># we&#39;ve isolated what&#39;s changed.  now get the buildable use,</span>
-        <span class="c"># and apply those changes</span>
-        <span class="n">immutable</span><span class="p">,</span> <span class="n">enabled</span><span class="p">,</span> <span class="n">disabled</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_package_use_unconfigured</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span>
-            <span class="n">for_metadata</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-        <span class="n">enabled</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_enabled</span><span class="p">)</span>
-        <span class="n">enabled</span><span class="o">.</span><span class="n">difference_update</span><span class="p">(</span><span class="n">new_disabled</span><span class="p">)</span>
+        <span class="c"># isolate just what isn&#39;t exposed for metadata- anything non-IUSE</span>
+        <span class="c"># this brings in actual use flags the ebuild shouldn&#39;t see, but that&#39;s</span>
+        <span class="c"># a future enhancement to be done when USE_EXPAND is kept seperate from</span>
+        <span class="c"># mainline USE in this code.</span>
+
+        <span class="n">metadata_use</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_package_use_unconfigured</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">for_metadata</span><span class="o">=</span><span class="bp">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">raw_use</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_package_use_unconfigured</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">for_metadata</span><span class="o">=</span><span class="bp">False</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">enabled</span> <span class="o">=</span> <span class="n">raw_use</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">metadata_use</span><span class="p">)</span>
+
+        <span class="n">enabled</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">use</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">enabled</span>
 </div>
 <div class="viewcode-block" id="domain.get_package_bashrcs"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.domain.html#pkgcore.ebuild.domain.domain.get_package_bashrcs">[docs]</a>    <span class="k">def</span> <span class="nf">get_package_bashrcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">):</span>
