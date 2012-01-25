@@ -403,8 +403,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">saved_mtimes</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">locations</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_mtimes</span><span class="o">.</span><span class="n">check_state</span><span class="p">(</span><span class="n">locations</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">regen</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+        <span class="c"># always invoke regen; ld.so.conf can have source/include statements,</span>
+        <span class="c"># and modern ldconfig maintains a cache that renders this very, very fast.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">regen</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ldconfig.regen"><a class="viewcode-back" href="../../../api/pkgcore.merge.triggers.html#pkgcore.merge.triggers.ldconfig.regen">[docs]</a>    <span class="k">def</span> <span class="nf">regen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">update_elf_hints</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span>
