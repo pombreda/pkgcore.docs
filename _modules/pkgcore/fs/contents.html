@@ -62,7 +62,7 @@
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
     <span class="s">&#39;os:path&#39;</span><span class="p">,</span>
     <span class="s">&#39;time&#39;</span><span class="p">,</span>
-    <span class="s">&#39;snakeoil.mappings:OrderedDict&#39;</span><span class="p">,</span>
+    <span class="s">&#39;snakeoil.mappings:OrderedDict,defaultdict&#39;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">ifilter</span>
 <span class="kn">from</span> <span class="nn">operator</span> <span class="kn">import</span> <span class="n">attrgetter</span>
@@ -340,6 +340,15 @@
         <span class="k">del</span> <span class="n">s</span>
     <span class="k">del</span> <span class="n">k</span>
 
+<div class="viewcode-block" id="contentsSet.inode_map"><a class="viewcode-back" href="../../../api/pkgcore.fs.contents.html#pkgcore.fs.contents.contentsSet.inode_map">[docs]</a>    <span class="k">def</span> <span class="nf">inode_map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterfiles</span><span class="p">():</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">dev</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">inode</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">None</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">d</span>
+</div>
 <div class="viewcode-block" id="contentsSet.clone"><a class="viewcode-back" href="../../../api/pkgcore.fs.contents.html#pkgcore.fs.contents.contentsSet.clone">[docs]</a>    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">empty</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">empty</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">([],</span> <span class="n">mutable</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>

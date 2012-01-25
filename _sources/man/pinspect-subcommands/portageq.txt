@@ -7,7 +7,7 @@ pinspect portageq
 synopsis
 ========
 
-pinspect portageq [-h] {envvar,has_version,mass_best_version,best_version,match,get_repositories,get_repository_path,get_repo_news_path} ...
+pinspect portageq [-h] {best_version,envvar,envvar2,get_repo_news_path,get_repo_path,get_repositories,has_version,mass_best_version,match} ...
 
 DESCRIPTION
 ===========
@@ -17,15 +17,28 @@ portageq compatible interface to query commands
 positional arguments
 ====================
 
-:{envvar,has_version,mass_best_version,best_version,match,get_repositories,get_repository_path,get_repo_news_path}:  portageq commands
-  envvar
-  has_version
-  mass_best_version
-  best_version
-  match
-  get_repositories
-  get_repository_path
+:{best_version,envvar,envvar2,get_repo_news_path,get_repo_path,get_repositories,has_version,mass_best_version,match}:  portageq commands
+  best_version                                                                                                       
+                                                                                                                         Return the maximum visible version for a given atom.
+                                                                                                                         
+  envvar                                                                                                             
+                                                                                                                         return configuration defined variables.  Use envvar2 instead, this will be removed.
+                                                                                                                         
+  envvar2                                                                                                            
+                                                                                                                         return configuration defined variables.
+                                                                                                                         
   get_repo_news_path
+  get_repo_news_path
+  get_repo_path
+  get_repositories
+  has_version                                                                                                        
+                                                                                                                         Return 0 if an atom is merged, 1 if not.
+                                                                                                                         
+  mass_best_version                                                                                                  
+                                                                                                                         multiple best_version calls.
+                                                                                                                         
+  match                                                                                                              
+                                                                                                                         Shorthand for `pquery --vdb`
 
 optional arguments
 ==================

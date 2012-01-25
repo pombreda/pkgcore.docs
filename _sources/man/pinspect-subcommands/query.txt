@@ -7,7 +7,7 @@ pinspect query
 synopsis
 ========
 
-pinspect query [-h] {envvar,has_version,mass_best_version,best_version,match,get_repositories,get_repository_path,get_repo_news_path} ...
+pinspect query [-h] {best_version,env_var,get_repositories,get_repositories_path,has_version,mass_best_version} ...
 
 DESCRIPTION
 ===========
@@ -17,15 +17,20 @@ auxiliary access to ebuild/repository info via portageq akin api
 positional arguments
 ====================
 
-:{envvar,has_version,mass_best_version,best_version,match,get_repositories,get_repository_path,get_repo_news_path}:  query commands
-  envvar
-  has_version
-  mass_best_version
-  best_version
-  match
+:{best_version,env_var,get_repositories,get_repositories_path,has_version,mass_best_version}:  query commands
+  best_version                                                                               
+                                                                                                 Return the maximum visible version for a given atom.
+                                                                                                 
+  env_var                                                                                    
+                                                                                                 return configuration defined variables.
+                                                                                                 
   get_repositories
-  get_repository_path
-  get_repo_news_path
+  get_repositories_path
+  has_version                                                                                
+                                                                                                 Return 0 if an atom is merged, 1 if not.
+                                                                                                 
+  mass_best_version                                                                          
+                                                                                                 multiple best_version calls.
 
 optional arguments
 ==================

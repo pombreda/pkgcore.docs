@@ -221,7 +221,6 @@
         <span class="k">return</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="o">*</span><span class="n">csets</span><span class="p">):</span>
-        <span class="n">parallelism</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">parallelism</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">threading_setup</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="o">*</span><span class="n">csets</span><span class="p">):</span>
             <span class="k">return</span>
 
@@ -229,9 +228,10 @@
         <span class="n">observer</span> <span class="o">=</span> <span class="n">threadsafe_repo_observer</span><span class="p">(</span><span class="n">observer</span><span class="p">)</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">observer</span><span class="p">,)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">threading_get_args</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="o">*</span><span class="n">csets</span><span class="p">)</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">threading_get_kwargs</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="o">*</span><span class="n">csets</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;threads&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">parallelism</span>
 
-        <span class="n">thread_pool</span><span class="o">.</span><span class="n">map_async</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">identify_work</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="o">*</span><span class="n">csets</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">thread_trigger</span><span class="p">,</span>
-            <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">work</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">identify_work</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="o">*</span><span class="n">csets</span><span class="p">))</span>
+        <span class="n">thread_pool</span><span class="o">.</span><span class="n">map_async</span><span class="p">(</span><span class="n">work</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">thread_trigger</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">threading_finish</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="o">*</span><span class="n">csets</span><span class="p">)</span>
 
@@ -868,16 +868,17 @@
         <span class="k">if</span> <span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">reporter</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;stripping </span><span class="si">%s</span><span class="s">, type </span><span class="si">%s</span><span class="s"> failed&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fs_obj</span><span class="p">,</span> <span class="n">ftype</span><span class="p">))</span>
         <span class="c"># need to update chksums here...</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">fs_obj</span><span class="p">,)</span>
+        <span class="k">return</span> <span class="n">fs_obj</span>
 
 <div class="viewcode-block" id="BinaryDebug.identify_work"><a class="viewcode-back" href="../../../api/pkgcore.merge.triggers.html#pkgcore.merge.triggers.BinaryDebug.identify_work">[docs]</a>    <span class="k">def</span> <span class="nf">identify_work</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">cset</span><span class="p">):</span>
         <span class="n">file_typer</span> <span class="o">=</span> <span class="n">file_type</span><span class="o">.</span><span class="n">file_identifier</span><span class="p">()</span>
         <span class="n">regex_f</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elf_regex</span><span class="p">)</span><span class="o">.</span><span class="n">match</span>
         <span class="n">engine</span><span class="o">.</span><span class="n">observer</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;starting binarydebug filetype scan&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">fs_obj</span> <span class="ow">in</span> <span class="n">cset</span><span class="o">.</span><span class="n">iterfiles</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">fs_objs</span> <span class="ow">in</span> <span class="n">cset</span><span class="o">.</span><span class="n">inode_map</span><span class="p">()</span><span class="o">.</span><span class="n">itervalues</span><span class="p">():</span>
+            <span class="n">fs_obj</span> <span class="o">=</span> <span class="n">fs_objs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">ftype</span> <span class="o">=</span> <span class="n">file_typer</span><span class="p">(</span><span class="n">fs_obj</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">regex_f</span><span class="p">(</span><span class="n">ftype</span><span class="p">):</span>
-                <span class="k">yield</span> <span class="n">fs_obj</span><span class="p">,</span> <span class="n">ftype</span>
+                <span class="k">yield</span> <span class="n">fs_objs</span><span class="p">,</span> <span class="n">ftype</span>
         <span class="n">engine</span><span class="o">.</span><span class="n">observer</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;completed binarydebug scan&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="BinaryDebug.threading_get_args"><a class="viewcode-back" href="../../../api/pkgcore.merge.triggers.html#pkgcore.merge.triggers.BinaryDebug.threading_get_args">[docs]</a>    <span class="k">def</span> <span class="nf">threading_get_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">cset</span><span class="p">):</span>
@@ -888,12 +889,17 @@
             <span class="n">engine</span><span class="o">.</span><span class="n">observer</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;stripping disabled for </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">engine</span><span class="o">.</span><span class="n">new</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_paths</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">new</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">True</span>
 
     <span class="k">def</span> <span class="nf">_strip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterable</span><span class="p">,</span> <span class="n">observer</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">cset</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">fs_obj</span><span class="p">,</span> <span class="n">ftype</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_strip_fsobj</span><span class="p">(</span><span class="n">fs_obj</span><span class="p">,</span> <span class="n">ftype</span><span class="p">,</span> <span class="n">observer</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">fs_objs</span><span class="p">,</span> <span class="n">ftype</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">:</span>
+            <span class="c"># strip the first hardlink; then update the rest with the</span>
+            <span class="c"># new objects data.</span>
+            <span class="n">stripped</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strip_fsobj</span><span class="p">(</span><span class="n">fs_objs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ftype</span><span class="p">,</span> <span class="n">observer</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">stripped</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">stripped</span><span class="o">.</span><span class="n">change_attributes</span><span class="p">(</span><span class="n">location</span><span class="o">=</span><span class="n">fs_obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">fs_obj</span> <span class="ow">in</span> <span class="n">fs_objs</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
 
     <span class="k">def</span> <span class="nf">_strip_finish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">cset</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_modified&#39;</span><span class="p">):</span>
@@ -924,10 +930,13 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compress</span><span class="p">:</span>
             <span class="n">objcopy_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;--compress-debug-sections&#39;</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">fs_obj</span><span class="p">,</span> <span class="n">ftype</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s">&#39;ar archive&#39;</span> <span class="ow">in</span> <span class="n">ftype</span> <span class="ow">or</span> <span class="p">(</span><span class="s">&#39;relocatable&#39;</span> <span class="ow">in</span> <span class="n">ftype</span> <span class="ow">and</span> <span class="ow">not</span>
-                <span class="n">fs_obj</span><span class="o">.</span><span class="n">basename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.ko&quot;</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">fs_objs</span><span class="p">,</span> <span class="n">ftype</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s">&#39;ar archive&#39;</span> <span class="ow">in</span> <span class="n">ftype</span><span class="p">:</span>
                 <span class="k">continue</span>
+            <span class="k">if</span> <span class="s">&#39;relocatable&#39;</span> <span class="ow">in</span> <span class="n">ftype</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">basename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.ko&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fs_objs</span><span class="p">):</span>
+                    <span class="k">continue</span>
+            <span class="n">fs_obj</span> <span class="o">=</span> <span class="n">fs_objs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">debug_loc</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">debug_store</span><span class="p">,</span> <span class="n">fs_obj</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;.debug&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">debug_loc</span> <span class="ow">in</span> <span class="n">cset</span><span class="p">:</span>
                 <span class="k">continue</span>
@@ -952,8 +961,20 @@
             <span class="n">debug_obj</span> <span class="o">=</span> <span class="n">gen_obj</span><span class="p">(</span><span class="n">debug_loc</span><span class="p">,</span> <span class="n">real_location</span><span class="o">=</span><span class="n">debug_ondisk</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">debug_obj</span><span class="o">.</span><span class="n">change_attributes</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">os_data</span><span class="o">.</span><span class="n">root_uid</span><span class="p">,</span>
                 <span class="n">gid</span><span class="o">=</span><span class="n">os_data</span><span class="o">.</span><span class="n">root_gid</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_strip_fsobj</span><span class="p">(</span><span class="n">fs_obj</span><span class="p">,</span> <span class="n">ftype</span><span class="p">,</span>
-                <span class="n">observer</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+            <span class="n">stripped_fsobj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strip_fsobj</span><span class="p">(</span><span class="n">fs_obj</span><span class="p">,</span> <span class="n">ftype</span><span class="p">,</span> <span class="n">observer</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">stripped_fsobj</span><span class="p">)</span>
+
+            <span class="c"># finally, add hardlinks for each hardlink.</span>
+            <span class="k">for</span> <span class="n">fs_obj</span> <span class="ow">in</span> <span class="n">fs_objs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="n">fpath</span> <span class="o">=</span> <span class="n">fs_obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">path</span>
+                <span class="n">debug_loc</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">debug_store</span><span class="p">,</span>
+                    <span class="n">fs_obj</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;.debug&quot;</span><span class="p">)</span>
+                <span class="n">linked_debug_obj</span> <span class="o">=</span> <span class="n">debug_obj</span><span class="o">.</span><span class="n">change_attributes</span><span class="p">(</span><span class="n">location</span><span class="o">=</span><span class="n">debug_loc</span><span class="p">)</span>
+                <span class="n">observer</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;splitdebug hardlinking </span><span class="si">%s</span><span class="s"> to </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                    <span class="p">(</span><span class="n">debug_obj</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">debug_loc</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">linked_debug_obj</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">stripped_fsobj</span><span class="o">.</span><span class="n">change_attributes</span><span class="p">(</span>
+                    <span class="n">location</span><span class="o">=</span><span class="n">fpath</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_split_finish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">cset</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_modified&#39;</span><span class="p">):</span>
