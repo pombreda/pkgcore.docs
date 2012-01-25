@@ -76,7 +76,7 @@
 
 
 <div class="viewcode-block" id="gen_obj"><a class="viewcode-back" href="../../../api/pkgcore.fs.livefs.html#pkgcore.fs.livefs.gen_obj">[docs]</a><span class="k">def</span> <span class="nf">gen_obj</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">chksum_handlers</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">real_location</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-    <span class="n">stat_func</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">lstat</span><span class="p">):</span>
+    <span class="n">stat_func</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">lstat</span><span class="p">,</span> <span class="o">**</span><span class="n">overrides</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    given a fs path, and an optional stat, create an appropriate fs obj.</span>
@@ -108,8 +108,11 @@
         <span class="n">d</span><span class="p">[</span><span class="s">&quot;inode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stat</span><span class="o">.</span><span class="n">st_ino</span>
         <span class="k">if</span> <span class="n">chksum_handlers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">d</span><span class="p">[</span><span class="s">&quot;chf_types&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">chksum_handlers</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">overrides</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fsFile</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">d</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">S_ISDIR</span><span class="p">(</span><span class="n">mode</span><span class="p">):</span>
+
+    <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">overrides</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">S_ISDIR</span><span class="p">(</span><span class="n">mode</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">fsDir</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">d</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">S_ISLNK</span><span class="p">(</span><span class="n">mode</span><span class="p">):</span>
         <span class="n">d</span><span class="p">[</span><span class="s">&quot;target&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">readlink</span><span class="p">(</span><span class="n">real_location</span><span class="p">)</span>

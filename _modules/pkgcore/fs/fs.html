@@ -229,8 +229,20 @@
             <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chksums</span><span class="p">,</span> <span class="n">_LazyChksums</span><span class="p">)):</span>
             <span class="n">kwds</span><span class="p">[</span><span class="s">&#39;chksums&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">return</span> <span class="n">fsBase</span><span class="o">.</span><span class="n">change_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_can_be_hardlinked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">is_reg</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
 
-</div></div>
+        <span class="k">if</span> <span class="bp">None</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inode</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dev</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;dev&#39;</span><span class="p">,</span> <span class="s">&#39;inode&#39;</span><span class="p">,</span> <span class="s">&#39;uid&#39;</span><span class="p">,</span> <span class="s">&#39;gid&#39;</span><span class="p">,</span> <span class="s">&#39;mode&#39;</span><span class="p">,</span> <span class="s">&#39;mtime&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+</div>
 <div class="viewcode-block" id="fsDir"><a class="viewcode-back" href="../../../api/pkgcore.fs.fs.html#pkgcore.fs.fs.fsDir">[docs]</a><span class="k">class</span> <span class="nc">fsDir</span><span class="p">(</span><span class="n">fsBase</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;dir class&quot;&quot;&quot;</span>

@@ -219,8 +219,38 @@
     <span class="k">if</span> <span class="n">existant</span><span class="p">:</span>
         <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">existant_fp</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">True</span>
-
 </div>
+<span class="k">def</span> <span class="nf">do_link</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">trg</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">trg</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+    <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">EEXIST</span><span class="p">:</span>
+            <span class="k">raise</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">trg</span><span class="o">.</span><span class="n">location</span> <span class="o">+</span> <span class="s">&#39;#new&#39;</span>
+    <span class="n">unlink_if_exists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">EXDEV</span><span class="p">:</span>
+            <span class="c"># someone is screwing with us, or unlink_if_exists is broken.</span>
+            <span class="k">raise</span>
+        <span class="c"># hardlink is impossible, force copyfile</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">trg</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">:</span>
+        <span class="n">unlink_if_exists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">eerrno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">EXDEV</span><span class="p">:</span>
+            <span class="c"># weird error, broken FS codes, perms, or someone is screwing with us.</span>
+            <span class="k">raise</span>
+        <span class="c"># this is only possible on overlay fs&#39;s; while annoying, you can have two</span>
+        <span class="c"># different filesystems in use in the same directory in those cases.</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">return</span> <span class="bp">True</span>
+
+
 <div class="viewcode-block" id="merge_contents"><a class="viewcode-back" href="../../../api/pkgcore.fs.ops.html#pkgcore.fs.ops.merge_contents">[docs]</a><span class="k">def</span> <span class="nf">merge_contents</span><span class="p">(</span><span class="n">cset</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
@@ -286,10 +316,22 @@
     <span class="c"># might look odd, but what this does is minimize the try/except cost</span>
     <span class="c"># to one time, assuming everything behaves, rather then per item.</span>
     <span class="n">i</span> <span class="o">=</span> <span class="n">iterate</span><span class="p">(</span><span class="n">cset</span><span class="o">.</span><span class="n">iterdirs</span><span class="p">(</span><span class="n">invert</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+    <span class="n">merged_inodes</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">i</span><span class="p">:</span>
                 <span class="n">callback</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">is_reg</span><span class="p">:</span>
+                    <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">dev</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">inode</span><span class="p">)</span>
+                    <span class="n">link_target</span> <span class="o">=</span> <span class="n">merged_inodes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">link_target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> \
+                        <span class="n">link_target</span><span class="o">.</span><span class="n">_can_be_hardlinked</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">do_link</span><span class="p">(</span><span class="n">link_target</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+                            <span class="k">continue</span>
+                        <span class="c"># TODO: should notify that hardlinking failed.</span>
+                    <span class="n">merged_inodes</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
                 <span class="n">copyfile</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mkdirs</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
             <span class="k">break</span>
         <span class="k">except</span> <span class="n">CannotOverwrite</span><span class="p">,</span> <span class="n">cf</span><span class="p">:</span>

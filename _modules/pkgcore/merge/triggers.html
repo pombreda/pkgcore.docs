@@ -943,30 +943,38 @@
             <span class="n">fpath</span> <span class="o">=</span> <span class="n">fs_obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">path</span>
             <span class="n">debug_ondisk</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">fpath</span><span class="p">),</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;.debug&quot;</span><span class="p">)</span>
+
+            <span class="c"># note that we tell the UI the final pathway- not the intermediate one.</span>
             <span class="n">observer</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;splitdebug&#39;ing </span><span class="si">%s</span><span class="s"> into </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
                 <span class="p">(</span><span class="n">fs_obj</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">debug_loc</span><span class="p">))</span>
+
             <span class="n">ret</span> <span class="o">=</span> <span class="n">spawn</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">objcopy_args</span> <span class="o">+</span> <span class="p">[</span><span class="n">fpath</span><span class="p">,</span> <span class="n">debug_ondisk</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">observer</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;splitdebug&#39;ing </span><span class="si">%s</span><span class="s"> failed w/ exitcode </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
                     <span class="p">(</span><span class="n">fs_obj</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">ret</span><span class="p">))</span>
                 <span class="k">continue</span>
+
+            <span class="c"># note that the given pathway to the debug file /must/ be relative to ${D};</span>
+            <span class="c"># it must exist at the time of invocation.</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="n">spawn</span><span class="o">.</span><span class="n">spawn</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">objcopy_binary</span><span class="p">,</span>
                 <span class="s">&#39;--add-gnu-debuglink&#39;</span><span class="p">,</span> <span class="n">debug_ondisk</span><span class="p">,</span> <span class="n">fpath</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">observer</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;splitdebug created debug file </span><span class="si">%r</span><span class="s">, but &quot;</span>
-                    <span class="s">&quot;failed adding links to </span><span class="si">%r</span><span class="s"> (</span><span class="si">%r</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">debug_loc</span><span class="p">,</span> <span class="n">fpath</span><span class="p">,</span> <span class="n">ret</span><span class="p">))</span>
+                    <span class="s">&quot;failed adding links to </span><span class="si">%r</span><span class="s"> (</span><span class="si">%r</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">debug_ondisk</span><span class="p">,</span> <span class="n">fpath</span><span class="p">,</span> <span class="n">ret</span><span class="p">))</span>
                 <span class="n">observer</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;failed splitdebug command was </span><span class="si">%r</span><span class="s">&quot;</span><span class="p">,</span>
                     <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">objcopy_binary</span><span class="p">,</span> <span class="s">&#39;--add-gnu-debuglink&#39;</span><span class="p">,</span> <span class="n">debug_ondisk</span><span class="p">,</span> <span class="n">fpath</span><span class="p">))</span>
                 <span class="k">continue</span>
-            <span class="n">debug_obj</span> <span class="o">=</span> <span class="n">gen_obj</span><span class="p">(</span><span class="n">debug_loc</span><span class="p">,</span> <span class="n">real_location</span><span class="o">=</span><span class="n">debug_ondisk</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">debug_obj</span><span class="o">.</span><span class="n">change_attributes</span><span class="p">(</span><span class="n">uid</span><span class="o">=</span><span class="n">os_data</span><span class="o">.</span><span class="n">root_uid</span><span class="p">,</span>
-                <span class="n">gid</span><span class="o">=</span><span class="n">os_data</span><span class="o">.</span><span class="n">root_gid</span><span class="p">))</span>
-            <span class="n">stripped_fsobj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strip_fsobj</span><span class="p">(</span><span class="n">fs_obj</span><span class="p">,</span> <span class="n">ftype</span><span class="p">,</span> <span class="n">observer</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">stripped_fsobj</span><span class="p">)</span>
 
-            <span class="c"># finally, add hardlinks for each hardlink.</span>
+
+            <span class="n">debug_obj</span> <span class="o">=</span> <span class="n">gen_obj</span><span class="p">(</span><span class="n">debug_loc</span><span class="p">,</span> <span class="n">real_location</span><span class="o">=</span><span class="n">debug_ondisk</span><span class="p">,</span>
+                <span class="n">uid</span><span class="o">=</span><span class="n">os_data</span><span class="o">.</span><span class="n">root_uid</span><span class="p">,</span> <span class="n">gid</span><span class="o">=</span><span class="n">os_data</span><span class="o">.</span><span class="n">root_gid</span><span class="p">)</span>
+
+            <span class="n">stripped_fsobj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strip_fsobj</span><span class="p">(</span><span class="n">fs_obj</span><span class="p">,</span> <span class="n">ftype</span><span class="p">,</span> <span class="n">observer</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">stripped_fsobj</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">debug_obj</span><span class="p">)</span>
+
             <span class="k">for</span> <span class="n">fs_obj</span> <span class="ow">in</span> <span class="n">fs_objs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-                <span class="n">fpath</span> <span class="o">=</span> <span class="n">fs_obj</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">path</span>
                 <span class="n">debug_loc</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">debug_store</span><span class="p">,</span>
                     <span class="n">fs_obj</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;.debug&quot;</span><span class="p">)</span>
                 <span class="n">linked_debug_obj</span> <span class="o">=</span> <span class="n">debug_obj</span><span class="o">.</span><span class="n">change_attributes</span><span class="p">(</span><span class="n">location</span><span class="o">=</span><span class="n">debug_loc</span><span class="p">)</span>
@@ -974,7 +982,7 @@
                     <span class="p">(</span><span class="n">debug_obj</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">debug_loc</span><span class="p">))</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">linked_debug_obj</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_modified</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">stripped_fsobj</span><span class="o">.</span><span class="n">change_attributes</span><span class="p">(</span>
-                    <span class="n">location</span><span class="o">=</span><span class="n">fpath</span><span class="p">))</span>
+                    <span class="n">location</span><span class="o">=</span><span class="n">fs_obj</span><span class="o">.</span><span class="n">location</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_split_finish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">cset</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_modified&#39;</span><span class="p">):</span>
