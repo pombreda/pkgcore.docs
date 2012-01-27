@@ -1,0 +1,263 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pquery &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="Man Pages" href="../man.html" />
+    <link rel="next" title="Developer Notes" href="../dev-notes.html" />
+    <link rel="prev" title="pplugincache" href="pplugincache.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../dev-notes.html" title="Developer Notes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pplugincache.html" title="pplugincache"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../man.html" accesskey="U">Man Pages</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pquery">
+<span id="pquery-manpage"></span><h1>pquery<a class="headerlink" href="#pquery" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="synopsis">
+<h2>synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p>pquery [-h] [&#8211;version] [&#8211;debug] [&#8211;color BOOLEAN] [&#8211;add-config SECTION KEY VALUE] [&#8211;new-config SECTION KEY VALUE] [&#8211;empty-config] [&#8211;domain DOMAIN] [&#8211;raw] [&#8211;virtuals {only,disable}] [&#8211;repo REPO | &#8211;vdb | &#8211;all-repos] [&#8211;all] [&#8211;has-use has_use] [&#8211;license license] [&#8211;herd herd] [&#8211;revdep REVDEP] [&#8211;revdep-pkgs REVDEP_PKGS] [&#8211;restrict-revdep restrict_revdep] [&#8211;restrict-revdep-pkgs restrict_revdep_pkgs] [&#8211;description description] [&#8211;owns owns] [&#8211;owns-re owns_re] [&#8211;maintainer maintainer] [&#8211;maintainer-name maintainer_name] [&#8211;maintainer-email maintainer_email] [&#8211;environment environment] [&#8211;pkgset pkgset] [&#8211;early-out] [&#8211;no-version | &#8211;min | &#8211;max] [&#8211;cpv] [&#8211;atom] [&#8211;attr attribute] [&#8211;force-attr attribute] [&#8211;one-attr attribute | &#8211;force-one-attr attribute] [&#8211;contents] [&#8211;verbose] [&#8211;highlight-dep HIGHLIGHT_DEP] [&#8211;blame] [&#8211;print-revdep PRINT_REVDEP] [matches [matches ...]]</p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>pkgcore query interface</p>
+</div>
+<div class="section" id="optional-arguments">
+<h2>optional arguments<a class="headerlink" href="#optional-arguments" title="Permalink to this headline">¶</a></h2>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">-h</span>, <span class="option">--help</span></kbd></td>
+<td>show this help message and exit</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--version</span></kbd></td>
+<td>show program&#8217;s version number and exit</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--debug</span></kbd></td>
+<td>Enable debugging checks</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--color <var>BOOLEAN</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Enable or disable color support.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--add-config <var>&lt;SECTION KEY VALUE&gt;</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>modify an existing configuration section.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--new-config <var>&lt;SECTION KEY VALUE&gt;</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>add a new configuration section.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--empty-config</span>, <span class="option">--config-empty</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Do not load user/system configuration.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--domain <var>DOMAIN</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>domain to use for this operation</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="repository-matching-options">
+<h2>Repository matching options<a class="headerlink" href="#repository-matching-options" title="Permalink to this headline">¶</a></h2>
+<p>options controlling which repositories to inspect.
+&#8211;raw                      Without this switch your configuration affects what packages are visible (through masking) and what USE flags are applied to depends and fetchables.  With this switch your configuration values aren&#8217;t used and you see the &#8220;raw&#8221; repository data.
+&#8211;virtuals {only, disable}  arg &#8220;only&#8221; for only matching virtuals, &#8220;disable&#8221; to not match virtuals at all. Default is to match everything.
+&#8211;repo REPO                repo to use (default from domain if omitted).
+&#8211;vdb                      match only vdb (installed) packages.
+&#8211;all-repos                search all repos, vdb included</p>
+</div>
+<div class="section" id="package-matching-options">
+<h2>Package matching options<a class="headerlink" href="#package-matching-options" title="Permalink to this headline">¶</a></h2>
+<p>Each option specifies a restriction packages must match.  Specifying the same option twice means &#8220;or&#8221; unless stated otherwise. Specifying multiple types of restrictions means &#8220;and&#8221; unless stated otherwise.
+matches                                      extended atom matching of pkgs
+&#8211;all                                        Match all packages (equivalent to &#8220;pquery <a href="#id1"><span class="problematic" id="id2">*</span></a>&#8221;).  If no query options are specified, this option is enabled.
+&#8211;has-use has_use                            Exact string match on a USE flag.
+&#8211;license license                            exact match on a license.
+&#8211;herd herd                                  exact match on a herd.
+&#8211;revdep REVDEP                              shorthand for &#8211;restrict-revdep atom &#8211;print-revdep atom. &#8211;print-revdep is slow, use just &#8211;restrict-revdep if you just need a list.
+&#8211;revdep-pkgs REVDEP_PKGS                    shorthand for &#8211;restrict-revdep-pkgs atom &#8211;print-revdep atom. &#8211;print-revdep is slow, use just &#8211;restrict-revdep if you just need a list.
+&#8211;restrict-revdep restrict_revdep            Dependency on an atom.
+&#8211;restrict-revdep-pkgs restrict_revdep_pkgs  Dependency on pkgs that match a specific atom.
+&#8211;description description, -S description    regexp search on description and longdescription.
+&#8211;owns owns                                  exact match on an owned file/dir.
+&#8211;owns-re owns_re                            like &#8220;owns&#8221; but using a regexp for matching.
+&#8211;maintainer maintainer                      comma-separated list of regexes to search for maintainers.
+&#8211;maintainer-name maintainer_name            comma-separated list of maintainer name regexes to search for.
+&#8211;maintainer-email maintainer_email          comma-separated list of maintainer email regexes to search for.
+&#8211;environment environment                    regexp search in environment.bz2.
+&#8211;pkgset pkgset                              find packages that match the given package set (world for example).</p>
+</div>
+<div class="section" id="output-formatting">
+<h2>Output formatting<a class="headerlink" href="#output-formatting" title="Permalink to this headline">¶</a></h2>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">--early-out</span></kbd></td>
+<td>stop when first match is found.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--no-version</span>, <span class="option">-n</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>collapse multiple matching versions together</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--min</span></kbd></td>
+<td>show only the lowest version for each package.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--max</span></kbd></td>
+<td>show only the highest version for each package.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--cpv</span></kbd></td>
+<td>Print the category/package-version. This is done by default, this option re-enables this if another output option (like &#8211;contents) disabled it.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--atom</span>, <span class="option">-a</span></kbd></td>
+<td>print =cat/pkg-3 instead of cat/pkg-3. Implies &#8211;cpv, has no effect with &#8211;no-version</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--attr <var>attribute</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Print this attribute&#8217;s value (can be specified more than once).  &#8211;attr=help will get you the list of valid attrs.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--force-attr <var>attribute</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Like &#8211;attr but accepts any string as attribute name instead of only explicitly supported names.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--one-attr <var>attribute</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Print one attribute. Suppresses other output.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--force-one-attr <var>attribute</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Like &#8211;one-attr but accepts any string as attribute name instead of only explicitly supported names.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--contents</span></kbd></td>
+<td>list files owned by the package. Implies &#8211;vdb.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--verbose</span>, <span class="option">-v</span></kbd></td>
+<td>human-readable multi-line output per package</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--highlight-dep <var>HIGHLIGHT_DEP</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>highlight dependencies matching this atom</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--blame</span></kbd></td>
+<td>shorthand for &#8211;attr maintainers &#8211;attr herds</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--print-revdep <var>PRINT_REVDEP</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>print what condition(s) trigger a dep.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pquery</a><ul>
+<li><a class="reference internal" href="#synopsis">synopsis</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li><a class="reference internal" href="#optional-arguments">optional arguments</a></li>
+<li><a class="reference internal" href="#repository-matching-options">Repository matching options</a></li>
+<li><a class="reference internal" href="#package-matching-options">Package matching options</a></li>
+<li><a class="reference internal" href="#output-formatting">Output formatting</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pplugincache.html"
+                        title="previous chapter">pplugincache</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../dev-notes.html"
+                        title="next chapter">Developer Notes</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../dev-notes.html" title="Developer Notes"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pplugincache.html" title="pplugincache"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../man.html" >Man Pages</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

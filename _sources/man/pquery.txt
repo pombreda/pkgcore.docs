@@ -1,0 +1,78 @@
+.. _`pquery manpage`:
+
+======
+pquery
+======
+
+synopsis
+========
+
+pquery [-h] [--version] [--debug] [--color BOOLEAN] [--add-config SECTION KEY VALUE] [--new-config SECTION KEY VALUE] [--empty-config] [--domain DOMAIN] [--raw] [--virtuals {only,disable}] [--repo REPO | --vdb | --all-repos] [--all] [--has-use has_use] [--license license] [--herd herd] [--revdep REVDEP] [--revdep-pkgs REVDEP_PKGS] [--restrict-revdep restrict_revdep] [--restrict-revdep-pkgs restrict_revdep_pkgs] [--description description] [--owns owns] [--owns-re owns_re] [--maintainer maintainer] [--maintainer-name maintainer_name] [--maintainer-email maintainer_email] [--environment environment] [--pkgset pkgset] [--early-out] [--no-version | --min | --max] [--cpv] [--atom] [--attr attribute] [--force-attr attribute] [--one-attr attribute | --force-one-attr attribute] [--contents] [--verbose] [--highlight-dep HIGHLIGHT_DEP] [--blame] [--print-revdep PRINT_REVDEP] [matches [matches ...]]
+
+DESCRIPTION
+===========
+
+pkgcore query interface
+
+optional arguments
+==================
+
+-h, --help                      show this help message and exit
+--version                       show program's version number and exit
+--debug                         Enable debugging checks
+--color BOOLEAN                 Enable or disable color support.
+--add-config <SECTION KEY VALUE>  modify an existing configuration section.
+--new-config <SECTION KEY VALUE>  add a new configuration section.
+--empty-config, --config-empty  Do not load user/system configuration.
+--domain DOMAIN                 domain to use for this operation
+
+Repository matching options
+===========================
+
+options controlling which repositories to inspect.
+--raw                      Without this switch your configuration affects what packages are visible (through masking) and what USE flags are applied to depends and fetchables.  With this switch your configuration values aren't used and you see the "raw" repository data.
+--virtuals {only, disable}  arg "only" for only matching virtuals, "disable" to not match virtuals at all. Default is to match everything.
+--repo REPO                repo to use (default from domain if omitted).
+--vdb                      match only vdb (installed) packages.
+--all-repos                search all repos, vdb included
+
+Package matching options
+========================
+
+Each option specifies a restriction packages must match.  Specifying the same option twice means "or" unless stated otherwise. Specifying multiple types of restrictions means "and" unless stated otherwise.
+matches                                      extended atom matching of pkgs
+--all                                        Match all packages (equivalent to "pquery *").  If no query options are specified, this option is enabled.
+--has-use has_use                            Exact string match on a USE flag.
+--license license                            exact match on a license.
+--herd herd                                  exact match on a herd.
+--revdep REVDEP                              shorthand for --restrict-revdep atom --print-revdep atom. --print-revdep is slow, use just --restrict-revdep if you just need a list.
+--revdep-pkgs REVDEP_PKGS                    shorthand for --restrict-revdep-pkgs atom --print-revdep atom. --print-revdep is slow, use just --restrict-revdep if you just need a list.
+--restrict-revdep restrict_revdep            Dependency on an atom.
+--restrict-revdep-pkgs restrict_revdep_pkgs  Dependency on pkgs that match a specific atom.
+--description description, -S description    regexp search on description and longdescription.
+--owns owns                                  exact match on an owned file/dir.
+--owns-re owns_re                            like "owns" but using a regexp for matching.
+--maintainer maintainer                      comma-separated list of regexes to search for maintainers.
+--maintainer-name maintainer_name            comma-separated list of maintainer name regexes to search for.
+--maintainer-email maintainer_email          comma-separated list of maintainer email regexes to search for.
+--environment environment                    regexp search in environment.bz2.
+--pkgset pkgset                              find packages that match the given package set (world for example).
+
+Output formatting
+=================
+
+--early-out                    stop when first match is found.
+--no-version, -n               collapse multiple matching versions together
+--min                          show only the lowest version for each package.
+--max                          show only the highest version for each package.
+--cpv                          Print the category/package-version. This is done by default, this option re-enables this if another output option (like --contents) disabled it.
+--atom, -a                     print =cat/pkg-3 instead of cat/pkg-3. Implies --cpv, has no effect with --no-version
+--attr attribute               Print this attribute's value (can be specified more than once).  --attr=help will get you the list of valid attrs.
+--force-attr attribute         Like --attr but accepts any string as attribute name instead of only explicitly supported names.
+--one-attr attribute           Print one attribute. Suppresses other output.
+--force-one-attr attribute     Like --one-attr but accepts any string as attribute name instead of only explicitly supported names.
+--contents                     list files owned by the package. Implies --vdb.
+--verbose, -v                  human-readable multi-line output per package
+--highlight-dep HIGHLIGHT_DEP  highlight dependencies matching this atom
+--blame                        shorthand for --attr maintainers --attr herds
+--print-revdep PRINT_REVDEP    print what condition(s) trigger a dep.
