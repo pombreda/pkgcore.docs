@@ -56,18 +56,107 @@
   <div class="section" id="module-pkgcore.repository.virtual">
 <span id="pkgcore-repository-virtual"></span><h1>pkgcore.repository.virtual<a class="headerlink" href="#module-pkgcore.repository.virtual" title="Permalink to this headline">¶</a></h1>
 <p>virtual repository, pkgs generated via callable</p>
-<p class="rubric">Submodules</p>
+<p class="rubric">Classes</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">virtual</span></tt></td>
-<td>virtual package</td>
+<tr><td><a class="reference internal" href="#pkgcore.repository.virtual.tree" title="pkgcore.repository.virtual.tree"><tt class="xref py py-obj docutils literal"><span class="pre">tree</span></tt></a>([livefs])</td>
+<td></td>
 </tr>
 </tbody>
 </table>
+<dl class="class">
+<dt id="pkgcore.repository.virtual.tree">
+<em class="property">class </em><tt class="descclassname">pkgcore.repository.virtual.</tt><tt class="descname">tree</tt><big>(</big><em>livefs=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/repository/virtual.html#tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.repository.virtual.tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pkgcore.repository.prototype.html#pkgcore.repository.prototype.tree" title="pkgcore.repository.prototype.tree"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.repository.prototype.tree</span></tt></a></p>
+<dl class="attribute">
+<dt id="pkgcore.repository.virtual.tree.default_visibility_limiters">
+<tt class="descname">default_visibility_limiters</tt><a class="headerlink" href="#pkgcore.repository.virtual.tree.default_visibility_limiters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.repository.virtual.tree.factory_kls">
+<tt class="descname">factory_kls</tt><a class="headerlink" href="#pkgcore.repository.virtual.tree.factory_kls" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">factory</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.repository.virtual.tree.get_operations">
+<tt class="descname">get_operations</tt><big>(</big><em>observer=None</em><big>)</big><a class="headerlink" href="#pkgcore.repository.virtual.tree.get_operations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.repository.virtual.tree.has_match">
+<tt class="descname">has_match</tt><big>(</big><em>atom</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.repository.virtual.tree.has_match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.repository.virtual.tree.itermatch">
+<tt class="descname">itermatch</tt><big>(</big><em>restrict</em>, <em>restrict_solutions=None</em>, <em>sorter=None</em>, <em>pkg_klass_override=None</em>, <em>force=None</em>, <em>yield_none=False</em><big>)</big><a class="headerlink" href="#pkgcore.repository.virtual.tree.itermatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>generator that yields packages match a restriction.</p>
+<dl class="docutils">
+<dt>:type restrict <span class="classifier-delimiter">:</span> <span class="classifier"><a class="reference internal" href="pkgcore.restrictions.packages.html#pkgcore.restrictions.packages.PackageRestriction" title="pkgcore.restrictions.packages.PackageRestriction"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.restrictions.packages.PackageRestriction</span></tt></a></span></dt>
+<dd>instance</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>restrict</strong> &#8211; restriction to search via</li>
+<li><strong>restrict_solutions</strong> &#8211; cnf collapsed list of the restrict.
+Don&#8217;t play with it unless you know what you&#8217;re doing</li>
+<li><strong>sorter</strong> &#8211; callable to do sorting during searching-
+if sorting the results, use this instead of sorting externally.</li>
+<li><strong>yield_none</strong> &#8211; if True then itermatch will yield None for every
+non-matching package. This is meant for use in combination with
+C{twisted.task.cooperate} or other async uses where itermatch
+should not wait many (wallclock) seconds between yielding
+packages. If you override this method you should yield
+None in long-running loops, strictly calling it for every package
+is not necessary.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.repository.virtual.tree.match">
+<tt class="descname">match</tt><big>(</big><em>atom</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#pkgcore.repository.virtual.tree.match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.repository.virtual.tree.notify_add_package">
+<tt class="descname">notify_add_package</tt><big>(</big><em>pkg</em><big>)</big><a class="headerlink" href="#pkgcore.repository.virtual.tree.notify_add_package" title="Permalink to this definition">¶</a></dt>
+<dd><p>internal function,</p>
+<p>notify the repository that a pkg is being addeded to it</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.repository.virtual.tree.notify_remove_package">
+<tt class="descname">notify_remove_package</tt><big>(</big><em>pkg</em><big>)</big><a class="headerlink" href="#pkgcore.repository.virtual.tree.notify_remove_package" title="Permalink to this definition">¶</a></dt>
+<dd><p>internal function,</p>
+<p>notify the repository that a pkg it provides is being removed</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.repository.virtual.tree.operations">
+<tt class="descname">operations</tt><a class="headerlink" href="#pkgcore.repository.virtual.tree.operations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.repository.virtual.tree.operations_kls">
+<tt class="descname">operations_kls</tt><a class="headerlink" href="#pkgcore.repository.virtual.tree.operations_kls" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#pkgcore.repository.virtual.tree.operations" title="pkgcore.repository.virtual.tree.operations"><tt class="xref py py-class docutils literal"><span class="pre">operations</span></tt></a></p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
