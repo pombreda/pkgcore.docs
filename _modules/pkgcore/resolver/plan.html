@@ -188,7 +188,7 @@
     <span class="n">frame_klass</span> <span class="o">=</span> <span class="n">resolver_frame</span>
     <span class="n">depth</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="nb">len</span><span class="p">)</span>
     <span class="n">current_frame</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
-    <span class="n">filter_ignored</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span>
+    <span class="n">_filter_ignored</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span>
         <span class="n">partial</span><span class="p">(</span><span class="n">filterfalse</span><span class="p">,</span> <span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s">&quot;ignored&quot;</span><span class="p">)))</span>
 
     <span class="c"># this *has* to be a property, else it creates a cycle.</span>
@@ -236,9 +236,9 @@
 </div>
     <span class="k">def</span> <span class="nf">_cycles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trg_frame</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">skip_trg_frame</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">reverse</span><span class="p">:</span>
-            <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_ignored</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_ignored</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_ignored</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">start</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">i</span> <span class="o">=</span> <span class="n">islice</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">skip_trg_frame</span><span class="p">:</span>
@@ -612,6 +612,7 @@
 
 <div class="viewcode-block" id="merge_plan.check_for_cycles"><a class="viewcode-back" href="../../../api/pkgcore.resolver.plan.html#pkgcore.resolver.plan.merge_plan.check_for_cycles">[docs]</a>    <span class="k">def</span> <span class="nf">check_for_cycles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stack</span><span class="p">,</span> <span class="n">cur_frame</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;check the current stack for cyclical issues;</span>
+
 <span class="sd">        :param stack: current stack, a :obj:`resolver_stack` instance</span>
 <span class="sd">        :param cur_frame: current frame, a :obj:`resolver_frame` instance</span>
 <span class="sd">        :return: True if no issues and resolution should continue, else the</span>

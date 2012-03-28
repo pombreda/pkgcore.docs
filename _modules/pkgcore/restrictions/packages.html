@@ -46,7 +46,7 @@
           <div class="body">
             
   <h1>Source code for pkgcore.restrictions.packages</h1><div class="highlight"><pre>
-<span class="c"># Copyright: 2005-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
+<span class="c"># Copyright: 2005-2012 Brian Harring &lt;ferringb@gmail.com&gt;</span>
 <span class="c"># License: GPL2/BSD</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -168,37 +168,6 @@
             <span class="k">return</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">restriction</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
 
-<div class="viewcode-block" id="PackageRestriction_mixin.intersect"><a class="viewcode-back" href="../../../api/pkgcore.restrictions.packages.html#pkgcore.restrictions.packages.PackageRestriction_mixin.intersect">[docs]</a>    <span class="k">def</span> <span class="nf">intersect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Build a restriction that matches anything matched by this and other.</span>
-
-<span class="sd">        If an optimized intersection cannot be determined this returns C{None}.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">negate</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">negate</span> <span class="ow">or</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">attrs</span> <span class="ow">or</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">__class__</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">None</span>
-        <span class="c"># Make the most subclassed instance do the intersecting</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">restriction</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">restriction</span><span class="o">.</span><span class="n">__class__</span><span class="p">):</span>
-            <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">restriction</span><span class="o">.</span><span class="n">intersect</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">restriction</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">restriction</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">restriction</span><span class="o">.</span><span class="n">__class__</span><span class="p">):</span>
-            <span class="n">s</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">restriction</span><span class="o">.</span><span class="n">intersect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">restriction</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c"># Child restrictions are not related, give up.</span>
-            <span class="k">return</span> <span class="bp">None</span>
-        <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">None</span>
-
-        <span class="c"># optimization: do not build a new wrapper if we already have one.</span>
-        <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">restriction</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span>
-        <span class="k">elif</span> <span class="n">s</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">restriction</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">other</span>
-
-        <span class="c"># This breaks completely if we are a subclass with different</span>
-        <span class="c"># __init__ args, so such a subclass had better override this</span>
-        <span class="c"># method...</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attr</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">negate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">negate</span><span class="p">)</span>
-</div>
     <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">negate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">restriction</span><span class="p">))</span>
 
@@ -337,11 +306,6 @@
         <span class="n">PackageRestriction</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">childrestriction</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
         <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;payload&quot;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">payload</span><span class="p">))</span>
 
-<div class="viewcode-block" id="Conditional.intersect"><a class="viewcode-back" href="../../../api/pkgcore.restrictions.packages.html#pkgcore.restrictions.packages.Conditional.intersect">[docs]</a>    <span class="k">def</span> <span class="nf">intersect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="c"># PackageRestriction defines this but its implementation won&#39;t</span>
-        <span class="c"># work for us, so fail explicitly.</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-</div>
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s">&quot;( Conditional: </span><span class="si">%s</span><span class="s"> payload: [ </span><span class="si">%s</span><span class="s"> ] )&quot;</span> <span class="o">%</span> <span class="p">(</span>
             <span class="n">PackageRestriction</span><span class="o">.</span><span class="n">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>

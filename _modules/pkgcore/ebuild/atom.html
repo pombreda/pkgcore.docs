@@ -521,11 +521,12 @@
 
 <span class="sd">        Two atoms &quot;intersect&quot; if a package can be constructed that</span>
 <span class="sd">        matches both:</span>
-<span class="sd">          - if you query for just &quot;dev-lang/python&quot; it &quot;intersects&quot; both</span>
-<span class="sd">            &quot;dev-lang/python&quot; and &quot;&gt;=dev-lang/python-2.4&quot;</span>
-<span class="sd">          - if you query for &quot;=dev-lang/python-2.4&quot; it &quot;intersects&quot;</span>
-<span class="sd">            &quot;&gt;=dev-lang/python-2.4&quot; and &quot;dev-lang/python&quot; but not</span>
-<span class="sd">            &quot;&lt;dev-lang/python-2.3&quot;</span>
+
+<span class="sd">        - if you query for just &quot;dev-lang/python&quot; it &quot;intersects&quot; both</span>
+<span class="sd">          &quot;dev-lang/python&quot; and &quot;&gt;=dev-lang/python-2.4&quot;</span>
+<span class="sd">        - if you query for &quot;=dev-lang/python-2.4&quot; it &quot;intersects&quot;</span>
+<span class="sd">          &quot;&gt;=dev-lang/python-2.4&quot; and &quot;dev-lang/python&quot; but not</span>
+<span class="sd">          &quot;&lt;dev-lang/python-2.3&quot;</span>
 
 <span class="sd">        USE and slot deps are also taken into account.</span>
 
@@ -677,14 +678,6 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="s">&#39;Someone added an op to atom without adding it to intersects&#39;</span><span class="p">)</span>
 </div>
-    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">const</span><span class="o">.</span><span class="n">eapi_capable</span><span class="p">:</span>
-        <span class="nb">locals</span><span class="p">()[</span><span class="s">&#39;eapi</span><span class="si">%i</span><span class="s">_atom&#39;</span> <span class="o">%</span> <span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="nb">classmethod</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">eapi</span><span class="o">=</span><span class="n">x</span><span class="p">))</span>
-
-    <span class="k">del</span> <span class="n">f</span><span class="p">,</span> <span class="n">x</span>
-
 <div class="viewcode-block" id="atom.evaluate_conditionals"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.atom.html#pkgcore.ebuild.atom.atom.evaluate_conditionals">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate_conditionals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_cls</span><span class="p">,</span> <span class="n">parent_seq</span><span class="p">,</span> <span class="n">enabled</span><span class="p">,</span> <span class="n">tristate</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="n">parent_seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 

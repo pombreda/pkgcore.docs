@@ -72,7 +72,7 @@
     <span class="sd">&quot;&quot;&quot;Helper for parsing comma-separated strings to a ContainmentMatch.</span>
 
 <span class="sd">    :param attr: name of the attribute.</span>
-<span class="sd">    @returns: a parse function: takes a string of comma-separated values,</span>
+<span class="sd">    :returns: a parse function: takes a string of comma-separated values,</span>
 <span class="sd">        returns a :obj:`packages.PackageRestriction` matching packages that</span>
 <span class="sd">        have any of those values in the attribute passed to this function.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -103,26 +103,26 @@
     <span class="k">return</span> <span class="n">text</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">i</span><span class="p">],</span> <span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="p">:]</span>
 </div>
 <div class="viewcode-block" id="parse_match"><a class="viewcode-back" href="../../../api/pkgcore.util.parserestrict.html#pkgcore.util.parserestrict.parse_match">[docs]</a><span class="k">def</span> <span class="nf">parse_match</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
-
     <span class="sd">&quot;&quot;&quot;generate appropriate restriction for text</span>
 
 <span class="sd">    Parsing basically breaks it down into chunks split by /, with each</span>
 <span class="sd">    chunk allowing for prefix/postfix globbing- note that a postfixed</span>
 <span class="sd">    glob on package token is treated as package attribute matching,</span>
-<span class="sd">    B{not} as necessarily a version match.</span>
+<span class="sd">    not as necessarily a version match.</span>
 
 <span class="sd">    If only one chunk is found, it&#39;s treated as a package chunk.</span>
 <span class="sd">    Finally, it supports a nonstandard variation of atom syntax where</span>
 <span class="sd">    the category can be dropped.</span>
 
-<span class="sd">    Examples-</span>
-<span class="sd">      - &quot;*&quot;: match all</span>
-<span class="sd">      - &quot;dev-*/*&quot;: category must start with dev-</span>
-<span class="sd">      - &quot;dev-*&quot;: package must start with dev-</span>
-<span class="sd">      - *-apps/portage*: category must end in -apps,</span>
-<span class="sd">          package must start with portage</span>
-<span class="sd">      - &gt;=portage-2.1: atom syntax, package portage,</span>
-<span class="sd">          version greater then or equal to 2.1</span>
+<span class="sd">    Examples:</span>
+
+<span class="sd">    - `*`: match all</span>
+<span class="sd">    - `dev-*/*`: category must start with &#39;dev-&#39;</span>
+<span class="sd">    - `dev-*`: package must start with &#39;dev-&#39;</span>
+<span class="sd">    - `*-apps/portage*`: category must end in &#39;-apps&#39;, package must start with</span>
+<span class="sd">      &#39;portage&#39;</span>
+<span class="sd">    - `&gt;=portage-2.1`: atom syntax, package &#39;portage&#39;, version greater then or</span>
+<span class="sd">      equal to &#39;2.1&#39;</span>
 
 <span class="sd">    :param text: string to attempt to parse</span>
 <span class="sd">    :type text: string</span>

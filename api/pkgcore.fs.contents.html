@@ -63,6 +63,9 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
+<tr><td><tt class="xref py py-obj docutils literal"><span class="pre">alias_method</span></tt>(attr[,&nbsp;name,&nbsp;doc])</td>
+<td>at runtime, redirect to another method</td>
+</tr>
 <tr><td><tt class="xref py py-obj docutils literal"><span class="pre">all</span></tt></td>
 <td>all(iterable) -&gt; bool</td>
 </tr>
@@ -143,7 +146,7 @@
 <dl class="method">
 <dt id="pkgcore.fs.contents.OrderedContentsSet.add_missing_directories">
 <tt class="descname">add_missing_directories</tt><big>(</big><em>mode=509</em>, <em>uid=0</em>, <em>gid=0</em>, <em>mtime=None</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.OrderedContentsSet.add_missing_directories" title="Permalink to this definition">¶</a></dt>
-<dd><p>ensure that a directory node exists for each path; add if missing</p>
+<dd><p>Ensure that a directory node exists for each path; add if missing.</p>
 </dd></dl>
 
 <dl class="method">
@@ -154,13 +157,13 @@
 <dl class="method">
 <dt id="pkgcore.fs.contents.OrderedContentsSet.child_nodes">
 <tt class="descname">child_nodes</tt><big>(</big><em>start_point</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.OrderedContentsSet.child_nodes" title="Permalink to this definition">¶</a></dt>
-<dd><p>return a clone of this instance, w/ just the child nodes returned
-from iter_child_nodes</p>
+<dd><p>Return a clone of this instance, w/ just the child nodes returned
+from <cite>iter_child_nodes</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>start_point</strong> &#8211; fs filepath all yielded nodes must be w/in</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>start_point</strong> &#8211; fs filepath all yielded nodes must be within.</td>
 </tr>
 </tbody>
 </table>
@@ -181,10 +184,16 @@ from iter_child_nodes</p>
 <dl class="method">
 <dt id="pkgcore.fs.contents.OrderedContentsSet.devs">
 <tt class="descname">devs</tt><big>(</big><em>invert=False</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.OrderedContentsSet.devs" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns a list of just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsDev" title="pkgcore.fs.fs.fsDev"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsDev</span></tt></a> instances
-:param invert: if True, yield everything that isn&#8217;t a</p>
-<blockquote>
-<div>fsDevs instance, else yields just fsDevs</div></blockquote>
+<dd><p>Returns a list of just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsDev" title="pkgcore.fs.fs.fsDev"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsDev</span></tt></a> instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>invert</strong> &#8211; if True, yield everything that isn&#8217;t a
+fsDev instance, else yields just fsDev.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -200,10 +209,16 @@ from iter_child_nodes</p>
 <dl class="method">
 <dt id="pkgcore.fs.contents.OrderedContentsSet.dirs">
 <tt class="descname">dirs</tt><big>(</big><em>invert=False</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.OrderedContentsSet.dirs" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns a list of just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsDir" title="pkgcore.fs.fs.fsDir"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsDir</span></tt></a> instances
-:param invert: if True, yield everything that isn&#8217;t a</p>
-<blockquote>
-<div>fsDirs instance, else yields just fsDirs</div></blockquote>
+<dd><p>Returns a list of just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsDir" title="pkgcore.fs.fs.fsDir"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsDir</span></tt></a> instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>invert</strong> &#8211; if True, yield everything that isn&#8217;t a
+fsDir instance, else yields just fsDir.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -214,19 +229,31 @@ from iter_child_nodes</p>
 <dl class="method">
 <dt id="pkgcore.fs.contents.OrderedContentsSet.fifos">
 <tt class="descname">fifos</tt><big>(</big><em>invert=False</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.OrderedContentsSet.fifos" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns a list of just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsFifo" title="pkgcore.fs.fs.fsFifo"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsFifo</span></tt></a> instances
-:param invert: if True, yield everything that isn&#8217;t a</p>
-<blockquote>
-<div>fsFifos instance, else yields just fsFifos</div></blockquote>
+<dd><p>Returns a list of just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsFifo" title="pkgcore.fs.fs.fsFifo"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsFifo</span></tt></a> instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>invert</strong> &#8211; if True, yield everything that isn&#8217;t a
+fsFifo instance, else yields just fsFifo.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.fs.contents.OrderedContentsSet.files">
 <tt class="descname">files</tt><big>(</big><em>invert=False</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.OrderedContentsSet.files" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns a list of just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsFile" title="pkgcore.fs.fs.fsFile"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsFile</span></tt></a> instances
-:param invert: if True, yield everything that isn&#8217;t a</p>
-<blockquote>
-<div>fsFiles instance, else yields just fsFiles</div></blockquote>
+<dd><p>Returns a list of just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsFile" title="pkgcore.fs.fs.fsFile"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsFile</span></tt></a> instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>invert</strong> &#8211; if True, yield everything that isn&#8217;t a
+fsFile instance, else yields just fsFile.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -267,13 +294,13 @@ from iter_child_nodes</p>
 <dl class="method">
 <dt id="pkgcore.fs.contents.OrderedContentsSet.iter_child_nodes">
 <tt class="descname">iter_child_nodes</tt><big>(</big><em>start_point</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.OrderedContentsSet.iter_child_nodes" title="Permalink to this definition">¶</a></dt>
-<dd><p>yield a stream of nodes that are fs entries contained within the
-passed in start point</p>
+<dd><p>Yield a stream of nodes that are fs entries contained within the
+passed in start point.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>start_point</strong> &#8211; fs filepath all yielded nodes must be w/in</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>start_point</strong> &#8211; fs filepath all yielded nodes must be within.</td>
 </tr>
 </tbody>
 </table>
@@ -282,68 +309,116 @@ passed in start point</p>
 <dl class="method">
 <dt id="pkgcore.fs.contents.OrderedContentsSet.iterdevs">
 <tt class="descname">iterdevs</tt><big>(</big><em>invert=False</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.OrderedContentsSet.iterdevs" title="Permalink to this definition">¶</a></dt>
-<dd><p>a generator yielding just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsDev" title="pkgcore.fs.fs.fsDev"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsDev</span></tt></a> instances
-:param invert: if True, yield everything that isn&#8217;t a</p>
-<blockquote>
-<div>fsDevs instance, else yields just fsDevs</div></blockquote>
+<dd><p>A generator yielding just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsDev" title="pkgcore.fs.fs.fsDev"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsDev</span></tt></a> instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>invert</strong> &#8211; if True, yield everything that isn&#8217;t a fsDev instance,
+else yields just fsDev instances.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.fs.contents.OrderedContentsSet.iterdirs">
 <tt class="descname">iterdirs</tt><big>(</big><em>invert=False</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.OrderedContentsSet.iterdirs" title="Permalink to this definition">¶</a></dt>
-<dd><p>a generator yielding just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsDir" title="pkgcore.fs.fs.fsDir"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsDir</span></tt></a> instances
-:param invert: if True, yield everything that isn&#8217;t a</p>
-<blockquote>
-<div>fsDirs instance, else yields just fsDirs</div></blockquote>
+<dd><p>A generator yielding just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsDir" title="pkgcore.fs.fs.fsDir"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsDir</span></tt></a> instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>invert</strong> &#8211; if True, yield everything that isn&#8217;t a fsDir instance,
+else yields just fsDir instances.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.fs.contents.OrderedContentsSet.iterfifos">
 <tt class="descname">iterfifos</tt><big>(</big><em>invert=False</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.OrderedContentsSet.iterfifos" title="Permalink to this definition">¶</a></dt>
-<dd><p>a generator yielding just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsFifo" title="pkgcore.fs.fs.fsFifo"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsFifo</span></tt></a> instances
-:param invert: if True, yield everything that isn&#8217;t a</p>
-<blockquote>
-<div>fsFifos instance, else yields just fsFifos</div></blockquote>
+<dd><p>A generator yielding just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsFifo" title="pkgcore.fs.fs.fsFifo"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsFifo</span></tt></a> instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>invert</strong> &#8211; if True, yield everything that isn&#8217;t a fsFifo instance,
+else yields just fsFifo instances.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.fs.contents.OrderedContentsSet.iterfiles">
 <tt class="descname">iterfiles</tt><big>(</big><em>invert=False</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.OrderedContentsSet.iterfiles" title="Permalink to this definition">¶</a></dt>
-<dd><p>a generator yielding just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsFile" title="pkgcore.fs.fs.fsFile"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsFile</span></tt></a> instances
-:param invert: if True, yield everything that isn&#8217;t a</p>
-<blockquote>
-<div>fsFiles instance, else yields just fsFiles</div></blockquote>
+<dd><p>A generator yielding just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsFile" title="pkgcore.fs.fs.fsFile"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsFile</span></tt></a> instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>invert</strong> &#8211; if True, yield everything that isn&#8217;t a fsFile instance,
+else yields just fsFile instances.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.fs.contents.OrderedContentsSet.iterlinks">
-<tt class="descname">iterlinks</tt><big>(</big><em>invert=False</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.OrderedContentsSet.iterlinks" title="Permalink to this definition">¶</a></dt>
-<dd><p>a generator yielding just <tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsLink</span></tt> instances
-:param invert: if True, yield everything that isn&#8217;t a</p>
-<blockquote>
-<div>fsLinks instance, else yields just fsLinks</div></blockquote>
+<tt class="descname">iterlinks</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.OrderedContentsSet.iterlinks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method alias to invoke <a class="reference internal" href="#pkgcore.fs.contents.OrderedContentsSet.itersymlinks" title="pkgcore.fs.contents.OrderedContentsSet.itersymlinks"><tt class="xref py py-meth docutils literal"><span class="pre">itersymlinks()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.fs.contents.OrderedContentsSet.itersymlinks">
+<tt class="descname">itersymlinks</tt><big>(</big><em>invert=False</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.OrderedContentsSet.itersymlinks" title="Permalink to this definition">¶</a></dt>
+<dd><p>A generator yielding just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsSymlink" title="pkgcore.fs.fs.fsSymlink"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsSymlink</span></tt></a> instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>invert</strong> &#8211; if True, yield everything that isn&#8217;t a fsSymlink instance,
+else yields just fsSymlink instances.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.fs.contents.OrderedContentsSet.links">
-<tt class="descname">links</tt><big>(</big><em>invert=False</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.OrderedContentsSet.links" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns a list of just <tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsLink</span></tt> instances
-:param invert: if True, yield everything that isn&#8217;t a</p>
-<blockquote>
-<div>fsLinks instance, else yields just fsLinks</div></blockquote>
+<tt class="descname">links</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.OrderedContentsSet.links" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method alias to invoke <a class="reference internal" href="#pkgcore.fs.contents.OrderedContentsSet.symlinks" title="pkgcore.fs.contents.OrderedContentsSet.symlinks"><tt class="xref py py-meth docutils literal"><span class="pre">symlinks()</span></tt></a>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.fs.contents.OrderedContentsSet.map_directory_structure">
 <tt class="descname">map_directory_structure</tt><big>(</big><em>other</em>, <em>add_conflicting_sym=True</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.OrderedContentsSet.map_directory_structure" title="Permalink to this definition">¶</a></dt>
-<dd><p>resolve the directory structure between this instance, and another contentset,
-collapsing syms of self into directories of other</p>
+<dd><p>Resolve the directory structure between this instance, and another
+contentset, collapsing syms of self into directories of other.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.fs.contents.OrderedContentsSet.remove">
 <tt class="descname">remove</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.OrderedContentsSet.remove" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.fs.contents.OrderedContentsSet.symlinks">
+<tt class="descname">symlinks</tt><big>(</big><em>invert=False</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.OrderedContentsSet.symlinks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsSymlink" title="pkgcore.fs.fs.fsSymlink"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsSymlink</span></tt></a> instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>invert</strong> &#8211; if True, yield everything that isn&#8217;t a
+fsSymlink instance, else yields just fsSymlink.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.fs.contents.OrderedContentsSet.symmetric_difference">
@@ -399,7 +474,7 @@ collapsing syms of self into directories of other</p>
 <dl class="method">
 <dt id="pkgcore.fs.contents.contentsSet.add_missing_directories">
 <tt class="descname">add_missing_directories</tt><big>(</big><em>mode=509</em>, <em>uid=0</em>, <em>gid=0</em>, <em>mtime=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/contents.html#contentsSet.add_missing_directories"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.contents.contentsSet.add_missing_directories" title="Permalink to this definition">¶</a></dt>
-<dd><p>ensure that a directory node exists for each path; add if missing</p>
+<dd><p>Ensure that a directory node exists for each path; add if missing.</p>
 </dd></dl>
 
 <dl class="method">
@@ -410,13 +485,13 @@ collapsing syms of self into directories of other</p>
 <dl class="method">
 <dt id="pkgcore.fs.contents.contentsSet.child_nodes">
 <tt class="descname">child_nodes</tt><big>(</big><em>start_point</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/contents.html#contentsSet.child_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.contents.contentsSet.child_nodes" title="Permalink to this definition">¶</a></dt>
-<dd><p>return a clone of this instance, w/ just the child nodes returned
-from iter_child_nodes</p>
+<dd><p>Return a clone of this instance, w/ just the child nodes returned
+from <cite>iter_child_nodes</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>start_point</strong> &#8211; fs filepath all yielded nodes must be w/in</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>start_point</strong> &#8211; fs filepath all yielded nodes must be within.</td>
 </tr>
 </tbody>
 </table>
@@ -437,10 +512,16 @@ from iter_child_nodes</p>
 <dl class="method">
 <dt id="pkgcore.fs.contents.contentsSet.devs">
 <tt class="descname">devs</tt><big>(</big><em>invert=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/contents.html#contentsSet.devs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.contents.contentsSet.devs" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns a list of just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsDev" title="pkgcore.fs.fs.fsDev"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsDev</span></tt></a> instances
-:param invert: if True, yield everything that isn&#8217;t a</p>
-<blockquote>
-<div>fsDevs instance, else yields just fsDevs</div></blockquote>
+<dd><p>Returns a list of just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsDev" title="pkgcore.fs.fs.fsDev"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsDev</span></tt></a> instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>invert</strong> &#8211; if True, yield everything that isn&#8217;t a
+fsDev instance, else yields just fsDev.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -456,10 +537,16 @@ from iter_child_nodes</p>
 <dl class="method">
 <dt id="pkgcore.fs.contents.contentsSet.dirs">
 <tt class="descname">dirs</tt><big>(</big><em>invert=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/contents.html#contentsSet.dirs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.contents.contentsSet.dirs" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns a list of just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsDir" title="pkgcore.fs.fs.fsDir"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsDir</span></tt></a> instances
-:param invert: if True, yield everything that isn&#8217;t a</p>
-<blockquote>
-<div>fsDirs instance, else yields just fsDirs</div></blockquote>
+<dd><p>Returns a list of just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsDir" title="pkgcore.fs.fs.fsDir"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsDir</span></tt></a> instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>invert</strong> &#8211; if True, yield everything that isn&#8217;t a
+fsDir instance, else yields just fsDir.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -470,19 +557,31 @@ from iter_child_nodes</p>
 <dl class="method">
 <dt id="pkgcore.fs.contents.contentsSet.fifos">
 <tt class="descname">fifos</tt><big>(</big><em>invert=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/contents.html#contentsSet.fifos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.contents.contentsSet.fifos" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns a list of just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsFifo" title="pkgcore.fs.fs.fsFifo"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsFifo</span></tt></a> instances
-:param invert: if True, yield everything that isn&#8217;t a</p>
-<blockquote>
-<div>fsFifos instance, else yields just fsFifos</div></blockquote>
+<dd><p>Returns a list of just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsFifo" title="pkgcore.fs.fs.fsFifo"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsFifo</span></tt></a> instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>invert</strong> &#8211; if True, yield everything that isn&#8217;t a
+fsFifo instance, else yields just fsFifo.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.fs.contents.contentsSet.files">
 <tt class="descname">files</tt><big>(</big><em>invert=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/contents.html#contentsSet.files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.contents.contentsSet.files" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns a list of just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsFile" title="pkgcore.fs.fs.fsFile"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsFile</span></tt></a> instances
-:param invert: if True, yield everything that isn&#8217;t a</p>
-<blockquote>
-<div>fsFiles instance, else yields just fsFiles</div></blockquote>
+<dd><p>Returns a list of just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsFile" title="pkgcore.fs.fs.fsFile"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsFile</span></tt></a> instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>invert</strong> &#8211; if True, yield everything that isn&#8217;t a
+fsFile instance, else yields just fsFile.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -523,13 +622,13 @@ from iter_child_nodes</p>
 <dl class="method">
 <dt id="pkgcore.fs.contents.contentsSet.iter_child_nodes">
 <tt class="descname">iter_child_nodes</tt><big>(</big><em>start_point</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/contents.html#contentsSet.iter_child_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.contents.contentsSet.iter_child_nodes" title="Permalink to this definition">¶</a></dt>
-<dd><p>yield a stream of nodes that are fs entries contained within the
-passed in start point</p>
+<dd><p>Yield a stream of nodes that are fs entries contained within the
+passed in start point.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>start_point</strong> &#8211; fs filepath all yielded nodes must be w/in</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>start_point</strong> &#8211; fs filepath all yielded nodes must be within.</td>
 </tr>
 </tbody>
 </table>
@@ -538,68 +637,116 @@ passed in start point</p>
 <dl class="method">
 <dt id="pkgcore.fs.contents.contentsSet.iterdevs">
 <tt class="descname">iterdevs</tt><big>(</big><em>invert=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/contents.html#contentsSet.iterdevs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.contents.contentsSet.iterdevs" title="Permalink to this definition">¶</a></dt>
-<dd><p>a generator yielding just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsDev" title="pkgcore.fs.fs.fsDev"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsDev</span></tt></a> instances
-:param invert: if True, yield everything that isn&#8217;t a</p>
-<blockquote>
-<div>fsDevs instance, else yields just fsDevs</div></blockquote>
+<dd><p>A generator yielding just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsDev" title="pkgcore.fs.fs.fsDev"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsDev</span></tt></a> instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>invert</strong> &#8211; if True, yield everything that isn&#8217;t a fsDev instance,
+else yields just fsDev instances.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.fs.contents.contentsSet.iterdirs">
 <tt class="descname">iterdirs</tt><big>(</big><em>invert=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/contents.html#contentsSet.iterdirs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.contents.contentsSet.iterdirs" title="Permalink to this definition">¶</a></dt>
-<dd><p>a generator yielding just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsDir" title="pkgcore.fs.fs.fsDir"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsDir</span></tt></a> instances
-:param invert: if True, yield everything that isn&#8217;t a</p>
-<blockquote>
-<div>fsDirs instance, else yields just fsDirs</div></blockquote>
+<dd><p>A generator yielding just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsDir" title="pkgcore.fs.fs.fsDir"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsDir</span></tt></a> instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>invert</strong> &#8211; if True, yield everything that isn&#8217;t a fsDir instance,
+else yields just fsDir instances.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.fs.contents.contentsSet.iterfifos">
 <tt class="descname">iterfifos</tt><big>(</big><em>invert=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/contents.html#contentsSet.iterfifos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.contents.contentsSet.iterfifos" title="Permalink to this definition">¶</a></dt>
-<dd><p>a generator yielding just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsFifo" title="pkgcore.fs.fs.fsFifo"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsFifo</span></tt></a> instances
-:param invert: if True, yield everything that isn&#8217;t a</p>
-<blockquote>
-<div>fsFifos instance, else yields just fsFifos</div></blockquote>
+<dd><p>A generator yielding just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsFifo" title="pkgcore.fs.fs.fsFifo"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsFifo</span></tt></a> instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>invert</strong> &#8211; if True, yield everything that isn&#8217;t a fsFifo instance,
+else yields just fsFifo instances.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.fs.contents.contentsSet.iterfiles">
 <tt class="descname">iterfiles</tt><big>(</big><em>invert=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/contents.html#contentsSet.iterfiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.contents.contentsSet.iterfiles" title="Permalink to this definition">¶</a></dt>
-<dd><p>a generator yielding just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsFile" title="pkgcore.fs.fs.fsFile"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsFile</span></tt></a> instances
-:param invert: if True, yield everything that isn&#8217;t a</p>
-<blockquote>
-<div>fsFiles instance, else yields just fsFiles</div></blockquote>
+<dd><p>A generator yielding just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsFile" title="pkgcore.fs.fs.fsFile"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsFile</span></tt></a> instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>invert</strong> &#8211; if True, yield everything that isn&#8217;t a fsFile instance,
+else yields just fsFile instances.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.fs.contents.contentsSet.iterlinks">
-<tt class="descname">iterlinks</tt><big>(</big><em>invert=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/contents.html#contentsSet.iterlinks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.contents.contentsSet.iterlinks" title="Permalink to this definition">¶</a></dt>
-<dd><p>a generator yielding just <tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsLink</span></tt> instances
-:param invert: if True, yield everything that isn&#8217;t a</p>
-<blockquote>
-<div>fsLinks instance, else yields just fsLinks</div></blockquote>
+<tt class="descname">iterlinks</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.contentsSet.iterlinks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method alias to invoke <a class="reference internal" href="#pkgcore.fs.contents.contentsSet.itersymlinks" title="pkgcore.fs.contents.contentsSet.itersymlinks"><tt class="xref py py-meth docutils literal"><span class="pre">itersymlinks()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.fs.contents.contentsSet.itersymlinks">
+<tt class="descname">itersymlinks</tt><big>(</big><em>invert=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/contents.html#contentsSet.itersymlinks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.contents.contentsSet.itersymlinks" title="Permalink to this definition">¶</a></dt>
+<dd><p>A generator yielding just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsSymlink" title="pkgcore.fs.fs.fsSymlink"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsSymlink</span></tt></a> instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>invert</strong> &#8211; if True, yield everything that isn&#8217;t a fsSymlink instance,
+else yields just fsSymlink instances.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.fs.contents.contentsSet.links">
-<tt class="descname">links</tt><big>(</big><em>invert=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/contents.html#contentsSet.links"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.contents.contentsSet.links" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns a list of just <tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsLink</span></tt> instances
-:param invert: if True, yield everything that isn&#8217;t a</p>
-<blockquote>
-<div>fsLinks instance, else yields just fsLinks</div></blockquote>
+<tt class="descname">links</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#pkgcore.fs.contents.contentsSet.links" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method alias to invoke <a class="reference internal" href="#pkgcore.fs.contents.contentsSet.symlinks" title="pkgcore.fs.contents.contentsSet.symlinks"><tt class="xref py py-meth docutils literal"><span class="pre">symlinks()</span></tt></a>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.fs.contents.contentsSet.map_directory_structure">
 <tt class="descname">map_directory_structure</tt><big>(</big><em>other</em>, <em>add_conflicting_sym=True</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/contents.html#contentsSet.map_directory_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.contents.contentsSet.map_directory_structure" title="Permalink to this definition">¶</a></dt>
-<dd><p>resolve the directory structure between this instance, and another contentset,
-collapsing syms of self into directories of other</p>
+<dd><p>Resolve the directory structure between this instance, and another
+contentset, collapsing syms of self into directories of other.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.fs.contents.contentsSet.remove">
 <tt class="descname">remove</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/contents.html#contentsSet.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.contents.contentsSet.remove" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.fs.contents.contentsSet.symlinks">
+<tt class="descname">symlinks</tt><big>(</big><em>invert=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/fs/contents.html#contentsSet.symlinks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.fs.contents.contentsSet.symlinks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of just <a class="reference internal" href="pkgcore.fs.fs.html#pkgcore.fs.fs.fsSymlink" title="pkgcore.fs.fs.fsSymlink"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.fs.fs.fsSymlink</span></tt></a> instances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>invert</strong> &#8211; if True, yield everything that isn&#8217;t a
+fsSymlink instance, else yields just fsSymlink.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.fs.contents.contentsSet.symmetric_difference">

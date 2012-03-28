@@ -46,7 +46,7 @@
           <div class="body">
             
   <h1>Source code for pkgcore.restrictions.values</h1><div class="highlight"><pre>
-<span class="c"># Copyright: 2005-2011 Brian Harring &lt;ferringb@gmail.com</span>
+<span class="c"># Copyright: 2005-2012 Brian Harring &lt;ferringb@gmail.com</span>
 <span class="c"># Copyright: 2006 Marien Zwart &lt;marienz@gentoo.org&gt;</span>
 <span class="c"># License: BSD/GPL2</span>
 
@@ -175,11 +175,6 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matchfunc</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">negate</span>
-</div>
-<div class="viewcode-block" id="StrRegex.intersect"><a class="viewcode-back" href="../../../api/pkgcore.restrictions.values.html#pkgcore.restrictions.values.StrRegex.intersect">[docs]</a>    <span class="k">def</span> <span class="nf">intersect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span>
-        <span class="k">return</span> <span class="bp">None</span>
 </div>
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">regex</span><span class="p">)]</span>
@@ -319,15 +314,6 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">f</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">endswith</span>
         <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">glob</span><span class="p">)</span> <span class="o">^</span> <span class="bp">self</span><span class="o">.</span><span class="n">negate</span>
-</div>
-<div class="viewcode-block" id="StrGlobMatch.intersect"><a class="viewcode-back" href="../../../api/pkgcore.restrictions.values.html#pkgcore.restrictions.values.StrGlobMatch.intersect">[docs]</a>    <span class="k">def</span> <span class="nf">intersect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">glob</span><span class="p">):</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negate</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">negate</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">other</span>
-        <span class="k">elif</span> <span class="n">other</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">glob</span><span class="p">):</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negate</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">negate</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span>
-        <span class="k">return</span> <span class="bp">None</span>
 </div>
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negate</span><span class="p">:</span>
