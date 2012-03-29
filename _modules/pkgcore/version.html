@@ -58,21 +58,29 @@
 
 <span class="n">_ver</span> <span class="o">=</span> <span class="bp">None</span>
 
-<div class="viewcode-block" id="get_version"><a class="viewcode-back" href="../../api/pkgcore.version.html#pkgcore.version.get_version">[docs]</a><span class="k">def</span> <span class="nf">get_version</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;:return: a string describing the pkgcore version.&quot;&quot;&quot;</span>
-    <span class="k">global</span> <span class="n">_ver</span>
-    <span class="k">if</span> <span class="n">_ver</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_ver</span>
-
+<span class="k">def</span> <span class="nf">_compatibility_version</span><span class="p">():</span>
+    <span class="n">version_info</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">pkgcore._verinfo</span> <span class="kn">import</span> <span class="n">version_info</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-        <span class="c"># intentionally lazy imported.</span>
-        <span class="kn">from</span> <span class="nn">snakeoil.version</span> <span class="kn">import</span> <span class="n">get_git_version</span>
-        <span class="n">version_info</span> <span class="o">=</span> <span class="n">get_git_version</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s">&quot;pkgcore </span><span class="si">%s</span><span class="se">\n</span><span class="s">Unknown vcs version&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">VERSION</span><span class="p">,)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">version_info</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s">&quot;pkgcore </span><span class="si">%s</span><span class="se">\n</span><span class="s">git rev </span><span class="si">%s</span><span class="s">, date </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+            <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">VERSION</span><span class="p">,</span> <span class="n">version_info</span><span class="p">[</span><span class="s">&#39;rev&#39;</span><span class="p">],</span> <span class="n">version_info</span><span class="p">[</span><span class="s">&#39;date&#39;</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="s">&quot;pkgcore </span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">VERSION</span><span class="p">,</span> <span class="n">version_info</span><span class="p">)</span>
 
-    <span class="n">_ver</span> <span class="o">=</span> <span class="s">&#39;pkgcore </span><span class="si">%s</span><span class="se">\n</span><span class="s">(</span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">VERSION</span><span class="p">,</span> <span class="n">version_info</span><span class="p">)</span>
-
+<div class="viewcode-block" id="get_version"><a class="viewcode-back" href="../../api/pkgcore.version.html#pkgcore.version.get_version">[docs]</a><span class="k">def</span> <span class="nf">get_version</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;:return: a string describing the pkgcore version.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_ver</span>
+    <span class="k">if</span> <span class="n">_ver</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">snakeoil.version</span> <span class="kn">import</span> <span class="n">format_version</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="n">format_version</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="n">format_version</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">_ver</span> <span class="o">=</span> <span class="n">_compatibility_version</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_ver</span> <span class="o">=</span> <span class="n">format_version</span><span class="p">(</span><span class="s">&#39;pkgcore&#39;</span><span class="p">,</span> <span class="n">__file__</span><span class="p">,</span> <span class="n">const</span><span class="o">.</span><span class="n">VERSION</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_ver</span></div>
 </pre></div>
 
