@@ -17,29 +17,31 @@ pkgcore query interface
 optional arguments
 ==================
 
--h, --help                      show this help message and exit
---version                       show program's version number and exit
---debug                         Enable debugging checks
---color BOOLEAN                 Enable or disable color support.
+-h, --help                        show this help message and exit
+--version                         show program's version number and exit
+--debug                           Enable debugging checks
+--color BOOLEAN                   Enable or disable color support.
 --add-config <SECTION KEY VALUE>  modify an existing configuration section.
 --new-config <SECTION KEY VALUE>  add a new configuration section.
---empty-config, --config-empty  Do not load user/system configuration.
---domain DOMAIN                 domain to use for this operation
+--empty-config, --config-empty    Do not load user/system configuration.
+--domain DOMAIN                   domain to use for this operation
 
 Repository matching options
 ===========================
 
 options controlling which repositories to inspect.
---raw                      Without this switch your configuration affects what packages are visible (through masking) and what USE flags are applied to depends and fetchables.  With this switch your configuration values aren't used and you see the "raw" repository data.
---virtuals {only, disable}  arg "only" for only matching virtuals, "disable" to not match virtuals at all. Default is to match everything.
---repo REPO                repo to use (default from domain if omitted).
---vdb                      match only vdb (installed) packages.
---all-repos                search all repos, vdb included
+
+--raw                        Without this switch your configuration affects what packages are visible (through masking) and what USE flags are applied to depends and fetchables.  With this switch your configuration values aren't used and you see the "raw" repository data.
+--virtuals <only | disable>  arg "only" for only matching virtuals, "disable" to not match virtuals at all. Default is to match everything.
+--repo REPO                  repo to use (default from domain if omitted).
+--vdb                        match only vdb (installed) packages.
+--all-repos                  search all repos, vdb included
 
 Package matching options
 ========================
 
 Each option specifies a restriction packages must match.  Specifying the same option twice means "or" unless stated otherwise. Specifying multiple types of restrictions means "and" unless stated otherwise.
+
 matches                                      extended atom matching of pkgs
 --all                                        Match all packages (equivalent to "pquery *").  If no query options are specified, this option is enabled.
 --has-use has_use                            Exact string match on a USE flag.

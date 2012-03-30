@@ -103,17 +103,34 @@
 </div>
 <div class="section" id="repository-matching-options">
 <h2>Repository matching options<a class="headerlink" href="#repository-matching-options" title="Permalink to this headline">¶</a></h2>
-<p>options controlling which repositories to inspect.
-&#8211;raw                      Without this switch your configuration affects what packages are visible (through masking) and what USE flags are applied to depends and fetchables.  With this switch your configuration values aren&#8217;t used and you see the &#8220;raw&#8221; repository data.
-&#8211;virtuals {only, disable}  arg &#8220;only&#8221; for only matching virtuals, &#8220;disable&#8221; to not match virtuals at all. Default is to match everything.
-&#8211;repo REPO                repo to use (default from domain if omitted).
-&#8211;vdb                      match only vdb (installed) packages.
-&#8211;all-repos                search all repos, vdb included</p>
+<p>options controlling which repositories to inspect.</p>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">--raw</span></kbd></td>
+<td>Without this switch your configuration affects what packages are visible (through masking) and what USE flags are applied to depends and fetchables.  With this switch your configuration values aren&#8217;t used and you see the &#8220;raw&#8221; repository data.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--virtuals <var>&lt;only | disable&gt;</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>arg &#8220;only&#8221; for only matching virtuals, &#8220;disable&#8221; to not match virtuals at all. Default is to match everything.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--repo <var>REPO</var></span></kbd></td>
+<td>repo to use (default from domain if omitted).</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--vdb</span></kbd></td>
+<td>match only vdb (installed) packages.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--all-repos</span></kbd></td>
+<td>search all repos, vdb included</td></tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="package-matching-options">
 <h2>Package matching options<a class="headerlink" href="#package-matching-options" title="Permalink to this headline">¶</a></h2>
-<p>Each option specifies a restriction packages must match.  Specifying the same option twice means &#8220;or&#8221; unless stated otherwise. Specifying multiple types of restrictions means &#8220;and&#8221; unless stated otherwise.
-matches                                      extended atom matching of pkgs
+<p>Each option specifies a restriction packages must match.  Specifying the same option twice means &#8220;or&#8221; unless stated otherwise. Specifying multiple types of restrictions means &#8220;and&#8221; unless stated otherwise.</p>
+<p>matches                                      extended atom matching of pkgs
 &#8211;all                                        Match all packages (equivalent to &#8220;pquery <a href="#id1"><span class="problematic" id="id2">*</span></a>&#8221;).  If no query options are specified, this option is enabled.
 &#8211;has-use has_use                            Exact string match on a USE flag.
 &#8211;license license                            exact match on a license.
