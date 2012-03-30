@@ -130,23 +130,81 @@
 <div class="section" id="package-matching-options">
 <h2>Package matching options<a class="headerlink" href="#package-matching-options" title="Permalink to this headline">¶</a></h2>
 <p>Each option specifies a restriction packages must match.  Specifying the same option twice means &#8220;or&#8221; unless stated otherwise. Specifying multiple types of restrictions means &#8220;and&#8221; unless stated otherwise.</p>
-<p>matches                                      extended atom matching of pkgs
-&#8211;all                                        Match all packages (equivalent to &#8220;pquery <a href="#id1"><span class="problematic" id="id2">*</span></a>&#8221;).  If no query options are specified, this option is enabled.
-&#8211;has-use has_use                            Exact string match on a USE flag.
-&#8211;license license                            exact match on a license.
-&#8211;herd herd                                  exact match on a herd.
-&#8211;revdep REVDEP                              shorthand for &#8211;restrict-revdep atom &#8211;print-revdep atom. &#8211;print-revdep is slow, use just &#8211;restrict-revdep if you just need a list.
-&#8211;revdep-pkgs REVDEP_PKGS                    shorthand for &#8211;restrict-revdep-pkgs atom &#8211;print-revdep atom. &#8211;print-revdep is slow, use just &#8211;restrict-revdep if you just need a list.
-&#8211;restrict-revdep restrict_revdep            Dependency on an atom.
-&#8211;restrict-revdep-pkgs restrict_revdep_pkgs  Dependency on pkgs that match a specific atom.
-&#8211;description description, -S description    regexp search on description and longdescription.
-&#8211;owns owns                                  exact match on an owned file/dir.
-&#8211;owns-re owns_re                            like &#8220;owns&#8221; but using a regexp for matching.
-&#8211;maintainer maintainer                      comma-separated list of regexes to search for maintainers.
-&#8211;maintainer-name maintainer_name            comma-separated list of maintainer name regexes to search for.
-&#8211;maintainer-email maintainer_email          comma-separated list of maintainer email regexes to search for.
-&#8211;environment environment                    regexp search in environment.bz2.
-&#8211;pkgset pkgset                              find packages that match the given package set (world for example).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">matches:</th><td class="field-body">extended atom matching of pkgs</td>
+</tr>
+</tbody>
+</table>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">--all</span></kbd></td>
+<td>Match all packages (equivalent to &#8220;pquery <a href="#id1"><span class="problematic" id="id2">*</span></a>&#8221;).  If no query options are specified, this option is enabled.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--has-use <var>has_use</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Exact string match on a USE flag.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--license <var>license</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>exact match on a license.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--herd <var>herd</var></span></kbd></td>
+<td>exact match on a herd.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--revdep <var>REVDEP</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>shorthand for &#8211;restrict-revdep atom &#8211;print-revdep atom. &#8211;print-revdep is slow, use just &#8211;restrict-revdep if you just need a list.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--revdep-pkgs <var>REVDEP_PKGS</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>shorthand for &#8211;restrict-revdep-pkgs atom &#8211;print-revdep atom. &#8211;print-revdep is slow, use just &#8211;restrict-revdep if you just need a list.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--restrict-revdep <var>restrict_revdep</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Dependency on an atom.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--restrict-revdep-pkgs <var>restrict_revdep_pkgs</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Dependency on pkgs that match a specific atom.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--description <var>description</var></span>, <span class="option">-S <var>description</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>regexp search on description and longdescription.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--owns <var>owns</var></span></kbd></td>
+<td>exact match on an owned file/dir.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--owns-re <var>owns_re</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>like &#8220;owns&#8221; but using a regexp for matching.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--maintainer <var>maintainer</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>comma-separated list of regexes to search for maintainers.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--maintainer-name <var>maintainer_name</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>comma-separated list of maintainer name regexes to search for.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--maintainer-email <var>maintainer_email</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>comma-separated list of maintainer email regexes to search for.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--environment <var>environment</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>regexp search in environment.bz2.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--pkgset <var>pkgset</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>find packages that match the given package set (world for example).</td></tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="output-formatting">
 <h2>Output formatting<a class="headerlink" href="#output-formatting" title="Permalink to this headline">¶</a></h2>

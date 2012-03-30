@@ -24,8 +24,8 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="top" title="pkgcore vtrunk documentation" href="../../index.html" />
     <link rel="up" title="pinspect" href="../pinspect.html" />
-    <link rel="next" title="pinspect digests" href="digests.html" />
-    <link rel="prev" title="pinspect portageq" href="portageq.html" /> 
+    <link rel="next" title="pinspect profiles parent" href="pinspect profiles-subcommands/parent.html" />
+    <link rel="prev" title="pinspect portageq match" href="pinspect portageq-subcommands/match.html" /> 
   </head>
   <body>
     <div class="related">
@@ -38,10 +38,10 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="digests.html" title="pinspect digests"
+          <a href="pinspect profiles-subcommands/parent.html" title="pinspect profiles parent"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="portageq.html" title="pinspect portageq"
+          <a href="pinspect portageq-subcommands/match.html" title="pinspect portageq match"
              accesskey="P">previous</a> |</li>
         <li><a href="../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
           <li><a href="../../man.html" >Man Pages</a> &raquo;</li>
@@ -64,44 +64,6 @@
 <h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
 <p>ebuild profiles related querying</p>
 </div>
-<div class="section" id="positional-arguments">
-<h2>positional arguments<a class="headerlink" href="#positional-arguments" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name" colspan="2">{parent,eapi,deprecated,provided,system,use_expand,masks,virtuals,defaults,arch}:</th></tr>
-<tr class="field"><td>&nbsp;</td><td class="field-body"><p class="first">profiles commands
-parent                                                                          output the linearized tree of inherited parents</p>
-<blockquote>
-<div><p>later lines override earlier lines</p>
-</div></blockquote>
-<p>eapi                                                                            output all eapi support required for reading this profile
-deprecated                                                                      dump deprecation notices, if any
-provided
-system                                                                          Output the system package set.
-use_expand                                                                      Output the USE_EXPAND configuration for this profile</p>
-<blockquote>
-<div><p>Outputs two fields of interest; USE_EXPAND (pseudo use groups), and
-USE_EXPAND_HIDDEN which is immutable by user configuration and use deps
-(primarily used for things like setting the kernel or OS type).</p>
-</div></blockquote>
-<p>masks                                                                           Inspect package masks
-virtuals                                                                        Inspect old style virtuals (aliasing) default targets</p>
-<blockquote>
-<div><p>In the absence of any package PROVIDE&#8217;ing one of these virtuals,
-the defined target will be used instead.</p>
-</div></blockquote>
-<p>defaults                                                                        Inspect defined configuration for this profile</p>
-<blockquote>
-<div><p>This is data parsed from make.defaults, containing things like ACCEPT_KEYWORDS.</p>
-</div></blockquote>
-<p class="last">arch                                                                            Output the arch defined for this profile</p>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
 <div class="section" id="optional-arguments">
 <h2>optional arguments<a class="headerlink" href="#optional-arguments" title="Permalink to this headline">¶</a></h2>
 <table class="docutils option-list" frame="void" rules="none">
@@ -113,6 +75,82 @@ the defined target will be used instead.</p>
 <td>show this help message and exit</td></tr>
 </tbody>
 </table>
+</div>
+<div class="section" id="subcommands">
+<h2>subcommands<a class="headerlink" href="#subcommands" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pinspect profiles-subcommands/parent.html">pinspect profiles parent</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/parent.html#synopsis">synopsis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/parent.html#description">DESCRIPTION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/parent.html#positional-arguments">positional arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/parent.html#optional-arguments">optional arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pinspect profiles-subcommands/eapi.html">pinspect profiles eapi</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/eapi.html#synopsis">synopsis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/eapi.html#description">DESCRIPTION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/eapi.html#positional-arguments">positional arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/eapi.html#optional-arguments">optional arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pinspect profiles-subcommands/deprecated.html">pinspect profiles deprecated</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/deprecated.html#synopsis">synopsis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/deprecated.html#description">DESCRIPTION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/deprecated.html#positional-arguments">positional arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/deprecated.html#optional-arguments">optional arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pinspect profiles-subcommands/provided.html">pinspect profiles provided</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/provided.html#synopsis">synopsis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/provided.html#positional-arguments">positional arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/provided.html#optional-arguments">optional arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pinspect profiles-subcommands/system.html">pinspect profiles system</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/system.html#synopsis">synopsis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/system.html#description">DESCRIPTION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/system.html#positional-arguments">positional arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/system.html#optional-arguments">optional arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pinspect profiles-subcommands/use_expand.html">pinspect profiles use_expand</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/use_expand.html#synopsis">synopsis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/use_expand.html#description">DESCRIPTION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/use_expand.html#positional-arguments">positional arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/use_expand.html#optional-arguments">optional arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pinspect profiles-subcommands/masks.html">pinspect profiles masks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/masks.html#synopsis">synopsis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/masks.html#description">DESCRIPTION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/masks.html#positional-arguments">positional arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/masks.html#optional-arguments">optional arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pinspect profiles-subcommands/virtuals.html">pinspect profiles virtuals</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/virtuals.html#synopsis">synopsis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/virtuals.html#description">DESCRIPTION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/virtuals.html#positional-arguments">positional arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/virtuals.html#optional-arguments">optional arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pinspect profiles-subcommands/defaults.html">pinspect profiles defaults</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/defaults.html#synopsis">synopsis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/defaults.html#description">DESCRIPTION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/defaults.html#positional-arguments">positional arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/defaults.html#optional-arguments">optional arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pinspect profiles-subcommands/arch.html">pinspect profiles arch</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/arch.html#synopsis">synopsis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/arch.html#description">DESCRIPTION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/arch.html#positional-arguments">positional arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinspect profiles-subcommands/arch.html#optional-arguments">optional arguments</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 </div>
 
@@ -127,18 +165,20 @@ the defined target will be used instead.</p>
 <li><a class="reference internal" href="#">pinspect profiles</a><ul>
 <li><a class="reference internal" href="#synopsis">synopsis</a></li>
 <li><a class="reference internal" href="#description">DESCRIPTION</a></li>
-<li><a class="reference internal" href="#positional-arguments">positional arguments</a></li>
 <li><a class="reference internal" href="#optional-arguments">optional arguments</a></li>
+<li><a class="reference internal" href="#subcommands">subcommands</a><ul>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="portageq.html"
-                        title="previous chapter">pinspect portageq</a></p>
+  <p class="topless"><a href="pinspect portageq-subcommands/match.html"
+                        title="previous chapter">pinspect portageq match</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="digests.html"
-                        title="next chapter">pinspect digests</a></p>
+  <p class="topless"><a href="pinspect profiles-subcommands/parent.html"
+                        title="next chapter">pinspect profiles parent</a></p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
@@ -166,10 +206,10 @@ the defined target will be used instead.</p>
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="digests.html" title="pinspect digests"
+          <a href="pinspect profiles-subcommands/parent.html" title="pinspect profiles parent"
              >next</a> |</li>
         <li class="right" >
-          <a href="portageq.html" title="pinspect portageq"
+          <a href="pinspect portageq-subcommands/match.html" title="pinspect portageq match"
              >previous</a> |</li>
         <li><a href="../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
           <li><a href="../../man.html" >Man Pages</a> &raquo;</li>

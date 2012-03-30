@@ -14,36 +14,26 @@ DESCRIPTION
 
 ebuild profiles related querying
 
-positional arguments
-====================
-
-:{parent,eapi,deprecated,provided,system,use_expand,masks,virtuals,defaults,arch}:  profiles commands
-  parent                                                                          output the linearized tree of inherited parents
-                                                                                  
-                                                                                      later lines override earlier lines
-  eapi                                                                            output all eapi support required for reading this profile
-  deprecated                                                                      dump deprecation notices, if any
-  provided
-  system                                                                          Output the system package set.
-  use_expand                                                                      Output the USE_EXPAND configuration for this profile
-                                                                                  
-                                                                                      Outputs two fields of interest; USE_EXPAND (pseudo use groups), and
-                                                                                      USE_EXPAND_HIDDEN which is immutable by user configuration and use deps
-                                                                                      (primarily used for things like setting the kernel or OS type).
-                                                                                      
-  masks                                                                           Inspect package masks
-  virtuals                                                                        Inspect old style virtuals (aliasing) default targets
-                                                                                  
-                                                                                      In the absence of any package PROVIDE'ing one of these virtuals,
-                                                                                      the defined target will be used instead.
-                                                                                      
-  defaults                                                                        Inspect defined configuration for this profile
-                                                                                  
-                                                                                      This is data parsed from make.defaults, containing things like ACCEPT_KEYWORDS.
-                                                                                      
-  arch                                                                            Output the arch defined for this profile
-
 optional arguments
 ==================
 
 -h, --help  show this help message and exit
+
+subcommands
+===========
+
+
+.. toctree::
+   :maxdepth: 2
+
+   pinspect profiles parent <pinspect profiles-subcommands/parent>
+   pinspect profiles eapi <pinspect profiles-subcommands/eapi>
+   pinspect profiles deprecated <pinspect profiles-subcommands/deprecated>
+   pinspect profiles provided <pinspect profiles-subcommands/provided>
+   pinspect profiles system <pinspect profiles-subcommands/system>
+   pinspect profiles use_expand <pinspect profiles-subcommands/use_expand>
+   pinspect profiles masks <pinspect profiles-subcommands/masks>
+   pinspect profiles virtuals <pinspect profiles-subcommands/virtuals>
+   pinspect profiles defaults <pinspect profiles-subcommands/defaults>
+   pinspect profiles arch <pinspect profiles-subcommands/arch>
+
