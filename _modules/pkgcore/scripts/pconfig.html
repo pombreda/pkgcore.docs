@@ -64,6 +64,7 @@
 <span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">errors</span><span class="p">,</span> <span class="n">basics</span>
 <span class="kn">from</span> <span class="nn">pkgcore.plugin</span> <span class="kn">import</span> <span class="n">get_plugins</span>
 <span class="kn">from</span> <span class="nn">pkgcore.util</span> <span class="kn">import</span> <span class="n">commandline</span>
+<span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">atom</span>
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">currying</span>
 
 <span class="k">def</span> <span class="nf">dump_section</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
@@ -373,6 +374,47 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">matched</span><span class="p">:</span>
         <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;no packages matched&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="mi">1</span>
+
+
+<span class="n">world</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">&quot;world&quot;</span><span class="p">,</span>
+    <span class="n">parents</span><span class="o">=</span><span class="p">(</span><span class="n">commandline</span><span class="o">.</span><span class="n">mk_argparser</span><span class="p">(</span><span class="n">add_help</span><span class="o">=</span><span class="bp">False</span><span class="p">),),</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&quot;Inspect and modify the world file.&quot;</span><span class="p">)</span>
+<span class="n">world_modes</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s">&quot;Command modes&quot;</span><span class="p">,</span>
+    <span class="s">&quot;These options are directives for what to do with the world file.  You &quot;</span>
+    <span class="s">&quot;can do multiple operations in a single invocation. &quot;</span>
+    <span class="s">&quot;For example, you can have `--add x11-wm/fluxbox &quot;</span>
+    <span class="s">&quot;--remove gnome-base/gnome -l` to add fluxbox, remove gnome, and list the &quot;</span>
+    <span class="s">&quot;world file contents all in one call.&quot;</span><span class="p">)</span>
+<span class="n">world_modes</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--list&#39;</span><span class="p">,</span> <span class="s">&#39;-l&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;List the current world file contents for this domain.&quot;</span><span class="p">)</span>
+<span class="n">world_modes</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--remove&#39;</span><span class="p">,</span> <span class="s">&#39;-r&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;Remove an entry from the world file.  Can be specified multiple times.&quot;</span><span class="p">)</span>
+<span class="n">world_modes</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--add&#39;</span><span class="p">,</span> <span class="s">&#39;-a&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;Add an entry to the world file.  Can be specified multiple times.&quot;</span><span class="p">)</span>
+
+<span class="n">world</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">world</span><span class="o">=</span>
+    <span class="n">commandline</span><span class="o">.</span><span class="n">StoreConfigObject</span><span class="o">.</span><span class="n">lazy_load_object</span><span class="p">(</span>
+        <span class="s">&#39;pkgset&#39;</span><span class="p">,</span> <span class="s">&#39;world&#39;</span><span class="p">,</span> <span class="mi">99</span><span class="p">))</span>
+<span class="nd">@world.bind_main_func</span>
+<span class="k">def</span> <span class="nf">world_func</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
+    <span class="n">world_file</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">world</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">remove</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">remove</span><span class="p">:</span>
+            <span class="n">world_file</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">add</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">add</span><span class="p">:</span>
+            <span class="n">world_file</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">remove</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">add</span><span class="p">:</span>
+        <span class="n">world_file</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">world_file</span><span class="p">))))</span>
+        <span class="k">return</span> <span class="mi">0</span>
 </pre></div>
 
           </div>

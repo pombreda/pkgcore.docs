@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pconfig package &mdash; pkgcore vtrunk documentation</title>
+    <title>pconfig world &mdash; pkgcore vtrunk documentation</title>
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -24,8 +24,8 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="top" title="pkgcore vtrunk documentation" href="../../index.html" />
     <link rel="up" title="pconfig" href="../pconfig.html" />
-    <link rel="next" title="pconfig world" href="world.html" />
-    <link rel="prev" title="pconfig dump-uncollapsed" href="dump-uncollapsed.html" /> 
+    <link rel="next" title="pebuild" href="../pebuild.html" />
+    <link rel="prev" title="pconfig package" href="package.html" /> 
   </head>
   <body>
     <div class="related">
@@ -38,10 +38,10 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="world.html" title="pconfig world"
+          <a href="../pebuild.html" title="pebuild"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="dump-uncollapsed.html" title="pconfig dump-uncollapsed"
+          <a href="package.html" title="pconfig package"
              accesskey="P">previous</a> |</li>
         <li><a href="../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
           <li><a href="../../man.html" >Man Pages</a> &raquo;</li>
@@ -54,26 +54,15 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="pconfig-package">
-<span id="pconfig-package-manpage"></span><h1>pconfig package<a class="headerlink" href="#pconfig-package" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="pconfig-world">
+<span id="pconfig-world-manpage"></span><h1>pconfig world<a class="headerlink" href="#pconfig-world" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="synopsis">
 <h2>synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
-<p>pconfig package [-h] [&#8211;version] [&#8211;debug] [&#8211;color BOOLEAN] [&#8211;add-config SECTION KEY VALUE] [&#8211;new-config SECTION KEY VALUE] [&#8211;empty-config] [&#8211;domain DOMAIN] query [query ...]</p>
+<p>pconfig world [-h] [&#8211;version] [&#8211;debug] [&#8211;color BOOLEAN] [&#8211;add-config SECTION KEY VALUE] [&#8211;new-config SECTION KEY VALUE] [&#8211;empty-config] [&#8211;domain DOMAIN] [&#8211;list] [&#8211;remove REMOVE] [&#8211;add ADD]</p>
 </div>
 <div class="section" id="description">
 <h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
-<p>invoke a packages custom configuration scripts</p>
-</div>
-<div class="section" id="positional-arguments">
-<h2>positional arguments<a class="headerlink" href="#positional-arguments" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name">query:</th><td class="field-body">restrictions/atoms; matching installed packages will be configured</td>
-</tr>
-</tbody>
-</table>
+<p>Inspect and modify the world file.</p>
 </div>
 <div class="section" id="optional-arguments">
 <h2>optional arguments<a class="headerlink" href="#optional-arguments" title="Permalink to this headline">¶</a></h2>
@@ -113,6 +102,27 @@
 </tbody>
 </table>
 </div>
+<div class="section" id="command-modes">
+<h2>Command modes<a class="headerlink" href="#command-modes" title="Permalink to this headline">¶</a></h2>
+<p>These options are directives for what to do with the world file.  You can do multiple operations in a single invocation. For example, you can have <cite>&#8211;add x11-wm/fluxbox &#8211;remove gnome-base/gnome -l</cite> to add fluxbox, remove gnome, and list the world file contents all in one call.</p>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">--list</span>, <span class="option">-l</span></kbd></td>
+<td>List the current world file contents for this domain.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--remove <var>REMOVE</var></span>, <span class="option">-r <var>REMOVE</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Remove an entry from the world file.  Can be specified multiple times.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--add <var>ADD</var></span>, <span class="option">-a <var>ADD</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Add an entry to the world file.  Can be specified multiple times.</td></tr>
+</tbody>
+</table>
+</div>
 </div>
 
 
@@ -123,21 +133,21 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="../../index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">pconfig package</a><ul>
+<li><a class="reference internal" href="#">pconfig world</a><ul>
 <li><a class="reference internal" href="#synopsis">synopsis</a></li>
 <li><a class="reference internal" href="#description">DESCRIPTION</a></li>
-<li><a class="reference internal" href="#positional-arguments">positional arguments</a></li>
 <li><a class="reference internal" href="#optional-arguments">optional arguments</a></li>
+<li><a class="reference internal" href="#command-modes">Command modes</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="dump-uncollapsed.html"
-                        title="previous chapter">pconfig dump-uncollapsed</a></p>
+  <p class="topless"><a href="package.html"
+                        title="previous chapter">pconfig package</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="world.html"
-                        title="next chapter">pconfig world</a></p>
+  <p class="topless"><a href="../pebuild.html"
+                        title="next chapter">pebuild</a></p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
@@ -165,10 +175,10 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="world.html" title="pconfig world"
+          <a href="../pebuild.html" title="pebuild"
              >next</a> |</li>
         <li class="right" >
-          <a href="dump-uncollapsed.html" title="pconfig dump-uncollapsed"
+          <a href="package.html" title="pconfig package"
              >previous</a> |</li>
         <li><a href="../../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
           <li><a href="../../man.html" >Man Pages</a> &raquo;</li>
