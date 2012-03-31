@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pkgcore.repository.misc &mdash; pkgcore vtrunk documentation</title>
+    <title>pkgcore.repository.misc &mdash; pkgcore trunk documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="top" title="pkgcore trunk documentation" href="../index.html" />
     <link rel="up" title="API Documentation" href="../api.html" />
     <link rel="next" title="pkgcore.repository.multiplex" href="pkgcore.repository.multiplex.html" />
     <link rel="prev" title="pkgcore.repository.errors" href="pkgcore.repository.errors.html" /> 
@@ -43,7 +46,7 @@
         <li class="right" >
           <a href="pkgcore.repository.errors.html" title="pkgcore.repository.errors"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+        <li><a href="../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -56,16 +59,16 @@
   <div class="section" id="module-pkgcore.repository.misc">
 <span id="pkgcore-repository-misc"></span><h1>pkgcore.repository.misc<a class="headerlink" href="#module-pkgcore.repository.misc" title="Permalink to this headline">¶</a></h1>
 <p class="rubric">Classes</p>
-<table border="1" class="docutils">
+<table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><a class="reference internal" href="#pkgcore.repository.misc.caching_repo" title="pkgcore.repository.misc.caching_repo"><tt class="xref py py-obj docutils literal"><span class="pre">caching_repo</span></tt></a>(db,&nbsp;strategy)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.repository.misc.caching_repo" title="pkgcore.repository.misc.caching_repo"><tt class="xref py py-obj docutils literal"><span class="pre">caching_repo</span></tt></a>(db,&nbsp;strategy)</td>
 <td>repository wrapper that overrides match, returning</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.repository.misc.nodeps_repo" title="pkgcore.repository.misc.nodeps_repo"><tt class="xref py py-obj docutils literal"><span class="pre">nodeps_repo</span></tt></a>(repo)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pkgcore.repository.misc.nodeps_repo" title="pkgcore.repository.misc.nodeps_repo"><tt class="xref py py-obj docutils literal"><span class="pre">nodeps_repo</span></tt></a>(repo)</td>
 <td>repository wrapper that returns wrapped pkgs via</td>
 </tr>
 </tbody>
@@ -76,6 +79,21 @@
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>repository wrapper that returns wrapped pkgs via
 <tt class="xref py py-obj docutils literal"><span class="pre">MutatedPkg</span></tt> that have their depends/rdepends/post_rdepends wiped</p>
+<dl class="attribute">
+<dt id="pkgcore.repository.misc.nodeps_repo.default_depends">
+<tt class="descname">default_depends</tt><em class="property"> = &lt;AndRestriction negate=False type='package' finalized=True restrictions=() &#64;0x33c98e8&gt;</em><a class="headerlink" href="#pkgcore.repository.misc.nodeps_repo.default_depends" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.repository.misc.nodeps_repo.default_post_rdepends">
+<tt class="descname">default_post_rdepends</tt><em class="property"> = &lt;AndRestriction negate=False type='package' finalized=True restrictions=() &#64;0x33c98e8&gt;</em><a class="headerlink" href="#pkgcore.repository.misc.nodeps_repo.default_post_rdepends" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.repository.misc.nodeps_repo.default_rdepends">
+<tt class="descname">default_rdepends</tt><em class="property"> = &lt;AndRestriction negate=False type='package' finalized=True restrictions=() &#64;0x33c98e8&gt;</em><a class="headerlink" href="#pkgcore.repository.misc.nodeps_repo.default_rdepends" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pkgcore.repository.misc.nodeps_repo.itermatch">
 <tt class="descname">itermatch</tt><big>(</big><em>*a</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/repository/misc.html#nodeps_repo.itermatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.repository.misc.nodeps_repo.itermatch" title="Permalink to this definition">¶</a></dt>
@@ -145,7 +163,7 @@ you want- if you&#8217;re making a lot of random queries that are duplicates
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -174,13 +192,13 @@ you want- if you&#8217;re making a lot of random queries that are duplicates
         <li class="right" >
           <a href="pkgcore.repository.errors.html" title="pkgcore.repository.errors"
              >previous</a> |</li>
-        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+        <li><a href="../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Brian Harring, Marien Zwart.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>

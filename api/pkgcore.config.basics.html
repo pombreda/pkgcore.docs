@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pkgcore.config.basics &mdash; pkgcore vtrunk documentation</title>
+    <title>pkgcore.config.basics &mdash; pkgcore trunk documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="top" title="pkgcore trunk documentation" href="../index.html" />
     <link rel="up" title="API Documentation" href="../api.html" />
     <link rel="next" title="pkgcore.config.central" href="pkgcore.config.central.html" />
     <link rel="prev" title="pkgcore.config" href="pkgcore.config.html" /> 
@@ -43,7 +46,7 @@
         <li class="right" >
           <a href="pkgcore.config.html" title="pkgcore.config"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+        <li><a href="../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -58,64 +61,64 @@
 <p>configuration subsystem primitives</p>
 <p>all callables can/may throw a <a class="reference internal" href="pkgcore.config.errors.html#pkgcore.config.errors.ConfigurationError" title="pkgcore.config.errors.ConfigurationError"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.config.errors.ConfigurationError</span></tt></a></p>
 <p class="rubric">Functions</p>
-<table border="1" class="docutils">
+<table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><a class="reference internal" href="#pkgcore.config.basics.convert_asis" title="pkgcore.config.basics.convert_asis"><tt class="xref py py-obj docutils literal"><span class="pre">convert_asis</span></tt></a>(central,&nbsp;value,&nbsp;arg_type)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.config.basics.convert_asis" title="pkgcore.config.basics.convert_asis"><tt class="xref py py-obj docutils literal"><span class="pre">convert_asis</span></tt></a>(central,&nbsp;value,&nbsp;arg_type)</td>
 <td>&#8220;Conversion&#8221; func assuming the types are already correct.</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.config.basics.convert_hybrid" title="pkgcore.config.basics.convert_hybrid"><tt class="xref py py-obj docutils literal"><span class="pre">convert_hybrid</span></tt></a>(central,&nbsp;value,&nbsp;arg_type)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pkgcore.config.basics.convert_hybrid" title="pkgcore.config.basics.convert_hybrid"><tt class="xref py py-obj docutils literal"><span class="pre">convert_hybrid</span></tt></a>(central,&nbsp;value,&nbsp;arg_type)</td>
 <td>Automagically switch between <a class="reference internal" href="#pkgcore.config.basics.convert_string" title="pkgcore.config.basics.convert_string"><tt class="xref py py-obj docutils literal"><span class="pre">convert_string</span></tt></a> and <a class="reference internal" href="#pkgcore.config.basics.convert_asis" title="pkgcore.config.basics.convert_asis"><tt class="xref py py-obj docutils literal"><span class="pre">convert_asis</span></tt></a>.</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.config.basics.convert_string" title="pkgcore.config.basics.convert_string"><tt class="xref py py-obj docutils literal"><span class="pre">convert_string</span></tt></a>(central,&nbsp;value,&nbsp;arg_type)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.config.basics.convert_string" title="pkgcore.config.basics.convert_string"><tt class="xref py py-obj docutils literal"><span class="pre">convert_string</span></tt></a>(central,&nbsp;value,&nbsp;arg_type)</td>
 <td>Conversion func for a string-based DictConfigSection.</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.config.basics.parse_config_file" title="pkgcore.config.basics.parse_config_file"><tt class="xref py py-obj docutils literal"><span class="pre">parse_config_file</span></tt></a>(path,&nbsp;parser)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pkgcore.config.basics.parse_config_file" title="pkgcore.config.basics.parse_config_file"><tt class="xref py py-obj docutils literal"><span class="pre">parse_config_file</span></tt></a>(path,&nbsp;parser)</td>
 <td></td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.config.basics.section_alias" title="pkgcore.config.basics.section_alias"><tt class="xref py py-obj docutils literal"><span class="pre">section_alias</span></tt></a>(target,&nbsp;typename)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.config.basics.section_alias" title="pkgcore.config.basics.section_alias"><tt class="xref py py-obj docutils literal"><span class="pre">section_alias</span></tt></a>(target,&nbsp;typename)</td>
 <td>Build a ConfigSection that instantiates a named reference.</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.config.basics.str_to_bool" title="pkgcore.config.basics.str_to_bool"><tt class="xref py py-obj docutils literal"><span class="pre">str_to_bool</span></tt></a>(string)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pkgcore.config.basics.str_to_bool" title="pkgcore.config.basics.str_to_bool"><tt class="xref py py-obj docutils literal"><span class="pre">str_to_bool</span></tt></a>(string)</td>
 <td>convert a string to a boolean</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.config.basics.str_to_int" title="pkgcore.config.basics.str_to_int"><tt class="xref py py-obj docutils literal"><span class="pre">str_to_int</span></tt></a>(string)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.config.basics.str_to_int" title="pkgcore.config.basics.str_to_int"><tt class="xref py py-obj docutils literal"><span class="pre">str_to_int</span></tt></a>(string)</td>
 <td>convert a string to a integer</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.config.basics.str_to_list" title="pkgcore.config.basics.str_to_list"><tt class="xref py py-obj docutils literal"><span class="pre">str_to_list</span></tt></a>(string)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pkgcore.config.basics.str_to_list" title="pkgcore.config.basics.str_to_list"><tt class="xref py py-obj docutils literal"><span class="pre">str_to_list</span></tt></a>(string)</td>
 <td>split on whitespace honoring quoting for new tokens</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.config.basics.str_to_str" title="pkgcore.config.basics.str_to_str"><tt class="xref py py-obj docutils literal"><span class="pre">str_to_str</span></tt></a>(string)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.config.basics.str_to_str" title="pkgcore.config.basics.str_to_str"><tt class="xref py py-obj docutils literal"><span class="pre">str_to_str</span></tt></a>(string)</td>
 <td>yank leading/trailing whitespace and quotation, along with newlines</td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Classes</p>
-<table border="1" class="docutils">
+<table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><a class="reference internal" href="#pkgcore.config.basics.ConfigSection" title="pkgcore.config.basics.ConfigSection"><tt class="xref py py-obj docutils literal"><span class="pre">ConfigSection</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.config.basics.ConfigSection" title="pkgcore.config.basics.ConfigSection"><tt class="xref py py-obj docutils literal"><span class="pre">ConfigSection</span></tt></a></td>
 <td>Single Config section, returning typed values from a key.</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.config.basics.ConfigType" title="pkgcore.config.basics.ConfigType"><tt class="xref py py-obj docutils literal"><span class="pre">ConfigType</span></tt></a>(func_obj)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pkgcore.config.basics.ConfigType" title="pkgcore.config.basics.ConfigType"><tt class="xref py py-obj docutils literal"><span class="pre">ConfigType</span></tt></a>(func_obj)</td>
 <td>A configurable type.</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.config.basics.DictConfigSection" title="pkgcore.config.basics.DictConfigSection"><tt class="xref py py-obj docutils literal"><span class="pre">DictConfigSection</span></tt></a>(conversion_func,&nbsp;source_dict)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.config.basics.DictConfigSection" title="pkgcore.config.basics.DictConfigSection"><tt class="xref py py-obj docutils literal"><span class="pre">DictConfigSection</span></tt></a>(conversion_func,&nbsp;source_dict)</td>
 <td>Turns a dict and a conversion function into a ConfigSection.</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.config.basics.FakeIncrementalDictConfigSection" title="pkgcore.config.basics.FakeIncrementalDictConfigSection"><tt class="xref py py-obj docutils literal"><span class="pre">FakeIncrementalDictConfigSection</span></tt></a>(...)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pkgcore.config.basics.FakeIncrementalDictConfigSection" title="pkgcore.config.basics.FakeIncrementalDictConfigSection"><tt class="xref py py-obj docutils literal"><span class="pre">FakeIncrementalDictConfigSection</span></tt></a>(...)</td>
 <td>Turns a dict and a conversion function into a ConfigSection.</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.config.basics.LazyNamedSectionRef" title="pkgcore.config.basics.LazyNamedSectionRef"><tt class="xref py py-obj docutils literal"><span class="pre">LazyNamedSectionRef</span></tt></a>(central,&nbsp;typename,&nbsp;name)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.config.basics.LazyNamedSectionRef" title="pkgcore.config.basics.LazyNamedSectionRef"><tt class="xref py py-obj docutils literal"><span class="pre">LazyNamedSectionRef</span></tt></a>(central,&nbsp;typename,&nbsp;name)</td>
 <td></td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.config.basics.LazySectionRef" title="pkgcore.config.basics.LazySectionRef"><tt class="xref py py-obj docutils literal"><span class="pre">LazySectionRef</span></tt></a>(central,&nbsp;typename)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pkgcore.config.basics.LazySectionRef" title="pkgcore.config.basics.LazySectionRef"><tt class="xref py py-obj docutils literal"><span class="pre">LazySectionRef</span></tt></a>(central,&nbsp;typename)</td>
 <td>Abstract base class for lazy-loaded section references.</td>
 </tr>
 </tbody>
@@ -129,7 +132,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
 <li><strong>name</strong> &#8211; string specifying the protocol the instantiated object
 conforms to.</li>
 <li><a class="reference external" href="http://docs.python.org/library/functions.html#callable" title="(in Python v2.7)"><strong>callable</strong></a> &#8211; callable used to instantiate this type.</li>
@@ -312,7 +315,7 @@ identical to our target&#8217;s.</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -341,13 +344,13 @@ identical to our target&#8217;s.</p>
         <li class="right" >
           <a href="pkgcore.config.html" title="pkgcore.config"
              >previous</a> |</li>
-        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+        <li><a href="../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Brian Harring, Marien Zwart.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>

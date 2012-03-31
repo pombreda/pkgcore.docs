@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pkgcore.sync.rsync &mdash; pkgcore vtrunk documentation</title>
+    <title>pkgcore.sync.rsync &mdash; pkgcore trunk documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="top" title="pkgcore trunk documentation" href="../index.html" />
     <link rel="up" title="API Documentation" href="../api.html" />
     <link rel="next" title="pkgcore.sync.svn" href="pkgcore.sync.svn.html" />
     <link rel="prev" title="pkgcore.sync.hg" href="pkgcore.sync.hg.html" /> 
@@ -43,7 +46,7 @@
         <li class="right" >
           <a href="pkgcore.sync.hg.html" title="pkgcore.sync.hg"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+        <li><a href="../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -56,16 +59,16 @@
   <div class="section" id="module-pkgcore.sync.rsync">
 <span id="pkgcore-sync-rsync"></span><h1>pkgcore.sync.rsync<a class="headerlink" href="#module-pkgcore.sync.rsync" title="Permalink to this headline">¶</a></h1>
 <p class="rubric">Classes</p>
-<table border="1" class="docutils">
+<table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><a class="reference internal" href="#pkgcore.sync.rsync.rsync_syncer" title="pkgcore.sync.rsync.rsync_syncer"><tt class="xref py py-obj docutils literal"><span class="pre">rsync_syncer</span></tt></a>(basedir,&nbsp;uri[,&nbsp;timeout,&nbsp;...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.sync.rsync.rsync_syncer" title="pkgcore.sync.rsync.rsync_syncer"><tt class="xref py py-obj docutils literal"><span class="pre">rsync_syncer</span></tt></a>(basedir,&nbsp;uri[,&nbsp;timeout,&nbsp;...])</td>
 <td></td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.sync.rsync.rsync_timestamp_syncer" title="pkgcore.sync.rsync.rsync_timestamp_syncer"><tt class="xref py py-obj docutils literal"><span class="pre">rsync_timestamp_syncer</span></tt></a>(*args,&nbsp;**kwargs)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pkgcore.sync.rsync.rsync_timestamp_syncer" title="pkgcore.sync.rsync.rsync_timestamp_syncer"><tt class="xref py py-obj docutils literal"><span class="pre">rsync_timestamp_syncer</span></tt></a>(*args,&nbsp;**kwargs)</td>
 <td></td>
 </tr>
 </tbody>
@@ -74,6 +77,46 @@
 <dt id="pkgcore.sync.rsync.rsync_syncer">
 <em class="property">class </em><tt class="descclassname">pkgcore.sync.rsync.</tt><tt class="descname">rsync_syncer</tt><big>(</big><em>basedir</em>, <em>uri</em>, <em>timeout=180</em>, <em>compress=False</em>, <em>excludes=()</em>, <em>includes=()</em>, <em>retries=5</em>, <em>proxy=None</em>, <em>extra_opts=()</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/sync/rsync.html#rsync_syncer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.sync.rsync.rsync_syncer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pkgcore.sync.base.html#pkgcore.sync.base.ExternalSyncer" title="pkgcore.sync.base.ExternalSyncer"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.sync.base.ExternalSyncer</span></tt></a></p>
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_syncer.binary">
+<tt class="descname">binary</tt><em class="property"> = 'rsync'</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_syncer.binary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_syncer.default_excludes">
+<tt class="descname">default_excludes</tt><em class="property"> = ['/distfiles', '/local', '/packages']</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_syncer.default_excludes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_syncer.default_includes">
+<tt class="descname">default_includes</tt><em class="property"> = []</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_syncer.default_includes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_syncer.default_opts">
+<tt class="descname">default_opts</tt><em class="property"> = ['--recursive', '--delete-delay', '--perms', '--times', '--force', '--safe-links', '--whole-file']</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_syncer.default_opts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_syncer.default_retries">
+<tt class="descname">default_retries</tt><em class="property"> = 5</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_syncer.default_retries" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_syncer.default_timeout">
+<tt class="descname">default_timeout</tt><em class="property"> = 180</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_syncer.default_timeout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_syncer.disabled">
+<tt class="descname">disabled</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_syncer.disabled" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_syncer.forcable">
+<tt class="descname">forcable</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_syncer.forcable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="classmethod">
 <dt id="pkgcore.sync.rsync.rsync_syncer.is_usable_on_filepath">
 <em class="property">classmethod </em><tt class="descname">is_usable_on_filepath</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#pkgcore.sync.rsync.rsync_syncer.is_usable_on_filepath" title="Permalink to this definition">¶</a></dt>
@@ -89,6 +132,11 @@
 <em class="property">classmethod </em><tt class="descname">parse_uri</tt><big>(</big><em>raw_uri</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/sync/rsync.html#rsync_syncer.parse_uri"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.sync.rsync.rsync_syncer.parse_uri" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_syncer.pkgcore_config_type">
+<tt class="descname">pkgcore_config_type</tt><em class="property"> = &lt;pkgcore.config.ConfigHint object at 0x363b210&gt;</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_syncer.pkgcore_config_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="staticmethod">
 <dt id="pkgcore.sync.rsync.rsync_syncer.require_binary">
 <em class="property">static </em><tt class="descname">require_binary</tt><big>(</big><em>bin_name</em>, <em>fatal=True</em><big>)</big><a class="headerlink" href="#pkgcore.sync.rsync.rsync_syncer.require_binary" title="Permalink to this definition">¶</a></dt>
@@ -99,6 +147,11 @@
 <tt class="descname">set_binary_path</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.sync.rsync.rsync_syncer.set_binary_path" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_syncer.sets_env">
+<tt class="descname">sets_env</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_syncer.sets_env" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="staticmethod">
 <dt id="pkgcore.sync.rsync.rsync_syncer.split_users">
 <em class="property">static </em><tt class="descname">split_users</tt><big>(</big><em>raw_uri</em><big>)</big><a class="headerlink" href="#pkgcore.sync.rsync.rsync_syncer.split_users" title="Permalink to this definition">¶</a></dt>
@@ -106,16 +159,21 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>raw_uri</strong> &#8211; string uri to split users from; harring::ferringb:pass
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>raw_uri</strong> &#8211; string uri to split users from; harring::ferringb:pass
 for example is local user &#8216;harring&#8217;, remote &#8216;ferringb&#8217;,
 password &#8216;pass&#8217;</td>
 </tr>
-<tr class="field"><th class="field-name">Returns:</th><td class="field-body">(local user, remote user, remote pass), defaults to root_uid
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(local user, remote user, remote pass), defaults to root_uid
 if no local user specified</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_syncer.supported_uris">
+<tt class="descname">supported_uris</tt><em class="property"> = ()</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_syncer.supported_uris" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="classmethod">
 <dt id="pkgcore.sync.rsync.rsync_syncer.supports_uri">
@@ -133,6 +191,11 @@ if no local user specified</td>
 <dt id="pkgcore.sync.rsync.rsync_timestamp_syncer">
 <em class="property">class </em><tt class="descclassname">pkgcore.sync.rsync.</tt><tt class="descname">rsync_timestamp_syncer</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/sync/rsync.html#rsync_timestamp_syncer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.sync.rsync.rsync_timestamp_syncer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pkgcore.sync.rsync.rsync_syncer" title="pkgcore.sync.rsync.rsync_syncer"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.sync.rsync.rsync_syncer</span></tt></a></p>
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_timestamp_syncer.binary">
+<tt class="descname">binary</tt><em class="property"> = 'rsync'</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_timestamp_syncer.binary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pkgcore.sync.rsync.rsync_timestamp_syncer.current_timestamp">
 <tt class="descname">current_timestamp</tt><big>(</big><em>path=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/sync/rsync.html#rsync_timestamp_syncer.current_timestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.sync.rsync.rsync_timestamp_syncer.current_timestamp" title="Permalink to this definition">¶</a></dt>
@@ -140,17 +203,62 @@ if no local user specified</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> &#8211; override the default path for the timestamp to read</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> &#8211; override the default path for the timestamp to read</td>
 </tr>
-<tr class="field"><th class="field-name">Returns:</th><td class="field-body">string of the timestamp data</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">string of the timestamp data</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_timestamp_syncer.default_excludes">
+<tt class="descname">default_excludes</tt><em class="property"> = ['/distfiles', '/local', '/packages']</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_timestamp_syncer.default_excludes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_timestamp_syncer.default_includes">
+<tt class="descname">default_includes</tt><em class="property"> = []</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_timestamp_syncer.default_includes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_timestamp_syncer.default_opts">
+<tt class="descname">default_opts</tt><em class="property"> = ['--recursive', '--delete-delay', '--perms', '--times', '--force', '--safe-links', '--whole-file']</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_timestamp_syncer.default_opts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_timestamp_syncer.default_retries">
+<tt class="descname">default_retries</tt><em class="property"> = 5</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_timestamp_syncer.default_retries" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_timestamp_syncer.default_timeout">
+<tt class="descname">default_timeout</tt><em class="property"> = 180</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_timestamp_syncer.default_timeout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_timestamp_syncer.disabled">
+<tt class="descname">disabled</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_timestamp_syncer.disabled" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_timestamp_syncer.forcable">
+<tt class="descname">forcable</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_timestamp_syncer.forcable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_timestamp_syncer.forward_sync_delay">
+<tt class="descname">forward_sync_delay</tt><em class="property"> = 1500</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_timestamp_syncer.forward_sync_delay" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="classmethod">
 <dt id="pkgcore.sync.rsync.rsync_timestamp_syncer.is_usable_on_filepath">
 <em class="property">classmethod </em><tt class="descname">is_usable_on_filepath</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#pkgcore.sync.rsync.rsync_timestamp_syncer.is_usable_on_filepath" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_timestamp_syncer.negative_sync_delay">
+<tt class="descname">negative_sync_delay</tt><em class="property"> = 3600</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_timestamp_syncer.negative_sync_delay" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
@@ -163,6 +271,11 @@ if no local user specified</td>
 <em class="property">classmethod </em><tt class="descname">parse_uri</tt><big>(</big><em>raw_uri</em><big>)</big><a class="headerlink" href="#pkgcore.sync.rsync.rsync_timestamp_syncer.parse_uri" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_timestamp_syncer.pkgcore_config_type">
+<tt class="descname">pkgcore_config_type</tt><em class="property"> = &lt;pkgcore.config.ConfigHint object at 0x363b210&gt;</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_timestamp_syncer.pkgcore_config_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="staticmethod">
 <dt id="pkgcore.sync.rsync.rsync_timestamp_syncer.require_binary">
 <em class="property">static </em><tt class="descname">require_binary</tt><big>(</big><em>bin_name</em>, <em>fatal=True</em><big>)</big><a class="headerlink" href="#pkgcore.sync.rsync.rsync_timestamp_syncer.require_binary" title="Permalink to this definition">¶</a></dt>
@@ -173,6 +286,11 @@ if no local user specified</td>
 <tt class="descname">set_binary_path</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.sync.rsync.rsync_timestamp_syncer.set_binary_path" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_timestamp_syncer.sets_env">
+<tt class="descname">sets_env</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_timestamp_syncer.sets_env" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="staticmethod">
 <dt id="pkgcore.sync.rsync.rsync_timestamp_syncer.split_users">
 <em class="property">static </em><tt class="descname">split_users</tt><big>(</big><em>raw_uri</em><big>)</big><a class="headerlink" href="#pkgcore.sync.rsync.rsync_timestamp_syncer.split_users" title="Permalink to this definition">¶</a></dt>
@@ -180,16 +298,21 @@ if no local user specified</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>raw_uri</strong> &#8211; string uri to split users from; harring::ferringb:pass
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>raw_uri</strong> &#8211; string uri to split users from; harring::ferringb:pass
 for example is local user &#8216;harring&#8217;, remote &#8216;ferringb&#8217;,
 password &#8216;pass&#8217;</td>
 </tr>
-<tr class="field"><th class="field-name">Returns:</th><td class="field-body">(local user, remote user, remote pass), defaults to root_uid
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(local user, remote user, remote pass), defaults to root_uid
 if no local user specified</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.sync.rsync.rsync_timestamp_syncer.supported_uris">
+<tt class="descname">supported_uris</tt><em class="property"> = ()</em><a class="headerlink" href="#pkgcore.sync.rsync.rsync_timestamp_syncer.supported_uris" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="classmethod">
 <dt id="pkgcore.sync.rsync.rsync_timestamp_syncer.supports_uri">
@@ -220,7 +343,7 @@ if no local user specified</td>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -249,13 +372,13 @@ if no local user specified</td>
         <li class="right" >
           <a href="pkgcore.sync.hg.html" title="pkgcore.sync.hg"
              >previous</a> |</li>
-        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+        <li><a href="../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Brian Harring, Marien Zwart.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>

@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pkgcore.cache.metadata &mdash; pkgcore vtrunk documentation</title>
+    <title>pkgcore.cache.metadata &mdash; pkgcore trunk documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="top" title="pkgcore trunk documentation" href="../index.html" />
     <link rel="up" title="API Documentation" href="../api.html" />
     <link rel="next" title="pkgcore.cache.util" href="pkgcore.cache.util.html" />
     <link rel="prev" title="pkgcore.cache.fs_template" href="pkgcore.cache.fs_template.html" /> 
@@ -43,7 +46,7 @@
         <li class="right" >
           <a href="pkgcore.cache.fs_template.html" title="pkgcore.cache.fs_template"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+        <li><a href="../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -57,19 +60,19 @@
 <span id="pkgcore-cache-metadata"></span><h1>pkgcore.cache.metadata<a class="headerlink" href="#module-pkgcore.cache.metadata" title="Permalink to this headline">¶</a></h1>
 <p>cache backend designed for rsynced tree&#8217;s pregenerated metadata.</p>
 <p class="rubric">Classes</p>
-<table border="1" class="docutils">
+<table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><a class="reference internal" href="#pkgcore.cache.metadata.database" title="pkgcore.cache.metadata.database"><tt class="xref py py-obj docutils literal"><span class="pre">database</span></tt></a>(location,&nbsp;*args,&nbsp;**config)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.cache.metadata.database" title="pkgcore.cache.metadata.database"><tt class="xref py py-obj docutils literal"><span class="pre">database</span></tt></a>(location,&nbsp;*args,&nbsp;**config)</td>
 <td>Compatibility with (older) portage-generated caches.</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.cache.metadata.paludis_flat_list" title="pkgcore.cache.metadata.paludis_flat_list"><tt class="xref py py-obj docutils literal"><span class="pre">paludis_flat_list</span></tt></a>(*args,&nbsp;**config)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pkgcore.cache.metadata.paludis_flat_list" title="pkgcore.cache.metadata.paludis_flat_list"><tt class="xref py py-obj docutils literal"><span class="pre">paludis_flat_list</span></tt></a>(*args,&nbsp;**config)</td>
 <td>(Hopefully) write a paludis specific form of flat_list format cache.</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.cache.metadata.protective_database" title="pkgcore.cache.metadata.protective_database"><tt class="xref py py-obj docutils literal"><span class="pre">protective_database</span></tt></a>(location,&nbsp;*args,&nbsp;**config)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.cache.metadata.protective_database" title="pkgcore.cache.metadata.protective_database"><tt class="xref py py-obj docutils literal"><span class="pre">protective_database</span></tt></a>(location,&nbsp;*args,&nbsp;**config)</td>
 <td></td>
 </tr>
 </tbody>
@@ -83,6 +86,21 @@
 <tt class="xref py py-class docutils literal"><span class="pre">flat_hash.database</span></tt> or PMS compliant cache entry,
 and converts old (and incomplete) INHERITED field
 to _eclasses_ as required.</p>
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.database.autocommits">
+<tt class="descname">autocommits</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.metadata.database.autocommits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.database.auxdbkeys_order">
+<tt class="descname">auxdbkeys_order</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES')</em><a class="headerlink" href="#pkgcore.cache.metadata.database.auxdbkeys_order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.database.cleanse_keys">
+<tt class="descname">cleanse_keys</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.cache.metadata.database.cleanse_keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pkgcore.cache.metadata.database.clear">
 <tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.database.clear" title="Permalink to this definition">¶</a></dt>
@@ -93,11 +111,26 @@ to _eclasses_ as required.</p>
 <tt class="descname">commit</tt><big>(</big><em>force=False</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.database.commit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.database.complete_eclass_entries">
+<tt class="descname">complete_eclass_entries</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.cache.metadata.database.complete_eclass_entries" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="staticmethod">
 <dt id="pkgcore.cache.metadata.database.deconstruct_eclasses">
 <em class="property">static </em><tt class="descname">deconstruct_eclasses</tt><big>(</big><em>eclass_dict</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.database.deconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
 <dd><p>takes a dict, returns a string representing said dict</p>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.database.default_keys">
+<tt class="descname">default_keys</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES', '_mtime_', '_eclasses_')</em><a class="headerlink" href="#pkgcore.cache.metadata.database.default_keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.database.default_sync_rate">
+<tt class="descname">default_sync_rate</tt><em class="property"> = 1</em><a class="headerlink" href="#pkgcore.cache.metadata.database.default_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.metadata.database.frozen">
@@ -131,15 +164,40 @@ to _eclasses_ as required.</p>
 <tt class="descname">keys</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.database.keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.database.magic_line_count">
+<tt class="descname">magic_line_count</tt><em class="property"> = 22</em><a class="headerlink" href="#pkgcore.cache.metadata.database.magic_line_count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.database.mtime_in_entry">
+<tt class="descname">mtime_in_entry</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.metadata.database.mtime_in_entry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.database.pkgcore_config_type">
+<tt class="descname">pkgcore_config_type</tt><em class="property"> = &lt;pkgcore.config.ConfigHint object at 0x30f7de0&gt;</em><a class="headerlink" href="#pkgcore.cache.metadata.database.pkgcore_config_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="staticmethod">
 <dt id="pkgcore.cache.metadata.database.reconstruct_eclasses">
 <em class="property">static </em><tt class="descname">reconstruct_eclasses</tt><big>(</big><em>cpv</em>, <em>eclass_string</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.database.reconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn a string from <tt class="xref py py-obj docutils literal"><span class="pre">serialize_eclasses</span></tt> into a dict.</p>
+<dd><p>Turn a string from <a class="reference internal" href="#pkgcore.cache.metadata.database.serialize_eclasses" title="pkgcore.cache.metadata.database.serialize_eclasses"><tt class="xref py py-obj docutils literal"><span class="pre">serialize_eclasses</span></tt></a> into a dict.</p>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.database.serialize_eclasses">
+<tt class="descname">serialize_eclasses</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.metadata.database.serialize_eclasses" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.cache.metadata.database.set_sync_rate">
 <tt class="descname">set_sync_rate</tt><big>(</big><em>rate=0</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.database.set_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.database.y">
+<tt class="descname">y</tt><em class="property"> = '        '</em><a class="headerlink" href="#pkgcore.cache.metadata.database.y" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -152,6 +210,21 @@ to _eclasses_ as required.</p>
 Not very well tested.</p>
 <p>difference from a normal flat_list cache is that mtime is set to ebuild
 for normal, for paludis it&#8217;s max mtime of eclasses/ebuild involved.</p>
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.paludis_flat_list.autocommits">
+<tt class="descname">autocommits</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.autocommits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.paludis_flat_list.auxdbkeys_order">
+<tt class="descname">auxdbkeys_order</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES')</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.auxdbkeys_order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.paludis_flat_list.cleanse_keys">
+<tt class="descname">cleanse_keys</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.cleanse_keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pkgcore.cache.metadata.paludis_flat_list.clear">
 <tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.clear" title="Permalink to this definition">¶</a></dt>
@@ -162,11 +235,26 @@ for normal, for paludis it&#8217;s max mtime of eclasses/ebuild involved.</p>
 <tt class="descname">commit</tt><big>(</big><em>force=False</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.commit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.paludis_flat_list.complete_eclass_entries">
+<tt class="descname">complete_eclass_entries</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.complete_eclass_entries" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="staticmethod">
 <dt id="pkgcore.cache.metadata.paludis_flat_list.deconstruct_eclasses">
 <em class="property">static </em><tt class="descname">deconstruct_eclasses</tt><big>(</big><em>eclass_dict</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.deconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
 <dd><p>takes a dict, returns a string representing said dict</p>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.paludis_flat_list.default_keys">
+<tt class="descname">default_keys</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES', '_mtime_', '_eclasses_')</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.default_keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.paludis_flat_list.default_sync_rate">
+<tt class="descname">default_sync_rate</tt><em class="property"> = 1</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.default_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.metadata.paludis_flat_list.frozen">
@@ -200,15 +288,40 @@ for normal, for paludis it&#8217;s max mtime of eclasses/ebuild involved.</p>
 <tt class="descname">keys</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.paludis_flat_list.magic_line_count">
+<tt class="descname">magic_line_count</tt><em class="property"> = 22</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.magic_line_count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.paludis_flat_list.mtime_in_entry">
+<tt class="descname">mtime_in_entry</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.mtime_in_entry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.paludis_flat_list.pkgcore_config_type">
+<tt class="descname">pkgcore_config_type</tt><em class="property"> = &lt;pkgcore.config.ConfigHint object at 0x30f7e50&gt;</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.pkgcore_config_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="staticmethod">
 <dt id="pkgcore.cache.metadata.paludis_flat_list.reconstruct_eclasses">
 <em class="property">static </em><tt class="descname">reconstruct_eclasses</tt><big>(</big><em>cpv</em>, <em>eclass_string</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.reconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn a string from <tt class="xref py py-obj docutils literal"><span class="pre">serialize_eclasses</span></tt> into a dict.</p>
+<dd><p>Turn a string from <a class="reference internal" href="#pkgcore.cache.metadata.paludis_flat_list.serialize_eclasses" title="pkgcore.cache.metadata.paludis_flat_list.serialize_eclasses"><tt class="xref py py-obj docutils literal"><span class="pre">serialize_eclasses</span></tt></a> into a dict.</p>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.paludis_flat_list.serialize_eclasses">
+<tt class="descname">serialize_eclasses</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.serialize_eclasses" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.cache.metadata.paludis_flat_list.set_sync_rate">
 <tt class="descname">set_sync_rate</tt><big>(</big><em>rate=0</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.set_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.paludis_flat_list.y">
+<tt class="descname">y</tt><em class="property"> = '        '</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.y" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -217,6 +330,21 @@ for normal, for paludis it&#8217;s max mtime of eclasses/ebuild involved.</p>
 <dt id="pkgcore.cache.metadata.protective_database">
 <em class="property">class </em><tt class="descclassname">pkgcore.cache.metadata.</tt><tt class="descname">protective_database</tt><big>(</big><em>location</em>, <em>*args</em>, <em>**config</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache/metadata.html#protective_database"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.metadata.protective_database" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pkgcore.cache.metadata.database" title="pkgcore.cache.metadata.database"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.cache.metadata.database</span></tt></a></p>
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.protective_database.autocommits">
+<tt class="descname">autocommits</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.autocommits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.protective_database.auxdbkeys_order">
+<tt class="descname">auxdbkeys_order</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES')</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.auxdbkeys_order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.protective_database.cleanse_keys">
+<tt class="descname">cleanse_keys</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.cleanse_keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pkgcore.cache.metadata.protective_database.clear">
 <tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.clear" title="Permalink to this definition">¶</a></dt>
@@ -227,11 +355,26 @@ for normal, for paludis it&#8217;s max mtime of eclasses/ebuild involved.</p>
 <tt class="descname">commit</tt><big>(</big><em>force=False</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.commit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.protective_database.complete_eclass_entries">
+<tt class="descname">complete_eclass_entries</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.complete_eclass_entries" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="staticmethod">
 <dt id="pkgcore.cache.metadata.protective_database.deconstruct_eclasses">
 <em class="property">static </em><tt class="descname">deconstruct_eclasses</tt><big>(</big><em>eclass_dict</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.deconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
 <dd><p>takes a dict, returns a string representing said dict</p>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.protective_database.default_keys">
+<tt class="descname">default_keys</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES', '_mtime_', '_eclasses_')</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.default_keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.protective_database.default_sync_rate">
+<tt class="descname">default_sync_rate</tt><em class="property"> = 1</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.default_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.metadata.protective_database.frozen">
@@ -265,15 +408,40 @@ for normal, for paludis it&#8217;s max mtime of eclasses/ebuild involved.</p>
 <tt class="descname">keys</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.protective_database.magic_line_count">
+<tt class="descname">magic_line_count</tt><em class="property"> = 22</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.magic_line_count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.protective_database.mtime_in_entry">
+<tt class="descname">mtime_in_entry</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.mtime_in_entry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.protective_database.pkgcore_config_type">
+<tt class="descname">pkgcore_config_type</tt><em class="property"> = &lt;pkgcore.config.ConfigHint object at 0x30f7de0&gt;</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.pkgcore_config_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="staticmethod">
 <dt id="pkgcore.cache.metadata.protective_database.reconstruct_eclasses">
 <em class="property">static </em><tt class="descname">reconstruct_eclasses</tt><big>(</big><em>cpv</em>, <em>eclass_string</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.reconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn a string from <tt class="xref py py-obj docutils literal"><span class="pre">serialize_eclasses</span></tt> into a dict.</p>
+<dd><p>Turn a string from <a class="reference internal" href="#pkgcore.cache.metadata.protective_database.serialize_eclasses" title="pkgcore.cache.metadata.protective_database.serialize_eclasses"><tt class="xref py py-obj docutils literal"><span class="pre">serialize_eclasses</span></tt></a> into a dict.</p>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.protective_database.serialize_eclasses">
+<tt class="descname">serialize_eclasses</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.serialize_eclasses" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.cache.metadata.protective_database.set_sync_rate">
 <tt class="descname">set_sync_rate</tt><big>(</big><em>rate=0</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.set_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.protective_database.y">
+<tt class="descname">y</tt><em class="property"> = '        '</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.y" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -295,7 +463,7 @@ for normal, for paludis it&#8217;s max mtime of eclasses/ebuild involved.</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -324,13 +492,13 @@ for normal, for paludis it&#8217;s max mtime of eclasses/ebuild involved.</p>
         <li class="right" >
           <a href="pkgcore.cache.fs_template.html" title="pkgcore.cache.fs_template"
              >previous</a> |</li>
-        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+        <li><a href="../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Brian Harring, Marien Zwart.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>

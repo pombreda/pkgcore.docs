@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pkgcore.ebuild.ebd &mdash; pkgcore vtrunk documentation</title>
+    <title>pkgcore.ebuild.ebd &mdash; pkgcore trunk documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="top" title="pkgcore trunk documentation" href="../index.html" />
     <link rel="up" title="API Documentation" href="../api.html" />
     <link rel="next" title="pkgcore.ebuild.ebuild_built" href="pkgcore.ebuild.ebuild_built.html" />
     <link rel="prev" title="pkgcore.ebuild.domain" href="pkgcore.ebuild.domain.html" /> 
@@ -43,7 +46,7 @@
         <li class="right" >
           <a href="pkgcore.ebuild.domain.html" title="pkgcore.ebuild.domain"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+        <li><a href="../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -60,31 +63,31 @@
 <p>Wraps <a class="reference internal" href="pkgcore.ebuild.processor.html#module-pkgcore.ebuild.processor" title="pkgcore.ebuild.processor"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.ebuild.processor</span></tt></a> functionality into a higher level
 api, per phase methods for example</p>
 <p class="rubric">Classes</p>
-<table border="1" class="docutils">
+<table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><a class="reference internal" href="#pkgcore.ebuild.ebd.binpkg_localize" title="pkgcore.ebuild.ebd.binpkg_localize"><tt class="xref py py-obj docutils literal"><span class="pre">binpkg_localize</span></tt></a>(domain,&nbsp;pkg,&nbsp;**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.ebuild.ebd.binpkg_localize" title="pkgcore.ebuild.ebd.binpkg_localize"><tt class="xref py py-obj docutils literal"><span class="pre">binpkg_localize</span></tt></a>(domain,&nbsp;pkg,&nbsp;**kwargs)</td>
 <td></td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.ebuild.ebd.buildable" title="pkgcore.ebuild.ebd.buildable"><tt class="xref py py-obj docutils literal"><span class="pre">buildable</span></tt></a>(domain,&nbsp;pkg,&nbsp;verified_files,&nbsp;...)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pkgcore.ebuild.ebd.buildable" title="pkgcore.ebuild.ebd.buildable"><tt class="xref py py-obj docutils literal"><span class="pre">buildable</span></tt></a>(domain,&nbsp;pkg,&nbsp;verified_files,&nbsp;...)</td>
 <td>build operation</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.ebuild.ebd.ebd" title="pkgcore.ebuild.ebd.ebd"><tt class="xref py py-obj docutils literal"><span class="pre">ebd</span></tt></a>(pkg[,&nbsp;initial_env,&nbsp;env_data_source,&nbsp;...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.ebuild.ebd.ebd" title="pkgcore.ebuild.ebd.ebd"><tt class="xref py py-obj docutils literal"><span class="pre">ebd</span></tt></a>(pkg[,&nbsp;initial_env,&nbsp;env_data_source,&nbsp;...])</td>
 <td></td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.ebuild.ebd.install_op" title="pkgcore.ebuild.ebd.install_op"><tt class="xref py py-obj docutils literal"><span class="pre">install_op</span></tt></a>(domain,&nbsp;pkg,&nbsp;observer)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pkgcore.ebuild.ebd.install_op" title="pkgcore.ebuild.ebd.install_op"><tt class="xref py py-obj docutils literal"><span class="pre">install_op</span></tt></a>(domain,&nbsp;pkg,&nbsp;observer)</td>
 <td>phase operations and steps for install execution</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.ebuild.ebd.replace_op" title="pkgcore.ebuild.ebd.replace_op"><tt class="xref py py-obj docutils literal"><span class="pre">replace_op</span></tt></a>(domain,&nbsp;old_pkg,&nbsp;new_pkg,&nbsp;observer)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.ebuild.ebd.replace_op" title="pkgcore.ebuild.ebd.replace_op"><tt class="xref py py-obj docutils literal"><span class="pre">replace_op</span></tt></a>(domain,&nbsp;old_pkg,&nbsp;new_pkg,&nbsp;observer)</td>
 <td></td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.ebuild.ebd.setup_mixin" title="pkgcore.ebuild.ebd.setup_mixin"><tt class="xref py py-obj docutils literal"><span class="pre">setup_mixin</span></tt></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pkgcore.ebuild.ebd.setup_mixin" title="pkgcore.ebuild.ebd.setup_mixin"><tt class="xref py py-obj docutils literal"><span class="pre">setup_mixin</span></tt></a></td>
 <td></td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.ebuild.ebd.uninstall_op" title="pkgcore.ebuild.ebd.uninstall_op"><tt class="xref py py-obj docutils literal"><span class="pre">uninstall_op</span></tt></a>(domain,&nbsp;pkg,&nbsp;observer)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.ebuild.ebd.uninstall_op" title="pkgcore.ebuild.ebd.uninstall_op"><tt class="xref py py-obj docutils literal"><span class="pre">uninstall_op</span></tt></a>(domain,&nbsp;pkg,&nbsp;observer)</td>
 <td>phase operations and steps for uninstall execution</td>
 </tr>
 </tbody>
@@ -157,6 +160,11 @@ api, per phase methods for example</p>
 <dl class="method">
 <dt id="pkgcore.ebuild.ebd.setup_mixin.setup">
 <tt class="descname">setup</tt><big>(</big><em>setup_phase_override=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/ebuild/ebd.html#setup_mixin.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.ebuild.ebd.setup_mixin.setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebd.setup_mixin.setup_is_for_src">
+<tt class="descname">setup_is_for_src</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.ebuild.ebd.setup_mixin.setup_is_for_src" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -239,6 +247,11 @@ api, per phase methods for example</p>
 <dl class="method">
 <dt id="pkgcore.ebuild.ebd.install_op.setup_workdir">
 <tt class="descname">setup_workdir</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebd.install_op.setup_workdir" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebd.install_op.stage_depends">
+<tt class="descname">stage_depends</tt><em class="property"> = {'preinst': 'start', 'finalize': 'postinst', 'postinst': 'preinst'}</em><a class="headerlink" href="#pkgcore.ebuild.ebd.install_op.stage_depends" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -334,6 +347,11 @@ api, per phase methods for example</p>
 <tt class="descname">setup_workdir</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebd.uninstall_op.setup_workdir" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebd.uninstall_op.stage_depends">
+<tt class="descname">stage_depends</tt><em class="property"> = {'prerm': 'start', 'postrm': 'prerm', 'finalize': 'postrm'}</em><a class="headerlink" href="#pkgcore.ebuild.ebd.uninstall_op.stage_depends" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pkgcore.ebuild.ebd.uninstall_op.start">
 <tt class="descname">start</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebd.uninstall_op.start" title="Permalink to this definition">¶</a></dt>
@@ -384,6 +402,11 @@ api, per phase methods for example</p>
 <dl class="method">
 <dt id="pkgcore.ebuild.ebd.replace_op.prerm">
 <tt class="descname">prerm</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebd.replace_op.prerm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebd.replace_op.stage_depends">
+<tt class="descname">stage_depends</tt><em class="property"> = {'preinst': 'start', 'prerm': 'preinst', 'postrm': 'prerm', 'postinst': 'postrm', 'finalize': 'postinst'}</em><a class="headerlink" href="#pkgcore.ebuild.ebd.replace_op.stage_depends" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -496,6 +519,11 @@ we need the same prerequisites as setup, so reuse that.</p>
 <tt class="descname">setup_env_data_source</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebd.buildable.setup_env_data_source" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebd.buildable.setup_is_for_src">
+<tt class="descname">setup_is_for_src</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.ebuild.ebd.buildable.setup_is_for_src" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pkgcore.ebuild.ebd.buildable.setup_logging">
 <tt class="descname">setup_logging</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebd.buildable.setup_logging" title="Permalink to this definition">¶</a></dt>
@@ -504,6 +532,11 @@ we need the same prerequisites as setup, so reuse that.</p>
 <dl class="method">
 <dt id="pkgcore.ebuild.ebd.buildable.setup_workdir">
 <tt class="descname">setup_workdir</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebd.buildable.setup_workdir" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebd.buildable.stage_depends">
+<tt class="descname">stage_depends</tt><em class="property"> = {'compile': 'configure', 'install': 'test', 'configure': 'prepare', 'prepare': 'unpack', 'test': 'compile', 'setup': 'start', 'unpack': 'setup', 'finalize': 'install'}</em><a class="headerlink" href="#pkgcore.ebuild.ebd.buildable.stage_depends" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -602,6 +635,11 @@ we need the same prerequisites as setup, so reuse that.</p>
 <tt class="descname">setup_env_data_source</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebd.binpkg_localize.setup_env_data_source" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebd.binpkg_localize.setup_is_for_src">
+<tt class="descname">setup_is_for_src</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.ebuild.ebd.binpkg_localize.setup_is_for_src" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pkgcore.ebuild.ebd.binpkg_localize.setup_logging">
 <tt class="descname">setup_logging</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebd.binpkg_localize.setup_logging" title="Permalink to this definition">¶</a></dt>
@@ -610,6 +648,11 @@ we need the same prerequisites as setup, so reuse that.</p>
 <dl class="method">
 <dt id="pkgcore.ebuild.ebd.binpkg_localize.setup_workdir">
 <tt class="descname">setup_workdir</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.ebuild.ebd.binpkg_localize.setup_workdir" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.ebd.binpkg_localize.stage_depends">
+<tt class="descname">stage_depends</tt><em class="property"> = {'setup': 'start', 'finalize': 'setup'}</em><a class="headerlink" href="#pkgcore.ebuild.ebd.binpkg_localize.stage_depends" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -646,7 +689,7 @@ we need the same prerequisites as setup, so reuse that.</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -675,13 +718,13 @@ we need the same prerequisites as setup, so reuse that.</p>
         <li class="right" >
           <a href="pkgcore.ebuild.domain.html" title="pkgcore.ebuild.domain"
              >previous</a> |</li>
-        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+        <li><a href="../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Brian Harring, Marien Zwart.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>

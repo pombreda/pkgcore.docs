@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pkgcore.spawn &mdash; pkgcore vtrunk documentation</title>
+    <title>pkgcore.spawn &mdash; pkgcore trunk documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="top" title="pkgcore trunk documentation" href="../index.html" />
     <link rel="up" title="API Documentation" href="../api.html" />
     <link rel="next" title="pkgcore.sync" href="pkgcore.sync.html" />
     <link rel="prev" title="pkgcore.scripts.pquery" href="pkgcore.scripts.pquery.html" /> 
@@ -43,7 +46,7 @@
         <li class="right" >
           <a href="pkgcore.scripts.pquery.html" title="pkgcore.scripts.pquery"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+        <li><a href="../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -57,31 +60,31 @@
 <span id="pkgcore-spawn"></span><h1>pkgcore.spawn<a class="headerlink" href="#module-pkgcore.spawn" title="Permalink to this headline">¶</a></h1>
 <p>subprocess related functionality</p>
 <p class="rubric">Functions</p>
-<table border="1" class="docutils">
+<table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><a class="reference internal" href="#pkgcore.spawn.cleanup_pids" title="pkgcore.spawn.cleanup_pids"><tt class="xref py py-obj docutils literal"><span class="pre">cleanup_pids</span></tt></a>([pids])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.spawn.cleanup_pids" title="pkgcore.spawn.cleanup_pids"><tt class="xref py py-obj docutils literal"><span class="pre">cleanup_pids</span></tt></a>([pids])</td>
 <td>reap list of pids if specified, else all children</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.spawn.find_binary" title="pkgcore.spawn.find_binary"><tt class="xref py py-obj docutils literal"><span class="pre">find_binary</span></tt></a>(binary[,&nbsp;paths])</td>
+<tr class="row-even"><td><a class="reference internal" href="#pkgcore.spawn.find_binary" title="pkgcore.spawn.find_binary"><tt class="xref py py-obj docutils literal"><span class="pre">find_binary</span></tt></a>(binary[,&nbsp;paths])</td>
 <td>look through the PATH environment, finding the binary to execute</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.spawn.spawn" title="pkgcore.spawn.spawn"><tt class="xref py py-obj docutils literal"><span class="pre">spawn</span></tt></a>(mycommand[,&nbsp;env,&nbsp;opt_name,&nbsp;fd_pipes,&nbsp;...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.spawn.spawn" title="pkgcore.spawn.spawn"><tt class="xref py py-obj docutils literal"><span class="pre">spawn</span></tt></a>(mycommand[,&nbsp;env,&nbsp;opt_name,&nbsp;fd_pipes,&nbsp;...])</td>
 <td>wrapper around execve</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.spawn.spawn_bash" title="pkgcore.spawn.spawn_bash"><tt class="xref py py-obj docutils literal"><span class="pre">spawn_bash</span></tt></a>(mycommand,&nbsp;**keywords[,&nbsp;debug,&nbsp;...])</td>
+<tr class="row-even"><td><a class="reference internal" href="#pkgcore.spawn.spawn_bash" title="pkgcore.spawn.spawn_bash"><tt class="xref py py-obj docutils literal"><span class="pre">spawn_bash</span></tt></a>(mycommand[,&nbsp;debug,&nbsp;opt_name])</td>
 <td>spawn the command via bash -c</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.spawn.spawn_fakeroot" title="pkgcore.spawn.spawn_fakeroot"><tt class="xref py py-obj docutils literal"><span class="pre">spawn_fakeroot</span></tt></a>(mycommand,&nbsp;save_file,&nbsp;**keywords)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.spawn.spawn_fakeroot" title="pkgcore.spawn.spawn_fakeroot"><tt class="xref py py-obj docutils literal"><span class="pre">spawn_fakeroot</span></tt></a>(mycommand,&nbsp;save_file[,&nbsp;env,&nbsp;...])</td>
 <td>spawn a process via fakeroot</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.spawn.spawn_get_output" title="pkgcore.spawn.spawn_get_output"><tt class="xref py py-obj docutils literal"><span class="pre">spawn_get_output</span></tt></a>(mycommand,&nbsp;**keywords[,&nbsp;...])</td>
+<tr class="row-even"><td><a class="reference internal" href="#pkgcore.spawn.spawn_get_output" title="pkgcore.spawn.spawn_get_output"><tt class="xref py py-obj docutils literal"><span class="pre">spawn_get_output</span></tt></a>(mycommand[,&nbsp;spawn_type,&nbsp;...])</td>
 <td>Call spawn, collecting the output to fd&#8217;s specified in collect_fds list.</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.spawn.spawn_sandbox" title="pkgcore.spawn.spawn_sandbox"><tt class="xref py py-obj docutils literal"><span class="pre">spawn_sandbox</span></tt></a>(mycommand,&nbsp;**keywords[,&nbsp;opt_name])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.spawn.spawn_sandbox" title="pkgcore.spawn.spawn_sandbox"><tt class="xref py py-obj docutils literal"><span class="pre">spawn_sandbox</span></tt></a>(mycommand[,&nbsp;opt_name])</td>
 <td>spawn the command under sandboxed</td>
 </tr>
 </tbody>
@@ -100,7 +103,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>opt_name</strong> &#8211; controls what the process is named
 (what it would show up as under top for example)</li>
 <li><strong>fd_pipes</strong> (<em>mapping from existing fd to fd (inside the new process)</em>) &#8211; controls what fd&#8217;s are left open in the spawned process-</li>
@@ -140,7 +143,7 @@ or returns the pid.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spawn_type</strong> &#8211; the passed in function to call- typically <a class="reference internal" href="#pkgcore.spawn.spawn_bash" title="pkgcore.spawn.spawn_bash"><tt class="xref py py-func docutils literal"><span class="pre">spawn_bash()</span></tt></a>,
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spawn_type</strong> &#8211; the passed in function to call- typically <a class="reference internal" href="#pkgcore.spawn.spawn_bash" title="pkgcore.spawn.spawn_bash"><tt class="xref py py-func docutils literal"><span class="pre">spawn_bash()</span></tt></a>,
 <a class="reference internal" href="#pkgcore.spawn.spawn" title="pkgcore.spawn.spawn"><tt class="xref py py-func docutils literal"><span class="pre">spawn()</span></tt></a>, <a class="reference internal" href="#pkgcore.spawn.spawn_sandbox" title="pkgcore.spawn.spawn_sandbox"><tt class="xref py py-func docutils literal"><span class="pre">spawn_sandbox()</span></tt></a>, or <a class="reference internal" href="#pkgcore.spawn.spawn_fakeroot" title="pkgcore.spawn.spawn_fakeroot"><tt class="xref py py-func docutils literal"><span class="pre">spawn_fakeroot()</span></tt></a>.
 Defaults to <a class="reference internal" href="#pkgcore.spawn.spawn" title="pkgcore.spawn.spawn"><tt class="xref py py-func docutils literal"><span class="pre">spawn()</span></tt></a>.</td>
 </tr>
@@ -171,7 +174,7 @@ Defaults to <a class="reference internal" href="#pkgcore.spawn.spawn" title="pkg
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -200,13 +203,13 @@ Defaults to <a class="reference internal" href="#pkgcore.spawn.spawn" title="pkg
         <li class="right" >
           <a href="pkgcore.scripts.pquery.html" title="pkgcore.scripts.pquery"
              >previous</a> |</li>
-        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+        <li><a href="../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Brian Harring, Marien Zwart.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>

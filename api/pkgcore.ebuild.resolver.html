@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pkgcore.ebuild.resolver &mdash; pkgcore vtrunk documentation</title>
+    <title>pkgcore.ebuild.resolver &mdash; pkgcore trunk documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="top" title="pkgcore trunk documentation" href="../index.html" />
     <link rel="up" title="API Documentation" href="../api.html" />
     <link rel="next" title="pkgcore.ebuild.triggers" href="pkgcore.ebuild.triggers.html" />
     <link rel="prev" title="pkgcore.ebuild.repository" href="pkgcore.ebuild.repository.html" /> 
@@ -43,7 +46,7 @@
         <li class="right" >
           <a href="pkgcore.ebuild.repository.html" title="pkgcore.ebuild.repository"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+        <li><a href="../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -57,16 +60,16 @@
 <span id="pkgcore-ebuild-resolver"></span><h1>pkgcore.ebuild.resolver<a class="headerlink" href="#module-pkgcore.ebuild.resolver" title="Permalink to this headline">¶</a></h1>
 <p>resolver configuration to match portage behaviour (misbehaviour in a few spots)</p>
 <p class="rubric">Functions</p>
-<table border="1" class="docutils">
+<table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><a class="reference internal" href="#pkgcore.ebuild.resolver.min_install_resolver" title="pkgcore.ebuild.resolver.min_install_resolver"><tt class="xref py py-obj docutils literal"><span class="pre">min_install_resolver</span></tt></a>(vdbs,&nbsp;dbs,&nbsp;**kwds[,&nbsp;...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.ebuild.resolver.min_install_resolver" title="pkgcore.ebuild.resolver.min_install_resolver"><tt class="xref py py-obj docutils literal"><span class="pre">min_install_resolver</span></tt></a>(vdbs,&nbsp;dbs[,&nbsp;...])</td>
 <td>Resolver that tries to minimize the number of changes while installing.</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.ebuild.resolver.upgrade_resolver" title="pkgcore.ebuild.resolver.upgrade_resolver"><tt class="xref py py-obj docutils literal"><span class="pre">upgrade_resolver</span></tt></a>(vdbs,&nbsp;dbs,&nbsp;**kwds[,&nbsp;...])</td>
+<tr class="row-even"><td><a class="reference internal" href="#pkgcore.ebuild.resolver.upgrade_resolver" title="pkgcore.ebuild.resolver.upgrade_resolver"><tt class="xref py py-obj docutils literal"><span class="pre">upgrade_resolver</span></tt></a>(vdbs,&nbsp;dbs[,&nbsp;verify_vdb,&nbsp;...])</td>
 <td>generate and configure a resolver for upgrading all processed nodes.</td>
 </tr>
 </tbody>
@@ -79,7 +82,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>vdbs</strong> &#8211; list of <a class="reference internal" href="pkgcore.repository.prototype.html#pkgcore.repository.prototype.tree" title="pkgcore.repository.prototype.tree"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.repository.prototype.tree</span></tt></a> instances
 that represents the livefs</li>
 <li><strong>dbs</strong> &#8211; list of <a class="reference internal" href="pkgcore.repository.prototype.html#pkgcore.repository.prototype.tree" title="pkgcore.repository.prototype.tree"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.repository.prototype.tree</span></tt></a> instances
@@ -93,7 +96,7 @@ You want this option enabled if you&#8217;re dealing in old style virtuals.</li>
 </ul>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pkgcore.resolver.plan.html#pkgcore.resolver.plan.merge_plan" title="pkgcore.resolver.plan.merge_plan"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.resolver.plan.merge_plan</span></tt></a> instance</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pkgcore.resolver.plan.html#pkgcore.resolver.plan.merge_plan" title="pkgcore.resolver.plan.merge_plan"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.resolver.plan.merge_plan</span></tt></a> instance</p>
 </td>
 </tr>
 </tbody>
@@ -111,7 +114,7 @@ solution for, but tries to avoid building anything not needed</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>vdbs</strong> &#8211; list of <a class="reference internal" href="pkgcore.repository.prototype.html#pkgcore.repository.prototype.tree" title="pkgcore.repository.prototype.tree"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.repository.prototype.tree</span></tt></a> instances
 that represents the livefs</li>
 <li><strong>dbs</strong> &#8211; list of <a class="reference internal" href="pkgcore.repository.prototype.html#pkgcore.repository.prototype.tree" title="pkgcore.repository.prototype.tree"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.repository.prototype.tree</span></tt></a> instances
@@ -125,7 +128,7 @@ You want this option enabled if you&#8217;re dealing in old style virtuals.</li>
 </ul>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pkgcore.resolver.plan.html#pkgcore.resolver.plan.merge_plan" title="pkgcore.resolver.plan.merge_plan"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.resolver.plan.merge_plan</span></tt></a> instance</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pkgcore.resolver.plan.html#pkgcore.resolver.plan.merge_plan" title="pkgcore.resolver.plan.merge_plan"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.resolver.plan.merge_plan</span></tt></a> instance</p>
 </td>
 </tr>
 </tbody>
@@ -149,7 +152,7 @@ You want this option enabled if you&#8217;re dealing in old style virtuals.</li>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -178,13 +181,13 @@ You want this option enabled if you&#8217;re dealing in old style virtuals.</li>
         <li class="right" >
           <a href="pkgcore.ebuild.repository.html" title="pkgcore.ebuild.repository"
              >previous</a> |</li>
-        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+        <li><a href="../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Brian Harring, Marien Zwart.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>

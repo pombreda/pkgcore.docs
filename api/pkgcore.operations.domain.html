@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pkgcore.operations.domain &mdash; pkgcore vtrunk documentation</title>
+    <title>pkgcore.operations.domain &mdash; pkgcore trunk documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="top" title="pkgcore trunk documentation" href="../index.html" />
     <link rel="up" title="API Documentation" href="../api.html" />
     <link rel="next" title="pkgcore.operations.format" href="pkgcore.operations.format.html" />
     <link rel="prev" title="pkgcore.operations" href="pkgcore.operations.html" /> 
@@ -43,7 +46,7 @@
         <li class="right" >
           <a href="pkgcore.operations.html" title="pkgcore.operations"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+        <li><a href="../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -57,34 +60,34 @@
 <span id="pkgcore-operations-domain"></span><h1>pkgcore.operations.domain<a class="headerlink" href="#module-pkgcore.operations.domain" title="Permalink to this headline">¶</a></h1>
 <p>repository modifications (installing, removing, replacing)</p>
 <p class="rubric">Classes</p>
-<table border="1" class="docutils">
+<table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><a class="reference internal" href="#pkgcore.operations.domain.base" title="pkgcore.operations.domain.base"><tt class="xref py py-obj docutils literal"><span class="pre">base</span></tt></a>(domain,&nbsp;repo,&nbsp;observer,&nbsp;triggers,&nbsp;offset)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.operations.domain.base" title="pkgcore.operations.domain.base"><tt class="xref py py-obj docutils literal"><span class="pre">base</span></tt></a>(domain,&nbsp;repo,&nbsp;observer,&nbsp;triggers,&nbsp;offset)</td>
 <td></td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.operations.domain.install" title="pkgcore.operations.domain.install"><tt class="xref py py-obj docutils literal"><span class="pre">install</span></tt></a>(domain,&nbsp;repo,&nbsp;pkg,&nbsp;observer,&nbsp;...)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pkgcore.operations.domain.install" title="pkgcore.operations.domain.install"><tt class="xref py py-obj docutils literal"><span class="pre">install</span></tt></a>(domain,&nbsp;repo,&nbsp;pkg,&nbsp;observer,&nbsp;...)</td>
 <td>base interface for installing a pkg into a livefs repo.</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.operations.domain.replace" title="pkgcore.operations.domain.replace"><tt class="xref py py-obj docutils literal"><span class="pre">replace</span></tt></a>(domain,&nbsp;repo,&nbsp;oldpkg,&nbsp;newpkg,&nbsp;...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.operations.domain.replace" title="pkgcore.operations.domain.replace"><tt class="xref py py-obj docutils literal"><span class="pre">replace</span></tt></a>(domain,&nbsp;repo,&nbsp;oldpkg,&nbsp;newpkg,&nbsp;...)</td>
 <td>base interface for replacing a pkg in a livefs repo with another.</td>
 </tr>
-<tr><td><a class="reference internal" href="#pkgcore.operations.domain.uninstall" title="pkgcore.operations.domain.uninstall"><tt class="xref py py-obj docutils literal"><span class="pre">uninstall</span></tt></a>(domain,&nbsp;repo,&nbsp;pkg,&nbsp;observer,&nbsp;...)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pkgcore.operations.domain.uninstall" title="pkgcore.operations.domain.uninstall"><tt class="xref py py-obj docutils literal"><span class="pre">uninstall</span></tt></a>(domain,&nbsp;repo,&nbsp;pkg,&nbsp;observer,&nbsp;...)</td>
 <td>base interface for uninstalling a pkg from a livefs repo.</td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Exceptions</p>
-<table border="1" class="docutils">
+<table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><a class="reference internal" href="#pkgcore.operations.domain.Failure" title="pkgcore.operations.domain.Failure"><tt class="xref py py-obj docutils literal"><span class="pre">Failure</span></tt></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.operations.domain.Failure" title="pkgcore.operations.domain.Failure"><tt class="xref py py-obj docutils literal"><span class="pre">Failure</span></tt></a></td>
 <td></td>
 </tr>
 </tbody>
@@ -146,6 +149,16 @@
 <dd><p>finish the transaction</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.operations.domain.base.stage_depends">
+<tt class="descname">stage_depends</tt><em class="property"> = {}</em><a class="headerlink" href="#pkgcore.operations.domain.base.stage_depends" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.operations.domain.base.stage_hooks">
+<tt class="descname">stage_hooks</tt><em class="property"> = []</em><a class="headerlink" href="#pkgcore.operations.domain.base.stage_hooks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pkgcore.operations.domain.base.start">
 <tt class="descname">start</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/domain.html#base.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.domain.base.start" title="Permalink to this definition">¶</a></dt>
@@ -193,7 +206,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>tempdir</strong> &#8211; tempspace for the merger to use; this space it must
 control alone, no sharing.</li>
 <li><strong>pkg</strong> &#8211; <a class="reference internal" href="pkgcore.package.metadata.html#pkgcore.package.metadata.package" title="pkgcore.package.metadata.package"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.package.metadata.package</span></tt></a> instance to install</li>
@@ -202,7 +215,7 @@ control alone, no sharing.</li>
 </ul>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><tt class="xref py py-obj docutils literal"><span class="pre">MergeEngine</span></tt></p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><tt class="xref py py-obj docutils literal"><span class="pre">MergeEngine</span></tt></p>
 </td>
 </tr>
 </tbody>
@@ -219,6 +232,11 @@ control alone, no sharing.</li>
 <tt class="descname">finish</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/domain.html#install.finish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.domain.install.finish" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.operations.domain.install.format_install_op_name">
+<tt class="descname">format_install_op_name</tt><em class="property"> = '_repo_install_op'</em><a class="headerlink" href="#pkgcore.operations.domain.install.format_install_op_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pkgcore.operations.domain.install.postinst">
 <tt class="descname">postinst</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/domain.html#install.postinst"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.domain.install.postinst" title="Permalink to this definition">¶</a></dt>
@@ -232,6 +250,16 @@ control alone, no sharing.</li>
 <dl class="method">
 <dt id="pkgcore.operations.domain.install.repo_add">
 <tt class="descname">repo_add</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/domain.html#install.repo_add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.domain.install.repo_add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.operations.domain.install.stage_depends">
+<tt class="descname">stage_depends</tt><em class="property"> = {'finalize_repo': 'repo_add', 'finish': 'postinst', 'transfer': 'preinst', 'preinst': 'start', 'create_repo_op': 'transfer', 'repo_add': 'create_repo_op', 'postinst': 'finalize_repo'}</em><a class="headerlink" href="#pkgcore.operations.domain.install.stage_depends" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.operations.domain.install.stage_hooks">
+<tt class="descname">stage_hooks</tt><em class="property"> = ['merge_metadata', 'postinst', 'preinst', 'transfer']</em><a class="headerlink" href="#pkgcore.operations.domain.install.stage_hooks" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -285,7 +313,7 @@ control alone, no sharing.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>tempdir</strong> &#8211; tempspace for the merger to use; this space it must
 control alone, no sharing.</li>
 <li><strong>pkg</strong> &#8211; <a class="reference internal" href="pkgcore.package.metadata.html#pkgcore.package.metadata.package" title="pkgcore.package.metadata.package"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.package.metadata.package</span></tt></a> instance to uninstall,
@@ -295,7 +323,7 @@ must be from a livefs vdb</li>
 </ul>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><tt class="xref py py-obj docutils literal"><span class="pre">MergeEngine</span></tt></p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><tt class="xref py py-obj docutils literal"><span class="pre">MergeEngine</span></tt></p>
 </td>
 </tr>
 </tbody>
@@ -310,6 +338,11 @@ must be from a livefs vdb</li>
 <dl class="method">
 <dt id="pkgcore.operations.domain.uninstall.finish">
 <tt class="descname">finish</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/domain.html#uninstall.finish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.domain.uninstall.finish" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.operations.domain.uninstall.format_uninstall_op_name">
+<tt class="descname">format_uninstall_op_name</tt><em class="property"> = '_repo_uninstall_op'</em><a class="headerlink" href="#pkgcore.operations.domain.uninstall.format_uninstall_op_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -330,6 +363,16 @@ must be from a livefs vdb</li>
 <dl class="method">
 <dt id="pkgcore.operations.domain.uninstall.repo_remove">
 <tt class="descname">repo_remove</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/domain.html#uninstall.repo_remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.domain.uninstall.repo_remove" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.operations.domain.uninstall.stage_depends">
+<tt class="descname">stage_depends</tt><em class="property"> = {'finalize_repo': 'repo_remove', 'finish': 'postrm', 'repo_remove': 'remove', 'create_repo_op': 'start', 'remove': 'prerm', 'postrm': 'finalize_repo', 'prerm': 'create_repo_op'}</em><a class="headerlink" href="#pkgcore.operations.domain.uninstall.stage_depends" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.operations.domain.uninstall.stage_hooks">
+<tt class="descname">stage_hooks</tt><em class="property"> = ['merge_metadata', 'postrm', 'prerm', 'remove']</em><a class="headerlink" href="#pkgcore.operations.domain.uninstall.stage_hooks" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -378,7 +421,7 @@ must be from a livefs vdb</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>tempdir</strong> &#8211; tempspace for the merger to use; this space it must
 control alone, no sharing.</li>
 <li><strong>old</strong> &#8211; <a class="reference internal" href="pkgcore.package.metadata.html#pkgcore.package.metadata.package" title="pkgcore.package.metadata.package"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.package.metadata.package</span></tt></a> instance to replace,
@@ -389,7 +432,7 @@ must be from a livefs vdb</li>
 </ul>
 </td>
 </tr>
-<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><tt class="xref py py-obj docutils literal"><span class="pre">MergeEngine</span></tt></p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><tt class="xref py py-obj docutils literal"><span class="pre">MergeEngine</span></tt></p>
 </td>
 </tr>
 </tbody>
@@ -404,6 +447,21 @@ must be from a livefs vdb</li>
 <dl class="method">
 <dt id="pkgcore.operations.domain.replace.finish">
 <tt class="descname">finish</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/operations/domain.html#replace.finish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.operations.domain.replace.finish" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.operations.domain.replace.format_install_op_name">
+<tt class="descname">format_install_op_name</tt><em class="property"> = '_repo_install_op'</em><a class="headerlink" href="#pkgcore.operations.domain.replace.format_install_op_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.operations.domain.replace.format_replace_op_name">
+<tt class="descname">format_replace_op_name</tt><em class="property"> = '_repo_replace_op'</em><a class="headerlink" href="#pkgcore.operations.domain.replace.format_replace_op_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.operations.domain.replace.format_uninstall_op_name">
+<tt class="descname">format_uninstall_op_name</tt><em class="property"> = '_repo_uninstall_op'</em><a class="headerlink" href="#pkgcore.operations.domain.replace.format_uninstall_op_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -441,6 +499,16 @@ must be from a livefs vdb</li>
 <tt class="descname">repo_remove</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.domain.replace.repo_remove" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.operations.domain.replace.stage_depends">
+<tt class="descname">stage_depends</tt><em class="property"> = {'finish': 'finalize_repo', 'postrm': 'remove', 'repo_add': 'create_repo_op', 'prerm': 'repo_add', 'finalize_repo': 'repo_remove', 'repo_remove': 'postinst', 'create_repo_op': 'transfer', 'remove': 'prerm', 'transfer': 'preinst', 'preinst': 'start', 'postinst': 'postrm'}</em><a class="headerlink" href="#pkgcore.operations.domain.replace.stage_depends" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.operations.domain.replace.stage_hooks">
+<tt class="descname">stage_hooks</tt><em class="property"> = ['merge_metadata', 'unmerge_metadata', 'postrm', 'prerm', 'postinst', 'preinst', 'unmerge_metadata', 'merge_metadata']</em><a class="headerlink" href="#pkgcore.operations.domain.replace.stage_hooks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pkgcore.operations.domain.replace.start">
 <tt class="descname">start</tt><big>(</big><em>*moreargs</em>, <em>**morekwargs</em><big>)</big><a class="headerlink" href="#pkgcore.operations.domain.replace.start" title="Permalink to this definition">¶</a></dt>
@@ -470,7 +538,7 @@ must be from a livefs vdb</li>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -499,13 +567,13 @@ must be from a livefs vdb</li>
         <li class="right" >
           <a href="pkgcore.operations.html" title="pkgcore.operations"
              >previous</a> |</li>
-        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+        <li><a href="../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Brian Harring, Marien Zwart.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>

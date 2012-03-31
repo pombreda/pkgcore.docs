@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pkgcore.ebuild.overlay_repository &mdash; pkgcore vtrunk documentation</title>
+    <title>pkgcore.ebuild.overlay_repository &mdash; pkgcore trunk documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="top" title="pkgcore trunk documentation" href="../index.html" />
     <link rel="up" title="API Documentation" href="../api.html" />
     <link rel="next" title="pkgcore.ebuild.portage_conf" href="pkgcore.ebuild.portage_conf.html" />
     <link rel="prev" title="pkgcore.ebuild.misc" href="pkgcore.ebuild.misc.html" /> 
@@ -43,7 +46,7 @@
         <li class="right" >
           <a href="pkgcore.ebuild.misc.html" title="pkgcore.ebuild.misc"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+        <li><a href="../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -57,13 +60,13 @@
 <span id="pkgcore-ebuild-overlay-repository"></span><h1>pkgcore.ebuild.overlay_repository<a class="headerlink" href="#module-pkgcore.ebuild.overlay_repository" title="Permalink to this headline">¶</a></h1>
 <p>implementation of the standard PORTDIR + PORTDIR_OVERLAY repository stacking</p>
 <p class="rubric">Classes</p>
-<table border="1" class="docutils">
+<table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><a class="reference internal" href="#pkgcore.ebuild.overlay_repository.OverlayRepo" title="pkgcore.ebuild.overlay_repository.OverlayRepo"><tt class="xref py py-obj docutils literal"><span class="pre">OverlayRepo</span></tt></a>(trees,&nbsp;**kwds)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.ebuild.overlay_repository.OverlayRepo" title="pkgcore.ebuild.overlay_repository.OverlayRepo"><tt class="xref py py-obj docutils literal"><span class="pre">OverlayRepo</span></tt></a>(trees,&nbsp;**kwds)</td>
 <td>Collapse multiple trees into one.</td>
 </tr>
 </tbody>
@@ -75,14 +78,34 @@
 <p>Collapse multiple trees into one.</p>
 <p>Eclass dir is shared, the first package leftmost returned.</p>
 <dl class="attribute">
+<dt id="pkgcore.ebuild.overlay_repository.OverlayRepo.configurables">
+<tt class="descname">configurables</tt><em class="property"> = ('domain', 'settings')</em><a class="headerlink" href="#pkgcore.ebuild.overlay_repository.OverlayRepo.configurables" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="pkgcore.ebuild.overlay_repository.OverlayRepo.configure">
 <tt class="descname">configure</tt><a class="headerlink" href="#pkgcore.ebuild.overlay_repository.OverlayRepo.configure" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">_ConfiguredTree</span></tt></p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="pkgcore.ebuild.overlay_repository.OverlayRepo.configured">
+<tt class="descname">configured</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.ebuild.overlay_repository.OverlayRepo.configured" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="pkgcore.ebuild.overlay_repository.OverlayRepo.default_visibility_limiters">
 <tt class="descname">default_visibility_limiters</tt><a class="headerlink" href="#pkgcore.ebuild.overlay_repository.OverlayRepo.default_visibility_limiters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.overlay_repository.OverlayRepo.format_magic">
+<tt class="descname">format_magic</tt><em class="property"> = 'ebuild_src'</em><a class="headerlink" href="#pkgcore.ebuild.overlay_repository.OverlayRepo.format_magic" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.overlay_repository.OverlayRepo.frozen_settable">
+<tt class="descname">frozen_settable</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.ebuild.overlay_repository.OverlayRepo.frozen_settable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -103,7 +126,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>restrict</strong> (<a class="reference internal" href="pkgcore.restrictions.packages.html#pkgcore.restrictions.packages.PackageRestriction" title="pkgcore.restrictions.packages.PackageRestriction"><tt class="xref py py-obj docutils literal"><span class="pre">pkgcore.restrictions.packages.PackageRestriction</span></tt></a>
 instance.) &#8211; restriction to search via</li>
 <li><strong>restrict_solutions</strong> &#8211; cnf collapsed list of the restrict.
@@ -123,6 +146,11 @@ is not necessary.</li>
 </tbody>
 </table>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.overlay_repository.OverlayRepo.livefs">
+<tt class="descname">livefs</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.ebuild.overlay_repository.OverlayRepo.livefs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.ebuild.overlay_repository.OverlayRepo.match">
@@ -154,6 +182,21 @@ is not necessary.</li>
 <dd><p>alias of <a class="reference internal" href="#pkgcore.ebuild.overlay_repository.OverlayRepo.operations" title="pkgcore.ebuild.overlay_repository.OverlayRepo.operations"><tt class="xref py py-class docutils literal"><span class="pre">operations</span></tt></a></p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.ebuild.overlay_repository.OverlayRepo.package_class">
+<tt class="descname">package_class</tt><em class="property"> = None</em><a class="headerlink" href="#pkgcore.ebuild.overlay_repository.OverlayRepo.package_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.overlay_repository.OverlayRepo.pkgcore_config_type">
+<tt class="descname">pkgcore_config_type</tt><em class="property"> = &lt;pkgcore.config.ConfigHint object at 0x3315ec0&gt;</em><a class="headerlink" href="#pkgcore.ebuild.overlay_repository.OverlayRepo.pkgcore_config_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.ebuild.overlay_repository.OverlayRepo.raw_repo">
+<tt class="descname">raw_repo</tt><em class="property"> = None</em><a class="headerlink" href="#pkgcore.ebuild.overlay_repository.OverlayRepo.raw_repo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </div>
@@ -173,7 +216,7 @@ is not necessary.</li>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -202,13 +245,13 @@ is not necessary.</li>
         <li class="right" >
           <a href="pkgcore.ebuild.misc.html" title="pkgcore.ebuild.misc"
              >previous</a> |</li>
-        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+        <li><a href="../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Brian Harring, Marien Zwart.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>

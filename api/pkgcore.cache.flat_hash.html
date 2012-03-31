@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pkgcore.cache.flat_hash &mdash; pkgcore vtrunk documentation</title>
+    <title>pkgcore.cache.flat_hash &mdash; pkgcore trunk documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="top" title="pkgcore trunk documentation" href="../index.html" />
     <link rel="up" title="API Documentation" href="../api.html" />
     <link rel="next" title="pkgcore.cache.fs_template" href="pkgcore.cache.fs_template.html" />
     <link rel="prev" title="pkgcore.cache.errors" href="pkgcore.cache.errors.html" /> 
@@ -43,7 +46,7 @@
         <li class="right" >
           <a href="pkgcore.cache.errors.html" title="pkgcore.cache.errors"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+        <li><a href="../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../api.html" accesskey="U">API Documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -57,13 +60,13 @@
 <span id="pkgcore-cache-flat-hash"></span><h1>pkgcore.cache.flat_hash<a class="headerlink" href="#module-pkgcore.cache.flat_hash" title="Permalink to this headline">¶</a></h1>
 <p>per key file based backend</p>
 <p class="rubric">Classes</p>
-<table border="1" class="docutils">
+<table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr><td><a class="reference internal" href="#pkgcore.cache.flat_hash.database" title="pkgcore.cache.flat_hash.database"><tt class="xref py py-obj docutils literal"><span class="pre">database</span></tt></a>(location,&nbsp;**config[,&nbsp;label])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.cache.flat_hash.database" title="pkgcore.cache.flat_hash.database"><tt class="xref py py-obj docutils literal"><span class="pre">database</span></tt></a>(location[,&nbsp;label])</td>
 <td>stores cache entries in key=value form, stripping newlines</td>
 </tr>
 </tbody>
@@ -73,6 +76,16 @@
 <em class="property">class </em><tt class="descclassname">pkgcore.cache.flat_hash.</tt><tt class="descname">database</tt><big>(</big><em>location</em>, <em>label=None</em>, <em>**config</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache/flat_hash.html#database"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.flat_hash.database" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pkgcore.cache.fs_template.html#pkgcore.cache.fs_template.FsBased" title="pkgcore.cache.fs_template.FsBased"><tt class="xref py py-class docutils literal"><span class="pre">pkgcore.cache.fs_template.FsBased</span></tt></a></p>
 <p>stores cache entries in key=value form, stripping newlines</p>
+<dl class="attribute">
+<dt id="pkgcore.cache.flat_hash.database.autocommits">
+<tt class="descname">autocommits</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.flat_hash.database.autocommits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.flat_hash.database.cleanse_keys">
+<tt class="descname">cleanse_keys</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.cache.flat_hash.database.cleanse_keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pkgcore.cache.flat_hash.database.clear">
 <tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.cache.flat_hash.database.clear" title="Permalink to this definition">¶</a></dt>
@@ -83,11 +96,26 @@
 <tt class="descname">commit</tt><big>(</big><em>force=False</em><big>)</big><a class="headerlink" href="#pkgcore.cache.flat_hash.database.commit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.cache.flat_hash.database.complete_eclass_entries">
+<tt class="descname">complete_eclass_entries</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.flat_hash.database.complete_eclass_entries" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="staticmethod">
 <dt id="pkgcore.cache.flat_hash.database.deconstruct_eclasses">
 <em class="property">static </em><tt class="descname">deconstruct_eclasses</tt><big>(</big><em>eclass_dict</em><big>)</big><a class="headerlink" href="#pkgcore.cache.flat_hash.database.deconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
 <dd><p>takes a dict, returns a string representing said dict</p>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.flat_hash.database.default_keys">
+<tt class="descname">default_keys</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES', '_mtime_', '_eclasses_')</em><a class="headerlink" href="#pkgcore.cache.flat_hash.database.default_keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.flat_hash.database.default_sync_rate">
+<tt class="descname">default_sync_rate</tt><em class="property"> = 1</em><a class="headerlink" href="#pkgcore.cache.flat_hash.database.default_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.flat_hash.database.frozen">
@@ -121,15 +149,35 @@
 <tt class="descname">keys</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.cache.flat_hash.database.keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pkgcore.cache.flat_hash.database.mtime_in_entry">
+<tt class="descname">mtime_in_entry</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.flat_hash.database.mtime_in_entry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.flat_hash.database.pkgcore_config_type">
+<tt class="descname">pkgcore_config_type</tt><em class="property"> = &lt;pkgcore.config.ConfigHint object at 0x30f7d70&gt;</em><a class="headerlink" href="#pkgcore.cache.flat_hash.database.pkgcore_config_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="staticmethod">
 <dt id="pkgcore.cache.flat_hash.database.reconstruct_eclasses">
 <em class="property">static </em><tt class="descname">reconstruct_eclasses</tt><big>(</big><em>cpv</em>, <em>eclass_string</em><big>)</big><a class="headerlink" href="#pkgcore.cache.flat_hash.database.reconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn a string from <tt class="xref py py-obj docutils literal"><span class="pre">serialize_eclasses</span></tt> into a dict.</p>
+<dd><p>Turn a string from <a class="reference internal" href="#pkgcore.cache.flat_hash.database.serialize_eclasses" title="pkgcore.cache.flat_hash.database.serialize_eclasses"><tt class="xref py py-obj docutils literal"><span class="pre">serialize_eclasses</span></tt></a> into a dict.</p>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.flat_hash.database.serialize_eclasses">
+<tt class="descname">serialize_eclasses</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.flat_hash.database.serialize_eclasses" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.cache.flat_hash.database.set_sync_rate">
 <tt class="descname">set_sync_rate</tt><big>(</big><em>rate=0</em><big>)</big><a class="headerlink" href="#pkgcore.cache.flat_hash.database.set_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.flat_hash.database.y">
+<tt class="descname">y</tt><em class="property"> = '        '</em><a class="headerlink" href="#pkgcore.cache.flat_hash.database.y" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -151,7 +199,7 @@
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -180,13 +228,13 @@
         <li class="right" >
           <a href="pkgcore.cache.errors.html" title="pkgcore.cache.errors"
              >previous</a> |</li>
-        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+        <li><a href="../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../api.html" >API Documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Brian Harring, Marien Zwart.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>
