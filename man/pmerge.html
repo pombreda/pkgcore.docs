@@ -1,0 +1,295 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pmerge &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="../index.html" />
+    <link rel="up" title="Man Pages" href="../man.html" />
+    <link rel="next" title="pplugincache" href="pplugincache.html" />
+    <link rel="prev" title="pmaint digest" href="pmaint-subcommands/digest.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pplugincache.html" title="pplugincache"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pmaint-subcommands/digest.html" title="pmaint digest"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../man.html" accesskey="U">Man Pages</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pmerge">
+<span id="pmerge-manpage"></span><h1>pmerge<a class="headerlink" href="#pmerge" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="synopsis">
+<h2>synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<p>pmerge [-h] [&#8211;version] [&#8211;debug] [&#8211;color BOOLEAN] [&#8211;add-config SECTION KEY VALUE] [&#8211;new-config SECTION KEY VALUE] [&#8211;empty-config] [&#8211;domain DOMAIN] [&#8211;newuse] [&#8211;set SET] [&#8211;unmerge] [&#8211;clean] [&#8211;pretend] [&#8211;ignore-failures] [&#8211;ask] [&#8211;force] [&#8211;fetchonly] [&#8211;oneshot] [&#8211;upgrade] [&#8211;deep] [&#8211;preload-vdb-state] [&#8211;ignore-cycles] [-B] [&#8211;nodeps] [&#8211;noreplace] [&#8211;usepkg] [&#8211;usepkgonly] [&#8211;source-only] [&#8211;empty] [&#8211;verbose] [&#8211;formatter FORMATTER] [targets [targets ...]]</p>
+</div>
+<div class="section" id="description">
+<h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>pkgcore package merging and unmerging interface</p>
+</div>
+<div class="section" id="optional-arguments">
+<h2>optional arguments<a class="headerlink" href="#optional-arguments" title="Permalink to this headline">¶</a></h2>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">-h</span>, <span class="option">--help</span></kbd></td>
+<td>show this help message and exit</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--version</span></kbd></td>
+<td>show program&#8217;s version number and exit</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--debug</span></kbd></td>
+<td>Enable debugging checks</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--color <var>BOOLEAN</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Enable or disable color support.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--add-config <var>&lt;SECTION KEY VALUE&gt;</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>modify an existing configuration section.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--new-config <var>&lt;SECTION KEY VALUE&gt;</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>add a new configuration section.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--empty-config</span>, <span class="option">--config-empty</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Do not load user/system configuration.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--domain <var>DOMAIN</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>domain to use for this operation</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="package-querying-options">
+<h2>Package querying options<a class="headerlink" href="#package-querying-options" title="Permalink to this headline">¶</a></h2>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">targets:</th><td class="field-body">extended atom matching of packages</td>
+</tr>
+</tbody>
+</table>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">--newuse</span>, <span class="option">-N</span></kbd></td>
+<td>check for changed useflags in installed packages (implies -1)</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--set <var>SET</var></span>, <span class="option">-s <var>SET</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>specify a pkgset to use</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="available-operations">
+<h2>Available operations<a class="headerlink" href="#available-operations" title="Permalink to this headline">¶</a></h2>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">--unmerge</span>, <span class="option">-C</span></kbd></td>
+<td>unmerge a package</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--clean</span></kbd></td>
+<td>remove installed packages that are not referenced by any target packages/sets; defaults to -s world -s system if no targets are specified.  Use with <em>caution</em>, this option used incorrectly can render your system unusable.  Implies &#8211;deep</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--pretend</span>, <span class="option">-p</span></kbd></td>
+<td>do the resolution, but don&#8217;t merge/fetch anything</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--ignore-failures</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>ignore resolution failures</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--ask</span>, <span class="option">-a</span></kbd></td>
+<td>do the resolution, but ask to merge/fetch anything</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--force</span></kbd></td>
+<td>force merging to a repo, regardless of if it&#8217;s frozen</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--fetchonly</span>, <span class="option">-f</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>do only the fetch steps of the resolved plan</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--oneshot</span>, <span class="option">-o</span>, <span class="option">-1</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>do not record changes in the world file; if a set is involved, defaults to forcing oneshot</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="resolver-options">
+<h2>Resolver options<a class="headerlink" href="#resolver-options" title="Permalink to this headline">¶</a></h2>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">--upgrade</span>, <span class="option">-u</span></kbd></td>
+<td>try to upgrade already installed packages/dependencies</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--deep</span>, <span class="option">-D</span></kbd></td>
+<td>force the resolver to verify already installed dependencies</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--preload-vdb-state</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>enable preloading of the installed packages databaseThis causes the resolver to work with a complete graph, thus disallowing actions that conflict with installed packages.  If disabled, it&#8217;s possible for the requested action to conflict with already installed dependencies that aren&#8217;t involved in the graph of the requested operation</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--ignore-cycles</span>, <span class="option">-i</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>ignore cycles if they&#8217;re found to be unbreakable;a depends on b, and b depends on a, with neither built is an example</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-B</span>, <span class="option">--with-built-depends</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>whether or not to process build depends for pkgs that are already built; defaults to ignoring them</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--nodeps</span></kbd></td>
+<td>disable dependency resolution</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--noreplace</span></kbd></td>
+<td>don&#8217;t reinstall target atoms if they&#8217;re already installed</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--usepkg</span>, <span class="option">-k</span></kbd></td>
+<td>prefer to use binpkgs</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--usepkgonly</span>, <span class="option">-K</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>use only built packages</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--source-only</span></kbd></td>
+<td>use source packages only; no pre-built packages used</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--empty</span>, <span class="option">-e</span></kbd></td>
+<td>force rebuilding of all involved packages, using installed packages only to satisfy building the replacements</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="output-related-options">
+<h2>Output related options<a class="headerlink" href="#output-related-options" title="Permalink to this headline">¶</a></h2>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">--verbose</span>, <span class="option">-v</span></kbd></td>
+<td>be verbose in output</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--formatter <var>FORMATTER</var></span>, <span class="option">-F <var>FORMATTER</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>which formatter to output &#8211;pretend or &#8211;ask output through.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pmerge</a><ul>
+<li><a class="reference internal" href="#synopsis">synopsis</a></li>
+<li><a class="reference internal" href="#description">DESCRIPTION</a></li>
+<li><a class="reference internal" href="#optional-arguments">optional arguments</a></li>
+<li><a class="reference internal" href="#package-querying-options">Package querying options</a></li>
+<li><a class="reference internal" href="#available-operations">Available operations</a></li>
+<li><a class="reference internal" href="#resolver-options">Resolver options</a></li>
+<li><a class="reference internal" href="#output-related-options">Output related options</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pmaint-subcommands/digest.html"
+                        title="previous chapter">pmaint digest</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pplugincache.html"
+                        title="next chapter">pplugincache</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pplugincache.html" title="pplugincache"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pmaint-subcommands/digest.html" title="pmaint digest"
+             >previous</a> |</li>
+        <li><a href="../index.html">pkgcore vtrunk documentation</a> &raquo;</li>
+          <li><a href="../man.html" >Man Pages</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

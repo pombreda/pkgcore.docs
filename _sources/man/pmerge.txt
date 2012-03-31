@@ -1,0 +1,67 @@
+.. _`pmerge manpage`:
+
+======
+pmerge
+======
+
+synopsis
+========
+
+pmerge [-h] [--version] [--debug] [--color BOOLEAN] [--add-config SECTION KEY VALUE] [--new-config SECTION KEY VALUE] [--empty-config] [--domain DOMAIN] [--newuse] [--set SET] [--unmerge] [--clean] [--pretend] [--ignore-failures] [--ask] [--force] [--fetchonly] [--oneshot] [--upgrade] [--deep] [--preload-vdb-state] [--ignore-cycles] [-B] [--nodeps] [--noreplace] [--usepkg] [--usepkgonly] [--source-only] [--empty] [--verbose] [--formatter FORMATTER] [targets [targets ...]]
+
+DESCRIPTION
+===========
+
+pkgcore package merging and unmerging interface
+
+optional arguments
+==================
+
+-h, --help                        show this help message and exit
+--version                         show program's version number and exit
+--debug                           Enable debugging checks
+--color BOOLEAN                   Enable or disable color support.
+--add-config <SECTION KEY VALUE>  modify an existing configuration section.
+--new-config <SECTION KEY VALUE>  add a new configuration section.
+--empty-config, --config-empty    Do not load user/system configuration.
+--domain DOMAIN                   domain to use for this operation
+
+Package querying options
+========================
+
+:targets:          extended atom matching of packages
+--newuse, -N       check for changed useflags in installed packages (implies -1)
+--set SET, -s SET  specify a pkgset to use
+
+Available operations
+====================
+
+--unmerge, -C      unmerge a package
+--clean            remove installed packages that are not referenced by any target packages/sets; defaults to -s world -s system if no targets are specified.  Use with *caution*, this option used incorrectly can render your system unusable.  Implies --deep
+--pretend, -p      do the resolution, but don't merge/fetch anything
+--ignore-failures  ignore resolution failures
+--ask, -a          do the resolution, but ask to merge/fetch anything
+--force            force merging to a repo, regardless of if it's frozen
+--fetchonly, -f    do only the fetch steps of the resolved plan
+--oneshot, -o, -1  do not record changes in the world file; if a set is involved, defaults to forcing oneshot
+
+Resolver options
+================
+
+--upgrade, -u             try to upgrade already installed packages/dependencies
+--deep, -D                force the resolver to verify already installed dependencies
+--preload-vdb-state       enable preloading of the installed packages databaseThis causes the resolver to work with a complete graph, thus disallowing actions that conflict with installed packages.  If disabled, it's possible for the requested action to conflict with already installed dependencies that aren't involved in the graph of the requested operation
+--ignore-cycles, -i       ignore cycles if they're found to be unbreakable;a depends on b, and b depends on a, with neither built is an example
+-B, --with-built-depends  whether or not to process build depends for pkgs that are already built; defaults to ignoring them
+--nodeps                  disable dependency resolution
+--noreplace               don't reinstall target atoms if they're already installed
+--usepkg, -k              prefer to use binpkgs
+--usepkgonly, -K          use only built packages
+--source-only             use source packages only; no pre-built packages used
+--empty, -e               force rebuilding of all involved packages, using installed packages only to satisfy building the replacements
+
+Output related options
+======================
+
+--verbose, -v                        be verbose in output
+--formatter FORMATTER, -F FORMATTER  which formatter to output --pretend or --ask output through.

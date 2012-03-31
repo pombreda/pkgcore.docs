@@ -51,13 +51,13 @@
 <span class="c"># License: BSD/GPL2</span>
 
 <span class="c"># more should be doc&#39;d...</span>
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;OptionParser&quot;</span><span class="p">,</span> <span class="s">&quot;AmbiguousQuery&quot;</span><span class="p">,</span> <span class="s">&quot;NoMatches&quot;</span><span class="p">)</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;argparser&quot;</span><span class="p">,</span> <span class="s">&quot;AmbiguousQuery&quot;</span><span class="p">,</span> <span class="s">&quot;NoMatches&quot;</span><span class="p">)</span>
 
 <span class="sd">&quot;&quot;&quot;Mess with the resolver and vdb.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
 
-<span class="kn">from</span> <span class="nn">pkgcore.util</span> <span class="kn">import</span> <span class="n">commandline</span><span class="p">,</span> <span class="n">parserestrict</span><span class="p">,</span> <span class="n">repo_utils</span>
+<span class="kn">from</span> <span class="nn">pkgcore.util</span> <span class="kn">import</span> <span class="n">commandline</span><span class="p">,</span> <span class="n">parserestrict</span><span class="p">,</span> <span class="n">repo_utils</span><span class="p">,</span> <span class="n">argparse</span>
 <span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">resolver</span>
 <span class="kn">from</span> <span class="nn">pkgcore.operations</span> <span class="kn">import</span> <span class="n">observer</span><span class="p">,</span> <span class="n">format</span>
 <span class="kn">from</span> <span class="nn">pkgcore.ebuild.atom</span> <span class="kn">import</span> <span class="n">atom</span>
@@ -69,136 +69,106 @@
 <span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="nb">any</span><span class="p">,</span> <span class="n">IGNORED_EXCEPTIONS</span>
 <span class="kn">from</span> <span class="nn">pkgcore.resolver.util</span> <span class="kn">import</span> <span class="n">reduce_to_failures</span>
 
-<div class="viewcode-block" id="OptionParser"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pmerge.html#pkgcore.scripts.pmerge.OptionParser">[docs]</a><span class="k">class</span> <span class="nc">OptionParser</span><span class="p">(</span><span class="n">commandline</span><span class="o">.</span><span class="n">OptionParser</span><span class="p">):</span>
-
-    <span class="n">enable_domain_options</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="n">description</span> <span class="o">=</span> <span class="n">__doc__</span>
-
-    <span class="k">def</span> <span class="nf">_register_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--deep&#39;</span><span class="p">,</span> <span class="s">&#39;-D&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;force the resolver to verify already installed dependencies&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--unmerge&#39;</span><span class="p">,</span> <span class="s">&#39;-C&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;unmerge a package&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--clean&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;remove installed packages that are not referenced by any &#39;</span>
-            <span class="s">&#39;target packages/sets; defaults to -s world -s system if no targets&#39;</span>
-            <span class="s">&#39; are specified.  Use with *caution*, this option used incorrectly &#39;</span>
-            <span class="s">&#39;can render your system unusable.  Implies --deep&#39;</span><span class="p">),</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--upgrade&#39;</span><span class="p">,</span> <span class="s">&#39;-u&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;try to upgrade already installed packages/dependencies&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--set&#39;</span><span class="p">,</span> <span class="s">&#39;-s&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;append&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;specify a pkgset to use&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--ignore-failures&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;ignore resolution failures&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--preload-vdb-state&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span>\
-<span class="sd">&quot;&quot;&quot;enable preloading of the installed packages database</span>
-<span class="sd">This causes the resolver to work with a complete graph, thus disallowing</span>
-<span class="sd">actions that conflict with installed packages.  If disabled, it&#39;s possible</span>
-<span class="sd">for the requested action to conflict with already installed dependencies</span>
-<span class="sd">that aren&#39;t involved in the graph of the requested operation&quot;&quot;&quot;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--pretend&#39;</span><span class="p">,</span> <span class="s">&#39;-p&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;do the resolution, but don&#39;t merge/fetch anything&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--verbose&#39;</span><span class="p">,</span> <span class="s">&#39;-v&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;be verbose in output&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--ask&#39;</span><span class="p">,</span> <span class="s">&#39;-a&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;do the resolution, but ask to merge/fetch anything&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--fetchonly&#39;</span><span class="p">,</span> <span class="s">&#39;-f&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;do only the fetch steps of the resolved plan&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--newuse&#39;</span><span class="p">,</span> <span class="s">&#39;-N&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;check for changed useflags in installed packages &quot;</span>
-                <span class="s">&quot;(implies -1)&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--ignore-cycles&#39;</span><span class="p">,</span> <span class="s">&#39;-i&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span>\
-<span class="sd">&quot;&quot;&quot;ignore cycles if they&#39;re found to be unbreakable;</span>
-<span class="sd">a depends on b, and b depends on a, with neither built is an example&quot;&quot;&quot;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;-B&#39;</span><span class="p">,</span> <span class="s">&#39;--with-built-depends&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;whether or not to process build depends for pkgs that &quot;</span>
-            <span class="s">&quot;are already built; defaults to ignoring them&quot;</span><span class="p">),</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--nodeps&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;disable dependency resolution&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--noreplace&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_false&#39;</span><span class="p">,</span>
-            <span class="n">dest</span><span class="o">=</span><span class="s">&#39;replace&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;don&#39;t reinstall target atoms if they&#39;re already installed&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--usepkg&#39;</span><span class="p">,</span> <span class="s">&#39;-k&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;prefer to use binpkgs&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--usepkgonly&#39;</span><span class="p">,</span> <span class="s">&#39;-K&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;use only built packages&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--source-only&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;use source packages only; no pre-built packages used&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--empty&#39;</span><span class="p">,</span> <span class="s">&#39;-e&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;force rebuilding of all involved packages, using installed &quot;</span>
-                <span class="s">&quot;packages only to satisfy building the replacements&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--force&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-                        <span class="n">dest</span><span class="o">=</span><span class="s">&#39;force&#39;</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;force merging to a repo, regardless of if it&#39;s frozen&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&#39;--oneshot&#39;</span><span class="p">,</span> <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;-1&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-            <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&quot;do not record changes in the world file; if a set is &quot;</span>
-                <span class="s">&quot;involved, defaults to forcing oneshot&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
-            <span class="s">&#39;--formatter&#39;</span><span class="p">,</span> <span class="s">&#39;-F&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;callback&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;string&#39;</span><span class="p">,</span>
-            <span class="n">callback</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">config_callback</span><span class="p">,</span>
-            <span class="n">callback_args</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;pmerge_formatter&#39;</span><span class="p">,),</span>
-            <span class="n">help</span><span class="o">=</span><span class="s">&#39;which formatter to output --pretend or --ask output through.&#39;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_check_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">args</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;@&#39;</span><span class="p">]</span>
-        <span class="n">set_targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">args</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;@&#39;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="ow">not</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">set_targets</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;empty set name specified via @&quot;</span><span class="p">)</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">set</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">set_targets</span><span class="p">)</span>
+<span class="n">argparser</span> <span class="o">=</span> <span class="n">commandline</span><span class="o">.</span><span class="n">mk_argparser</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&quot;pkgcore package merging and unmerging interface&quot;</span><span class="p">)</span>
 
 
-        <span class="c"># TODO this is rather boilerplate-ish, the commandline module</span>
-        <span class="c"># should somehow do this for us.</span>
-        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">formatter</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">options</span><span class="o">.</span><span class="n">formatter</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_default</span><span class="p">(</span><span class="s">&#39;pmerge_formatter&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">formatter</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="s">&#39;No default formatter found, fix your configuration &#39;</span>
-                    <span class="s">&#39;or pass --formatter (Valid formatters: </span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                        <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">pmerge_formatter</span><span class="p">),))</span>
+<span class="k">class</span> <span class="nc">StoreTarget</span><span class="p">(</span><span class="n">argparse</span><span class="o">.</span><span class="n">_AppendAction</span><span class="p">):</span>
 
-        <span class="c"># this may seem odd, but via touching this attribute we ensure that</span>
-        <span class="c"># there is a valid domain- specifically it&#39;ll throw a config exception</span>
-        <span class="c"># if that&#39;s not the case.</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">domain</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">option_string</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">values</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;@&#39;</span><span class="p">):</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">_parse_known_args</span><span class="p">([</span><span class="s">&#39;--set&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:]],</span> <span class="n">namespace</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ret</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;failed parsing </span><span class="si">%r</span><span class="s">, </span><span class="si">%r</span><span class="s">, got back </span><span class="si">%r</span><span class="s">&quot;</span>
+                        <span class="o">%</span> <span class="p">(</span><span class="n">option_string</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">ret</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">argparse</span><span class="o">.</span><span class="n">_AppendAction</span><span class="o">.</span><span class="n">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span>
+                    <span class="n">parserestrict</span><span class="o">.</span><span class="n">parse_match</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">option_string</span><span class="o">=</span><span class="n">option_string</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">unmerge</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">set</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Using sets with -C probably isn&#39;t wise, aborting&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">upgrade</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Cannot upgrade and unmerge simultaneously&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;You must provide at least one atom&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">clean</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Cannot use -C with --clean&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">clean</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">set</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;--clean currently has set/targets disabled; in &quot;</span>
-                    <span class="s">&quot;other words, accepts no args&quot;</span><span class="p">)</span>
-            <span class="n">options</span><span class="o">.</span><span class="n">set</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;world&#39;</span><span class="p">,</span> <span class="s">&#39;system&#39;</span><span class="p">]</span>
-            <span class="n">options</span><span class="o">.</span><span class="n">deep</span> <span class="o">=</span> <span class="bp">True</span>
-            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">usepkgonly</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">usepkg</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">source_only</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="s">&#39;--clean cannot be used with any of the following options: &#39;</span>
-                        <span class="s">&#39;--usepkg --usepkgonly --source-only&#39;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">usepkgonly</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">usepkg</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;--usepkg is redundant when --usepkgonly is used&#39;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">usepkgonly</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">usepkg</span><span class="p">)</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">source_only</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;--source-only cannot be used with --usepkg nor --usepkgonly&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">set</span><span class="p">:</span>
-            <span class="n">options</span><span class="o">.</span><span class="n">replace</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">targets</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">set</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">newuse</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Need at least one atom/set&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">newuse</span><span class="p">:</span>
-            <span class="n">options</span><span class="o">.</span><span class="n">oneshot</span> <span class="o">=</span> <span class="bp">True</span>
-        <span class="k">return</span> <span class="n">options</span><span class="p">,</span> <span class="p">()</span>
-</div>
+<span class="n">query_options</span> <span class="o">=</span> <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s">&quot;Package querying options&quot;</span><span class="p">)</span>
+
+<span class="n">query_options</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s">&#39;*&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;targets&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">StoreTarget</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;extended atom matching of packages&quot;</span><span class="p">)</span>
+<span class="n">query_options</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--newuse&#39;</span><span class="p">,</span> <span class="s">&#39;-N&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;check for changed useflags in installed packages &quot;</span>
+         <span class="s">&quot;(implies -1)&quot;</span><span class="p">)</span>
+<span class="n">query_options</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--set&#39;</span><span class="p">,</span> <span class="s">&#39;-s&#39;</span><span class="p">,</span> <span class="n">store_name</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">StoreConfigObject</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span>
+    <span class="n">config_type</span><span class="o">=</span><span class="s">&#39;pkgset&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;specify a pkgset to use&#39;</span><span class="p">)</span>
+
+
+<span class="n">merge_mode</span> <span class="o">=</span> <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s">&#39;Available operations&#39;</span><span class="p">)</span>
+<span class="n">merge_mode</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--unmerge&#39;</span><span class="p">,</span> <span class="s">&#39;-C&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;unmerge a package&#39;</span><span class="p">)</span>
+<span class="n">merge_mode</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--clean&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;remove installed packages that are not referenced by any &#39;</span>
+         <span class="s">&#39;target packages/sets; defaults to -s world -s system if no targets&#39;</span>
+         <span class="s">&#39; are specified.  Use with *caution*, this option used incorrectly &#39;</span>
+         <span class="s">&#39;can render your system unusable.  Implies --deep&#39;</span><span class="p">),</span>
+<span class="n">merge_mode</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--pretend&#39;</span><span class="p">,</span> <span class="s">&#39;-p&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;do the resolution, but don&#39;t merge/fetch anything&quot;</span><span class="p">)</span>
+<span class="n">merge_mode</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--ignore-failures&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;ignore resolution failures&#39;</span><span class="p">)</span>
+<span class="n">merge_mode</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--ask&#39;</span><span class="p">,</span> <span class="s">&#39;-a&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;do the resolution, but ask to merge/fetch anything&quot;</span><span class="p">)</span>
+<span class="n">merge_mode</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--force&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">dest</span><span class="o">=</span><span class="s">&#39;force&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;force merging to a repo, regardless of if it&#39;s frozen&quot;</span><span class="p">)</span>
+<span class="n">merge_mode</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--fetchonly&#39;</span><span class="p">,</span> <span class="s">&#39;-f&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;do only the fetch steps of the resolved plan&quot;</span><span class="p">)</span>
+<span class="n">merge_mode</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--oneshot&#39;</span><span class="p">,</span> <span class="s">&#39;-o&#39;</span><span class="p">,</span> <span class="s">&#39;-1&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;do not record changes in the world file; if a set is &quot;</span>
+         <span class="s">&quot;involved, defaults to forcing oneshot&quot;</span><span class="p">)</span>
+
+<span class="n">resolution_options</span> <span class="o">=</span> <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s">&quot;Resolver options&quot;</span><span class="p">)</span>
+
+<span class="n">resolution_options</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--upgrade&#39;</span><span class="p">,</span> <span class="s">&#39;-u&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;try to upgrade already installed packages/dependencies&#39;</span><span class="p">)</span>
+<span class="n">resolution_options</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--deep&#39;</span><span class="p">,</span> <span class="s">&#39;-D&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;force the resolver to verify already installed dependencies&#39;</span><span class="p">)</span>
+<span class="n">resolution_options</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--preload-vdb-state&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="p">(</span><span class="s">&quot;enable preloading of the installed packages database&quot;</span>
+          <span class="s">&quot;This causes the resolver to work with a complete graph, thus &quot;</span>
+          <span class="s">&quot;disallowing actions that conflict with installed packages.  If &quot;</span>
+          <span class="s">&quot;disabled, it&#39;s possible for the requested action to conflict with &quot;</span>
+          <span class="s">&quot;already installed dependencies that aren&#39;t involved in the graph of &quot;</span>
+          <span class="s">&quot;the requested operation&quot;</span><span class="p">))</span>
+<span class="n">resolution_options</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--ignore-cycles&#39;</span><span class="p">,</span> <span class="s">&#39;-i&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="p">(</span><span class="s">&quot;ignore cycles if they&#39;re found to be unbreakable;&quot;</span>
+           <span class="s">&quot;a depends on b, and b depends on a, with neither built is an &quot;</span>
+           <span class="s">&quot;example&quot;</span><span class="p">))</span>
+<span class="n">resolution_options</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-B&#39;</span><span class="p">,</span> <span class="s">&#39;--with-built-depends&#39;</span><span class="p">,</span>
+    <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;whether or not to process build depends for pkgs that &quot;</span>
+         <span class="s">&quot;are already built; defaults to ignoring them&quot;</span><span class="p">),</span>
+<span class="n">resolution_options</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--nodeps&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;disable dependency resolution&#39;</span><span class="p">)</span>
+<span class="n">resolution_options</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--noreplace&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_false&#39;</span><span class="p">,</span>
+    <span class="n">dest</span><span class="o">=</span><span class="s">&#39;replace&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;don&#39;t reinstall target atoms if they&#39;re already installed&quot;</span><span class="p">)</span>
+<span class="n">resolution_options</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--usepkg&#39;</span><span class="p">,</span> <span class="s">&#39;-k&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;prefer to use binpkgs&quot;</span><span class="p">)</span>
+<span class="n">resolution_options</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--usepkgonly&#39;</span><span class="p">,</span> <span class="s">&#39;-K&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;use only built packages&quot;</span><span class="p">)</span>
+<span class="n">resolution_options</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--source-only&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;use source packages only; no pre-built packages used&quot;</span><span class="p">)</span>
+<span class="n">resolution_options</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--empty&#39;</span><span class="p">,</span> <span class="s">&#39;-e&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;force rebuilding of all involved packages, using installed &quot;</span>
+         <span class="s">&quot;packages only to satisfy building the replacements&quot;</span><span class="p">)</span>
+
+<span class="n">output_options</span> <span class="o">=</span> <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s">&quot;Output related options&quot;</span><span class="p">)</span>
+<span class="n">output_options</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--verbose&#39;</span><span class="p">,</span> <span class="s">&#39;-v&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;be verbose in output&quot;</span><span class="p">)</span>
+<span class="n">output_options</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--formatter&#39;</span><span class="p">,</span> <span class="s">&#39;-F&#39;</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
+    <span class="n">action</span><span class="o">=</span><span class="n">commandline</span><span class="o">.</span><span class="n">StoreConfigObject</span><span class="p">,</span> <span class="n">get_default</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">config_type</span><span class="o">=</span><span class="s">&#39;pmerge_formatter&#39;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&#39;which formatter to output --pretend or --ask output through.&#39;</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="AmbiguousQuery"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pmerge.html#pkgcore.scripts.pmerge.AmbiguousQuery">[docs]</a><span class="k">class</span> <span class="nc">AmbiguousQuery</span><span class="p">(</span><span class="n">parserestrict</span><span class="o">.</span><span class="n">ParseError</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
         <span class="n">parserestrict</span><span class="o">.</span><span class="n">ParseError</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
@@ -209,41 +179,16 @@
 <div class="viewcode-block" id="NoMatches"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pmerge.html#pkgcore.scripts.pmerge.NoMatches">[docs]</a><span class="k">class</span> <span class="nc">NoMatches</span><span class="p">(</span><span class="n">parserestrict</span><span class="o">.</span><span class="n">ParseError</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
         <span class="n">parserestrict</span><span class="o">.</span><span class="n">ParseError</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">: no matches&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">token</span><span class="p">,))</span>
+
 </div>
-<span class="k">def</span> <span class="nf">parse_atom</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">return_none</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Use :obj:`parserestrict.parse_match` to produce a single atom.</span>
-
-<span class="sd">    This matches the restriction against the repo, raises</span>
-<span class="sd">    AmbiguousQuery if they belong to multiple cat/pkgs, returns an</span>
-<span class="sd">    atom otherwise.</span>
-
-<span class="sd">    :param token: string to convert.</span>
-<span class="sd">    :param repo: :obj:`pkgcore.repository.prototype.tree` instance to search in.</span>
-<span class="sd">    :param return_none: indicates if no matches raises or returns C{None}</span>
-
-<span class="sd">    :return: an atom or C{None}.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># XXX this should be in parserestrict in some form, perhaps.</span>
-    <span class="n">restriction</span> <span class="o">=</span> <span class="n">parserestrict</span><span class="o">.</span><span class="n">parse_match</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">token</span><span class="p">))</span>
-    <span class="n">key_matches</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">key</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">repo</span><span class="o">.</span><span class="n">itermatch</span><span class="p">(</span><span class="n">restriction</span><span class="p">))</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">key_matches</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">NoMatches</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">key_matches</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">AmbiguousQuery</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">key_matches</span><span class="p">))</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">restriction</span><span class="p">,</span> <span class="n">atom</span><span class="p">):</span>
-        <span class="c"># atom is guranteed to be fine, since it&#39;s cat/pkg</span>
-        <span class="k">return</span> <span class="n">restriction</span>
-    <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">KeyedAndRestriction</span><span class="p">(</span><span class="n">restriction</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key_matches</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
-
-
 <span class="k">class</span> <span class="nc">Failure</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Raised internally to indicate an &quot;expected&quot; failure condition.&quot;&quot;&quot;</span>
 
 
-<span class="k">def</span> <span class="nf">unmerge</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">vdb</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">formatter</span><span class="p">,</span> <span class="n">world_set</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">unmerge</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">vdb</span><span class="p">,</span> <span class="n">restrictions</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">formatter</span><span class="p">,</span> <span class="n">world_set</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Unmerge tokens. hackish, should be rolled back into the resolver&quot;&quot;&quot;</span>
     <span class="n">all_matches</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">restriction</span> <span class="ow">in</span> <span class="n">restrictions</span><span class="p">:</span>
         <span class="c"># Catch restrictions matching across more than one category.</span>
         <span class="c"># Multiple matches in the same category are acceptable.</span>
 
@@ -252,15 +197,14 @@
         <span class="c"># realising there are sporks in more than one category), but</span>
         <span class="c"># matching more than one cat/pkg is impossible without</span>
         <span class="c"># explicit wildcards.</span>
-        <span class="n">restriction</span> <span class="o">=</span> <span class="n">parserestrict</span><span class="o">.</span><span class="n">parse_match</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
         <span class="n">matches</span> <span class="o">=</span> <span class="n">vdb</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">restriction</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">matches</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">Failure</span><span class="p">(</span><span class="s">&#39;Nothing matches </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">token</span><span class="p">,))</span>
+            <span class="k">raise</span> <span class="n">Failure</span><span class="p">(</span><span class="s">&#39;Nothing matches </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">restriction</span><span class="p">,))</span>
         <span class="n">categories</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">category</span> <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">categories</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">parserestrict</span><span class="o">.</span><span class="n">ParseError</span><span class="p">(</span>
                 <span class="s">&#39;</span><span class="si">%s</span><span class="s"> is in multiple categories (</span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                    <span class="n">token</span><span class="p">,</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">key</span> <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">))))</span>
+                    <span class="n">restriction</span><span class="p">,</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">key</span> <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">))))</span>
         <span class="n">all_matches</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span>
 
     <span class="n">matches</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">all_matches</span><span class="p">)</span>
@@ -375,6 +319,81 @@
         <span class="n">world_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pkg</span><span class="p">)</span>
     <span class="n">world_set</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
+<span class="nd">@argparser.bind_final_check</span>
+<span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">namespace</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">namespace</span><span class="o">.</span><span class="n">unmerge</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">namespace</span><span class="o">.</span><span class="n">set</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Using sets with -C probably isn&#39;t wise, aborting&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">namespace</span><span class="o">.</span><span class="n">upgrade</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Cannot upgrade and unmerge simultaneously&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">namespace</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;You must provide at least one atom&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">namespace</span><span class="o">.</span><span class="n">clean</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Cannot use -C with --clean&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">namespace</span><span class="o">.</span><span class="n">clean</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">namespace</span><span class="o">.</span><span class="n">set</span> <span class="ow">or</span> <span class="n">namespace</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;--clean currently cannot be used w/ any sets or &quot;</span>
+                         <span class="s">&quot;targets given&quot;</span><span class="p">)</span>
+        <span class="n">namespace</span><span class="o">.</span><span class="n">set</span> <span class="o">=</span> <span class="p">[(</span><span class="n">x</span><span class="p">,</span> <span class="n">namespace</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">pkgset</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;world&#39;</span><span class="p">,</span> <span class="s">&#39;system&#39;</span><span class="p">)]</span>
+        <span class="n">namespace</span><span class="o">.</span><span class="n">deep</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="n">namespace</span><span class="o">.</span><span class="n">usepkgonly</span> <span class="ow">or</span> <span class="n">namespace</span><span class="o">.</span><span class="n">usepkg</span> <span class="ow">or</span> <span class="n">namespace</span><span class="o">.</span><span class="n">source_only</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s">&#39;--clean cannot be used with any of the following namespace: &#39;</span>
+                <span class="s">&#39;--usepkg --usepkgonly --source-only&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">namespace</span><span class="o">.</span><span class="n">usepkgonly</span> <span class="ow">and</span> <span class="n">namespace</span><span class="o">.</span><span class="n">usepkg</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;--usepkg is redundant when --usepkgonly is used&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">namespace</span><span class="o">.</span><span class="n">usepkgonly</span> <span class="ow">or</span> <span class="n">namespace</span><span class="o">.</span><span class="n">usepkg</span><span class="p">)</span> <span class="ow">and</span> <span class="n">namespace</span><span class="o">.</span><span class="n">source_only</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;--source-only cannot be used with --usepkg nor --usepkgonly&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">namespace</span><span class="o">.</span><span class="n">set</span><span class="p">:</span>
+        <span class="n">namespace</span><span class="o">.</span><span class="n">replace</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">namespace</span><span class="o">.</span><span class="n">targets</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">namespace</span><span class="o">.</span><span class="n">set</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">namespace</span><span class="o">.</span><span class="n">newuse</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Need at least one atom/set&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">namespace</span><span class="o">.</span><span class="n">newuse</span><span class="p">:</span>
+        <span class="n">namespace</span><span class="o">.</span><span class="n">oneshot</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="c"># At some point, fix argparse so this isn&#39;t necessary...</span>
+    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">val</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">val</span>
+    <span class="n">namespace</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">namespace</span><span class="o">.</span><span class="n">targets</span><span class="p">)</span>
+    <span class="n">namespace</span><span class="o">.</span><span class="n">set</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">namespace</span><span class="o">.</span><span class="n">set</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">parse_atom</span><span class="p">(</span><span class="n">restriction</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">return_none</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Use :obj:`parserestrict.parse_match` to produce a single atom.</span>
+
+<span class="sd">    This matches the restriction against the repo, raises</span>
+<span class="sd">    AmbiguousQuery if they belong to multiple cat/pkgs, returns an</span>
+<span class="sd">    atom otherwise.</span>
+
+<span class="sd">    :param token: string to convert.</span>
+<span class="sd">    :param repo: :obj:`pkgcore.repository.prototype.tree` instance to search in.</span>
+<span class="sd">    :param return_none: indicates if no matches raises or returns C{None}</span>
+
+<span class="sd">    :return: an atom or C{None}.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">key_matches</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">key</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">repo</span><span class="o">.</span><span class="n">itermatch</span><span class="p">(</span><span class="n">restriction</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">key_matches</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">NoMatches</span><span class="p">(</span><span class="n">restriction</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">key_matches</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">AmbiguousQuery</span><span class="p">(</span><span class="n">restriction</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">key_matches</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">restriction</span><span class="p">,</span> <span class="n">atom</span><span class="p">):</span>
+        <span class="c"># atom is guranteed to be fine, since it&#39;s cat/pkg</span>
+        <span class="k">return</span> <span class="n">restriction</span>
+    <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">KeyedAndRestriction</span><span class="p">(</span><span class="n">restriction</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key_matches</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+
+
+<span class="nd">@argparser.bind_delayed_default</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;world&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">load_world</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">namespace</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">pkgset</span><span class="p">[</span><span class="s">&#39;world&#39;</span><span class="p">]</span>
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">value</span>
+
+<span class="nd">@argparser.bind_main_func</span>
 <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">config</span>
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
@@ -382,7 +401,7 @@
 
     <span class="n">domain</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">domain</span>
     <span class="n">livefs_repos</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">all_livefs_repos</span>
-    <span class="n">world_set</span> <span class="o">=</span> <span class="n">world_list</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">get_pkgset</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="s">&quot;world&quot;</span><span class="p">)</span>
+    <span class="n">world_set</span> <span class="o">=</span> <span class="n">world_list</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">world</span>
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">oneshot</span><span class="p">:</span>
         <span class="n">world_set</span> <span class="o">=</span> <span class="bp">None</span>
 
@@ -426,8 +445,7 @@
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s">&#39;format_magic&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="o">!=</span> <span class="s">&#39;ebuild_built&#39;</span><span class="p">)</span>
 
     <span class="n">atoms</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">setname</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">set</span><span class="p">:</span>
-        <span class="n">pkgset</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">get_pkgset</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">setname</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">setname</span><span class="p">,</span> <span class="n">pkgset</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">set</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">pkgset</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="mi">1</span>
         <span class="n">l</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pkgset</span><span class="p">)</span>

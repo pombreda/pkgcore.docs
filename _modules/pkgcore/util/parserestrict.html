@@ -59,7 +59,7 @@
 
 <span class="kn">from</span> <span class="nn">pkgcore.restrictions</span> <span class="kn">import</span> <span class="n">packages</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">util</span>
 <span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">atom</span><span class="p">,</span> <span class="n">cpv</span><span class="p">,</span> <span class="n">errors</span>
-<span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="n">raise_from</span>
+<span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="n">raise_from</span><span class="p">,</span> <span class="n">is_py3k</span>
 <span class="kn">import</span> <span class="nn">re</span>
 
 <span class="n">valid_globbing</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&quot;^(?:[\w+-.]+|(?&lt;!\*)\*)+$&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span>
@@ -129,6 +129,9 @@
 <span class="sd">    :return: :obj:`pkgcore.restrictions.packages` derivative</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="c"># Ensure the text var is a string if we&#39;re under py3k.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_py3k</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;ascii&#39;</span><span class="p">)</span>
     <span class="n">orig_text</span> <span class="o">=</span> <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="k">if</span> <span class="s">&quot;!&quot;</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">ParseError</span><span class="p">(</span>
