@@ -10,7 +10,7 @@
     
     <title>WARNING &mdash; pkgcore trunk documentation</title>
     
-    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -45,7 +45,65 @@
         <li><a href="../../index.html">pkgcore trunk documentation</a> &raquo;</li>
           <li><a href="../../dev-notes.html" accesskey="U">Developer Notes</a> &raquo;</li> 
       </ul>
-    </div>  
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">WARNING</a></li>
+<li><a class="reference internal" href="#introduction">Introduction</a><ul>
+<li><a class="reference internal" href="#terminology">Terminology</a></li>
+<li><a class="reference internal" href="#general-design-idea-approach-requirements">General design/idea/approach/requirements</a></li>
+<li><a class="reference internal" href="#config-design">Config design</a></li>
+<li><a class="reference internal" href="#config-s-actions-operation">config&#8217;s actions/operation</a></li>
+<li><a class="reference internal" href="#objects-subsystems-stuff">Objects/subsystems/stuff</a><ul>
+<li><a class="reference internal" href="#indexablesequence">IndexableSequence</a></li>
+<li><a class="reference internal" href="#lazyvaldict">LazyValDict</a></li>
+<li><a class="reference internal" href="#global-config-object-from-pkgcore-config-load-config">global config object (from pkgcore.config.load_config())</a></li>
+<li><a class="reference internal" href="#domain-object">domain object</a></li>
+<li><a class="reference internal" href="#build-plan-creation">build plan creation</a></li>
+<li><a class="reference internal" href="#sets">sets</a></li>
+<li><a class="reference internal" href="#build-setup-operation">build/setup operation</a></li>
+<li><a class="reference internal" href="#repo-change-operation">repo change operation</a></li>
+<li><a class="reference internal" href="#remove-operation">remove operation</a></li>
+<li><a class="reference internal" href="#install-operation">install operation</a></li>
+<li><a class="reference internal" href="#merge-operation">merge operation</a></li>
+<li><a class="reference internal" href="#fetchables">fetchables</a></li>
+<li><a class="reference internal" href="#fetcher">fetcher</a></li>
+<li><a class="reference internal" href="#verifier">verifier</a></li>
+<li><a class="reference internal" href="#repository">repository</a></li>
+<li><a class="reference internal" href="#cache">cache</a></li>
+<li><a class="reference internal" href="#package">package</a></li>
+<li><a class="reference internal" href="#restriction">restriction</a></li>
+<li><a class="reference internal" href="#restrictionset">restrictionSet</a></li>
+<li><a class="reference internal" href="#contentsrestriction">ContentsRestriction</a></li>
+<li><a class="reference internal" href="#metadatarestriction">metadataRestriction</a></li>
+<li><a class="reference internal" href="#logging">logging</a></li>
+<li><a class="reference internal" href="#ebuild-daemon-sh">ebuild-daemon.sh</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../formats/dpkg.html"
+                        title="previous chapter">dpkg</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
 
     <div class="document">
       <div class="documentwrapper">
@@ -704,64 +762,6 @@ mapping config settings to instantiation of objs.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="../../index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">WARNING</a></li>
-<li><a class="reference internal" href="#introduction">Introduction</a><ul>
-<li><a class="reference internal" href="#terminology">Terminology</a></li>
-<li><a class="reference internal" href="#general-design-idea-approach-requirements">General design/idea/approach/requirements</a></li>
-<li><a class="reference internal" href="#config-design">Config design</a></li>
-<li><a class="reference internal" href="#config-s-actions-operation">config&#8217;s actions/operation</a></li>
-<li><a class="reference internal" href="#objects-subsystems-stuff">Objects/subsystems/stuff</a><ul>
-<li><a class="reference internal" href="#indexablesequence">IndexableSequence</a></li>
-<li><a class="reference internal" href="#lazyvaldict">LazyValDict</a></li>
-<li><a class="reference internal" href="#global-config-object-from-pkgcore-config-load-config">global config object (from pkgcore.config.load_config())</a></li>
-<li><a class="reference internal" href="#domain-object">domain object</a></li>
-<li><a class="reference internal" href="#build-plan-creation">build plan creation</a></li>
-<li><a class="reference internal" href="#sets">sets</a></li>
-<li><a class="reference internal" href="#build-setup-operation">build/setup operation</a></li>
-<li><a class="reference internal" href="#repo-change-operation">repo change operation</a></li>
-<li><a class="reference internal" href="#remove-operation">remove operation</a></li>
-<li><a class="reference internal" href="#install-operation">install operation</a></li>
-<li><a class="reference internal" href="#merge-operation">merge operation</a></li>
-<li><a class="reference internal" href="#fetchables">fetchables</a></li>
-<li><a class="reference internal" href="#fetcher">fetcher</a></li>
-<li><a class="reference internal" href="#verifier">verifier</a></li>
-<li><a class="reference internal" href="#repository">repository</a></li>
-<li><a class="reference internal" href="#cache">cache</a></li>
-<li><a class="reference internal" href="#package">package</a></li>
-<li><a class="reference internal" href="#restriction">restriction</a></li>
-<li><a class="reference internal" href="#restrictionset">restrictionSet</a></li>
-<li><a class="reference internal" href="#contentsrestriction">ContentsRestriction</a></li>
-<li><a class="reference internal" href="#metadatarestriction">metadataRestriction</a></li>
-<li><a class="reference internal" href="#logging">logging</a></li>
-<li><a class="reference internal" href="#ebuild-daemon-sh">ebuild-daemon.sh</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="../formats/dpkg.html"
-                        title="previous chapter">dpkg</a></p>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
       <div class="clearer"></div>
     </div>
     <div class="related">
@@ -781,7 +781,7 @@ mapping config settings to instantiation of objs.</p>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+        &copy; Copyright 2006-2012, Brian Harring, Marien Zwart.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
