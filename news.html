@@ -1,0 +1,2415 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Pkgcore Release Notes &mdash; pkgcore vtrunk documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     'trunk',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pkgcore vtrunk documentation" href="index.html" />
+    <link rel="next" title="API Documentation" href="api.html" />
+    <link rel="prev" title="Welcome to pkgcore’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="API Documentation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to pkgcore’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pkgcore vtrunk documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pkgcore-release-notes">
+<span id="news"></span><h1>Pkgcore Release Notes<a class="headerlink" href="#pkgcore-release-notes" title="Permalink to this headline">¶</a></h1>
+<p>See ChangeLog for full commit logs; this is summarized/major changes.</p>
+<ul class="simple">
+<li>Added <cite>pconfig world</cite> for world file manipulation.</li>
+<li>Heavy doc fixups, including fixing the man pages to actually be
+readable.  New man page for pmerge added.</li>
+<li>Fix py3k incompatibility in pmerge -N .</li>
+<li>prefix branch was merged.  This fleshes out the majority of prefix
+support; extended-versions currently aren&#8217;t supported however.</li>
+<li>pkgcore now forces parallelization for tbz2 generation if pbzip2
+is installed.</li>
+<li>Python stdlib&#8217;s BZ2File doesn&#8217;t handle multiple streams in a bz2
+file correctly- we work around this via always forcing bzip2 -dc
+unless the python version is 3.3 or later.</li>
+</ul>
+<div class="section" id="pkgcore-0-7-7-8-jan-26th-2011">
+<span id="release-0-7-7-8"></span><h2>pkgcore 0.7.7.8: Jan 26th, 2011<a class="headerlink" href="#pkgcore-0-7-7-8-jan-26th-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.7.7.8.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.7.7.8">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>pkgcore&#8217;s merger now will preserve any hardlinks specified in the
+merge set.  Merges straight from binpkgs don&#8217;t current preserve
+hardlinks.</li>
+<li>added hardlink awareness to splitdebug and stripping.  For pkgs
+that install hardlinks (git for example), this fixes double stripping
+and complaints output during merging for trying to splitdebug it.
+Bit faster in addition since for git, it cuts the splitdebug down
+from 110 to 7 or so.</li>
+<li>Fix incompatibilities in pinspect portageq api that eselect uses.
+Eselect will be updated to use better api&#8217;s moving forward, but
+till then restore support.</li>
+<li>pinspect portageq and pinspect query envvar now return space delimited
+string values if the queried value was a list.</li>
+<li>Fix bug where use dep forced changes to use state weren&#8217;t honored
+at the build level.</li>
+<li>Fix fairly serious bug where immutable use flags (arch for example),
+wasn&#8217;t being enforced for pkg dependency calculations.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-7-7-7-jan-24th-2011">
+<span id="release-0-7-7-7"></span><h2>pkgcore 0.7.7.7: Jan 24th, 2011<a class="headerlink" href="#pkgcore-0-7-7-7-jan-24th-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.7.7.7.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.7.7.7">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>pkgcore resolver now understand weak blockers.  This fixes a long
+standing issue where portage/paludis would allow a transaction that
+pkgcore would refuse (at the time of pkgcore&#8217;s creation, weak/strong
+didn&#8217;t exist- just strong).</li>
+<li>work around eselect incompatibility for root not always being specified
+to <cite>pinspect portageq get_repositories</cite>.</li>
+<li>Better error reporting for mistakes in incremental vars in configuration.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-7-7-6-jan-16th-2011">
+<span id="release-0-7-7-6"></span><h2>pkgcore 0.7.7.6: Jan 16th, 2011<a class="headerlink" href="#pkgcore-0-7-7-6-jan-16th-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.7.7.6.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.7.7.6">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>fix bug where REQUIRED_USE wasn&#8217;t being stored during metadata
+regeneration.  Thanks to marienz for reporting it.</li>
+<li>FEATURES=compressdebug support was added.  This enables splitdebug
+to compress the generate debug files; this can easily reduce the footprint
+from 20GB to ~8GB on an average system.</li>
+<li>no longer complain about incorrect profiles/categories files.  PMS,
+and people who hate QA suck.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-7-7-5-dec-26th-2011">
+<span id="release-0-7-7-5"></span><h2>pkgcore 0.7.7.5: Dec 26th, 2011<a class="headerlink" href="#pkgcore-0-7-7-5-dec-26th-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.7.7.5.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.7.7.5">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>pkgcore no longer requires a manifest to exist if the repository uses
+thin-manifests, and there are no distfiles for a pkg.</li>
+<li>removed support for FEATURES=allow-missing-checksums.  Use repository
+metadata/layout.conf use-manifest setting instead.</li>
+<li>complain about incorrect profiles/categories files.</li>
+<li>fix bug in masters handling where eclass lookup order was reversed.</li>
+<li>pinspect subcommand digests was added; this is used for scanning for
+broken manifest/digests in a repository.</li>
+<li>PORTAGE_LOGDIR is supported again.</li>
+<li>pkgcore no longer intermixes python/bash output incorrectly when stdout
+or stderr or the same fd: pmerge -Du &#64;system &amp;&gt; log for example.</li>
+<li>issue #7; add framework for parallelized trigger execution.  Currently
+only splitdebug/stripping uses it, but it has a sizable gain for pkgs
+with many binaries.</li>
+<li>pmaint regen &#8211;disable-eclass-preloading is now
+pmaint regen &#8211;disable-eclass-caching.</li>
+<li>ctrl-c&#8217;ing pmaint regen hang bug is now fixed.</li>
+<li>fix a bug in pmaint regen and friends where if the requested repository
+isn&#8217;t found, the last examined is used.  Additionally, restore ability
+to specify a repository by location.</li>
+<li>all operation api&#8217;s now are chained exceptions deriving from
+pkgcore.operations.OperationError; for CLI users, this means we
+display a traceback far less often now.</li>
+<li>pkgcore configuration subsystem now uses chained exceptions.  In
+accessing it, you&#8217;ll get a ConfigurationError exception (or derivative)
+for any config data errors, or the appropriate exception if you use the
+subsystem incorrectly.  In the process, reporting on errors to the commandline
+is now augmented.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-7-7-4-dec-14th-2011">
+<span id="release-0-7-7-4"></span><h2>pkgcore 0.7.7.4: Dec 14th, 2011<a class="headerlink" href="#pkgcore-0-7-7-4-dec-14th-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.7.7.4.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.7.7.4">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>pkgcore now requires snakeoil 0.4.6 and higher.</li>
+<li><cite>pinspect profiles</cite> no longer requires parsing the system configuration.</li>
+<li>COLUMNS now is always 0 or higher to make perl (gentoo bug 394091)
+play nice.</li>
+<li>FEATURES=distcc-pump support was added; issue #21.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-7-7-3-dec-8th-2011">
+<span id="release-0-7-7-3"></span><h2>pkgcore 0.7.7.3: Dec 8th, 2011<a class="headerlink" href="#pkgcore-0-7-7-3-dec-8th-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.7.7.3.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.7.7.3">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>fixed merging error for gconf files named %gconf, and introduced
+better error messages for those sort of failures.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-7-7-2-dec-7th-2011">
+<span id="release-0-7-7-2"></span><h2>pkgcore 0.7.7.2: Dec 7th, 2011<a class="headerlink" href="#pkgcore-0-7-7-2-dec-7th-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.7.7.2.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.7.7.2">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li><cite>pquery &#8211;attr source_repository &#8211;vdb</cite> now correctly returns the
+originating repository.</li>
+<li>pmerge &#8211;source-only was added; this disables all binpkg repositories
+from being used for the resolution; binpkg building however still will
+occur if the feature is enabled.</li>
+<li>fixed potential for eclass preloading to use the incorrect repo source.
+This could only be triggered by actual API usage, not from commandline
+usage.</li>
+<li>ebuild package instances now have an officially supported .inherited attribute
+for finding out the eclasses used by a pkg.  In addition, this attribute
+is now installed into the vdb repository, and binpkgs.</li>
+<li>pkgcore no longer adds REQUIRED_USE to vdb nor binpkg; it&#8217;s a pointless
+metadata key, plus we used to corrupt it.</li>
+<li>fixed bug where portdir write cache wouldn&#8217;t be created, nor used.
+Wasn&#8217;t seen primarily due to regen being fast enough it&#8217;s not a huge
+issue.</li>
+<li>fixed addition stacking issue w/ eclass defined REQUIRED_USE resulting
+in corrupted IUSE.</li>
+<li>fixed long standing race that could occur during pmaint regen leading
+to an ebuild failing to be regenerated.</li>
+<li>added protection and QA scanning for bad IFS/shopt/set manipulation
+by user code.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-7-7-1-dec-2nd-2011">
+<span id="release-0-7-7-1"></span><h2>pkgcore 0.7.7.1: Dec 2nd, 2011<a class="headerlink" href="#pkgcore-0-7-7-1-dec-2nd-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.7.7.1.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.7.7.1">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>Fix eclass metadata var (IUSE for example) stacking in metadata
+phases.</li>
+<li>Fix has invocations in ebuild helpers</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-7-7-dec-2nd-2011">
+<span id="release-0-7-7"></span><h2>pkgcore 0.7.7: Dec 2nd, 2011<a class="headerlink" href="#pkgcore-0-7-7-dec-2nd-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.7.7.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.7.7">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>pmaint regen optimizations.  This is now &gt;5x faster than 0.7.6,
+and ~3x faster than 0.7.2 (0.7.3 introduced a regression).</li>
+<li>restore pmaint sync support for unsynced repositories.</li>
+<li>support lookup of a repo by it&#8217;s name, rather than just by path.
+This affects pquery &#8211;repo, pmaint sync, pmaint copy, pinspect, etc.</li>
+<li>&#8211;debug now again enables full traceback output for config failures.</li>
+<li>pkgcore 0.7.6.1: Dec 1st, 2011</li>
+<li>fix portage_config generation bug in 0.7.6; in the process, forced
+overlay&#8217;s eclass stacking onto PORTDIR is no longer done by default.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-7-6-nov-30th-2011">
+<span id="release-0-7-6"></span><h2>pkgcore 0.7.6: Nov 30th, 2011<a class="headerlink" href="#pkgcore-0-7-6-nov-30th-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.7.6.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.7.6">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>pplugincache now removes old caches when ran.</li>
+<li>pkgcore now honors layout.conf masters for eclass stacking.</li>
+<li>pplugincache now forces an update, regardless of mtimes involved.</li>
+<li>pkgcore internal configuration was rewritten to be stricter, while
+allowing far more overriding.  In general, it should now do what
+you would expect.  Exact details, see the git logs.</li>
+<li>plugin cache format is now v3; this improves performance primarily.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-7-5-nov-7th-2011">
+<span id="release-0-7-5"></span><h2>pkgcore 0.7.5: Nov 7th, 2011<a class="headerlink" href="#pkgcore-0-7-5-nov-7th-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.7.5.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.7.5">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>pkgcore now extends masking rules to binpkg repositories; in addition,
+it now honors &#8216;masters&#8217; for masking.  This means repositories that
+try to suppress an inherited mask that affects that repo, can now
+do so.</li>
+<li>fix bug- export ROOT to pkg_pretend invocations.</li>
+<li>pkgcore no longer export PWORKDIR; this was in use via extremely old
+libtool versions as a way to do QA; no longer needed.</li>
+<li>match multirepo portage behaviour; specifically, no longer force overlay
+version shadowing.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-7-4-oct-27th-2011">
+<span id="release-0-7-4"></span><h2>pkgcore 0.7.4: Oct 27th, 2011<a class="headerlink" href="#pkgcore-0-7-4-oct-27th-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.7.4.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.7.4">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>fix userprofile stacking for /etc/portage/profile; this fixes a traceback.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-7-3-oct-26th-2011">
+<span id="release-0-7-3"></span><h2>pkgcore 0.7.3: Oct 26th, 2011<a class="headerlink" href="#pkgcore-0-7-3-oct-26th-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.7.3.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.7.3">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>speed up directory walking; varies, but ~25% faster.</li>
+<li>pkgcore no longer allows comments in profiles/categories.</li>
+<li>pkgcore now allows profile package.mask and friends as directories for user
+configuration, and within repositories that set profile-formats = portage-1
+in their layout.conf.</li>
+<li>pquery &#8211;expr was removed.  Open to re-adding it, but in a maintainable
+form that has testing, and is usable elsewhere.</li>
+<li>pquery now if given no restrictions, defaults to &#8211;all.</li>
+<li>pquery argument parsing was rewritten; ordering issues for &#8211;config
+were fixed, error messages improved, and general cleanup.</li>
+<li>fix traceback that occurs when unmerging a pkg, but tempspace needs
+to be created.</li>
+<li>initial layout.conf support; thin-manifests, use-manifests, and
+controllable hashes.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-7-2-sept-27th-2011">
+<span id="release-0-7-2"></span><h2>pkgcore 0.7.2: Sept 27th, 2011<a class="headerlink" href="#pkgcore-0-7-2-sept-27th-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.7.2.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.7.2">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>bug fixes; fix to pebuild so it works again, bugs spotted by pyflakes,
+etc.  Basically codebase cleanup.</li>
+<li>experimental support added for generating Manifests via pmaint digest.</li>
+<li>pkgcore no longer supports manifest version1; nothing else supports
+it now, it&#8217;s no longer in use, thus the removal.</li>
+<li>new pmaint &#8216;mirror&#8217; command.  This is used for pulling down
+all distfiles that could be required for a specific package.</li>
+<li>operations proxy no longer triggers infinite recursion.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-7-1-sept-3rd-2011">
+<span id="release-0-7-1"></span><h2>pkgcore 0.7.1: Sept 3rd, 2011<a class="headerlink" href="#pkgcore-0-7-1-sept-3rd-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.7.1.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.7.1">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>add TIMESTAMP header to binpkg Packages cache.</li>
+<li>mangle and add compatibility to source_repository handling to make
+it play nice w/ past transgressions, and generate in a form portage
+will like.</li>
+<li>fix traceback in binpkg installation</li>
+<li>fix pclone_cache hang</li>
+<li>suppress spurious slot shadowing test failure; occurs dependant on
+GC behaviour, the complaint however doesn&#8217;t matter (it false-negatives
+on a mock object used for tests).</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-7-sept-2nd-2011">
+<span id="release-0-7"></span><h2>pkgcore 0.7: Sept 2nd, 2011<a class="headerlink" href="#pkgcore-0-7-sept-2nd-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.7.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.7">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>pmaint regen now supports regenerating binary and install repository
+caches.</li>
+<li>pkgcore now tracks and records the originating/source repository
+when installing to the vdb.</li>
+<li>new pkg attribute; source_repository.  This tracks where a package
+originated from- primarily useful for binpkgs and vdb.
+pquery &#8211;attr source_repository is how to access it from the CLI.</li>
+<li>pkg_config can now be invoked via:
+pconfig package &lt;target&gt;</li>
+<li>splitdebug no longer runs if the pkg has been split already.</li>
+<li>arbitrary exceptions during merging/unmerging no longer stop the
+merge/unmerge; a traceback is displayed instead.</li>
+<li>added initial profile inspection tool; pinspect profiles.</li>
+<li>pmaint copy arguments have changed; check the help, short version,
+it&#8217;s now sane.</li>
+<li>pkgcore now lives at googlecode; <a class="reference external" href="http://pkgcore.googlecode.com/">http://pkgcore.googlecode.com/</a></li>
+<li>large scale conversion of internals to argparse.  Saner parsing namely,
+although it&#8217;s still a work in progress to make it pretty.</li>
+<li>man pages and docs in general have been converted to sphinx.  Definite
+improvement already, but more to come.</li>
+<li>pkgcore observer api&#8217;s were heavily gutted and split into observer and
+outputter.  This should enable easier UX integration, while enabling
+our next step towards parallelization.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-6-6-july-11th-2011">
+<span id="release-0-6-6"></span><h2>pkgcore 0.6.6: July 11th, 2011<a class="headerlink" href="#pkgcore-0-6-6-july-11th-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.6.6.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.6.6">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>make use/useq/usev extremely obnoxious towards offending devs who use them
+in global scope when they&#8217;re not supposed to.  Pretty much, I&#8217;m tired of
+pkgcore being broken for being PMS compliant; as such I&#8217;m now pointing
+users loud and clear at the offenders.</li>
+<li>fix traceback in user profile support (/etc/portage/profiles).</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-6-5-jun-22nd-2011">
+<span id="release-0-6-5"></span><h2>pkgcore 0.6.5: Jun 22nd, 2011<a class="headerlink" href="#pkgcore-0-6-5-jun-22nd-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.6.5.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.6.5">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>Log an error, rather than throwing an exception when binpkg cache cannot
+be updated.  Needs refinement long term, but for average users, this is
+preferable.</li>
+<li>loosen up pebuild a bit; choose the max version if slot/repo are all the
+same.  This allows pebuild dev-util/nano to choose 2.3.1 for example.</li>
+<li>tighten up econf implementation; ctarget/cbuild are now forced as early
+arguments to configure to work around some misbehaviours in configure
+scripts (broken scripts, but so it goes).</li>
+<li>tighten up ebuild environments variable handling- had a bleed through
+of variable &#8216;x&#8217; that was breaking mesa builds.</li>
+<li>yet another src_install fix for EAPI=4; this time ensuring the default
+function is available.</li>
+<li>we now run bashrcs (profile and user) every phase to match portage
+behaviour.  If folks desire it, a patch making that optional would be
+welcome.</li>
+<li>add support for /etc/portage/package.env and /etc/portage/env/.  Note
+that we only allow settings there to affect the bash environment- trying
+to adjust FEATURES from those files isn&#8217;t on the intended support list.</li>
+<li>use ${LIBDIR_${ABI}} for ccache/distcc pathways; gentoo bug 355283.</li>
+<li>profile interpretation of make.defaults now has access to variables
+defined by it&#8217;s parents, per PMS.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-6-4-jun-5th-2011">
+<span id="release-0-6-4"></span><h2>pkgcore 0.6.4: Jun 5th, 2011<a class="headerlink" href="#pkgcore-0-6-4-jun-5th-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.6.4.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.6.4">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>intercept and suppress exceptions from triggers unless the trigger
+explicitly disables it.</li>
+<li>work around libmagic python bindings sucking and not always being
+able to be used.</li>
+<li>fix &#8216;default&#8217; support for src_install for EAPI=4.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-6-3-may-30th-2011">
+<span id="release-0-6-3"></span><h2>pkgcore 0.6.3: May 30th, 2011<a class="headerlink" href="#pkgcore-0-6-3-may-30th-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.6.3.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.6.3">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>support for /etc/portage/make.profile; Please Do Not Use it, while
+pkgcore is forced to support it, usage of it breaks most tools and is
+bluntly lock-in (no reason to move it- it&#8217;s the same, been in the same
+place for a decade now).  Duly warned.</li>
+<li>misc env/bug fixes for EMERGE_FROM to ensure compatibility.</li>
+<li>deploy eselect support via pinspect portageq</li>
+<li>added man page for pinspect</li>
+<li>added pmaint env-update</li>
+<li>expose /usr/local/* through PATH for ebulids.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-6-2-may-27th-2011">
+<span id="release-0-6-2"></span><h2>pkgcore 0.6.2: May 27th, 2011<a class="headerlink" href="#pkgcore-0-6-2-may-27th-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.6.2.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.6.2">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>for EAPI&lt;4, expose MERGE_TYPE info via EMERGE_FROM; do this for compatibility
+with non-spec compliant ebuilds, and eclasses like linux-mod.  This restores
+in particular, binpkg support for kernel packages.  Thanks to Brian De Wolf
+for info leading to tracking this down.</li>
+<li>add support for stacking /etc/portage/make.conf on top of /etc/make.conf.</li>
+<li>add incrementalism between make.globals and make.conf to match changes
+in portage configuration parsing.  This fixes the common &#8220;I tried pkgcore
+and everything was license masked&#8221;.  Breakage there owes to portage
+changing make.globals; can&#8217;t do much about it unfortunately.  Thanks to
+Brian De Wolf for info leading to tracking this down.</li>
+<li>prefer 0755 permissions for binpkg package dir.</li>
+<li>pinspect pkgset learned &#8211;all option, to display all pkgsets it knows.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-6-1-may-22nd-2011">
+<span id="release-0-6-1"></span><h2>pkgcore 0.6.1: May 22nd, 2011<a class="headerlink" href="#pkgcore-0-6-1-may-22nd-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.6.1.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.6.1">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>fix for &#8220;or_node.blocks&#8221; AttributeError, and related resolution
+miscalculations.</li>
+<li>fix exit code return for ebuild helpers throwing warnings for &lt;EAPI4</li>
+<li>fix typo in FEATURES=buildsyspkg, and FEATURES=buildpkg</li>
+<li>check to ensure pkgdir exists; if possible, create it, else turn off binpkg
+features.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-6-april-24th-2011">
+<span id="release-0-6"></span><h2>pkgcore 0.6: April 24th, 2011<a class="headerlink" href="#pkgcore-0-6-april-24th-2011" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.6.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.6">Git history</a></p>
+<p>Notable changes:</p>
+<ul>
+<li><p class="first">Due to crazy work hours and moves, this release is fairly large, and frankly
+repeatedly delayed.  Future ones will be far more fine grained moving forward.</p>
+</li>
+<li><p class="first">Fix python2.7 incompatiblity in pkgcore.ebuild.misc</p>
+</li>
+<li><p class="first">It&#8217;s suggested that folks use bash 4.1, primarily for regen
+speed reasons- it is not required however.</p>
+</li>
+<li><p class="first">bash spawning now enforce &#8211;norc and &#8211;noprofile in full.</p>
+</li>
+<li><p class="first">RESTRICT is now properly use evaluated.</p>
+</li>
+<li><p class="first">pkgcore.restrictions.values.ContainmentMatch is deprecated in favor of
+ContainmentMatch2.  Update your code- by pkgcore 0.7, ContainmentMatch
+will become ContainmentMatch2, and a shim will be left in place.</p>
+</li>
+<li><p class="first">introduction of EAPI objects (pkgcore.ebuild.eapi) for controlling/defining
+new eapi&#8217;s, capabilities, etc.</p>
+</li>
+<li><p class="first">pmaint regen is now cumulatively ~23x faster then the previous release.
+This is via restoration of original metadata regeneration speeds, and
+via enabling an eclass preloading optimization.  No impact on metadata-
+just far faster regeneration.</p>
+</li>
+<li><p class="first">Roughly a 15x speedup in general metadata regeneration; basically rework
+a fix that was added to to 0.5.11 (dealing with portage induced
+breakage in env loadup from their declare usage).</p>
+</li>
+<li><p class="first">filter-env regex backend now uses python&#8217;s re always; previously
+if the extension was active it would use posix regex.</p>
+<p>This resolves occasional odd failures when running native filter-env.</p>
+</li>
+<li><p class="first">fix a truncation error in suffix version parsing resulting in
+_p2010081516093 being less than _p2009072801401 .</p>
+</li>
+<li><p class="first">pkgcore.ebuild.restricts now contains some generally useful
+building block restrictions for any api consumers</p>
+</li>
+<li><p class="first">full rewrite of EAPI helpers adding better error info, saner code,
+double checked against PMS and portage/paludis to ensure no oddities.</p>
+</li>
+<li><p class="first">fix to buildpkg/pristine-binpkg saving.  If you&#8217;re looking for
+something to contribute to pkgcore wise, tests for this would be
+appreciated.</p>
+</li>
+<li><p class="first">write support for DEFINED_PHASES.</p>
+</li>
+<li><p class="first">bashrc hooks now run from ${S} or ${WORKDIR}, depending on
+PMS rules for that phase.</p>
+</li>
+<li><p class="first">match the other PM&#8217;s for econf; update ${WORKDIR} instances of
+config.{sub,guess} from /usr/share/gnuconfig.</p>
+</li>
+<li><p class="first">added protection against bad environment dumps from other PMs for T
+during env restoration.</p>
+</li>
+<li><p class="first">removed RESTRICT=autoconfig support.</p>
+</li>
+<li><p class="first">fix compatibility regression introduced in file-5.05 involving MAGIC_NONE.</p>
+</li>
+<li><p class="first">handle keyboard interrupts better during compilation; no longer display
+die tracebacks if the user intentionally stopped the compilation.</p>
+</li>
+<li><p class="first">duplicate a portage workaround for emacs ebuild; specifically don&#8217;t
+regenerate infodir if the ebuild placed a .keepinfodir in the directory.
+gentoo bug #257260.</p>
+</li>
+<li><p class="first">add workaround to disable unzip during unpack going interactive during
+a failure; gentoo bug #336285.</p>
+</li>
+<li><p class="first">fixed traceback during displaying a summary for &#8216;pinspect eapi_usage&#8217;</p>
+</li>
+<li><p class="first">add EAPI limitation to all portageq invocations, and support USE dep
+usage with has_version and friends.</p>
+</li>
+<li><p class="first">handle portage&#8217;s new interpretation of the sync retries variable for portage
+configuration.</p>
+</li>
+<li><p class="first">pinspect distfiles_usage was added; this is primarily useful for getting
+a repository level view of what the distfiles requirements are, what takes
+what percentile of unique space, etc.</p>
+</li>
+<li><p class="first">FEATURES=allow-missing-manifests ; does exactly as it sounds, not advised to
+use unless you know what you&#8217;re doing.</p>
+</li>
+<li><p class="first">ospkg&#8217;s fork of pkgcore has been folded in; FEATURES=save-deb is the primary
+addition.</p>
+</li>
+<li><p class="first">extended atom syntax now allows &#8216;*&#8217; to be used w/in a string- for example
+dev-<em>kde, *dev-*k*de</em>, etc.  This syntax is usable in user configs, and
+from the commandline.</p>
+</li>
+<li><p class="first">new FEATURES=fixlafiles is on by default; basically folds
+dev-util/lafilefixer functionality directly into the merger.
+Note this version drops comments- it&#8217;s about a 66% reduction in .la system
+filespace requirements via doing so.</p>
+</li>
+<li><p class="first">triggers base class now carries a ConfigHint to provide a typename.  If
+a specific trigger cannot be specified by configuration directly, set
+pkgcore_config_type = None to disable the hint removing it from being
+directly configurable.</p>
+<p>For users: this means basically all triggers are now directly usable in
+configuration.</p>
+</li>
+<li><p class="first">object inspection for configuration can now handle object.__init__ for
+config &#8216;class&#8217; targets; no need to define an intermediate function.</p>
+</li>
+<li><p class="first">ConfigHints can now specify authorative=True to disable all introspection.
+Mainly usedful for cpy objects, although useful if you want to limit what
+the introspection exposes.</p>
+</li>
+<li><p class="first">api&#8217;s for installing pkgs has changed; now to install a pkg to a domain,
+you invoke domain.(install|uininstall|remove)_pkg.  To just modify a repo,
+access it&#8217;s operations for the appropriate operation.</p>
+</li>
+<li><p class="first">pkgcore.interfaces was moved to pkgcore.operations</p>
+</li>
+<li><p class="first">pkgcore.package.base derived objects no longer default to _get_attr dict
+lookup- if you want it, set __getattr__ = dynamic_attr_dict.</p>
+</li>
+<li><p class="first">USE is now locked an intersection of the pkgs IUSE, with forced flags
+(things like arch, userland, prefix, etc) added on.  Mild speed up from
+dealing with a reduced set, more importantly portage switched to controlled
+USE here, so we can force it finally.</p>
+</li>
+<li><p class="first">USE collapsing now should match portage behaviour.  Essentially now,
+pkg IUSE + profile overrides + make.conf overrides + user config package.use
+overrides.  Previous behaviour didn&#8217;t get edge cases correct.</p>
+</li>
+<li><p class="first">USE_EXPAND default iuse is now fully overridden if the target USE_EXPAND
+groupping is defined in configuration.  Mostly relevant for qemu-kvm.</p>
+</li>
+<li><p class="first">data_source.get_(text|bytes)_fileobj invocations now require writable=True
+if you wish to mutate the data source.  Via making the intention explicit,
+consumers will get just what they need- a 3x speed up for
+pquery &#8211;attr environment is from that internal optimization alone.</p>
+</li>
+<li><p class="first">pkgcore.fs.fsFile.data_source is deprecated; will be removed in the next
+major version, use .data instead.</p>
+</li>
+<li><p class="first">pkgcore.interfaces.data_source moved to snakeoil.data_source.</p>
+</li>
+<li><p class="first">pkgcore.chksum moved to snakeoil.chksum.  A compatibility shim was left in
+for pkgcore-checks, which will be removed in 0.7 of pkgcore.</p>
+</li>
+<li><p class="first">pkgcore ticket #172; rely on snakeoil.osutils.access to paper over differing
+os.access behaviours for certain broken userlands (SunOS primarily).</p>
+</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-5-11-8-july-17th-2010">
+<span id="release-0-5-11-8"></span><h2>pkgcore 0.5.11.8: July 17th, 2010<a class="headerlink" href="#pkgcore-0-5-11-8-july-17th-2010" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.5.11.8.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.5.11.8">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>ticket #221; add &#8211;color=(n|y) support</li>
+<li>pmaint perl_rebuild was added; right now it just identifies what needs
+rebuilding on perl upgrades, but down the line it&#8217;ll do the rebuilds as
+needed.</li>
+<li>pkgcore now ignores ebuild postrm exit status- it logs failures, but there
+isn&#8217;t really anything that can be done at that stage (everything is already
+unmerged after all).</li>
+<li>fixed pkgcore.fs.livefs.iter_scan to support a path pointing to a
+nondirectory.</li>
+<li>force all sourcing to stderr; this protects against idiocy like the
+python eclass trying to write to stdout in color during sourcing.</li>
+<li>commandline.OptionParser now does a shallow copy of all items in
+standard_options_list; this protects against class/instance level cycles
+inherent in optparse.OptionParser&#8217;s design.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-5-11-7-june-20th-2010">
+<span id="release-0-5-11-7"></span><h2>pkgcore 0.5.11.7: June 20th, 2010<a class="headerlink" href="#pkgcore-0-5-11-7-june-20th-2010" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.5.11.7.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.5.11.7">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>use_enable/use_with; make use_enable/use_with 3rd arg form match pms in eapi4,
+match long standing portage behaviour for eapi&#8217;s 0 through 3.</li>
+<li>when combining repository and slot restrictions in an atom, repository is now
+always prefixed with ::, not intermixed.  sys-apps/portage:0::gentoo for
+example specifies slotting 0, repository gentoo.</li>
+<li>fixed a bug in installed pkgs virtual cache staleness detection- this
+accounted for a surprisingly hefty ~25% for simple pquery invocations.</li>
+<li>fix typo in env protection code- load the scrubbed env, not the raw source.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-5-11-6-may-21st-2010">
+<span id="release-0-5-11-6"></span><h2>pkgcore 0.5.11.6: May 21st, 2010<a class="headerlink" href="#pkgcore-0-5-11-6-may-21st-2010" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.5.11.6.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.5.11.6">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>add a bit of a hack to tty detection tests; PlainTextFormatter is valid for
+broken terminfo entries.</li>
+<li>fix support for unpacking of xz tarballs.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-5-11-5-april-22nd-2010">
+<span id="release-0-5-11-5"></span><h2>pkgcore 0.5.11.5: April 22nd, 2010<a class="headerlink" href="#pkgcore-0-5-11-5-april-22nd-2010" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.5.11.5.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.5.11.5">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>fix yet <em>another</em> fucking distutils bit of idiocy.  Piece Of Shit.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-5-11-4-april-21st-2010">
+<span id="release-0-5-11-4"></span><h2>pkgcore 0.5.11.4: April 21st, 2010<a class="headerlink" href="#pkgcore-0-5-11-4-april-21st-2010" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.5.11.4.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.5.11.4">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>fix py3k regression when trying to hash a PackageRestriction.</li>
+<li>drop CDEPEND tracking (unused, hold over from &#8216;04 days), and
+newdepend (same era).  Neither are used in &gt;=EAPI0 ; if your
+ebuild breaks, rebase the ebulid to a valid EAPI.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-5-11-3-march-22nd-2010">
+<span id="release-0-5-11-3"></span><h2>pkgcore 0.5.11.3: March 22nd, 2010<a class="headerlink" href="#pkgcore-0-5-11-3-march-22nd-2010" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.5.11.3.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.5.11.3">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>force all einfo/elog/ewarn style bits to stderr.</li>
+<li>add path attribute to ebuild derived pkg instances; not a guranteed
+part of the api yet, but accessible via pquery &#8211;attr path</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-5-11-2-march-16th-2010">
+<span id="release-0-5-11-2"></span><h2>pkgcore 0.5.11.2: March 16th, 2010<a class="headerlink" href="#pkgcore-0-5-11-2-march-16th-2010" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.5.11.2.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.5.11.2">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>silence spurious grep QA warnings during metadata sourcing.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-5-11-1-march-15th-2010">
+<span id="release-0-5-11-1"></span><h2>pkgcore 0.5.11.1: March 15th, 2010<a class="headerlink" href="#pkgcore-0-5-11-1-march-15th-2010" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.5.11.1.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.5.11.1">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>fix a major release bug; ebuild-env-utils.sh wasn&#8217;t packaged in the
+released 0.5.11, this version adds the missing file.</li>
+<li>more declare related fixups; this one a regression from 0.5.10- in
+sourcing /etc/profile.env, it&#8217;s contents weren&#8217;t being preserved
+fully due to declare.</li>
+<li>add missing eapi3 phase support- basically just reuses eapi2&#8217;s since
+the only changes are environmental.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-5-11-march-14th-2010">
+<span id="release-0-5-11"></span><h2>pkgcore 0.5.11: March 14th, 2010<a class="headerlink" href="#pkgcore-0-5-11-march-14th-2010" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.5.11.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.5.11">Git history</a></p>
+<p>Notable changes:</p>
+<ul>
+<li><p class="first">took me a full night of debugging, but traced down yet another portage
+incompatibility introduced.  gentoo bug 303369; if you&#8217;ve been seeing
+issues where portage merged ebuild envs aren&#8217;t reused in pkgcore, this
+is now fixed.  Env handling in general was heavily rewritten to be as
+robust as possible and protect against any further breakages from portage.</p>
+</li>
+<li><p class="first">env processing is a bit faster now- uses egrep where possible, falling
+back to bash regex where not.</p>
+</li>
+<li><p class="first">shell scripts now are tabs based rather than spaces.</p>
+</li>
+<li><p class="first">FEATURES=splitdebug works once again.</p>
+</li>
+<li><p class="first">It&#8217;s strongly suggested that you run &gt;snakeoil-0.3.6.1 due to fixes
+in extension building- specifically forcing -fno-strict-aliasing back
+into cflags since python is invalidly dropping them out.</p>
+<p>In addition, if you&#8217;re running pkgcore on a py3k machine, installation
+now is parallelized for 2to3 conversion- should be a fair bit faster.</p>
+</li>
+<li><p class="first">rename support for env var CONFIG_ROOT to PORTAGE_CONFIGROOT; seems
+that changed in portage at some point.  This should fully restore
+crossdev support.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-5-10-february-7th-2010">
+<span id="release-0-5-10"></span><h2>pkgcore 0.5.10: February 7th, 2010<a class="headerlink" href="#pkgcore-0-5-10-february-7th-2010" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.5.10.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.5.10">Git history</a></p>
+<p>Notable changes:</p>
+<ul>
+<li><p class="first">ticket 235; CBUILD/CTARGET values were being stomped w/ CHOST.</p>
+</li>
+<li><p class="first">EAPI=3 support; pkgcore already preserved mtimes at the second level,
+remaining bits were added for full EAPI3 support.</p>
+<p>Pkgcore doesn&#8217;t currently fully PREFIX offset merges, but that will be
+added in the next release or two most likely.</p>
+</li>
+<li><p class="first">EBUILD_PHASE was set to setup-binpkg for pkg_setup phase w/ binpkgs-
+ebuilds expected setup however, thus EBUILD_PHASE is now set to setup
+always for pkg_setup phase.</p>
+</li>
+<li><p class="first">fixup env filtering- backslash escaping wasn&#8217;t needed in the patterns
+resulting in failed matches.  Mostly protective cleanup.</p>
+</li>
+<li><p class="first">tweak cache backend to not stamp cache entries where mtime is no longer
+external w/ an mtime of &#8216;-1&#8217;.  Didn&#8217;t hurt anything but was a pointless op.</p>
+</li>
+<li><p class="first">fix the cpy incremental_expansion implementation; not sure how it slipped
+in being slower then native python, but the cpy version is now 60% faster
+than the native equivalent.
+Additionally, this extension is now disabled under py2.4 since it makes
+heavy use of PySet apis.</p>
+</li>
+<li><p class="first">ticket 234; handle refs properly in dhcpformat/mke2fsformat.</p>
+</li>
+<li><p class="first">pkgcore atom objects blocks_temp_ignorable data is now stored in
+blocks_strongly; the old attr is aliased, although will be removed.</p>
+</li>
+<li><p class="first">pkgcore now supports revisions of arbitrary length (previously was &lt;31 bits).</p>
+</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-5-9-january-8th-2010">
+<span id="release-0-5-9"></span><h2>pkgcore 0.5.9: January 8th, 2010<a class="headerlink" href="#pkgcore-0-5-9-january-8th-2010" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.5.9.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.5.9">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>this release of pkgcore requires snakeoil &gt;=0.3.6</li>
+<li>expand repository api slightly adding has_match; this is intended
+as a simple boolean check if a repo has it.  It should <em>only</em> be
+used for containment- if you need the results don&#8217;t test then itermatch,
+just itermatch.</li>
+<li>add cpy implementation of PackageRestriction.match</li>
+<li>for package.provided repositories, short circuit their itermatch/match
+if there aren&#8217;t any results possible.</li>
+<li>re-enable cpython implementation of DepSet parsing for eapi2- roughly
+a 31% speedup for current gentoo-x86 repository dependency parsing.</li>
+<li>performance improvements to pquery &#8211;attr alldepends; specifically
+depset.stringify_boolean is now 20% faster.</li>
+<li>performance improvements to pquery &#8211;attr alldepends -v</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-5-8-december-27th-2009">
+<span id="release-0-5-8"></span><h2>pkgcore 0.5.8: December 27th, 2009<a class="headerlink" href="#pkgcore-0-5-8-december-27th-2009" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.5.8.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.5.8">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>&gt;snakeoil-0.3.4 is required for this release.</li>
+<li>key is reused as cpvstr for memory savings where possible in cpv
+extension objects.</li>
+<li>cpv extension objects now intern package, category, and key for
+memory reduction reasons.</li>
+<li>various slot fixups to reduce memory usage and potential corner case
+bugs.</li>
+<li>fix the scenario where there is one repo returned from the domain for
+pmerge... crappy bug feedback on that one lead to it slipping by.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-5-7-december-22-2009">
+<span id="release-0-5-7"></span><h2>pkgcore 0.5.7: December 22, 2009<a class="headerlink" href="#pkgcore-0-5-7-december-22-2009" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.5.7.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.5.7">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>added pinspect script; used for basic reporting of metadata usage,
+and inspection of pkgsets.  Bit simple, but will be expanded down the line.</li>
+<li>filter-env is now installed into PATH; cli api isn&#8217;t considered stable,
+but it should be useful for folks playing w/ bash environments or doing
+ebuild inspection.</li>
+<li>correct a tb in pmerge when the user configuration is strictly a single
+source repository.  Semi rare, but can occur.</li>
+<li>correct a tb when throwing a missing file error for specifying package.*
+settings directly to domain.</li>
+<li>correct a tb in profiles expansion code of USE_EXPAND and USE_EXPAND_HIDDEN
+when they&#8217;re completely undefined in the profile stack.  Rare, but if a
+user is building a custom profile stack from the ground up, it&#8217;s possible
+to hit it.</li>
+<li>gentoo upstream bug 297933; filter BASHOPTS to keep bash 4.1 happy.</li>
+<li>correct an encoding issue in making binpkgs when an ebuild is utf8</li>
+<li>fix a traceback in pmerge -fK when trying to fetch required files for
+binpkgs.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-5-6-december-13th-2009">
+<span id="release-0-5-6"></span><h2>pkgcore 0.5.6: December 13th, 2009<a class="headerlink" href="#pkgcore-0-5-6-december-13th-2009" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.5.6.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.5.6">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>tweak pkgcore configuration subsystem to tell you the parameter involved
+when it&#8217;s passed an incorrectly typed object.</li>
+<li>fix an encoding issue w/ utf8 ebuilds on merging.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-5-5-november-26th-2009">
+<span id="release-0-5-5"></span><h2>pkgcore 0.5.5: November 26th, 2009<a class="headerlink" href="#pkgcore-0-5-5-november-26th-2009" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.5.5.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.5.5">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>portage changed their flat_hash support a while back, specifically
+how mtime was stored.  We match that now (although it&#8217;s daft to do so)
+for compatibility sake- primarily affected CVS users.</li>
+<li>removed a potential in the merge engine where triggers that didn&#8217;t
+do an abspath on items they added could incorrectly be moved.
+Specifically affected FEATURES=debugedit for /usr/lib -&gt; lib64 pathways.</li>
+<li>boolean restrictions now default to being finalized.</li>
+<li>pkgcore.fs.ops.offset_rewriter -&gt; pkgcore.fs.contents.offset_rewriter</li>
+<li>various code cleanups, quite a few conversions to snakeoil.klass
+decorators/property tricks to simplify the code.</li>
+<li>experimental python3.1 support.  Bugs welcome, although till stated
+otherwise, it&#8217;s considered unsupported.</li>
+<li>pkgcore.restrictions.values.ComparisonMatch has been removed.</li>
+<li>for overlayed repositories that have invalid atom stacking in their
+package.mask, give an appropriate error message indicating the file.</li>
+<li>gentoo bug 196561, PMS doesn&#8217;t match portage behaviour for &#8216;~&#8217; atom
+operator.  Being that the pms definition has never been accurate, and
+portage hasn&#8217;t handled &#8216;~&#8217; w/ a revision in any sane form, and finally
+do to portage adding a repoman check for this (bug 227225) pkgcore is
+now strict about disallowing revisions with &#8216;~&#8217;.  Scream at PMS to
+fix their doc if it&#8217;s problematic.</li>
+<li>certain ebuilds (ssmtp for example) expect D to have a trailing &#8216;/&#8217;.
+Force this (outside pms compliance, so we match portage behaviour).</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-5-4-october-30-2009">
+<span id="release-0-5-4"></span><h2>pkgcore 0.5.4: October 30, 2009<a class="headerlink" href="#pkgcore-0-5-4-october-30-2009" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.5.4.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.5.4">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>minor bug fix release fixing filter-env invocation (wasn&#8217;t covered
+by tests)</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-5-3-october-30-2009">
+<span id="release-0-5-3"></span><h2>pkgcore 0.5.3: October 30, 2009<a class="headerlink" href="#pkgcore-0-5-3-october-30-2009" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.5.3.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.5.3">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>filter-env grew a &#8211;print-vars option.  If you&#8217;ve been seeing
+&#8220;declare: write error: Broken pipe&#8221; from build operations, this should
+now be fixed via using this new option.</li>
+<li>the resolver wasn&#8217;t properly accounting for planned modifications to
+the installed pkgs database.  If you&#8217;ve had upgrade issues from
+blockers, this is the root cause (pam/pambase in particular).</li>
+<li>eclass scanning is now JIT&#8217;d, and the resultant eclass dictionary
+is now marked immutable for safety reasons.</li>
+<li>for portage configuration when PORTDIR_OVERLAY is in use and portdir
+has a pregenerated cache, check the pregenerated cache first when
+looking for metadata.  This degrades the usage case where overlays
+override quite a few core eclasses in favor of the more common case
+where the pregenerated cache is the majority of the time, accurate.
+End result is upwards of a 2x reduction in open invocations.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-5-2-october-28-2009">
+<span id="release-0-5-2"></span><h2>pkgcore 0.5.2: October 28, 2009<a class="headerlink" href="#pkgcore-0-5-2-october-28-2009" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.5.2.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.5.2">Git history</a></p>
+<p>Notable changes:</p>
+<ul>
+<li><p class="first">touch vdb root on vdb modification as a way to notify alternative PMs
+that their cache needs updating.  Gentoo bug #290428.  Just leaves paludis
+to join in on the fun...</p>
+</li>
+<li><p class="first">portage 2.2 modified make.globals to add a default, non glep23 compliant
+ACCEPT_LICENSE.  pkgcore&#8217;s implementation has been modified to be non
+compliant to glep23, matching portage semantics.</p>
+<p>If pquery &lt;atom&gt; has suddenly started returning nothing, this was the cause.</p>
+</li>
+<li><p class="first">fix a traceback that could occur when doing pmerge -pv for when binpkg
+repos were involved.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-5-1-october-22-2009">
+<span id="release-0-5-1"></span><h2>pkgcore 0.5.1: October 22, 2009<a class="headerlink" href="#pkgcore-0-5-1-october-22-2009" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.5.1.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.5.1">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>correct a python-2.6 incompatibility that rears it&#8217;s head when doing
+repository operations (installing, uninstalling, etc).</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-5-october-22-2009">
+<span id="release-0-5"></span><h2>pkgcore 0.5: October 22, 2009<a class="headerlink" href="#pkgcore-0-5-october-22-2009" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.5.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.5">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>add protection against multiple python versions, w/ the default python
+invocation being a different major version from what pkgcore was installed
+under.  Primarily a fix to dohtml.</li>
+<li>ticket 230; tweaks for better &gt;=python2.5 compatibility.</li>
+<li>pkgcore will now try to sync overlays if the overlay is a vcs.  This can
+be disabled by adding FEATURES=&#8221;-autodetect-sync&#8221; to your make.conf</li>
+<li>pkgcore.sync.base.AutodetectSyncer was added as a way to pull configuration
+from existing on disk vcs repos, and generate a syncer from them.</li>
+<li>handle cache corruption a bit better- namely, log the warning, and keep
+going.  Degradation of performance can result, but it&#8217;s preferable to just
+bailing.</li>
+<li>gentoo bug 280766; basically some ebuilds are sensitive to a trailing &#8216;/&#8217;
+on WORKDIR (portage strips it) leading to failures in path sedding.</li>
+<li>comply with PMS corner cases for package names; gentoo bug 263787</li>
+<li>serialization support for cpv derivatives.  Not great, but packages.g.o
+relies on it, thus it&#8217;s inclusion.</li>
+<li>not surprising on the timing (or spotting it via ciaran spreading it
+via blog comments), gentoo bug 226505 revisited- change in phase ordering
+afflicting all eapis.  pkgcore had it right the first time, inverted the
+ordering in 0.4.7.9.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-7-16-march-24-2009">
+<span id="release-0-4-7-16"></span><h2>pkgcore 0.4.7.16: March 24, 2009<a class="headerlink" href="#pkgcore-0-4-7-16-march-24-2009" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.7.16.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.7.16">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>pmerge is a bit more informative when there is nothing to merge,
+and doesn&#8217;t ask if in &#8211;ask if the users wishes to proceed.
+Thanks to DJ Anderson for pointing out this oversight.</li>
+<li>ensure unicode for pquery &#8211;attr longdescription w/in pquery; via this
+it leaves the unicode question to the formatter, instead of down converting
+earlier.</li>
+<li>fix a mismatch between src ebuilds and binpkgs for _eclasses_ when
+doing pquery &#8211;attr inherited.  Bit of a hack, but it&#8217;ll suffice.</li>
+<li>pquery &#8211;attr all and &#8211;attr allmetadata was added.  &#8216;all&#8217; gets you
+all known attrs (environment, contents, etc); bit heavy but useful if
+you need to see it all.  &#8216;allmetadata&#8217; gets you the key/val pairs for
+this host- fetchables, depends, slotting, eapi, repo, cbuild/chost, etc,
+but no environment/contents.</li>
+<li>fix cycle detection for dev-util/git; specifically there is a cycle on
+virtual/perl-Module-Built which can be ignored since that chain of deps
+are pulled in via post_rdepends.</li>
+<li>make gid/mode configurable for filelist pkgsets; this fixes 4 failures
+for when the tests are ran and the user isn&#8217;t a member of portage.</li>
+<li>fix a cornercase in fs.livefs.intersect where intersecting a file/dir
+would trigger a traceback.</li>
+<li>fix a corner case where the world file isn&#8217;t updated if the world file
+is empty.</li>
+<li>fix a deprecation warning under 2.6 caused by an impedence between
+native_PackageRestriction and the cpy version for __init__ invocation.</li>
+<li>fix gentoo bug 216492, a change in libsandbox behaviour- specifically
+libsandbox for &gt;=1.3 is now appending libsandbox.so while failing to
+spot it already existing in LD_PRELOAD; pkgcore tests were written a bit
+strict thus were spotting this.  Loosen the test, and fix the case where
+a different preload is used in conjunction w/ sandbox.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-7-15-jan-28-2009">
+<span id="release-0-4-7-15"></span><h2>pkgcore 0.4.7.15: Jan 28, 2009<a class="headerlink" href="#pkgcore-0-4-7-15-jan-28-2009" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.7.15.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.7.15">Git history</a></p>
+<p>Notable changes:</p>
+<ul>
+<li><p class="first">fix docutils-0.5 incompatibility in build_api_docs.py</p>
+</li>
+<li><p class="first">python issue 4230 makes __getattr__ support descriptor protocol.
+This unfortunately causes part of config handling to go boom- fixed.</p>
+<p>Unfortunately this also means that we need to support both descriptor
+and <em>non</em> descriptor interpretters at <em>runtime</em>- if python is upgraded
+underfoot, things get unhappy to keep atom.__getattr__ from blowing up.
+Fixed either way.</p>
+</li>
+<li><p class="first">copy HOMEPAGE into vdb/binpkg by default.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-7-14-dec-18-2008">
+<span id="release-0-4-7-14"></span><h2>pkgcore 0.4.7.14: Dec 18, 2008<a class="headerlink" href="#pkgcore-0-4-7-14-dec-18-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.7.14.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.7.14">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>profile awareness of eapi files, <em>including</em> strict validation.</li>
+<li>tighter use dep and atom support in pkgcore for specified eapis.</li>
+<li>ticket 187; fix a traceback when a specific subset of cycles are
+encountered.</li>
+<li>correct a python 2.6 incompatibility; object.__init__() is now strict
+about taking no keywords.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-7-13-oct-29-2008">
+<span id="release-0-4-7-13"></span><h2>pkgcore 0.4.7.13: Oct 29, 2008<a class="headerlink" href="#pkgcore-0-4-7-13-oct-29-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.7.13.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.7.13">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>bug fix for transitive use atoms; if || ( a/b[x?] ), DepSet wasn&#8217;t detecting
+that there were conditionals w/in it, as such wasn&#8217;t doing evaluation.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-7-12-oct-10-2008-2-hours-after-0-4-7-11">
+<span id="release-0-4-7-12"></span><h2>pkgcore 0.4.7.12: Oct 10, 2008 (2 hours after 0.4.7.11 ;)<a class="headerlink" href="#pkgcore-0-4-7-12-oct-10-2008-2-hours-after-0-4-7-11" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.7.12.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.7.12">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>security fix; force cwd to something controlled for ebuild env.  This
+blocks an attack detailed in glsa 200810-02; namely that an ebuild invoking
+python -c (which looks in cwd for modules to load) allows for an attacker
+to slip something in.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-7-11-oct-10-2008">
+<span id="release-0-4-7-11"></span><h2>pkgcore 0.4.7.11: Oct 10, 2008<a class="headerlink" href="#pkgcore-0-4-7-11-oct-10-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.7.11.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.7.11">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>fix EAPI2 issues: default related primarily, invoke src_prepare for
+&gt;=EAPI2 instead of &gt;EAPI2.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-7-10-oct-7-2008">
+<span id="release-0-4-7-10"></span><h2>pkgcore 0.4.7.10: Oct 7, 2008<a class="headerlink" href="#pkgcore-0-4-7-10-oct-7-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.7.10.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.7.10">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>fix in setup.py to install eapi/* files.
+die distutils, die.</li>
+<li>api for depset inspection for tristate (pcheck visibility mode) is fixed
+to not tell the consumer to lovingly &#8216;die in a fire&#8217;.</li>
+<li>correct a failure in EAPI=2 src_uri parsing complaining about
+missing checksums for nonexistant files</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-7-9-oct-6-2008">
+<span id="release-0-4-7-9"></span><h2>pkgcore 0.4.7.9: Oct 6, 2008<a class="headerlink" href="#pkgcore-0-4-7-9-oct-6-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.7.9.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.7.9">Git history</a></p>
+<p>Notable changes:</p>
+<ul>
+<li><p class="first">eapi2 is now supported.</p>
+</li>
+<li><p class="first">DepSet has grown a temp option named allow_src_uri_file_names; this
+is to support eapi 2&#8217;s -&gt; SRC_URI extension.  This functionality
+will under go refactoring in the coming days- as such the api addition
+isn&#8217;t considered stable.</p>
+</li>
+<li><p class="first">we now match the forced phase ordering portage induced via breaking
+eapi compatibilty for eapi0/1.</p>
+</li>
+<li><p class="first">tightened up allowed atom syntax; repository dep is available only when
+eapi is unspecified (no longer available in eapi2 in other words).
+atom USE dep parsing now requires it to follow slotting- this is done to
+match the other EAPI2 standard.</p>
+<p>Beyond that, better error msgs and tighter validation.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-7-8-august-28-2008">
+<span id="release-0-4-7-8"></span><h2>pkgcore 0.4.7.8: August 28, 2008<a class="headerlink" href="#pkgcore-0-4-7-8-august-28-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.7.8.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.7.8">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>pkgcore now properly preserves ownership of symlinks on merging.
+ensure_perms plugins now need to handle symlinks (lchown at the least).</li>
+<li>free resolver caches after resolution is finished; lower the memory
+baseline for pmerge.</li>
+<li>fix up interface definitions for &gt;snakeoil-0.2 dependant_methods changes.
+Via these cleanups and &gt;snakeoil-0.2, memory usage is massively decreased
+for pmerge invocations.</li>
+<li>swallow EPIPE in pquery when stdout is closed early.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-7-7-august-11-2008">
+<span id="release-0-4-7-7"></span><h2>pkgcore 0.4.7.7: August 11, 2008<a class="headerlink" href="#pkgcore-0-4-7-7-august-11-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.7.7.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.7.7">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>Disable fakeroot tests due to odd behaviour, and the fact it&#8217;s currently
+unused.</li>
+<li>Fix installation issue for manpages for python2.4; os.path.join behaviour
+differs between 2.4 and 2.5.</li>
+<li>Kill off large memory leak that reared it&#8217;s head per pkg merge; still is
+a bit of a leak remaining, but nothing near as bad as before.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-7-6-august-10-2008">
+<span id="release-0-4-7-6"></span><h2>pkgcore 0.4.7.6: August 10, 2008<a class="headerlink" href="#pkgcore-0-4-7-6-august-10-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.7.6.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.7.6">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>fix sandbox complaint when PORT_LOGDIR is enabled- sandbox requires abspath
+for any SANDBOX_WRITE exemptions, if PORT_LOGDIR path includes symlinks,
+force a <cite>readlink -f</cite> of the sandbox exemption.
+<a class="reference external" href="http://forums.gentoo.org/viewtopic-p-5176414.html">http://forums.gentoo.org/viewtopic-p-5176414.html</a></li>
+<li>ticket 213; if stricter is in FEATURES, fail out if insecure rpath is
+detected- otherwise, correct the entries.</li>
+<li>ticket 207; drop the attempted known_keys/cache optimizations, instead
+defer to parent&#8217;s iterkeys always.  This eliminates the concurrency issue,
+and simplifies staleness detection.  Also kills off a tb for &#8211;newuse .</li>
+<li>ticket 201; pquery &#8211;restrict-revdep-pkgs wasn&#8217;t behaving properly for
+slot/repository/user atoms, now does.</li>
+<li>Correct potential segfaults in cpython version of PackageRestriction and
+StrExactMatch&#8217;s __(eq|ne)__ implementations.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-7-5-july-6-2008">
+<span id="release-0-4-7-5"></span><h2>pkgcore 0.4.7.5: July 6, 2008<a class="headerlink" href="#pkgcore-0-4-7-5-july-6-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.7.5.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.7.5">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>incremental_expansion and friends have grown a cpython implementation-
+this speedup will show up if you are doing lots of profile work (pcheck
+for example, which has to read effectively all profile).</li>
+<li>if the invoking user isn&#8217;t part of the portage group, don&#8217;t throw a
+traceback due to permission denied for virtuals cache.</li>
+<li>correct a false positive in pkgcore.test.util.test_commandline that occurs
+when snakeoil c extensions aren&#8217;t enabled.</li>
+<li>ticket 193; follow symlinks in /etc/portage/<a href="#id1"><span class="problematic" id="id2">*</span></a>/ directories.</li>
+<li>ticket 203; functionfoo() {:;} is not function &#8216;foo&#8217;, it&#8217;s &#8216;functionfoo&#8217;.
+Users shouldn&#8217;t have seen this- thanks to ferdy for spotting it in an audit.</li>
+<li>add &#8216;skip_if_source&#8217; option to misc. binpkg merging triggers- defaults to
+True, controls whether or not if a pkg from the target_repo should be
+reinstalled to the repo.</li>
+<li>make contentsSet.map_directory_structure go recursive-
+this fixes ticket #204, invalid removal of files previously just merged.</li>
+<li>make &#8211;newuse work with atoms/sets</li>
+<li>add a cpy version of incremental_expansion</li>
+<li>fix longstanding bug - finalize settings from make.conf, stopping negations
+from being parsed twice. Without this fix, -* in a setting will negate
+random flags set after it.</li>
+<li>allow / in repo ids</li>
+<li>don&#8217;t show flags from previous versions of packages in &#8211;pretend output -
+it&#8217;s confusing and doesn&#8217;t match portage behaviour.</li>
+<li>fix ticket 192: ignore non-existant files in config protect checking</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-7-4-june-11-2008">
+<span id="release-0-4-7-4"></span><h2>pkgcore 0.4.7.4: June 11, 2008<a class="headerlink" href="#pkgcore-0-4-7-4-june-11-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.7.4.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.7.4">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>eapi1 bug fix; check for, and execute if found, ./configure if ECONF_SOURCE
+is unset.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-7-3-may-16-2008">
+<span id="release-0-4-7-3"></span><h2>pkgcore 0.4.7.3: May 16, 2008<a class="headerlink" href="#pkgcore-0-4-7-3-may-16-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.7.3.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.7.3">Git history</a></p>
+<p>Notable changes:</p>
+<ul>
+<li><p class="first">ticket #185; tweak the test to give better debug info.</p>
+</li>
+<li><p class="first">add proper handling of very, very large revision ints (up to 64 bits).</p>
+</li>
+<li><p class="first">fakeroot tests are enabled again.</p>
+</li>
+<li><p class="first">misc bug fixes; pquery &#8211;revdep traceback, vecho complaints from do*
+scripts.</p>
+</li>
+<li><p class="first">explicit notice that Jason Stubbs, Brian Harring, Andrew Gaffney, and
+Charlie Shepherd, Zac Medico contributions are available under either
+GPL2 (v2 only) or 3 clause BSD.
+Terms are in root directory under files names BSD, and GPL2.
+Aside from the bash bits Harring implemented during the EBD days, the
+remaining ebuild bash bits are Gentoo Foundation copyright (GPL2), and
+the contributions from Marien Zwart are currently GPL2 (config bits, still
+need explicit confirmation).</p>
+<p>What that effectively means is that pkgcore as a whole currently is GPL2-
+sometime in the near future, the core of pkgcore (non-ebuild bits) will be
+BSD/GPL2, and then down the line the bash bits will be rewritten to be
+BSD/GPL2 (likely dropping the functionality it uses down to something bash/
+BSD shell compatible).</p>
+</li>
+<li><p class="first">expansion of -try/-scm awareness to installed pkgs database.  Binpkg
+repositories now abid by ignore_paludis_versioning also.</p>
+</li>
+<li><p class="first">ticket #184; silence disable debug-print in non build/install phases.</p>
+</li>
+<li><p class="first">handle malformed rsync timestamps more cleanly.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-7-2-may-07-2008">
+<span id="release-0-4-7-2"></span><h2>pkgcore 0.4.7.2: May 07, 2008<a class="headerlink" href="#pkgcore-0-4-7-2-may-07-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.7.2.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.7.2">Git history</a></p>
+<p>Notable changes:</p>
+<ul>
+<li><p class="first">new portage configuration feature- &#8216;ignore-paludis-versioning&#8217;.  This
+directs pkgcore to ignore nonstandard -scm ebuilds instead of complaining
+about them.
+Note this does <em>not</em> affect the installed pkgs database- if there is a
+-scm ebuild in the vdb, pkgcore <em>must</em> deal with that ebuild, else if it
+silently ignores vdb -scm pkgs it can result in overwriting parts of the
+-scm pkg, and other weirdness.  If you&#8217;ve got a -scm version pkg installed,
+it&#8217;s strongly suggested you uninstall it unless you wish to be bound to that
+nonstandard behaviour of paludis.</p>
+<p>Finally, it&#8217;s not yet covering <em>all</em> paludis version extensions- that will
+be expanded in coming versions.</p>
+</li>
+<li><p class="first">pkgcore is now aware of installed -scm pkgs, and gives a cleaner error
+message.</p>
+</li>
+<li><p class="first">a few versions of portage-2.2 automatically added &#64;PKGSET items to the
+world file; due to how portage has implemented their sets, this would
+effectively convert the data to portage only.  As such, that feature was
+reversed (thank you genone); that said, a few world files have &#64;pkgset
+entries from these versions.  Pkgcore now ignores it for worldfiles, and
+levels a warning that it will clear the &#64;pkgset entry.</p>
+</li>
+<li><p class="first">ticket #174; ignore bash style comments (leading #) in pkgsets, although
+they&#8217;re wiped on update.  If folks want them preserved, come up with a way
+that preserves the location in relation to what the comment is about- else
+wiping seems the best approach.</p>
+</li>
+<li><p class="first">ticket #14; tweak PORT_LOGDIR support a bit, so that build, install,
+and uninstall are seperated into different logs.</p>
+</li>
+<li><p class="first">added &#8216;&#64;&#8217; operator to pmerge as an alias for &#8211;set; for example,
+&#8216;pmerge &#64;system&#8217; is the same as &#8216;pmerge &#8211;set system&#8217;.</p>
+</li>
+<li><p class="first">fallback method of using the file binary instead of libmagic module is
+fixed; ticket #183.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-7-1-may-04-2008">
+<span id="release-0-4-7-1"></span><h2>pkgcore 0.4.7.1: May 04, 2008<a class="headerlink" href="#pkgcore-0-4-7-1-may-04-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.7.1.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.7.1">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>correct a flaw in repository searching that slipped past the test harness.
+effectively breaks via inverting the negate logic for any complex search.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-7-may-03-2008">
+<span id="release-0-4-7"></span><h2>pkgcore 0.4.7: May 03, 2008<a class="headerlink" href="#pkgcore-0-4-7-may-03-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.7.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.7">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>prepstrip was updated to match current portage semantics, minus stripping
+and splitdebug functionality (we handle that via a trigger).  Via this,
+FEATURES=installsources and basic bincheck (pre-stripped binaries) is now
+supported.</li>
+<li>FEATURES=&#8217;strip nostrip splitdebug&#8217; are now supported in portage
+configuration (trigger is pkgcore.merge.triggers.BinaryDebug).</li>
+<li>added cygwin ostype target for development purposes.  In no shape or form
+is this currently considered supported, although anyone interested in
+developing support for that platform, feel free to contact us.</li>
+<li>in candidate identification in repository restriction matching, it was
+possible for a PackageRestriction that was negated to be ignored, thus
+resulting in no matches.  This has been corrected, although due to
+collect_package_restrictions, it&#8217;s possible to lose the negation state
+leading to a similar scenario (no known cases of it currently).  This
+codepath will need reworking to eliminate these scenarios.</li>
+<li>mercurial+ sync prefix is now supported for hg.</li>
+<li>triggers _priority class var is now priority; overload with a property if
+custom functionality is needed.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-6-april-29-2008">
+<span id="release-0-4-6"></span><h2>pkgcore 0.4.6: April 29, 2008<a class="headerlink" href="#pkgcore-0-4-6-april-29-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.6.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.6">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>filelist sets (world file for example) are now sorted by atom comparison
+rules.  ticket #178.</li>
+<li>pquery &#8211;restrict-revdep-pkgs and &#8211;revdep-pkgs were added: they&#8217;re
+used to first match against possible pkgs, then do the revdep looking for
+pkgs that revdep upon those specific versions.  Functionality may change,
+as may the outputting of it.  ticket #179.</li>
+<li>pebuild breakage introduced in 11/07 is corrected; back to working.</li>
+<li>&#8216;info&#8217; messages during merging are now displayed by default- new debug
+message type was added that isn&#8217;t displayed by default.</li>
+<li>ebuild domain now accepts triggers configuration directive.</li>
+<li>FEATURES=unmerge-buildpkg was added; this effectively quickpkgs a pkg
+before it&#8217;s unmerged so you have a snapshot of it&#8217;s last state before
+it is replaced.</li>
+<li>FEATURES=pristine-buildpkg was added; this is like FEATURES=buildpkg,
+but tbzs the pkg prior to any modification by triggers.  Upshot of this,
+you basically have an unmodified binpkg that can be localized to the merging
+host rather then to the builder.  Simple example, with this if your main
+system is FEATURES=strip, it tucks away a nonstripped binpkg- so that
+consumers of the binary repo are able to have debug symbols if they want
+them.</li>
+<li>FEATURES=buildsyspkg is now supported.</li>
+<li>FEATURES=buildpkg is now supported.</li>
+<li>the engine used for install/uninstall/replace is now configurable via
+engine_kls attribute on the op class.</li>
+<li>dropped exporting of USER=&#8217;portage&#8217; if id is portage.  Ancient var setting,
+can&#8217;t find anything reliant on it thus punting it.</li>
+<li>add SunOS to known OS&#8217;s since it&#8217;s lchown suffices for our needs.</li>
+<li>added eapi awareness to atoms, so that an eapi1 atom only allows the
+slot extension for example.</li>
+<li>remove a stray printf from cpy atom; visible only when repository atoms
+are in use.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-5-april-9-2008">
+<span id="release-0-4-5"></span><h2>pkgcore 0.4.5: April 9, 2008<a class="headerlink" href="#pkgcore-0-4-5-april-9-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.5.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.5">Git history</a></p>
+<p>Notable changes:</p>
+<ul>
+<li><p class="first">fix collision unprotect trigger exceptions (typically KeyError).
+ticket #165</p>
+</li>
+<li><p class="first">correct invalid passing of force keyword down when the repository isn&#8217;t
+frozen.  Occasionally triggered user visible tracebacks in pmaint copy.</p>
+</li>
+<li><p class="first">portage broke compatibility with pkgcore a while back for our binpkgs-
+for some inane reason, portage requires CATEGORY and PF in the xpak
+segment.  This is being removed from portage in 2.2, but in the interim
+pkgcore now forces those keys into the binpkgs xpak for compatibility
+with portage.</p>
+<p>Shorter version: pmaint copy generated binpkgs work with portage again.</p>
+</li>
+<li><p class="first">cbuild/chost/ctarget are available via pquery &#8211;attr, and are written to
+binpkg/vdb now.</p>
+</li>
+<li><p class="first">stat removal work: FEATURES=-metadata-cache reuses existing eclass cache
+object, thus one (and only one) scan of ${PORTDIR}/eclass</p>
+</li>
+<li><p class="first">metadata, flat_hash, and paludis_flat_list cache formats configuration
+arg &#8216;label&#8217; is no longer required, and will be removed in 0.5.  If they&#8217;re
+unspecified, pkgcore will use location as the place to write the cache at,
+else it&#8217;ll combine location and label.</p>
+</li>
+<li><p class="first">cdb, anydbm, sqlite, and sql_template cache backends have been removed
+pending updating the code for cache backend cleanups.  If interested in
+these backends, contact ferringb at <a class="reference external" href="irc://freenode.net/#pkgcore">irc://freenode.net/#pkgcore</a> .</p>
+</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-4-april-6-2008">
+<span id="release-0-4-4"></span><h2>pkgcore 0.4.4: April 6, 2008<a class="headerlink" href="#pkgcore-0-4-4-april-6-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.4.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.4">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>merging/replacing performance may be a bit slower in this release- the level
+of stats calls went up in comparison to previous releases, with several
+duplicates.  This will be corrected in the next release- releasing in the
+interim for bugfixes this version contains.</li>
+<li>add CBUILD=${CBUILD:-${CHOST}}; couple of odd ebuilds rely on it despite
+being outside of PMS.</li>
+<li>protective trigger was added blocking unmerging of a basic set of
+directories/syms; mainly /<em>, and /usr/</em>.</li>
+<li>when a merge passes through a symlink for path resolution, that sym is
+no longer pulled in as an entry of that pkg.  Originally this was done for
+protective reasons, but it serves long term as a way to inadvertantly hold
+onto undesired junk from the users fs, and opens the potential to unmerge
+system/global symlinks when that pkg/slot&#8217;s refcount hits zero.</li>
+<li>detection, and predicting merge locations for syms was doing an unecessary
+level of stat calls; this has been reduced to bare minimum.</li>
+<li>ticket 159; force an realpath of CONTENTS coming from the vdb due to other
+managers not always writing realpath&#8217;d entries, thus resulting in occasional
+misidentification of what to remove.</li>
+<li>pkgcore.util.parserestrict no longer throws MalformedAtom, always
+ParseError.  Removes ugly commandline tracebacks for bad atoms supplied
+to pmerge.</li>
+<li>ticket 158; honor RSYNC_PROXY for rsync syncer.
+Thanks to user Ford_Prefect.</li>
+<li>pmerge -N now implies &#8211;oneshot.</li>
+<li>correct a flaw in tbz2 merging where it repeatedly try to seek in the bz2
+stream to generate chksums, instead of using the on disk files for
+chksumming.</li>
+<li>pmaint regen w/ &gt; 1 thread no longer throws an ugly set of tracebacks upon
+completion.</li>
+<li>binpkg repositories now tell you the offending mode, and what is needed
+to correct it.  No longer cares if the specified binpkg base location is
+a symlink also.</li>
+<li>pmaint &#8211;help usage descriptions are far more useful now.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-3-march-31-2008">
+<span id="release-0-4-3"></span><h2>pkgcore 0.4.3: March 31, 2008<a class="headerlink" href="#pkgcore-0-4-3-march-31-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.3.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.3">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>correct a corner case where a users bash_profile is noisy, specifically
+disable using $HOME/.bashrc from all spawn_bash calls.</li>
+<li>USE=-* in make.conf support is restored.  ticket 155.</li>
+<li>minor tweak to package.keywords, package.use, and package.license support-
+-* is properly supported now.  Following portage, if you&#8217;re trying to
+match keywords for a pkg that are &#8216;-* x86&#8217;, you must match on x86.</li>
+<li>pquery &#8211;attr use output for EAPI=1 default IUSE is significantly less
+ugly.</li>
+<li>ticket #150. EAPI1 IUSE defaults fixups.  stacking order is that default
+IUSE is basically first in the chain, so any configuration (global, per
+pkg, etc), will override if possible.  Effectively, this means a default
+IUSE of &#8220;-foon&#8221; is pointless, since there is no earlier USE stack to
+override.</li>
+<li>pkgcore.ebuild.collapsed_restrict_to_data api was broken outside of a
+major version bump- specifically pull_cp_data method was removed since
+the lone consumer (pkgcore internals) doesn&#8217;t need it, and the method
+is semi dangerous to use since it only examines atoms.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-2-march-30-2008">
+<span id="release-0-4-2"></span><h2>pkgcore 0.4.2: March 30, 2008<a class="headerlink" href="#pkgcore-0-4-2-march-30-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.2.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.2">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>correct handling of ebuilds with explicit -r0 in filename, despite it being
+implicit.  Thanks to rbrown for violating gentoo-x86 policy out of the blue
+w/ an ebuild that has -r0 explicit in the filename for smoking out a bug
+in pkgcore handling of it.  Ebuild since removed, but the KeyError issue
+is corrected.  (keep the bugs coming)</li>
+<li>minor performance optimization to binpkg merging when there is a large #
+of symlink rewrites required.</li>
+<li>ticket #153; restore &lt;0.4 behaviour for temporal blocker validation, rather
+then invalidly relying on the initial vdb state for blocker checks.  Fixes
+resolution/merging of sys-libs/pam-0.99.10.0</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-1-march-20-2008">
+<span id="release-0-4-1"></span><h2>pkgcore 0.4.1: March 20, 2008<a class="headerlink" href="#pkgcore-0-4-1-march-20-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.1.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4.1">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>add tar contentsSet rewriting; tarballs sometimes leave out directories,
+and don&#8217;t always have the fully resolved path- /usr/lib/blah, when
+/usr/lib -&gt; /usr/lib64 <em>should</em> be /usr/lib64/blah, but tar doesn&#8217;t force
+this.  Due to that, can lead to explosions in unpacking- this is now fixed.</li>
+<li>pquery &#8211;attr inherited was added; this feature may disappear down the
+line, adding it meanwhile since it&#8217;s useful for ebuild devs.</li>
+<li>adjust setup.py so that man page installation properly respects &#8211;root</li>
+<li>correct a corner case where a package name of &#8216;dev-3D&#8217; was flagged as
+invalid.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-4-march-18-2008">
+<span id="release-0-4"></span><h2>pkgcore 0.4: March 18, 2008<a class="headerlink" href="#pkgcore-0-4-march-18-2008" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.4.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.4">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>resolver fixes: vdb loadup wasn&#8217;t occuring for old style virtuals for
+rdepend blockers, now forces it.  It was possible for a node to be
+considered usable before it&#8217;s rdepends blockers were leveled- now those
+must be satisfied before being able to dep on the node.</li>
+<li>resolver events cleanup; pmerge now gives far better info as to why a
+choice failed, what it attempted to get around it, etc.</li>
+<li>multiplex trees now discern their frozen state from their subtrees,
+and will execute the repo_op for the leftmost subtree if unfrozen.</li>
+<li>pquery &#8211;attr eapi was added.</li>
+<li>ticket 94; package.provided is now supported fully both in profiles,
+and in user profile (/etc/portage/profile).</li>
+<li>ticket 116; ignore empty tarfile exception if the exception explicitly
+states empty header.</li>
+<li>utter corner case compatibility- =dev-util/diffball-1.0-r0 is now the
+same as =dev-util/diffball-1.0 .</li>
+<li>convert FETCHCOMMAND/RESUMECOMMAND support to execute spawn_bash by
+default instead of trying to cut out shell; this kills off the occasional
+incompatibility introduced via portage supplying make.globals.</li>
+<li>FEATURES=sfperms is now a trigger instead of a dyn_preinst hook.
+Faster, cleaner, etc.</li>
+<li>delayed unpacking of binpkgs has been disabled; occasionally can lead to
+quadratic behaviour in contents accessing, and extreme corner case trigger
+breakages.  Will be re-enabled once API has been refactored to remove
+these issues.</li>
+<li>FEATURES=multilib-strict was converted into a trigger.  Tries to
+use the python bindings for file first (merge file[python]), falling
+back to invoking file.  Strongly suggested you have the bindings- fair bit
+faster.  Finally, verification now runs for binpkgs also.</li>
+<li>bug 137; symlink on directory merging failures where pkgcore would wipe
+files it had just installed invalidly.</li>
+<li>correct issue in offset rewriting (was resetting new_offset to &#8216;/&#8217;)-
+should only be api visible, no existing consumers known.</li>
+<li>ebuild env lzma unpack support was broken; fixed (ticket 140).</li>
+<li>Additional debug output for pmerge.</li>
+<li>Further extending PortageFormatter to sanely handle worldfile highlights
+and show repos with both id and location</li>
+<li>Ticket 132: Portage Formatter supports real portage colors now,
+thanks to agaffney for getting the ball rolling</li>
+<li>Masked IUSEs were not treated right in all cases, thanks to agaffney
+for report and help testing</li>
+<li>diefunc tracebacks beautified</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-3-4-dec-26-2007">
+<span id="release-0-3-4"></span><h2>pkgcore 0.3.4: Dec 26, 2007<a class="headerlink" href="#pkgcore-0-3-4-dec-26-2007" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.3.4.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.3.4">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>IUSEs were filtered, unstated were not respected though breaks with
+current portage tree, so re-enabling.
+Also sanely handle -flag enforcing now and kill hackish code for it.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-3-3-dec-14-2007">
+<span id="release-0-3-3"></span><h2>pkgcore 0.3.3: Dec 14, 2007<a class="headerlink" href="#pkgcore-0-3-3-dec-14-2007" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.3.3.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.3.3">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>IUSE defaults are respected now, so EAPI=1 implemented</li>
+<li>Write slotted atoms to worldfile as portage supports this now</li>
+<li>Sync up with portage; add support for lzma to unpack- mirror r7991 from
+portage.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-3-2-nov-3-2007">
+<span id="release-0-3-2"></span><h2>pkgcore 0.3.2: Nov 3, 2007<a class="headerlink" href="#pkgcore-0-3-2-nov-3-2007" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.3.2.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.3.2">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>ticket 190746 from gentoo; basically need to force the perms of first level
+directory of an unpacked $DISTDIR to ensure it&#8217;s at least readable/writable.
+fixes unpacking of app-misc/screen-4.0.3_p20070403::gentoo-x86 .</li>
+<li>ticket 118; if -u, don&#8217;t add the node to world set.</li>
+<li>correct a corner case in python implementation of cpv comparison (just
+python, cpy extension handles it correctly); bug 188449 in gentoo, basically
+floats have a limited precision, thus it was possible to get truncation in
+comparison with specially crafted versions.</li>
+<li>handle EOF/IOError on raw_input (for &#8211;ask) a bit more gracefully, ticket
+108.</li>
+<li>cd to ${WORKDIR} if ${S} doesn&#8217;t exist for test/install phases; matches
+change in portage behaviour.</li>
+<li>Now require snakeoil version 0.2 and up- require new capability of
+AtomicWriteFile, ability to specify uid/gid/perms.  Via that, fixes ticket
+109 (umask leaking through to profile.env).</li>
+<li>the &#8216;glsa&#8217; pkgset is now deprecated in favor of &#8216;vuln&#8217;; will remain
+through till 0.4 (ticket #106).</li>
+<li>ticket 105/96; fix via andkit, basically a bug in einstall lead to
+extra einstall opts getting dropped instead of passed through.</li>
+<li>compatibility fix for lha unpacking for nwere versions of lha.</li>
+<li>emake now invokes ${MAKE:-make}, instead of make- undocumented ebuild
+req, see bug 186598 at bugs.gentoo.org.</li>
+<li>pmerge &#8211;verbose is now pmerge -F portage-verbose-formatter</li>
+<li>Stop installing pregen symlink; functionality moved to pmaint regen.</li>
+<li>&#8216;pmerge &#8211;domain&#8217; was added; basically is a way to specify the domain to
+use, else usees the configuration defined default domain.</li>
+<li>new ebuild trigger to avoid installing files into symlinked dir (get_libdir
+is the friend to fix a common /usr/lib -&gt; /usr/lib64 bug), ticket 119</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-3-1-june-27-2007">
+<span id="release-0-3-1"></span><h2>pkgcore 0.3.1: June 27, 2007<a class="headerlink" href="#pkgcore-0-3-1-june-27-2007" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.3.1.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.3.1">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>ticket 86; export FILE for portage_conf FETCHCOMMAND/RESUMECOMMAND support,
+convert from spawn_bash to spawn, add some extra error detection</li>
+<li>Correct cleanup of unknown state ebp processors; basically discard them if
+they fail in any way.  Cleanup inherit error msg when under ebd.</li>
+<li>Correct permission issue for vdb virtuals cache.</li>
+<li>ticket 84; rework overlay internals so that sorting order can&#8217;t accidentally
+expose a version masked by a higher priority repository in an overlay stack.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-3-jun-06-2007">
+<span id="release-0-3"></span><h2>pkgcore 0.3: Jun 06, 2007<a class="headerlink" href="#pkgcore-0-3-jun-06-2007" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.3.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.3">Git history</a></p>
+<p>Notable changes:</p>
+<ul>
+<li><p class="first">pregen has moved into pmaint regen.</p>
+</li>
+<li><p class="first">Several example scripts that show how to use the pkgcore api have been
+added, among others:</p>
+<blockquote>
+<div><ul class="simple">
+<li>repo_list (lists repos and some of their attributes)</li>
+<li>changed_use (a poor man&#8217;s &#8211;newuse)</li>
+<li>pkg_info (show maintainers and herds of a package)</li>
+<li>pclean (finds unused distfiles)</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Pkgcore now supports several different output formats for the buildplan.
+Portage and Paludis emulation are the notable formats, though plan
+category/package and the original output are also available as options.</p>
+</li>
+<li><p class="first">Portage formatter is now the default.</p>
+</li>
+<li><p class="first">Pkgcore formatter (no longer default) output was simplified to be less
+noisy.</p>
+</li>
+<li><p class="first">Large grammar fixes for documentation.</p>
+</li>
+<li><p class="first">Miscellaneous pylint cleanups, including whitespace fixes.</p>
+</li>
+<li><p class="first">Most of pkgcore.util.* (mainly the non pkgcore-specific bits) have been
+split out into a separate package, snakeoil. This includes the relevant cpy
+extensions.</p>
+</li>
+<li><p class="first">Triggers are quieter about what they&#8217;re doing by default.</p>
+</li>
+<li><p class="first">/etc/portage/package.* can now contain unlimited subdirectories and
+files (ticket 71).</p>
+</li>
+<li><p class="first">livefs functionality is no longer accessible in pkgcore.fs.*; have to access
+pkgcore.fs.livefs.*</p>
+</li>
+<li><p class="first">old style virtual providers from the vdb are now preferred for newer versions
+over profile defined defaults.</p>
+</li>
+<li><p class="first">added profile package.use support.</p>
+</li>
+<li><p class="first">ticket 80; $REPO_LOC/profiles/categories awareness; if the file exists, the
+repo uses it by default.</p>
+</li>
+<li><p class="first">resolver refactoring; report any regressions to ferringb.  Integrated in
+events tracking, so that the choices/events explaining the path the resolver
+took are recorded- via this, we actually have sane &#8220;resolution failed due to&#8221;
+messages, adding emerge -pt/paludis &#8211;show-reasons is doable without hacking
+the resolver directly, spotting which pkgs need to be unmasked/keyworded for
+a specific request to be satisfied, etc, all of it is doable without having
+to insert code directly into the resolver.  Anyone interested in adding these
+featues, please talk to harring.
+Worth noting, the events api and data structs for the resolver are still a
+work in process- meaning the api is not guranteed to stay stable at least
+till the next minor release.</p>
+</li>
+<li><p class="first">old style virtual pkgs are no longer combined into one with multiple
+providers; aside from simplifying things, this fixes a few annoying resolution
+failures involving virtual/modutils.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-2-14-april-8-2007">
+<span id="release-0-2-14"></span><h2>pkgcore 0.2.14: April 8, 2007<a class="headerlink" href="#pkgcore-0-2-14-april-8-2007" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.2.14.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.2.14">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>correct potential for profile path calculation screwup.</li>
+<li>refactor isolated-functions.sh so all internal vars are prefixed with
+<a href="#id3"><span class="problematic" id="id4">PKGCORE_RC_</span></a>; shift vars filter to <a href="#id5"><span class="problematic" id="id6">PKGCORE_RC_</span></a>.* instead of <a href="#id7"><span class="problematic" id="id8">RC_</span></a>.* .
+If you were having problems building courier-imap (RC_VER variable),
+this fixes it.</li>
+<li>better interop with paludis VDB environment dumps.</li>
+<li>treat RESTRICT as a straight depset for UI purposes (minor, but looks
+better this way).</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-2-13-march-30-2007">
+<span id="release-0-2-13"></span><h2>pkgcore 0.2.13: March 30, 2007<a class="headerlink" href="#pkgcore-0-2-13-march-30-2007" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.2.13.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.2.13">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>Added &#8216;~&#8217; to allowed shlex word chars.</li>
+<li>Due to amd64 /lib -&gt; /lib64, change the default policy for sym over
+directory merging to allow it if the target was a directory.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-2-12-march-29-2007">
+<span id="release-0-2-12"></span><h2>pkgcore 0.2.12: March 29, 2007<a class="headerlink" href="#pkgcore-0-2-12-march-29-2007" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.2.12.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.2.12">Git history</a></p>
+<p>Notable changes:</p>
+<ul>
+<li><p class="first">Ensure PackageRestriction._handle_exceptions filters the check down to
+just strings; if running pure python, this could trigger a traceback
+via the python native native_CPV.__cmp__.</p>
+</li>
+<li><p class="first">Tweak python native native_CPV.__cmp__ to not explode if given an instance
+that&#8217;s not a CPV derivative.</p>
+</li>
+<li><p class="first">Reorder ||() to use anything matched via the current state graph, aside
+from normal reordering to prefer vdb.</p>
+</li>
+<li><p class="first">default mode for ensure_dirs is now 0755.</p>
+</li>
+<li><p class="first">Work around broken java-utils-2.eclass state handling in
+<a href="#id9"><span class="problematic" id="id10">java-pkg_init_paths_</span></a>; tries to access DESTTREE in setup phase, which
+shouldn&#8217;t be allowed- fix is temporarily shifting the DESTTREE definition
+to pre-ebuild sourcing so that it behaves.</p>
+<p>Will be removed as soon as the eclass behaves is fixed.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-2-11-march-27-2007">
+<span id="release-0-2-11"></span><h2>pkgcore 0.2.11: March 27, 2007<a class="headerlink" href="#pkgcore-0-2-11-march-27-2007" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.2.11.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.2.11">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>COLON_SEPARATED, not COLON_SEPERATED for env.d parsing.</li>
+<li>fix ticket #74; &#8220;x=y&#64;a&#8221; should parse out as &#8216;y&#64;a&#8217;, was terminating
+early.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-2-10-march-27-2007">
+<span id="release-0-2-10"></span><h2>pkgcore 0.2.10: March 27, 2007<a class="headerlink" href="#pkgcore-0-2-10-march-27-2007" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.2.10.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.2.10">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>FEATURES=ccache now corrects perms as needed for when userpriv toggles.</li>
+<li>shift PORTAGE_ACTUAL_DISTDIR and DISTDIR definition into the initial env,
+so that evil git/subversion/cvs class can get at it globally.</li>
+<li>pquery &#8211;attr repo now returns the repo_id if it can get it, instead of
+the str of the repo object.</li>
+<li>OR grouppings in PROVIDES was explicitly disabled; no ebuild uses it, nor
+should any.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-2-9-march-19-2007">
+<span id="release-0-2-9"></span><h2>pkgcore 0.2.9: March 19, 2007<a class="headerlink" href="#pkgcore-0-2-9-march-19-2007" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.2.9.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.2.9">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>convert use.mask/package.use.mask, use.force/package.use.force stacking
+to match portage behaviour- basically stack use.* and package.* per profile
+node rather then going incremental for use.*, then package.* .  If you were
+having issues with default-linux/amd64/2006.1 profile and sse/sse2 flags for
+mplayer, this ought to correct it.</li>
+<li>add USE conditional support to RESTRICT.</li>
+<li>fix noisy regression from 0.2.8 for temp declare overriding; if you saw lots
+of complaints on env restoration, corrects it.  Superficial bug, but rather
+noisy.</li>
+<li>Fix a bug for binpkg creation where PROVIDES gets duplicated.</li>
+<li>Bit more DepSet optimizations; specifically collapses AND restriction into
+the parent if it is also an AND restriction.</li>
+<li>make &#8211;no-auto work correctly for pebuild</li>
+<li>delay DISTDIR setup till unpack phase to prevent any invalid access; also
+takes care of a pebuild traceback.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-2-8-march-17-2007">
+<span id="release-0-2-8"></span><h2>pkgcore 0.2.8: March 17, 2007<a class="headerlink" href="#pkgcore-0-2-8-march-17-2007" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.2.8.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.2.8">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>fix bug so that 6_alpha == 6_alpha0 when native_CPV is in use; only possible
+way to have hit the bug is having all extensions disabled (CPY version gets it
+right).</li>
+<li>add a trigger to rewrite symlink targets if they point into ${D}</li>
+<li>info trigger now ignores any file starting with &#8216;.&#8217;; no more complaints about
+.keep in info dirs.</li>
+<li>if an ebuild has a non-default preinst and offset merging, a rescan of ${D}
+is required- offset wasn&#8217;t being injected, fixed.</li>
+<li>if offset merging for a binpkg, reuse the original contentsSet class-
+this prevents quadratic (worst case) seeking of the tarball via preserving
+the ordering.</li>
+<li>if merging a binpkg and a forced decompression is needed, update the
+cset in memory instead of forcing a scan of ${D}.</li>
+<li>misc filter-env fixes, cleanup, and tests.</li>
+<li>change var attr (exported/readonly) env storage to better interop with
+the others; internally, we still delay the var attr/shopt resetting till
+execution.</li>
+<li>misc initialization fixes to syncers for when invoked via GenericSyncer.
+If previously layman integration wasn&#8217;t working for you, should now.</li>
+<li>shift the misc fs property triggers to pre_merge, rather then sanity_check;
+sanity_check should be only for &#8220;do I have what I need to even do the merge?&#8221;
+and minimal setup for the op (for example, transfering files into workdir).
+Running preinst was occasionally wiping the changes the triggers made, thus
+allowing screwed up ebuilds with custom preinst&#8217;s to slip in a portage gid
+for merge.</li>
+<li>fix a corner case for cpy join spotted by TFKyle where length calculation
+was incorrect, leading to a trailing null slipping into the calculated
+path.</li>
+<li>fix bash parsing for a corner case for empty assigns; literally,
+x=
+foo=&#8217;dar&#8217;
+would incorrectly interpret x=foo, instead of x=&#8217;&#8216;.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-2-7-march-4-2007">
+<span id="release-0-2-7"></span><h2>pkgcore 0.2.7: March 4, 2007<a class="headerlink" href="#pkgcore-0-2-7-march-4-2007" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.2.7.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.2.7">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>layman configuration (if available) is now read for portage configuration
+for sync URI for overlays.  tar syncer is currently unsupported; others may
+be buggy.  Feed back desired (author doesn&#8217;t use layman).  Ticket #11.  If
+you want it disabled, add FEATURES=-layman-sync .</li>
+<li>another fix for daft tarballs that try to touch cwd.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-2-6-march-4-2007">
+<span id="release-0-2-6"></span><h2>pkgcore 0.2.6: March 4, 2007<a class="headerlink" href="#pkgcore-0-2-6-march-4-2007" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.2.6.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.2.6">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>make intersecting ~ and =* atoms work again (used by pquery &#8211;revdep)</li>
+<li>catch a corner case py2.5 bug where AttributeError bleeds through from
+generic_equality.</li>
+<li>Via solars prodding, finished up the remaining bits for ROOT support.</li>
+<li>resolver traceback for if a requested atom is already known as insoluable.
+Thanks to kojiro for spotting it.</li>
+<li>misc bash code cleanup.</li>
+<li>PATH protection has been loosened slightly to enable &#8216;weird&#8217; eclasses that
+are doing global PATH mangling.</li>
+<li>$HOME location for building was shifted into the targeted packages
+directory, rather then a shared within $PORTAGE_TMPDIR.</li>
+<li>setgid/setuid triggers now match portage behaviour; -s,o-w mode change.</li>
+<li>trigger warnings are now enabled.</li>
+<li>New default trigger added; CommonDirectoryModes, checks for common
+directories (/usr, /etc, /usr/bin, /usr/lib for example) in the merge set,
+checking the packages specified modes for them.  If not 0755, throws a
+warning.</li>
+<li>For directory on directory merging, ensure_perms (default op) was changed
+to preserve the existing directories permissions.  Generally speaking, this
+means that later versions of an ebuild have to use post_inst to correct the
+perms if they&#8217;re incorrect- previously, the new perms/mode were forced on
+the existing.  Several common ebuilds (openssl for example) will generate
+weird modes on common directories however (heavily restricted perms), which
+can break things.  For the time being, the default is scaled down to the
+looser form portage does.</li>
+<li>added man page generation: pquery, pmerge</li>
+<li>pconfig now has a &#8220;dump-uncollapsed&#8221; command to dump the &#8220;raw&#8221; config.</li>
+<li>pebuild now supports &#8211;no-auto to run just the targeted phase.</li>
+<li>mass expansion of test coverage: pkgcore.restrictions.*,
+pkgcore.util.*, pkgcore.ebuild.*</li>
+<li>minor cleanup of pkgcore.test.ebuild.test_cpv to reduce redundant data sets;
+total testcase runtime reduction by about a third.</li>
+<li>diverge from unittest.TestCase to provide extra checks for normal asserts-
+assertNotEqual for example, checks both __eq__ and __ne__ now to smoke out
+any potential oversights in object equality implementation.</li>
+<li>use nsec mtime resolution if available to match python stdlib.</li>
+<li>env var PORTAGE_DEBUG for controlling how much debug info the ebuild env
+generates is now PKGCORE_DEBUG; range is the same, 0 (none), 1 (just the
+ebuild/eclass), 2 (1 + relevant setup code), 3 (2 + filter-env data),
+4 (everything).</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-2-5-feb-19-2007">
+<span id="release-0-2-5"></span><h2>pkgcore 0.2.5: Feb 19, 2007<a class="headerlink" href="#pkgcore-0-2-5-feb-19-2007" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.2.5.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.2.5">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>handle corner case in depend cycle processing where a package directly
+depends upon itself; fixes processing of sys-devel/libtool specifically.</li>
+<li>for pquery &#8211;attr keywords, sort by arch, not by stable/unstable.</li>
+<li>correct misc corner case atom bugs; an intersection bug, miss on an invalid
+use dep atom lacking a closure in cpy atom, verification of use chars in
+native atom,</li>
+<li>osutils extensions tests, correcting a few cpy differences in behaviour from
+native.</li>
+<li>For unpacking a tarball that doesn&#8217;t have it&#8217;s files in a subdir, tar will
+occasionally try to utime the cwd resulting in a failure- uid owner for
+WORKDIR was changed to allow tar to do the utime, thus succeed in unpacking.
+Only visible for userpriv and with oddball packages, gnuconfig for example.</li>
+<li>Cleanup of a few slow test cases; running the test suite should now be around
+25%-33% faster.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-2-4-feb-16-2007">
+<span id="release-0-2-4"></span><h2>pkgcore 0.2.4: Feb 16, 2007<a class="headerlink" href="#pkgcore-0-2-4-feb-16-2007" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.2.4.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.2.4">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>refactoring of trigger implementations- cleanup and tests.  Additionally,
+eliminate a potential mtime based frace if the underlying fs (or python
+version) doesn&#8217;t do subsecond resolution.</li>
+<li>force FEATURES into the exported ebuild env always.</li>
+<li>for pmerge -p $target, which prefers reuse normally, <em>still</em> prefer the
+highest versions, just examine vdb first, then nonvdb.</li>
+<li>minor optimization in readlines usage in the backend; kills off a duplicate
+stat call.</li>
+<li>if a stale cache entry is detected, and the backend is writable, wipe the
+cache entry.  Little bit slower when detected, but saves parsing the file
+next time around.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-2-3-feb-12-2007">
+<span id="release-0-2-3"></span><h2>pkgcore 0.2.3: Feb 12, 2007<a class="headerlink" href="#pkgcore-0-2-3-feb-12-2007" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.2.3.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.2.3">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>support for ** in package.keywords</li>
+<li>export preparsed SLOT to ebuild env; ebuilds shouldn&#8217;t rely on this
+since it can lead to fun metadata issues, but certain eclasses do.</li>
+<li>fix exporting finalized form of RESTRICT to the build env; ticket 61.</li>
+<li>fix for RESTRICT=fetch to not treat the filename as a uri.</li>
+<li>expose the full make.conf environment to FETCHCOMMAND and RESUMECOMMAND-
+ticket 58</li>
+<li>added support for make.conf defined FETCH_ATTEMPTS; max # of unique uris to
+attempts per file before giving up, defaults to 10.</li>
+<li>added int_parser type for config instantiation definitions (ConfigHint),
+and usual introspection support.</li>
+<li>fix regression limiting satisifiers for depends to installed only in corner
+case installed bound cycles; automake/perl specifically trigger this, thus
+most folks should have seen it if using -B.</li>
+<li>Better handling of non-ascii characters in metadata.xml.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-2-2-jan-30-2007">
+<span id="release-0-2-2"></span><h2>pkgcore 0.2.2: Jan 30, 2007<a class="headerlink" href="#pkgcore-0-2-2-jan-30-2007" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.2.2.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.2.2">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>The terminfo db is now used for xterm title updates. If title updates
+worked in pkgcore 0.2 or 0.2.1 and no longer work in 0.2.2 file a bug and
+include the TERM environment variable setting.</li>
+<li>misc fixup for asserts in cpy code when debugging is enabled, and closing
+directory fds when corner case error paths are taken (out of memory for
+example).</li>
+<li>atoms are picklable now.</li>
+<li>add tests for pmaint copy (quickpkg equivalent), and add
+&#8211;ignore-existing option to copy just pkgs that don&#8217;t exist in the
+target repo.</li>
+<li>fix pmerge handling of &#8211;clean -B for automake and a few other DEPEND level
+hard cycles.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-2-1-jan-24-2007">
+<span id="release-0-2-1"></span><h2>pkgcore 0.2.1: Jan 24, 2007<a class="headerlink" href="#pkgcore-0-2-1-jan-24-2007" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.2.1.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.2.1">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>fix corner case for portage configuration support; old system (&lt;=2004)
+installations may have /etc/portage/sets/world, which confused pmerges
+world updating, leading to writing bad entries.  Ticket 54.</li>
+<li>fix issues with distcc/ccache (ticket 55) so that they actually work.</li>
+<li>fix pconfig dump traceback; ticket 56.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-2-jan-22-2007">
+<span id="release-0-2"></span><h2>pkgcore 0.2: Jan 22, 2007<a class="headerlink" href="#pkgcore-0-2-jan-22-2007" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.2.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.2">Git history</a></p>
+<p>Notable changes:</p>
+<ul>
+<li><p class="first">glsa pkgset will now include metadata/glsa from overlays.</p>
+</li>
+<li><p class="first">pmaint script; tool for &#8211;sync&#8217;ing, doing quickpkging, moving packages
+between repos for repository conversions. General repository maintenance.</p>
+</li>
+<li><p class="first">sync subsystem: supports bzr, cvs, darcs, git, mercurial (hg), rsync,
+and subversion.</p>
+</li>
+<li><p class="first">binpkg repositories now support modification; FEATURES=buildpkg basically</p>
+</li>
+<li><p class="first">binpkg contents handling is significantly faster.</p>
+</li>
+<li><p class="first">pmerge:
+* supports &#8211;ask (thanks to nesl247/alex heck)
+* pmerge &#8211;replace is default now; use &#8211;noreplace for original behaviour.
+* &#8216;installed&#8217; set was added; is a pkgset comprised of all slotted atoms from</p>
+<blockquote>
+<div><p>the vdb; useful for pmerge -u to enable upgrades of <em>everything</em> installed.</p>
+</div></blockquote>
+<ul class="simple">
+<li>versioned-installed set was added; useful for -e, this set is compromised
+of exact version of everything installed.</li>
+<li>added &#8211;with-built-depends, -B; resolver defaults to ignoring &#8216;built&#8217;
+ebuild depends (those from vdb, from binpkgs for example), this option
+tells it to update those depends.</li>
+</ul>
+</li>
+<li><p class="first">xterm titles</p>
+</li>
+<li><p class="first">massive resolver cleanup, and general fixes.</p>
+</li>
+<li><p class="first">rewritten plugins system, register_plugins is no longer used.</p>
+</li>
+<li><p class="first">paludis flat_list cache read/write support.</p>
+</li>
+<li><p class="first">portage flat_list cache write support (cache used for
+$PORTDIR/metadata/sync)</p>
+</li>
+<li><p class="first">pebuild/pregen/pclone_cache: heavy UI cleanup.</p>
+</li>
+<li><p class="first">pquery:
+* prettier printing of depends/rdepends/post_rdepends under -v
+* print revdep reasons
+* now requires an arg always; previously defaulted to &#8216;*&#8217;, which is</p>
+<blockquote>
+<div><p>still supported but also accessible via &#8211;all .</p>
+</div></blockquote>
+<ul class="simple">
+<li>added &#8211;maintainers-email and &#8211;maintainers-name; use case insensitive
+regex by default for &#8211;maintainer style options.</li>
+</ul>
+</li>
+<li><p class="first">added repo_id atom extension; see doc/extended-atom-syntax.rst for details.
+short version, sys-apps/portage::gentoo would match portage <em>only</em> from
+<tt class="docutils literal"><span class="pre">gentoo</span></tt> repository.</p>
+</li>
+<li><p class="first">overlays now combine mirror targets from their parent repository, and
+from their own repository data.</p>
+</li>
+<li><p class="first">configuration subsystem:
+* configuration: lazy section refs were added (lazy_ref), useful for when</p>
+<blockquote>
+<div><p>the object arguement needs to be instantiated rarely (syncers for
+repositories for example).</p>
+</div></blockquote>
+<ul class="simple">
+<li>mke2fs (literal /etc/mke2fs.conf file) akin configuration format was
+added, pkgcore.config.mke2fsformat.config_from_file.</li>
+</ul>
+</li>
+<li><p class="first">expanded test coverage.</p>
+</li>
+<li><p class="first">merged standalone test runner into setup.py; prefered way of running it is
+<tt class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">test</span></tt> now.</p>
+</li>
+<li><p class="first">ongoing portage configuration support additions-
+* FEATURES=collision-protect support
+* INSTALL_MASK support, FEATURES noinfo, nodoc, and noman support.
+* /etc/portage/package.* files can be directories holding seperate files</p>
+<blockquote>
+<div><p>to collapse</p>
+</div></blockquote>
+</li>
+<li><p class="first">gnu info regeneration trigger added.</p>
+</li>
+<li><p class="first">performance improvements:
+* cpython extensions of select os.path.* functionality; 20x boost for what</p>
+<blockquote>
+<div><p>was converted over (stdlib&#8217;s posix module is a bit inefficient).</p>
+</div></blockquote>
+<ul class="simple">
+<li>cpython extension for file io in pkgcore.util.osutils: 7x faster on ENOENT
+cases, 4x-5x on actual reading of small files (think cache files).  If
+iterating over lines of a file, use pkgcore.util.osutils.readlines- again,
+faster then standard file object&#8217;s equivalent- 3x reduction (7.6ms to 2.5ms
+for full contents  reading).</li>
+<li>partial cpython reimplementation of atom code; mainly parsing, and
+critical __getattr__ invocation (2+x faster parse).</li>
+<li>partial cpython reimplementation of depset code; strictly just parsing.
+Faster (given), but mainly is able to do optimizations to the depset
+cheaply that python side is heavily slowed down by- ( x ( y ) ) becomes
+( x y ) for example.</li>
+<li>chunks of restriction objects were pushed to cpython for memory reasons,
+and bringing the instantiation cost down as low as possible (the common
+restrict objects now are around 1-3us for new instantation, .5 to 1us
+for getting a cached obj instead of instantiating).</li>
+<li>bug corrected in base repo classes identify_candidates method; should now
+force a full walk of the repo only when absolutely required.</li>
+<li>chksuming now does a single walk over a file for all checksummers,
+instead of one walk per checksummer- less disk thrashing, better
+performance.</li>
+<li>vdb virtuals caching; massive performance boost via reduced IO.  Relies on
+mtime checks of vdb pkg directories for staleness detection,
+auto-regenerating itself as needed.</li>
+</ul>
+</li>
+<li><p class="first">heavy profile code cleanup; should only read each common profile node once
+now when loading up multiple profiles (pcheck).  Far easier code to read
+in addition.</p>
+</li>
+<li><p class="first">cache eclass staleness verification now relies on mtime comparison only-
+allows for eclasses to move between repos; matches portage behaviour.</p>
+</li>
+<li><p class="first">pkgcore.util.caching.*, via __force_caching__ class attr in consumers, can
+be used to force singleton instance creation/caching (error if unhashable).</p>
+</li>
+<li><p class="first">ebuild support:
+* PORTAGE_ACTUAL_DISTDIR was reenabled, thus cvs/svn equivalent ebuilds are</p>
+<blockquote>
+<div><p>usable once again.</p>
+</div></blockquote>
+<ul class="simple">
+<li>fixed pkgcore&#8217;s pkgcore emulation of has_version/best_version matching
+behaviour for old style virtuals to match portages (oddity, but ebuilds
+rely on the goofy behaviour).</li>
+<li>various fixups to unpack function; should match portage behaviour as of
+01/07 now.</li>
+<li>if FEATURES=test, set USE=test; if USE=test has been explicitly masked for
+a package, disable src_test run; matches portage 2.1.2 behaviour.</li>
+<li>cleanup build directory, and unmerge directories upon finishing</li>
+</ul>
+</li>
+<li><p class="first">filter-env now is accessible directly via python; pkgcore.ebuild.filter_env.
+Needs further work prior to being usable for pcheck inspection of ebuilds,
+but it&#8217;s a good start.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-1-4-oct-24-2006">
+<span id="release-0-1-4"></span><h2>pkgcore 0.1.4: Oct 24, 2006<a class="headerlink" href="#pkgcore-0-1-4-oct-24-2006" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.1.4.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.1.4">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>Compatibility with caches written by portage 2.1.2_pre3-r8.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-1-3-oct-24-2006">
+<span id="release-0-1-3"></span><h2>pkgcore 0.1.3: Oct 24, 2006<a class="headerlink" href="#pkgcore-0-1-3-oct-24-2006" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.1.3.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.1.3">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>Always process &#8220;|| ( a b )&#8221; in the right order.<ul>
+<li>Fix disabling a flag in package.use.mask or package.use.force.</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-1-2-oct-10-2006">
+<span id="release-0-1-2"></span><h2>pkgcore 0.1.2: Oct 10, 2006<a class="headerlink" href="#pkgcore-0-1-2-oct-10-2006" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.1.2.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.1.2">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>Make filter_env work on hppa (and possibly more architectures) where using
+python CFLAGS for this standalone binary does not work.</li>
+<li>Fall back to plain text output if the TERM variable is unsupported.</li>
+<li>Deal with dangling symlinks in binpkg repositories.</li>
+<li>Fix expanding of incrementals (like USE) in make.defaults.</li>
+<li>pquery: support &#8211;attr fetchables, handle extra commandline arguments as
+-m or &#8211;expr restrictions.</li>
+<li>USE deps once again allow setting a flag only if it is actually settable
+on the target package.</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-1-1-oct-02-2006">
+<span id="release-0-1-1"></span><h2>pkgcore 0.1.1: Oct 02, 2006<a class="headerlink" href="#pkgcore-0-1-1-oct-02-2006" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.1.1.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.1.1">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>hang fix for test_filter_env</li>
+<li>package.keywords fixes: no longer incremental, supports &#8216;*&#8217; and &#8216;~*&#8217;
+properly</li>
+<li>FEATURES=&#8221;userpriv&#8221; support works again.</li>
+<li>pmerge repository ordering now behaves properly; prefers src ebuilds, then
+built pkgs; -k inverts that (previously was semi-undefined)</li>
+<li>binpkg fixes: run setup phase</li>
+<li>replace op fixes: force seperate WORKDIR for unmerge to protect against
+env collisions</li>
+<li>loosened category rules: allow _. chars to support cross-dev hack.</li>
+<li>build fixes: make $A unique to avoid duplicate unpacks; force distdir
+creation regardless of whether or not the pkg has any stated SRC_URI
+(fixes cvs and subversion eclsas usage).  Fix sandbox execution to chdir
+to an existant directory (sandbox will fail if ran from a nonexistant dir).</li>
+<li>change DelayedInstantiation objects to track __class__ themselves; this
+fixes pquery to properly shutdown when ctrl+c&#8217;d (previously could swallow
+the interrupt due to cpython isinstance swallowing KeyboardInterrupt).</li>
+</ul>
+</div>
+<div class="section" id="pkgcore-0-1-sep-30-2006">
+<span id="release-0-1"></span><h2>pkgcore 0.1: Sep 30, 2006<a class="headerlink" href="#pkgcore-0-1-sep-30-2006" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://code.google.com/p/pkgcore/downloads/detail?name=pkgcore-0.1.tar.bz2">Download</a>
+<a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=v0.1">Git history</a></p>
+<p>Notable changes:</p>
+<ul class="simple">
+<li>Initial release.</li>
+<li>Sync functionality doesn&#8217;t yet exist (pmaint script will be in 0.2)</li>
+<li>pmerge vdb modification requires &#8211;force; this will be disabled in 0.2,
+mainly is in place so that folks who are just looking, don&#8217;t inadvertantly
+trigger an actual modification.</li>
+<li>not all portage FEATURES are implemented; same for QA.</li>
+<li>If overlays are in use, pkgcore may defer to its&#8217; seperate cache to avoid
+pkgcore causing cache regen for portage (and vice versa); this occurs due
+to pkgcore treating overlays as their own repo and combining them at a
+higher level; portage smushes them all together thus rendering each subtree
+unusable in any standalone fashion.</li>
+<li>pkgcore is far more anal about blocking bad behaviour in ebuilds during
+metadata regeneration; tree is clean, but if you do something wrong in
+global scope, it <em>will</em> catch it and block it.</li>
+<li>EBD; daemonized ebuild.sh processing (effectively), pkgcore reuses old
+ebuild.sh processes to avoid bash startup, speeding regen up by roughly
+2x.</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Pkgcore Release Notes</a><ul>
+<li><a class="reference internal" href="#pkgcore-0-7-7-8-jan-26th-2011">pkgcore 0.7.7.8: Jan 26th, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-7-7-7-jan-24th-2011">pkgcore 0.7.7.7: Jan 24th, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-7-7-6-jan-16th-2011">pkgcore 0.7.7.6: Jan 16th, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-7-7-5-dec-26th-2011">pkgcore 0.7.7.5: Dec 26th, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-7-7-4-dec-14th-2011">pkgcore 0.7.7.4: Dec 14th, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-7-7-3-dec-8th-2011">pkgcore 0.7.7.3: Dec 8th, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-7-7-2-dec-7th-2011">pkgcore 0.7.7.2: Dec 7th, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-7-7-1-dec-2nd-2011">pkgcore 0.7.7.1: Dec 2nd, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-7-7-dec-2nd-2011">pkgcore 0.7.7: Dec 2nd, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-7-6-nov-30th-2011">pkgcore 0.7.6: Nov 30th, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-7-5-nov-7th-2011">pkgcore 0.7.5: Nov 7th, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-7-4-oct-27th-2011">pkgcore 0.7.4: Oct 27th, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-7-3-oct-26th-2011">pkgcore 0.7.3: Oct 26th, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-7-2-sept-27th-2011">pkgcore 0.7.2: Sept 27th, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-7-1-sept-3rd-2011">pkgcore 0.7.1: Sept 3rd, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-7-sept-2nd-2011">pkgcore 0.7: Sept 2nd, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-6-6-july-11th-2011">pkgcore 0.6.6: July 11th, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-6-5-jun-22nd-2011">pkgcore 0.6.5: Jun 22nd, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-6-4-jun-5th-2011">pkgcore 0.6.4: Jun 5th, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-6-3-may-30th-2011">pkgcore 0.6.3: May 30th, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-6-2-may-27th-2011">pkgcore 0.6.2: May 27th, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-6-1-may-22nd-2011">pkgcore 0.6.1: May 22nd, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-6-april-24th-2011">pkgcore 0.6: April 24th, 2011</a></li>
+<li><a class="reference internal" href="#pkgcore-0-5-11-8-july-17th-2010">pkgcore 0.5.11.8: July 17th, 2010</a></li>
+<li><a class="reference internal" href="#pkgcore-0-5-11-7-june-20th-2010">pkgcore 0.5.11.7: June 20th, 2010</a></li>
+<li><a class="reference internal" href="#pkgcore-0-5-11-6-may-21st-2010">pkgcore 0.5.11.6: May 21st, 2010</a></li>
+<li><a class="reference internal" href="#pkgcore-0-5-11-5-april-22nd-2010">pkgcore 0.5.11.5: April 22nd, 2010</a></li>
+<li><a class="reference internal" href="#pkgcore-0-5-11-4-april-21st-2010">pkgcore 0.5.11.4: April 21st, 2010</a></li>
+<li><a class="reference internal" href="#pkgcore-0-5-11-3-march-22nd-2010">pkgcore 0.5.11.3: March 22nd, 2010</a></li>
+<li><a class="reference internal" href="#pkgcore-0-5-11-2-march-16th-2010">pkgcore 0.5.11.2: March 16th, 2010</a></li>
+<li><a class="reference internal" href="#pkgcore-0-5-11-1-march-15th-2010">pkgcore 0.5.11.1: March 15th, 2010</a></li>
+<li><a class="reference internal" href="#pkgcore-0-5-11-march-14th-2010">pkgcore 0.5.11: March 14th, 2010</a></li>
+<li><a class="reference internal" href="#pkgcore-0-5-10-february-7th-2010">pkgcore 0.5.10: February 7th, 2010</a></li>
+<li><a class="reference internal" href="#pkgcore-0-5-9-january-8th-2010">pkgcore 0.5.9: January 8th, 2010</a></li>
+<li><a class="reference internal" href="#pkgcore-0-5-8-december-27th-2009">pkgcore 0.5.8: December 27th, 2009</a></li>
+<li><a class="reference internal" href="#pkgcore-0-5-7-december-22-2009">pkgcore 0.5.7: December 22, 2009</a></li>
+<li><a class="reference internal" href="#pkgcore-0-5-6-december-13th-2009">pkgcore 0.5.6: December 13th, 2009</a></li>
+<li><a class="reference internal" href="#pkgcore-0-5-5-november-26th-2009">pkgcore 0.5.5: November 26th, 2009</a></li>
+<li><a class="reference internal" href="#pkgcore-0-5-4-october-30-2009">pkgcore 0.5.4: October 30, 2009</a></li>
+<li><a class="reference internal" href="#pkgcore-0-5-3-october-30-2009">pkgcore 0.5.3: October 30, 2009</a></li>
+<li><a class="reference internal" href="#pkgcore-0-5-2-october-28-2009">pkgcore 0.5.2: October 28, 2009</a></li>
+<li><a class="reference internal" href="#pkgcore-0-5-1-october-22-2009">pkgcore 0.5.1: October 22, 2009</a></li>
+<li><a class="reference internal" href="#pkgcore-0-5-october-22-2009">pkgcore 0.5: October 22, 2009</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-7-16-march-24-2009">pkgcore 0.4.7.16: March 24, 2009</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-7-15-jan-28-2009">pkgcore 0.4.7.15: Jan 28, 2009</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-7-14-dec-18-2008">pkgcore 0.4.7.14: Dec 18, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-7-13-oct-29-2008">pkgcore 0.4.7.13: Oct 29, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-7-12-oct-10-2008-2-hours-after-0-4-7-11">pkgcore 0.4.7.12: Oct 10, 2008 (2 hours after 0.4.7.11 ;)</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-7-11-oct-10-2008">pkgcore 0.4.7.11: Oct 10, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-7-10-oct-7-2008">pkgcore 0.4.7.10: Oct 7, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-7-9-oct-6-2008">pkgcore 0.4.7.9: Oct 6, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-7-8-august-28-2008">pkgcore 0.4.7.8: August 28, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-7-7-august-11-2008">pkgcore 0.4.7.7: August 11, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-7-6-august-10-2008">pkgcore 0.4.7.6: August 10, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-7-5-july-6-2008">pkgcore 0.4.7.5: July 6, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-7-4-june-11-2008">pkgcore 0.4.7.4: June 11, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-7-3-may-16-2008">pkgcore 0.4.7.3: May 16, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-7-2-may-07-2008">pkgcore 0.4.7.2: May 07, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-7-1-may-04-2008">pkgcore 0.4.7.1: May 04, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-7-may-03-2008">pkgcore 0.4.7: May 03, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-6-april-29-2008">pkgcore 0.4.6: April 29, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-5-april-9-2008">pkgcore 0.4.5: April 9, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-4-april-6-2008">pkgcore 0.4.4: April 6, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-3-march-31-2008">pkgcore 0.4.3: March 31, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-2-march-30-2008">pkgcore 0.4.2: March 30, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-1-march-20-2008">pkgcore 0.4.1: March 20, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-4-march-18-2008">pkgcore 0.4: March 18, 2008</a></li>
+<li><a class="reference internal" href="#pkgcore-0-3-4-dec-26-2007">pkgcore 0.3.4: Dec 26, 2007</a></li>
+<li><a class="reference internal" href="#pkgcore-0-3-3-dec-14-2007">pkgcore 0.3.3: Dec 14, 2007</a></li>
+<li><a class="reference internal" href="#pkgcore-0-3-2-nov-3-2007">pkgcore 0.3.2: Nov 3, 2007</a></li>
+<li><a class="reference internal" href="#pkgcore-0-3-1-june-27-2007">pkgcore 0.3.1: June 27, 2007</a></li>
+<li><a class="reference internal" href="#pkgcore-0-3-jun-06-2007">pkgcore 0.3: Jun 06, 2007</a></li>
+<li><a class="reference internal" href="#pkgcore-0-2-14-april-8-2007">pkgcore 0.2.14: April 8, 2007</a></li>
+<li><a class="reference internal" href="#pkgcore-0-2-13-march-30-2007">pkgcore 0.2.13: March 30, 2007</a></li>
+<li><a class="reference internal" href="#pkgcore-0-2-12-march-29-2007">pkgcore 0.2.12: March 29, 2007</a></li>
+<li><a class="reference internal" href="#pkgcore-0-2-11-march-27-2007">pkgcore 0.2.11: March 27, 2007</a></li>
+<li><a class="reference internal" href="#pkgcore-0-2-10-march-27-2007">pkgcore 0.2.10: March 27, 2007</a></li>
+<li><a class="reference internal" href="#pkgcore-0-2-9-march-19-2007">pkgcore 0.2.9: March 19, 2007</a></li>
+<li><a class="reference internal" href="#pkgcore-0-2-8-march-17-2007">pkgcore 0.2.8: March 17, 2007</a></li>
+<li><a class="reference internal" href="#pkgcore-0-2-7-march-4-2007">pkgcore 0.2.7: March 4, 2007</a></li>
+<li><a class="reference internal" href="#pkgcore-0-2-6-march-4-2007">pkgcore 0.2.6: March 4, 2007</a></li>
+<li><a class="reference internal" href="#pkgcore-0-2-5-feb-19-2007">pkgcore 0.2.5: Feb 19, 2007</a></li>
+<li><a class="reference internal" href="#pkgcore-0-2-4-feb-16-2007">pkgcore 0.2.4: Feb 16, 2007</a></li>
+<li><a class="reference internal" href="#pkgcore-0-2-3-feb-12-2007">pkgcore 0.2.3: Feb 12, 2007</a></li>
+<li><a class="reference internal" href="#pkgcore-0-2-2-jan-30-2007">pkgcore 0.2.2: Jan 30, 2007</a></li>
+<li><a class="reference internal" href="#pkgcore-0-2-1-jan-24-2007">pkgcore 0.2.1: Jan 24, 2007</a></li>
+<li><a class="reference internal" href="#pkgcore-0-2-jan-22-2007">pkgcore 0.2: Jan 22, 2007</a></li>
+<li><a class="reference internal" href="#pkgcore-0-1-4-oct-24-2006">pkgcore 0.1.4: Oct 24, 2006</a></li>
+<li><a class="reference internal" href="#pkgcore-0-1-3-oct-24-2006">pkgcore 0.1.3: Oct 24, 2006</a></li>
+<li><a class="reference internal" href="#pkgcore-0-1-2-oct-10-2006">pkgcore 0.1.2: Oct 10, 2006</a></li>
+<li><a class="reference internal" href="#pkgcore-0-1-1-oct-02-2006">pkgcore 0.1.1: Oct 02, 2006</a></li>
+<li><a class="reference internal" href="#pkgcore-0-1-sep-30-2006">pkgcore 0.1: Sep 30, 2006</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to pkgcore&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="api.html"
+                        title="next chapter">API Documentation</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="API Documentation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to pkgcore’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">pkgcore vtrunk documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Brian Harring, Marien Zwart.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
