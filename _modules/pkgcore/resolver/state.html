@@ -195,7 +195,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">,</span>
             <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 
+<div class="viewcode-block" id="base_op_state.apply"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.base_op_state.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="bp">NotImplemented</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;apply&#39;</span><span class="p">)</span>
 </div>
+<div class="viewcode-block" id="base_op_state.revert"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.base_op_state.revert">[docs]</a>    <span class="k">def</span> <span class="nf">revert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="bp">NotImplemented</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;revert&#39;</span><span class="p">)</span>
+
+</div></div>
 <div class="viewcode-block" id="add_op"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.add_op">[docs]</a><span class="k">class</span> <span class="nc">add_op</span><span class="p">(</span><span class="n">base_op_state</span><span class="p">):</span>
 
     <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
@@ -260,24 +266,26 @@
         <span class="n">plan</span><span class="o">.</span><span class="n">vdb_filter</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="remove_op.revert"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.remove_op.revert">[docs]</a>    <span class="k">def</span> <span class="nf">revert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
-        <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">fill_slotting</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">fill_slotting</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="n">plan</span><span class="o">.</span><span class="n">pkg_choices</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span>
         <span class="n">plan</span><span class="o">.</span><span class="n">vdb_filter</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">)</span>
 
 </div></div>
 <div class="viewcode-block" id="replace_op"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.replace_op">[docs]</a><span class="k">class</span> <span class="nc">replace_op</span><span class="p">(</span><span class="n">base_op_state</span><span class="p">):</span>
 
-    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;old_pkg&quot;</span><span class="p">,</span> <span class="s">&quot;old_choices&quot;</span><span class="p">)</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;old_pkg&quot;</span><span class="p">,</span> <span class="s">&quot;old_choices&quot;</span><span class="p">,</span> <span class="s">&quot;force_old&quot;</span><span class="p">)</span>
     <span class="n">desc</span> <span class="o">=</span> <span class="s">&quot;replace&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
         <span class="n">base_op_state</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">old_pkg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_choices</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force_old</span> <span class="o">=</span> <span class="bp">False</span>
 
 <div class="viewcode-block" id="replace_op.apply"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.replace_op.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
         <span class="n">revert_point</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">current_state</span>
         <span class="n">old</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">get_conflicting_slot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">)</span>
         <span class="c"># probably should just convert to an add...</span>
+        <span class="n">force_old</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">check_limiters</span><span class="p">(</span><span class="n">old</span><span class="p">))</span>
         <span class="k">assert</span> <span class="n">old</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
         <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">remove_slotting</span><span class="p">(</span><span class="n">old</span><span class="p">)</span>
         <span class="n">old_choices</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">pkg_choices</span><span class="p">[</span><span class="n">old</span><span class="p">]</span>
@@ -295,6 +303,7 @@
         <span class="c"># wipe olds blockers.</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">old_pkg</span> <span class="o">=</span> <span class="n">old</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force_old</span> <span class="o">=</span> <span class="n">force_old</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">old_choices</span> <span class="o">=</span> <span class="n">old_choices</span>
         <span class="k">del</span> <span class="n">plan</span><span class="o">.</span><span class="n">pkg_choices</span><span class="p">[</span><span class="n">old</span><span class="p">]</span>
         <span class="n">plan</span><span class="o">.</span><span class="n">pkg_choices</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span>
@@ -305,8 +314,11 @@
         <span class="c"># far simpler, since the apply op generates multiple ops on it&#39;s own.</span>
         <span class="c"># all we have to care about is swap.</span>
         <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">remove_slotting</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">)</span>
-        <span class="n">l</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">fill_slotting</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">old_pkg</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="ow">not</span> <span class="n">l</span><span class="p">,</span> <span class="s">&quot;reverting a replace op </span><span class="si">%r</span><span class="s">, got </span><span class="si">%r</span><span class="s"> from slotting&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">fill_slotting</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">old_pkg</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">force_old</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_old</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+                <span class="s">&quot;Internal error detected, unable to revert </span><span class="si">%s</span><span class="s">; got </span><span class="si">%s</span><span class="s">, &quot;</span>
+                <span class="s">&quot;force_old=</span><span class="si">%s</span><span class="s"> &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_old</span><span class="p">))</span>
         <span class="k">del</span> <span class="n">plan</span><span class="o">.</span><span class="n">pkg_choices</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="p">]</span>
         <span class="n">plan</span><span class="o">.</span><span class="n">pkg_choices</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">old_pkg</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_choices</span>
         <span class="n">plan</span><span class="o">.</span><span class="n">vdb_filter</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">old_pkg</span><span class="p">)</span>
@@ -346,7 +358,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocker</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span>
             <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 
+<div class="viewcode-block" id="blocker_base_op.apply"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.blocker_base_op.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;apply&#39;</span><span class="p">)</span>
 </div>
+<div class="viewcode-block" id="blocker_base_op.revert"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.blocker_base_op.revert">[docs]</a>    <span class="k">def</span> <span class="nf">revert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;revert&#39;</span><span class="p">)</span>
+
+</div></div>
 <div class="viewcode-block" id="incref_forward_block_op"><a class="viewcode-back" href="../../../api/pkgcore.resolver.state.html#pkgcore.resolver.state.incref_forward_block_op">[docs]</a><span class="k">class</span> <span class="nc">incref_forward_block_op</span><span class="p">(</span><span class="n">blocker_base_op</span><span class="p">):</span>
 
     <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>

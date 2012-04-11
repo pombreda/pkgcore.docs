@@ -90,16 +90,16 @@
 
 <span class="sd">        :return: any conflicting objs (empty list if inserted successfully).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">key</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">key</span>
-        <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">limiters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">())</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">obj</span><span class="p">)]</span>
 
+        <span class="n">l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_limiters</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="n">key</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">key</span>
         <span class="n">dslot</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">slot</span>
         <span class="n">l</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">slot_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">())</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">slot</span> <span class="o">==</span> <span class="n">dslot</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">l</span> <span class="ow">or</span> <span class="n">force</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">slot_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">l</span>
-
 </div>
 <div class="viewcode-block" id="PigeonHoledSlots.get_conflicting_slot"><a class="viewcode-back" href="../../../api/pkgcore.resolver.pigeonholes.html#pkgcore.resolver.pigeonholes.PigeonHoledSlots.get_conflicting_slot">[docs]</a>    <span class="k">def</span> <span class="nf">get_conflicting_slot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">slot_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="p">()):</span>
@@ -123,6 +123,11 @@
             <span class="n">key</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">key</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">limiters</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_atom_matches</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="PigeonHoledSlots.check_limiters"><a class="viewcode-back" href="../../../api/pkgcore.resolver.pigeonholes.html#pkgcore.resolver.pigeonholes.PigeonHoledSlots.check_limiters">[docs]</a>    <span class="k">def</span> <span class="nf">check_limiters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;return any limiters conflicting w/ the psased in obj&quot;&quot;&quot;</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">key</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">limiters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">())</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">obj</span><span class="p">)]</span>
 </div>
 <div class="viewcode-block" id="PigeonHoledSlots.remove_slotting"><a class="viewcode-back" href="../../../api/pkgcore.resolver.pigeonholes.html#pkgcore.resolver.pigeonholes.PigeonHoledSlots.remove_slotting">[docs]</a>    <span class="k">def</span> <span class="nf">remove_slotting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="n">key</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">key</span>
