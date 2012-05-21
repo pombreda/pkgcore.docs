@@ -95,10 +95,10 @@
 <tr class="row-even"><td><a class="reference internal" href="#pkgcore.spawn.find_binary" title="pkgcore.spawn.find_binary"><tt class="xref py py-obj docutils literal"><span class="pre">find_binary</span></tt></a>(binary[,&nbsp;paths])</td>
 <td>look through the PATH environment, finding the binary to execute</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.spawn.spawn" title="pkgcore.spawn.spawn"><tt class="xref py py-obj docutils literal"><span class="pre">spawn</span></tt></a>(mycommand[,&nbsp;env,&nbsp;executable,&nbsp;...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.spawn.spawn" title="pkgcore.spawn.spawn"><tt class="xref py py-obj docutils literal"><span class="pre">spawn</span></tt></a>(mycommand[,&nbsp;env,&nbsp;name,&nbsp;fd_pipes,&nbsp;...])</td>
 <td>wrapper around execve</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pkgcore.spawn.spawn_bash" title="pkgcore.spawn.spawn_bash"><tt class="xref py py-obj docutils literal"><span class="pre">spawn_bash</span></tt></a>(mycommand[,&nbsp;debug,&nbsp;executable])</td>
+<tr class="row-even"><td><a class="reference internal" href="#pkgcore.spawn.spawn_bash" title="pkgcore.spawn.spawn_bash"><tt class="xref py py-obj docutils literal"><span class="pre">spawn_bash</span></tt></a>(mycommand[,&nbsp;debug,&nbsp;name])</td>
 <td>spawn the command via bash -c</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pkgcore.spawn.spawn_fakeroot" title="pkgcore.spawn.spawn_fakeroot"><tt class="xref py py-obj docutils literal"><span class="pre">spawn_fakeroot</span></tt></a>(mycommand,&nbsp;save_file[,&nbsp;env,&nbsp;...])</td>
@@ -107,7 +107,7 @@
 <tr class="row-even"><td><a class="reference internal" href="#pkgcore.spawn.spawn_get_output" title="pkgcore.spawn.spawn_get_output"><tt class="xref py py-obj docutils literal"><span class="pre">spawn_get_output</span></tt></a>(mycommand[,&nbsp;spawn_type,&nbsp;...])</td>
 <td>Call spawn, collecting the output to fd&#8217;s specified in collect_fds list.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.spawn.spawn_sandbox" title="pkgcore.spawn.spawn_sandbox"><tt class="xref py py-obj docutils literal"><span class="pre">spawn_sandbox</span></tt></a>(mycommand[,&nbsp;executable])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pkgcore.spawn.spawn_sandbox" title="pkgcore.spawn.spawn_sandbox"><tt class="xref py py-obj docutils literal"><span class="pre">spawn_sandbox</span></tt></a>(mycommand[,&nbsp;name])</td>
 <td>spawn the command under sandboxed</td>
 </tr>
 </tbody>
@@ -120,14 +120,14 @@
 
 <dl class="function">
 <dt id="pkgcore.spawn.spawn">
-<tt class="descclassname">pkgcore.spawn.</tt><tt class="descname">spawn</tt><big>(</big><em>mycommand</em>, <em>env=None</em>, <em>executable=None</em>, <em>fd_pipes=None</em>, <em>returnpid=False</em>, <em>uid=None</em>, <em>gid=None</em>, <em>groups=None</em>, <em>umask=None</em>, <em>logfile=None</em>, <em>cwd=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/spawn.html#spawn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.spawn.spawn" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pkgcore.spawn.</tt><tt class="descname">spawn</tt><big>(</big><em>mycommand</em>, <em>env=None</em>, <em>name=None</em>, <em>fd_pipes=None</em>, <em>returnpid=False</em>, <em>uid=None</em>, <em>gid=None</em>, <em>groups=None</em>, <em>umask=None</em>, <em>logfile=None</em>, <em>cwd=None</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/spawn.html#spawn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.spawn.spawn" title="Permalink to this definition">¶</a></dt>
 <dd><p>wrapper around execve</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>executable</strong> &#8211; controls what the process is named
+<li><strong>name</strong> &#8211; controls what the process is named
 (what it would show up as under top for example)</li>
 <li><strong>fd_pipes</strong> (<em>mapping from existing fd to fd (inside the new process)</em>) &#8211; controls what fd&#8217;s are left open in the spawned process-</li>
 <li><strong>returnpid</strong> &#8211; controls whether spawn waits for the process to finish,
@@ -141,19 +141,19 @@ or returns the pid.</li>
 
 <dl class="function">
 <dt id="pkgcore.spawn.spawn_sandbox">
-<tt class="descclassname">pkgcore.spawn.</tt><tt class="descname">spawn_sandbox</tt><big>(</big><em>mycommand</em>, <em>executable=None</em>, <em>**keywords</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/spawn.html#spawn_sandbox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.spawn.spawn_sandbox" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pkgcore.spawn.</tt><tt class="descname">spawn_sandbox</tt><big>(</big><em>mycommand</em>, <em>name=None</em>, <em>**keywords</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/spawn.html#spawn_sandbox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.spawn.spawn_sandbox" title="Permalink to this definition">¶</a></dt>
 <dd><p>spawn the command under sandboxed</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pkgcore.spawn.spawn_bash">
-<tt class="descclassname">pkgcore.spawn.</tt><tt class="descname">spawn_bash</tt><big>(</big><em>mycommand</em>, <em>debug=False</em>, <em>executable=None</em>, <em>**keywords</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/spawn.html#spawn_bash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.spawn.spawn_bash" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pkgcore.spawn.</tt><tt class="descname">spawn_bash</tt><big>(</big><em>mycommand</em>, <em>debug=False</em>, <em>name=None</em>, <em>**keywords</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/spawn.html#spawn_bash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.spawn.spawn_bash" title="Permalink to this definition">¶</a></dt>
 <dd><p>spawn the command via bash -c</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pkgcore.spawn.spawn_fakeroot">
-<tt class="descclassname">pkgcore.spawn.</tt><tt class="descname">spawn_fakeroot</tt><big>(</big><em>mycommand</em>, <em>save_file</em>, <em>env=None</em>, <em>executable=None</em>, <em>returnpid=False</em>, <em>**keywords</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/spawn.html#spawn_fakeroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.spawn.spawn_fakeroot" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pkgcore.spawn.</tt><tt class="descname">spawn_fakeroot</tt><big>(</big><em>mycommand</em>, <em>save_file</em>, <em>env=None</em>, <em>name=None</em>, <em>returnpid=False</em>, <em>**keywords</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/spawn.html#spawn_fakeroot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.spawn.spawn_fakeroot" title="Permalink to this definition">¶</a></dt>
 <dd><p>spawn a process via fakeroot</p>
 <p>refer to the fakeroot manpage for specifics of using fakeroot</p>
 </dd></dl>
