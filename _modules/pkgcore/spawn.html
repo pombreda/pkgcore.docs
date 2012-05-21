@@ -80,7 +80,7 @@
     <span class="s">&quot;cleanup_pids&quot;</span><span class="p">,</span> <span class="s">&quot;spawn&quot;</span><span class="p">,</span> <span class="s">&quot;spawn_sandbox&quot;</span><span class="p">,</span> <span class="s">&quot;spawn_bash&quot;</span><span class="p">,</span> <span class="s">&quot;spawn_fakeroot&quot;</span><span class="p">,</span>
     <span class="s">&quot;spawn_get_output&quot;</span><span class="p">,</span> <span class="s">&quot;find_binary&quot;</span><span class="p">]</span>
 
-<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">atexit</span><span class="o">,</span> <span class="nn">signal</span><span class="o">,</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">atexit</span><span class="o">,</span> <span class="nn">itertools</span><span class="o">,</span> <span class="nn">signal</span><span class="o">,</span> <span class="nn">sys</span>
 
 <span class="kn">from</span> <span class="nn">pkgcore.const</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">BASH_BINARY</span><span class="p">,</span> <span class="n">SANDBOX_BINARY</span><span class="p">,</span> <span class="n">FAKED_PATH</span><span class="p">,</span> <span class="n">LIBFAKEROOT_PATH</span><span class="p">)</span>
@@ -96,7 +96,7 @@
     <span class="n">max_fd_limit</span> <span class="o">=</span> <span class="mi">256</span>
 
 
-<div class="viewcode-block" id="spawn_bash"><a class="viewcode-back" href="../../api/pkgcore.spawn.html#pkgcore.spawn.spawn_bash">[docs]</a><span class="k">def</span> <span class="nf">spawn_bash</span><span class="p">(</span><span class="n">mycommand</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">opt_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">keywords</span><span class="p">):</span>
+<div class="viewcode-block" id="spawn_bash"><a class="viewcode-back" href="../../api/pkgcore.spawn.html#pkgcore.spawn.spawn_bash">[docs]</a><span class="k">def</span> <span class="nf">spawn_bash</span><span class="p">(</span><span class="n">mycommand</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">executable</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">keywords</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;spawn the command via bash -c&quot;&quot;&quot;</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">BASH_BINARY</span><span class="p">,</span> <span class="s">&#39;--norc&#39;</span><span class="p">,</span> <span class="s">&#39;--noprofile&#39;</span><span class="p">]</span>
@@ -108,23 +108,23 @@
         <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mycommand</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">mycommand</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">opt_name</span><span class="p">:</span>
-        <span class="n">opt_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">spawn</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">opt_name</span><span class="o">=</span><span class="n">opt_name</span><span class="p">,</span> <span class="o">**</span><span class="n">keywords</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">executable</span><span class="p">:</span>
+        <span class="n">executable</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">spawn</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">executable</span><span class="o">=</span><span class="n">executable</span><span class="p">,</span> <span class="o">**</span><span class="n">keywords</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="spawn_sandbox"><a class="viewcode-back" href="../../api/pkgcore.spawn.html#pkgcore.spawn.spawn_sandbox">[docs]</a><span class="k">def</span> <span class="nf">spawn_sandbox</span><span class="p">(</span><span class="n">mycommand</span><span class="p">,</span> <span class="n">opt_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">keywords</span><span class="p">):</span>
+<div class="viewcode-block" id="spawn_sandbox"><a class="viewcode-back" href="../../api/pkgcore.spawn.html#pkgcore.spawn.spawn_sandbox">[docs]</a><span class="k">def</span> <span class="nf">spawn_sandbox</span><span class="p">(</span><span class="n">mycommand</span><span class="p">,</span> <span class="n">executable</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">keywords</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;spawn the command under sandboxed&quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">is_sandbox_capable</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">spawn_bash</span><span class="p">(</span><span class="n">mycommand</span><span class="p">,</span> <span class="n">opt_name</span><span class="o">=</span><span class="n">opt_name</span><span class="p">,</span> <span class="o">**</span><span class="n">keywords</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">spawn_bash</span><span class="p">(</span><span class="n">mycommand</span><span class="p">,</span> <span class="n">executable</span><span class="o">=</span><span class="n">executable</span><span class="p">,</span> <span class="o">**</span><span class="n">keywords</span><span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">SANDBOX_BINARY</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mycommand</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">mycommand</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">mycommand</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">opt_name</span><span class="p">:</span>
-        <span class="n">opt_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">spawn</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">opt_name</span><span class="o">=</span><span class="n">opt_name</span><span class="p">,</span> <span class="o">**</span><span class="n">keywords</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">executable</span><span class="p">:</span>
+        <span class="n">executable</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">spawn</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">executable</span><span class="o">=</span><span class="n">executable</span><span class="p">,</span> <span class="o">**</span><span class="n">keywords</span><span class="p">)</span>
 </div>
 <span class="n">_exithandlers</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">def</span> <span class="nf">atexit_register</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
@@ -188,15 +188,15 @@
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                 <span class="k">pass</span>
 </div>
-<div class="viewcode-block" id="spawn"><a class="viewcode-back" href="../../api/pkgcore.spawn.html#pkgcore.spawn.spawn">[docs]</a><span class="k">def</span> <span class="nf">spawn</span><span class="p">(</span><span class="n">mycommand</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">opt_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fd_pipes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">returnpid</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+<div class="viewcode-block" id="spawn"><a class="viewcode-back" href="../../api/pkgcore.spawn.html#pkgcore.spawn.spawn">[docs]</a><span class="k">def</span> <span class="nf">spawn</span><span class="p">(</span><span class="n">mycommand</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">executable</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fd_pipes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">returnpid</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
           <span class="n">uid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">gid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">umask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-          <span class="n">chdir</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">path_lookup</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+          <span class="n">cwd</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;wrapper around execve</span>
 
 <span class="sd">    :type mycommand: list or string</span>
 <span class="sd">    :type env: mapping with string keys and values</span>
-<span class="sd">    :param opt_name: controls what the process is named</span>
+<span class="sd">    :param executable: controls what the process is named</span>
 <span class="sd">        (what it would show up as under top for example)</span>
 <span class="sd">    :type fd_pipes: mapping from existing fd to fd (inside the new process)</span>
 <span class="sd">    :param fd_pipes: controls what fd&#39;s are left open in the spawned process-</span>
@@ -211,12 +211,7 @@
 
     <span class="c"># If an absolute path to an executable file isn&#39;t given</span>
     <span class="c"># search for it unless we&#39;ve been told not to.</span>
-    <span class="n">binary</span> <span class="o">=</span> <span class="n">mycommand</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">path_lookup</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">find_binary</span><span class="p">(</span><span class="n">binary</span><span class="p">)</span> <span class="o">!=</span> <span class="n">binary</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">CommandNotFound</span><span class="p">(</span><span class="n">binary</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">binary</span> <span class="o">=</span> <span class="n">find_binary</span><span class="p">(</span><span class="n">binary</span><span class="p">)</span>
+    <span class="n">binary</span> <span class="o">=</span> <span class="n">find_binary</span><span class="p">(</span><span class="n">mycommand</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="c"># If we haven&#39;t been told what file descriptors to use</span>
     <span class="c"># default to propogating our stdin, stdout and stderr.</span>
@@ -254,8 +249,8 @@
         <span class="c"># &#39;Catch &quot;Exception&quot;&#39;</span>
         <span class="c"># pylint: disable-msg=W0703</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">_exec</span><span class="p">(</span><span class="n">binary</span><span class="p">,</span> <span class="n">mycommand</span><span class="p">,</span> <span class="n">opt_name</span><span class="p">,</span> <span class="n">fd_pipes</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">gid</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span>
-                  <span class="n">uid</span><span class="p">,</span> <span class="n">umask</span><span class="p">,</span> <span class="n">chdir</span><span class="p">)</span>
+            <span class="n">_exec</span><span class="p">(</span><span class="n">binary</span><span class="p">,</span> <span class="n">mycommand</span><span class="p">,</span> <span class="n">executable</span><span class="p">,</span> <span class="n">fd_pipes</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">gid</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span>
+                  <span class="n">uid</span><span class="p">,</span> <span class="n">umask</span><span class="p">,</span> <span class="n">cwd</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
             <span class="c"># We need to catch _any_ exception so that it doesn&#39;t</span>
             <span class="c"># propogate out of this function and cause exiting</span>
@@ -309,8 +304,8 @@
     <span class="c"># Everything succeeded</span>
     <span class="k">return</span> <span class="mi">0</span>
 </div>
-<span class="k">def</span> <span class="nf">_exec</span><span class="p">(</span><span class="n">binary</span><span class="p">,</span> <span class="n">mycommand</span><span class="p">,</span> <span class="n">opt_name</span><span class="p">,</span> <span class="n">fd_pipes</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">gid</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">umask</span><span class="p">,</span>
-    <span class="n">chdir</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_exec</span><span class="p">(</span><span class="n">binary</span><span class="p">,</span> <span class="n">mycommand</span><span class="p">,</span> <span class="n">executable</span><span class="p">,</span> <span class="n">fd_pipes</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">gid</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">umask</span><span class="p">,</span>
+    <span class="n">cwd</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;internal function to handle exec&#39;ing the child process.</span>
 
 <span class="sd">    If it succeeds this function does not return. It might raise an</span>
@@ -321,34 +316,38 @@
 
     <span class="c"># If the process we&#39;re creating hasn&#39;t been given a name</span>
     <span class="c"># assign it the name of the executable.</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">opt_name</span><span class="p">:</span>
-        <span class="n">opt_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">binary</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">executable</span><span class="p">:</span>
+        <span class="n">executable</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">binary</span><span class="p">)</span>
 
     <span class="c"># Set up the command&#39;s argument list.</span>
-    <span class="n">myargs</span> <span class="o">=</span> <span class="p">[</span><span class="n">opt_name</span><span class="p">]</span>
+    <span class="n">myargs</span> <span class="o">=</span> <span class="p">[</span><span class="n">executable</span><span class="p">]</span>
     <span class="n">myargs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">mycommand</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+
+    <span class="k">def</span> <span class="nf">_find_unused_pid</span><span class="p">(</span><span class="n">protected</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">potential</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">count</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">potential</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">protected</span><span class="p">:</span>
+                <span class="n">protected</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">potential</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">potential</span>
 
     <span class="c"># Set up the command&#39;s pipes.</span>
     <span class="n">my_fds</span> <span class="o">=</span> <span class="p">{}</span>
+
     <span class="c"># To protect from cases where direct assignment could</span>
     <span class="c"># clobber needed fds ({1:2, 2:1}) we first dupe the fds</span>
     <span class="c"># into unused fds.</span>
-
-    <span class="n">protected_fds</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">fd_pipes</span><span class="o">.</span><span class="n">itervalues</span><span class="p">())</span>
+    <span class="n">protected</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">fd_pipes</span><span class="p">)</span>
+    <span class="n">protected</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">fd_pipes</span><span class="o">.</span><span class="n">itervalues</span><span class="p">())</span>
+    <span class="n">fd_source</span> <span class="o">=</span> <span class="n">_find_unused_pid</span><span class="p">(</span><span class="n">protected</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">trg_fd</span><span class="p">,</span> <span class="n">src_fd</span> <span class="ow">in</span> <span class="n">fd_pipes</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-        <span class="c"># if it&#39;s not the same we care</span>
         <span class="k">if</span> <span class="n">trg_fd</span> <span class="o">!=</span> <span class="n">src_fd</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">trg_fd</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">protected_fds</span><span class="p">:</span>
-                <span class="c"># if nothing we care about is there... do it now.</span>
-                <span class="c"># we&#39;re not updating protected_fds here due to the fact</span>
-                <span class="c"># dup will not overwrite existing fds, and that the target is</span>
-                <span class="c"># not stated as a src at this point.</span>
+            <span class="k">if</span> <span class="n">trg_fd</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">protected</span><span class="p">:</span>
+                <span class="c"># Nothing is in the way; move it immediately.</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">src_fd</span><span class="p">,</span> <span class="n">trg_fd</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">x</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">dup</span><span class="p">(</span><span class="n">src_fd</span><span class="p">)</span>
-                <span class="n">protected_fds</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-                <span class="n">my_fds</span><span class="p">[</span><span class="n">trg_fd</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">my_fds</span><span class="p">[</span><span class="n">trg_fd</span><span class="p">]</span> <span class="o">=</span> <span class="n">fd_source</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">src_fd</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 
     <span class="c"># reassign whats required now.</span>
     <span class="k">for</span> <span class="n">trg_fd</span><span class="p">,</span> <span class="n">src_fd</span> <span class="ow">in</span> <span class="n">my_fds</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
@@ -364,8 +363,8 @@
 
     <span class="n">closerange</span><span class="p">(</span><span class="n">last</span><span class="p">,</span> <span class="n">max_fd_limit</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">chdir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">chdir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cwd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
 
     <span class="c"># Set requested process permissions.</span>
     <span class="k">if</span> <span class="n">gid</span><span class="p">:</span>
@@ -389,7 +388,7 @@
     <span class="n">os</span><span class="o">.</span><span class="n">execve</span><span class="p">(</span><span class="n">binary</span><span class="p">,</span> <span class="n">myargs</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="spawn_fakeroot"><a class="viewcode-back" href="../../api/pkgcore.spawn.html#pkgcore.spawn.spawn_fakeroot">[docs]</a><span class="k">def</span> <span class="nf">spawn_fakeroot</span><span class="p">(</span><span class="n">mycommand</span><span class="p">,</span> <span class="n">save_file</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">opt_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+<div class="viewcode-block" id="spawn_fakeroot"><a class="viewcode-back" href="../../api/pkgcore.spawn.html#pkgcore.spawn.spawn_fakeroot">[docs]</a><span class="k">def</span> <span class="nf">spawn_fakeroot</span><span class="p">(</span><span class="n">mycommand</span><span class="p">,</span> <span class="n">save_file</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">executable</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                    <span class="n">returnpid</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">keywords</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;spawn a process via fakeroot</span>
 
@@ -400,8 +399,8 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">env</span> <span class="o">=</span> <span class="n">ProtectedDict</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">opt_name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">opt_name</span> <span class="o">=</span> <span class="s">&quot;fakeroot </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">mycommand</span>
+    <span class="k">if</span> <span class="n">executable</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">executable</span> <span class="o">=</span> <span class="s">&quot;fakeroot </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">mycommand</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">FAKED_PATH</span><span class="p">,</span>
@@ -448,7 +447,7 @@
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">spawn</span><span class="p">(</span>
-            <span class="n">mycommand</span><span class="p">,</span> <span class="n">opt_name</span><span class="o">=</span><span class="n">opt_name</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="n">returnpid</span><span class="o">=</span><span class="n">returnpid</span><span class="p">,</span>
+            <span class="n">mycommand</span><span class="p">,</span> <span class="n">executable</span><span class="o">=</span><span class="n">executable</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="n">returnpid</span><span class="o">=</span><span class="n">returnpid</span><span class="p">,</span>
             <span class="o">**</span><span class="n">keywords</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">returnpid</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">ret</span> <span class="o">+</span> <span class="p">[</span><span class="n">fakepid</span><span class="p">]</span> <span class="o">+</span> <span class="n">pids</span>

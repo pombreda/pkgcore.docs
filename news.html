@@ -206,6 +206,11 @@
 <p><a class="reference external" href="http://code.google.com/p/pkgcore/source/list?name=master">Git Shortlog</a></p>
 <p>Notable changes:</p>
 <ul class="simple">
+<li>Fix a longstanding potential bug in spawn&#8217;s fd reassignment;
+if fed {2:3, 3:2, 4:6}, dependent on python dict ordering, it
+was possible for it to inadvertantly stomp fd 4 during the
+final reassignment.  Haven&#8217;t seen any signs it&#8217;s occured in the
+wild, but the potential is there, thus fixed.</li>
 <li>Gentoo&#8217;s unpacker eclass is sensitive to the return code of
 assert; this is outside of pms rules, but we&#8217;ve matched portage
 behaviour to keep things working</li>
