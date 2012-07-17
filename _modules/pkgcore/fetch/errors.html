@@ -79,6 +79,7 @@
 
 <div class="viewcode-block" id="base"><a class="viewcode-back" href="../../../api/pkgcore.fetch.errors.html#pkgcore.fetch.errors.base">[docs]</a><span class="k">class</span> <span class="nc">base</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span>
+
 </div>
 <div class="viewcode-block" id="distdirPerms"><a class="viewcode-back" href="../../../api/pkgcore.fetch.errors.html#pkgcore.fetch.errors.distdirPerms">[docs]</a><span class="k">class</span> <span class="nc">distdirPerms</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distdir</span><span class="p">,</span> <span class="n">required</span><span class="p">):</span>
@@ -86,25 +87,44 @@
             <span class="bp">self</span><span class="p">,</span> <span class="s">&quot;distdir &#39;</span><span class="si">%s</span><span class="s">&#39; required fs attributes weren&#39;t enforcable: </span><span class="si">%s</span><span class="s">&quot;</span>
             <span class="o">%</span> <span class="p">(</span><span class="n">distdir</span><span class="p">,</span> <span class="n">required</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">distdir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="n">distdir</span><span class="p">,</span> <span class="n">required</span>
+
 </div>
 <div class="viewcode-block" id="UnmodifiableFile"><a class="viewcode-back" href="../../../api/pkgcore.fetch.errors.html#pkgcore.fetch.errors.UnmodifiableFile">[docs]</a><span class="k">class</span> <span class="nc">UnmodifiableFile</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
         <span class="n">base</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;Unable to update file </span><span class="si">%s</span><span class="s">, unmodifiable </span><span class="si">%s</span><span class="s">&quot;</span>
                       <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">extra</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+
 </div>
 <div class="viewcode-block" id="UnknownMirror"><a class="viewcode-back" href="../../../api/pkgcore.fetch.errors.html#pkgcore.fetch.errors.UnknownMirror">[docs]</a><span class="k">class</span> <span class="nc">UnknownMirror</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">uri</span><span class="p">):</span>
         <span class="n">base</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;uri mirror://</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s"> is has no known mirror tier&quot;</span>
                       <span class="o">%</span> <span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">uri</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uri</span> <span class="o">=</span> <span class="n">host</span><span class="p">,</span> <span class="n">uri</span>
+
 </div>
 <div class="viewcode-block" id="RequiredChksumDataMissing"><a class="viewcode-back" href="../../../api/pkgcore.fetch.errors.html#pkgcore.fetch.errors.RequiredChksumDataMissing">[docs]</a><span class="k">class</span> <span class="nc">RequiredChksumDataMissing</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fetchable</span><span class="p">,</span> <span class="o">*</span><span class="n">chksum</span><span class="p">):</span>
         <span class="n">base</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;chksum(s) </span><span class="si">%s</span><span class="s"> were configured as required, &quot;</span>
                       <span class="s">&quot;but the data is missing from fetchable &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span>
                       <span class="o">%</span> <span class="p">(</span><span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chksum</span><span class="p">),</span> <span class="n">fetchable</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fetchable</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">missing_chksum</span> <span class="o">=</span> <span class="n">fetchable</span><span class="p">,</span> <span class="n">chksum</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fetchable</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">missing_chksum</span> <span class="o">=</span> <span class="n">fetchable</span><span class="p">,</span> <span class="n">chksum</span>
+
+</div>
+<span class="k">class</span> <span class="nc">FetchFailed</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">resumable</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="n">base</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resumable</span> <span class="o">=</span> <span class="n">resumable</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;File </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">MissingDistfile</span><span class="p">(</span><span class="n">FetchFailed</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="n">FetchFailed</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="s">&quot;Doesn&#39;t exist.&quot;</span><span class="p">,</span> <span class="n">resumable</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 
           </div>
