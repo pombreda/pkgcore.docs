@@ -117,13 +117,17 @@
 
         <span class="k">if</span> <span class="s">&quot;size&quot;</span> <span class="ow">in</span> <span class="n">handlers</span><span class="p">:</span>
             <span class="n">val</span> <span class="o">=</span> <span class="n">handlers</span><span class="p">[</span><span class="s">&quot;size&quot;</span><span class="p">](</span><span class="n">file_location</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">MissingDistfile</span><span class="p">(</span><span class="n">file_location</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">val</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+              <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">MissingDistfile</span><span class="p">(</span><span class="n">file_location</span><span class="p">)</span>
             <span class="n">c</span> <span class="o">=</span> <span class="nb">cmp</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">chksums</span><span class="p">[</span><span class="s">&quot;size&quot;</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">c</span><span class="p">:</span>
                 <span class="n">resumable</span> <span class="o">=</span> <span class="p">(</span><span class="n">c</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">resumable</span><span class="p">:</span>
+                  <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;File is too small.&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                  <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;File is too big.&quot;</span>
                 <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">FetchFailed</span><span class="p">(</span><span class="n">file_location</span><span class="p">,</span>
-                    <span class="s">&quot;File is too small.&quot;</span><span class="p">,</span> <span class="n">resumable</span><span class="o">=</span><span class="n">resumable</span><span class="p">)</span>
+                    <span class="n">msg</span><span class="p">,</span> <span class="n">resumable</span><span class="o">=</span><span class="n">resumable</span><span class="p">)</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_location</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">MissingDistfile</span><span class="p">(</span><span class="n">file_location</span><span class="p">)</span>
 

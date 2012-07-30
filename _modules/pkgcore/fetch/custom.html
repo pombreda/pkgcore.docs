@@ -76,7 +76,7 @@
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;MalformedCommand&quot;</span><span class="p">,</span> <span class="s">&quot;fetcher&quot;</span><span class="p">,)</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">pkgcore.spawn</span> <span class="kn">import</span> <span class="n">spawn_bash</span><span class="p">,</span> <span class="n">is_userpriv_capable</span>
 <span class="kn">from</span> <span class="nn">pkgcore.os_data</span> <span class="kn">import</span> <span class="n">portage_uid</span><span class="p">,</span> <span class="n">portage_gid</span>
 <span class="kn">from</span> <span class="nn">pkgcore.fetch</span> <span class="kn">import</span> <span class="n">errors</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">fetchable</span>
@@ -189,21 +189,25 @@
         <span class="n">extra</span><span class="p">[</span><span class="s">&quot;umask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mo">0002</span>
         <span class="n">extra</span><span class="p">[</span><span class="s">&quot;env&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_env</span>
         <span class="n">attempts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attempts</span>
+        <span class="n">last_exc</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">while</span> <span class="n">attempts</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verify</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verify</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
                     <span class="k">return</span> <span class="n">fp</span>
-                <span class="k">elif</span> <span class="n">c</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
-                        <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span>
-                    <span class="k">except</span> <span class="ne">OSError</span><span class="p">,</span> <span class="n">oe</span><span class="p">:</span>
-                        <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">UnmodifiableFile</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">oe</span><span class="p">))</span>
-                <span class="k">elif</span> <span class="n">c</span> <span class="o">==</span> <span class="o">-</span><span class="mi">2</span><span class="p">:</span>
+                <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">MissingDistfile</span><span class="p">:</span>
                     <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resume_command</span>
+                    <span class="n">last_exc</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+                <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">FetchFailed</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">last_exc</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">e</span><span class="o">.</span><span class="n">resumable</span><span class="p">:</span>
+                       <span class="k">try</span><span class="p">:</span>
+                            <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+                            <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span>
+                       <span class="k">except</span> <span class="ne">OSError</span><span class="p">,</span> <span class="n">oe</span><span class="p">:</span>
+                            <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">UnmodifiableFile</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">oe</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resume_command</span>
 
                 <span class="c"># yeah, it&#39;s funky, but it works.</span>
                 <span class="k">if</span> <span class="n">attempts</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -214,12 +218,12 @@
                     <span class="c"># instead.</span>
                     <span class="n">spawn_bash</span><span class="p">(</span><span class="n">command</span> <span class="o">%</span> <span class="p">{</span><span class="s">&quot;URI&quot;</span><span class="p">:</span><span class="n">u</span><span class="p">,</span> <span class="s">&quot;FILE&quot;</span><span class="p">:</span><span class="n">filename</span><span class="p">},</span> <span class="o">**</span><span class="n">extra</span><span class="p">)</span>
                 <span class="n">attempts</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="k">assert</span> <span class="n">last_exc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
+            <span class="k">raise</span> <span class="n">last_exc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">last_exc</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">last_exc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
         <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
             <span class="c"># ran out of uris</span>
-            <span class="k">return</span> <span class="bp">None</span>
-
-        <span class="k">return</span> <span class="bp">None</span>
+            <span class="k">return</span> <span class="n">FetchFailed</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="s">&quot;Ran out of urls to fetch from&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="fetcher.get_path"><a class="viewcode-back" href="../../../api/pkgcore.fetch.custom.html#pkgcore.fetch.custom.fetcher.get_path">[docs]</a>    <span class="k">def</span> <span class="nf">get_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fetchable</span><span class="p">):</span>
         <span class="n">fp</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distdir</span><span class="p">,</span> <span class="n">fetchable</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
