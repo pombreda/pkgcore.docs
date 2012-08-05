@@ -125,10 +125,10 @@
         <span class="k">return</span> <span class="n">conf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">conf</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">typename</span>
 
 
-<span class="k">class</span> <span class="nc">_ConfigStack</span><span class="p">(</span><span class="n">mappings</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">_ConfigStack</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">mappings</span><span class="o">.</span><span class="n">defaultdict</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+        <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">render_vals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manager</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">type_name</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">()):</span>
@@ -362,7 +362,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">config_sources</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c"># Cache mapping confname to CollapsedConfig.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rendered_sections</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sections_lookup</span> <span class="o">=</span> <span class="n">mappings</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">deque</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sections_lookup</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">deque</span><span class="p">)</span>
         <span class="c"># force regeneration.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_types</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">_uncached_singleton</span>
         <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_config_sources</span><span class="p">:</span>
@@ -540,7 +540,7 @@
 </div>
     <span class="nd">@klass.jit_attr</span>
 <div class="viewcode-block" id="ConfigManager.types"><a class="viewcode-back" href="../../../api/pkgcore.config.central.html#pkgcore.config.central.ConfigManager.types">[docs]</a>    <span class="k">def</span> <span class="nf">types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">type_map</span> <span class="o">=</span> <span class="n">mappings</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+        <span class="n">type_map</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">sections</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections_lookup</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section_is_inherit_only</span><span class="p">(</span><span class="n">sections</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
                 <span class="k">continue</span>
