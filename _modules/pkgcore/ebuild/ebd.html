@@ -346,6 +346,13 @@
 <span class="sd">        :param fakeroot: should the phase be fakeroot&#39;d?  Only really useful</span>
 <span class="sd">            for install phase, and is mutually exclusive with sandbox</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">phase</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span><span class="o">.</span><span class="n">mandatory_phases</span><span class="p">:</span>
+            <span class="c"># TODO(ferringb): Note the preinst hack; this will be removed once dyn_pkg_preinst</span>
+            <span class="c"># is dead in full (currently it has a selinux labelling and suidctl ran from there)</span>
+            <span class="k">if</span> <span class="n">phase</span> <span class="o">!=</span> <span class="s">&#39;preinst&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">True</span>
+            <span class="k">if</span> <span class="s">&#39;selinux&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="ow">and</span> <span class="s">&#39;suidctl&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">True</span>
         <span class="n">userpriv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">userpriv</span> <span class="ow">and</span> <span class="n">userpriv</span>
         <span class="n">sandbox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sandbox</span> <span class="ow">and</span> <span class="n">sandbox</span>
         <span class="n">fakeroot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fakeroot</span> <span class="ow">and</span> <span class="n">fakeroot</span>
@@ -924,10 +931,7 @@
                     <span class="k">print</span> <span class="s">&quot;REQUIRED_USE requirement weren&#39;t met</span><span class="se">\n</span><span class="s">Failed to match: </span><span class="si">%s</span><span class="se">\n</span><span class="s">from: </span><span class="si">%s</span><span class="se">\n</span><span class="s">for USE: </span><span class="si">%s</span><span class="se">\n</span><span class="s">pkg: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> \
                         <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">pkg</span><span class="o">.</span><span class="n">required_use</span><span class="p">,</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">use</span><span class="p">),</span> <span class="n">pkg</span><span class="p">)</span>
                     <span class="k">return</span> <span class="bp">False</span>
-        <span class="k">if</span> <span class="s">&#39;pretend&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">eapi</span><span class="o">.</span><span class="n">phases</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">True</span>
-        <span class="k">elif</span> <span class="n">eapi</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">trust_defined_phases_cache</span> <span class="ow">and</span> \
-            <span class="s">&#39;pretend&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pkg</span><span class="o">.</span><span class="n">defined_phases</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s">&#39;pretend&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pkg</span><span class="o">.</span><span class="n">mandatory_phases</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">True</span>
         <span class="n">commands</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;request_inherit&quot;</span><span class="p">:</span> <span class="n">partial</span><span class="p">(</span><span class="n">inherit_handler</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eclass_cache</span><span class="p">)}</span>
         <span class="n">env</span> <span class="o">=</span> <span class="n">expected_ebuild_env</span><span class="p">(</span><span class="n">pkg</span><span class="p">)</span>
@@ -1000,8 +1004,7 @@
 
     <span class="k">def</span> <span class="nf">_cmd_check_support_configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">pkg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkg</span>
-        <span class="k">if</span> <span class="n">pkg</span><span class="o">.</span><span class="n">eapi_obj</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">trust_defined_phases_cache</span> <span class="ow">and</span> \
-            <span class="s">&#39;config&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pkg</span><span class="o">.</span><span class="n">defined_phases</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s">&#39;config&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pkg</span><span class="o">.</span><span class="n">mandatory_phases</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">False</span>
         <span class="k">return</span> <span class="bp">True</span>
 

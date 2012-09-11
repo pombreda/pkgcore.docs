@@ -315,6 +315,9 @@
         <span class="c"># sandbox or fakeroot fex), we ensure the bashrc is invalid.</span>
         <span class="n">env</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="s">&quot;/etc/portage/spork/not/valid/ha/ha&quot;</span><span class="p">)</span>
                    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;BASHRC&quot;</span><span class="p">,</span> <span class="s">&quot;BASH_ENV&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;PKGCORE_PERF_DEBUG&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">env</span><span class="p">[</span><span class="s">&quot;PKGCORE_PERF_DEBUG&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;PKGCORE_PERF_DEBUG&#39;</span><span class="p">]</span>
+
         <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">sandbox</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">pkgcore</span><span class="o">.</span><span class="n">spawn</span><span class="o">.</span><span class="n">is_sandbox_capable</span><span class="p">():</span>
@@ -900,8 +903,10 @@
         <span class="n">d</span><span class="p">[</span><span class="s">&quot;PKGCORE_EAPI&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">eapi_obj</span><span class="o">.</span><span class="n">magic</span>
         <span class="n">d</span><span class="p">[</span><span class="s">&quot;INHERITED&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;_eclasses_&quot;</span><span class="p">,</span> <span class="p">()))</span>
 
-    <span class="k">if</span> <span class="s">&quot;PKGCORE_DEBUG&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-        <span class="n">d</span><span class="p">[</span><span class="s">&quot;PKGCORE_DEBUG&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&quot;PKGCORE_DEBUG&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">e_const</span><span class="o">.</span><span class="n">PKGCORE_DEBUG_VARS</span><span class="p">:</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
     <span class="k">return</span> <span class="n">d</span>
 </pre></div></div>
 

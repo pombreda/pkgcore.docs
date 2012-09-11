@@ -76,7 +76,7 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;base&quot;</span><span class="p">,</span> <span class="s">&quot;package&quot;</span><span class="p">,</span> <span class="s">&quot;package_factory&quot;</span><span class="p">,</span> <span class="s">&quot;virtual_ebuild&quot;</span><span class="p">)</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">imap</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">imap</span><span class="p">,</span> <span class="n">chain</span>
 
 <span class="kn">from</span> <span class="nn">pkgcore.package</span> <span class="kn">import</span> <span class="n">metadata</span>
 <span class="kn">from</span> <span class="nn">pkgcore.package</span> <span class="kn">import</span> <span class="n">errors</span> <span class="k">as</span> <span class="n">metadata_errors</span>
@@ -275,7 +275,7 @@
     <span class="n">_get_attr</span><span class="p">[</span><span class="s">&quot;properties&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span><span class="nb">frozenset</span><span class="p">(</span><span class="n">imap</span><span class="p">(</span><span class="nb">intern</span><span class="p">,</span>
         <span class="n">s</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;PROPERTIES&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
     <span class="n">_get_attr</span><span class="p">[</span><span class="s">&quot;defined_phases&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span><span class="n">s</span><span class="o">.</span><span class="n">eapi_obj</span><span class="o">.</span><span class="n">interpret_cache_defined_phases</span><span class="p">(</span><span class="n">imap</span><span class="p">(</span><span class="nb">intern</span><span class="p">,</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;DEFINED_PHASES&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()),</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;DEFINED_PHASES&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
     <span class="n">_get_attr</span><span class="p">[</span><span class="s">&quot;homepage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span><span class="n">s</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;HOMEPAGE&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="n">_get_attr</span><span class="p">[</span><span class="s">&quot;inherited&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_inherited</span>
     <span class="n">_get_attr</span><span class="p">[</span><span class="s">&quot;required_use&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">generate_required_use</span>
@@ -292,6 +292,11 @@
         <span class="k">if</span> <span class="n">eapi_obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">eapi_obj</span><span class="o">.</span><span class="n">magic</span><span class="p">)</span>
         <span class="k">return</span> <span class="s">&quot;unsupported&quot;</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="base.mandatory_phases"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebuild_src.html#pkgcore.ebuild.ebuild_src.base.mandatory_phases">[docs]</a>    <span class="k">def</span> <span class="nf">mandatory_phases</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span>
+            <span class="n">chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">defined_phases</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eapi_obj</span><span class="o">.</span><span class="n">default_phases</span><span class="p">))</span>
 </div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="base.P"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebuild_src.html#pkgcore.ebuild.ebuild_src.base.P">[docs]</a>    <span class="k">def</span> <span class="nf">P</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
