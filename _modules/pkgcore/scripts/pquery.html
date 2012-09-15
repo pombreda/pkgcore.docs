@@ -120,21 +120,27 @@
     <span class="n">__hash__</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">__hash__</span>
 
 </div>
-<span class="n">printable_attrs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">((</span><span class="s">&#39;rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;depends&#39;</span><span class="p">,</span> <span class="s">&#39;post_rdepends&#39;</span><span class="p">,</span>
+<span class="n">printable_attrs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">((</span>
+    <span class="s">&#39;rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;depends&#39;</span><span class="p">,</span> <span class="s">&#39;post_rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;alldepends&#39;</span><span class="p">,</span>
+    <span class="s">&#39;raw_rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;raw_depends&#39;</span><span class="p">,</span> <span class="s">&#39;raw_post_rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;raw_alldepends&#39;</span><span class="p">,</span>
     <span class="s">&#39;provides&#39;</span><span class="p">,</span> <span class="s">&#39;use&#39;</span><span class="p">,</span> <span class="s">&#39;iuse&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="s">&#39;longdescription&#39;</span><span class="p">,</span>
     <span class="s">&#39;herds&#39;</span><span class="p">,</span> <span class="s">&#39;license&#39;</span><span class="p">,</span> <span class="s">&#39;uris&#39;</span><span class="p">,</span> <span class="s">&#39;files&#39;</span><span class="p">,</span> <span class="s">&#39;category&#39;</span><span class="p">,</span> <span class="s">&#39;package&#39;</span><span class="p">,</span>  <span class="s">&#39;slot&#39;</span><span class="p">,</span>
     <span class="s">&#39;maintainers&#39;</span><span class="p">,</span> <span class="s">&#39;restrict&#39;</span><span class="p">,</span> <span class="s">&#39;repo&#39;</span><span class="p">,</span> <span class="s">&#39;source_repository&#39;</span><span class="p">,</span>
-    <span class="s">&#39;alldepends&#39;</span><span class="p">,</span> <span class="s">&#39;path&#39;</span><span class="p">,</span> <span class="s">&#39;version&#39;</span><span class="p">,</span>
+    <span class="s">&#39;path&#39;</span><span class="p">,</span> <span class="s">&#39;version&#39;</span><span class="p">,</span>
     <span class="s">&#39;revision&#39;</span><span class="p">,</span> <span class="s">&#39;fullver&#39;</span><span class="p">,</span> <span class="s">&#39;environment&#39;</span><span class="p">,</span> <span class="s">&#39;keywords&#39;</span><span class="p">,</span> <span class="s">&#39;homepage&#39;</span><span class="p">,</span>
     <span class="s">&#39;fetchables&#39;</span><span class="p">,</span> <span class="s">&#39;eapi&#39;</span><span class="p">,</span> <span class="s">&#39;inherited&#39;</span><span class="p">,</span> <span class="s">&#39;chost&#39;</span><span class="p">,</span> <span class="s">&#39;cbuild&#39;</span><span class="p">,</span> <span class="s">&#39;ctarget&#39;</span><span class="p">,</span>
     <span class="s">&#39;all&#39;</span><span class="p">,</span> <span class="s">&#39;allmetadata&#39;</span><span class="p">,</span> <span class="s">&#39;properties&#39;</span><span class="p">,</span> <span class="s">&#39;defined_phases&#39;</span><span class="p">,</span> <span class="s">&#39;required_use&#39;</span><span class="p">))</span>
+
+<span class="n">deps_like_attrs</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;depends&#39;</span><span class="p">,</span> <span class="s">&#39;post_rdepends&#39;</span><span class="p">]</span>
+<span class="n">deps_like_attrs</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="s">&#39;raw_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">deps_like_attrs</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s">&#39;restrict&#39;</span><span class="p">]</span>
+<span class="n">deps_like_attrs</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">deps_like_attrs</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="stringify_attr"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.stringify_attr">[docs]</a><span class="k">def</span> <span class="nf">stringify_attr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Grab a package attr and convert it to a string.&quot;&quot;&quot;</span>
     <span class="c"># config is currently unused but may affect display in the future.</span>
     <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;files&#39;</span><span class="p">,</span> <span class="s">&#39;uris&#39;</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;fetchables&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">get_pkg_attr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;fetchables&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="s">&#39;MISSING&#39;</span>
         <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;files&#39;</span><span class="p">:</span>
@@ -148,12 +154,12 @@
     <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;use&#39;</span><span class="p">:</span>
         <span class="c"># Combine a list of all enabled (including irrelevant) and all</span>
         <span class="c"># available flags into a &quot;enabled -disabled&quot; style string.</span>
-        <span class="n">use</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;use&#39;</span><span class="p">,</span> <span class="p">()))</span>
-        <span class="n">iuse</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s">&quot;-+&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;iuse&#39;</span><span class="p">,</span> <span class="p">()))</span>
+        <span class="n">use</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">get_pkg_attr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;use&#39;</span><span class="p">,</span> <span class="p">()))</span>
+        <span class="n">iuse</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s">&quot;-+&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">get_pkg_attr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;iuse&#39;</span><span class="p">,</span> <span class="p">()))</span>
         <span class="n">result</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">iuse</span> <span class="o">&amp;</span> <span class="n">use</span><span class="p">)</span> <span class="o">+</span> <span class="nb">sorted</span><span class="p">(</span><span class="s">&#39;-&#39;</span> <span class="o">+</span> <span class="n">val</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="p">(</span><span class="n">iuse</span> <span class="o">-</span> <span class="n">use</span><span class="p">))</span>
         <span class="k">return</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
-    <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">get_pkg_attr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="s">&#39;MISSING&#39;</span>
 
@@ -167,7 +173,7 @@
     <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;environment&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">text_fileobj</span><span class="p">()</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;repo&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s">&#39;repo_id&#39;</span><span class="p">,</span> <span class="s">&#39;no repo id&#39;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_pkg_attr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s">&#39;repo_id&#39;</span><span class="p">,</span> <span class="s">&#39;no repo id&#39;</span><span class="p">))</span>
     <span class="c"># hackish.</span>
     <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
@@ -251,8 +257,8 @@
 <div class="viewcode-block" id="format_attr"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.format_attr">[docs]</a><span class="k">def</span> <span class="nf">format_attr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Grab a package attr and print it through a formatter.&quot;&quot;&quot;</span>
     <span class="c"># config is currently unused but may affect display in the future.</span>
-    <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;depends&#39;</span><span class="p">,</span> <span class="s">&#39;rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;post_rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;restrict&#39;</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">deps_like_attrs</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">get_pkg_attr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;MISSING&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -271,7 +277,7 @@
             <span class="n">out</span><span class="o">.</span><span class="n">first_prefix</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
             <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
     <span class="k">elif</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;files&#39;</span><span class="p">,</span> <span class="s">&#39;uris&#39;</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;fetchables&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">get_pkg_attr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;fetchables&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;MISSING&#39;</span><span class="p">)</span>
             <span class="k">return</span>
@@ -312,8 +318,8 @@
             <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">green</span><span class="p">,</span> <span class="s">&#39;     </span><span class="si">%s</span><span class="s">: &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">attr</span><span class="p">,),</span> <span class="n">out</span><span class="o">.</span><span class="n">fg</span><span class="p">(),</span> <span class="n">autoline</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
             <span class="n">format_attr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">revdep</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">print_revdep</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;depends&#39;</span><span class="p">,</span> <span class="s">&#39;rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;post_rdepends&#39;</span><span class="p">):</span>
-                <span class="n">depset</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">deps_like_attrs</span><span class="p">:</span>
+                <span class="n">depset</span> <span class="o">=</span> <span class="n">get_pkg_attr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
                 <span class="n">find_cond</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">depset</span><span class="p">,</span> <span class="s">&#39;find_cond_nodes&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">find_cond</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
                     <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
@@ -372,8 +378,8 @@
             <span class="n">printed_something</span> <span class="o">=</span> <span class="bp">True</span>
             <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">=&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">stringify_attr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">attr</span><span class="p">)))</span>
         <span class="k">for</span> <span class="n">revdep</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">print_revdep</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;depends&#39;</span><span class="p">,</span> <span class="s">&#39;rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;post_rdepends&#39;</span><span class="p">):</span>
-                <span class="n">depset</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">deps_like_attrs</span><span class="p">:</span>
+                <span class="n">depset</span> <span class="o">=</span> <span class="n">get_pkg_attr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">depset</span><span class="p">,</span> <span class="s">&#39;find_cond_nodes&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
                     <span class="c"># TODO maybe be smarter here? (this code is</span>
                     <span class="c"># triggered by virtuals currently).</span>
@@ -395,7 +401,7 @@
 
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">contents</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">location</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">location</span>
-            <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;contents&#39;</span><span class="p">,</span> <span class="p">())):</span>
+            <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">get_pkg_attr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;contents&#39;</span><span class="p">,</span> <span class="p">())):</span>
             <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">location</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="print_packages_noversion"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.print_packages_noversion">[docs]</a><span class="k">def</span> <span class="nf">print_packages_noversion</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">pkgs</span><span class="p">):</span>
@@ -754,8 +760,16 @@
     <span class="n">help</span><span class="o">=</span><span class="s">&#39;print what condition(s) trigger a dep.&#39;</span><span class="p">)</span>
 
 
+<div class="viewcode-block" id="get_pkg_attr"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.get_pkg_attr">[docs]</a><span class="k">def</span> <span class="nf">get_pkg_attr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;raw_&#39;</span><span class="p">:</span>
+        <span class="n">pkg</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">_raw_pkg</span>
+        <span class="n">attr</span> <span class="o">=</span> <span class="n">attr</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">fallback</span><span class="p">)</span>
+
+</div>
 <span class="k">class</span> <span class="nc">_Fail</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span>
+
 
 <div class="viewcode-block" id="mangle_values"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.mangle_values">[docs]</a><span class="k">def</span> <span class="nf">mangle_values</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
 
@@ -778,12 +792,15 @@
         <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">printable_attrs</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span> <span class="o">==</span> <span class="s">&#39;all&#39;</span><span class="p">)</span>
         <span class="c"># startswith is used to filter out --attr all --attr allmetadata, etc.</span>
         <span class="n">vals</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;all&#39;</span><span class="p">)]</span>
-    <span class="k">elif</span> <span class="s">&#39;allmetadata&#39;</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s">&#39;allmetadata&#39;</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">:</span>
         <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata_attrs</span><span class="p">)</span>
         <span class="n">vals</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;all&#39;</span><span class="p">)]</span>
-    <span class="k">elif</span> <span class="s">&#39;alldepends&#39;</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s">&#39;alldepends&#39;</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">:</span>
         <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s">&#39;alldepends&#39;</span><span class="p">)</span>
         <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s">&#39;depends&#39;</span><span class="p">,</span> <span class="s">&#39;rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;post_rdepends&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s">&#39;raw_alldepends&#39;</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">:</span>
+        <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s">&#39;raw_alldepends&#39;</span><span class="p">)</span>
+        <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s">&#39;raw_depends&#39;</span><span class="p">,</span> <span class="s">&#39;raw_rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;raw_post_rdepends&#39;</span><span class="p">])</span>
 
     <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
         <span class="c"># slice assignment to an empty range; behaves as an insertion.</span>
