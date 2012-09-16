@@ -800,31 +800,32 @@
             <span class="n">error_out</span><span class="p">(</span>
                 <span class="s">&#39;--print-revdep with --no-version does not make sense.&#39;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="s">&#39;all&#39;</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">:</span>
-        <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">printable_attrs</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span> <span class="o">==</span> <span class="s">&#39;all&#39;</span><span class="p">)</span>
-        <span class="c"># startswith is used to filter out --attr all --attr allmetadata, etc.</span>
-        <span class="n">vals</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;all&#39;</span><span class="p">)]</span>
-    <span class="k">if</span> <span class="s">&#39;allmetadata&#39;</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">:</span>
-        <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata_attrs</span><span class="p">)</span>
-        <span class="n">vals</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;all&#39;</span><span class="p">)]</span>
-    <span class="k">if</span> <span class="s">&#39;alldepends&#39;</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">:</span>
-        <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s">&#39;alldepends&#39;</span><span class="p">)</span>
-        <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s">&#39;depends&#39;</span><span class="p">,</span> <span class="s">&#39;rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;post_rdepends&#39;</span><span class="p">])</span>
-    <span class="k">if</span> <span class="s">&#39;raw_alldepends&#39;</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">:</span>
-        <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s">&#39;raw_alldepends&#39;</span><span class="p">)</span>
-        <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s">&#39;raw_depends&#39;</span><span class="p">,</span> <span class="s">&#39;raw_rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;raw_post_rdepends&#39;</span><span class="p">])</span>
-
-    <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-        <span class="c"># slice assignment to an empty range; behaves as an insertion.</span>
-        <span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;repo&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="s">&#39;homepage&#39;</span><span class="p">]</span>
-
     <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">one_attr</span> <span class="ow">and</span> <span class="n">vals</span><span class="o">.</span><span class="n">print_revdep</span><span class="p">:</span>
         <span class="n">error_out</span><span class="p">(</span>
             <span class="s">&#39;--print-revdep with --force-one-attr or --one-attr does not &#39;</span>
             <span class="s">&#39;make sense.&#39;</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">process_attrs</span><span class="p">(</span><span class="n">sequence</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">sequence</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;all&#39;</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">printable_attrs</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="s">&#39;all&#39;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;allmetadata&#39;</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">process_attrs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata_attrs</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;alldepends&#39;</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;depends&#39;</span><span class="p">,</span> <span class="s">&#39;rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;post_rdepends&#39;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;raw_alldepends&#39;</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;raw_depends&#39;</span><span class="p">,</span> <span class="s">&#39;raw_rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;raw_post_rdepends&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="n">attr</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">i</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">attr</span>
+
+
+    <span class="n">attrs</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;repo&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="s">&#39;homepage&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="p">[]</span>
+    <span class="n">attrs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">process_attrs</span><span class="p">(</span><span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">))</span>
+
     <span class="c"># finally, uniquify the attrs.</span>
-    <span class="n">vals</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">iter_stable_unique</span><span class="p">(</span><span class="n">vals</span><span class="o">.</span><span class="n">attr</span><span class="p">))</span>
+    <span class="n">vals</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">iter_stable_unique</span><span class="p">(</span><span class="n">attrs</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">vals</span><span class="p">,</span> <span class="p">()</span>
 
