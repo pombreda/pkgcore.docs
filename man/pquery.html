@@ -96,7 +96,7 @@
 <span id="pquery-manpage"></span><h1>pquery<a class="headerlink" href="#pquery" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="synopsis">
 <h2>synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
-<p>pquery [-h] [&#8211;version] [&#8211;debug] [&#8211;color BOOLEAN] [&#8211;add-config SECTION KEY VALUE] [&#8211;new-config SECTION KEY VALUE] [&#8211;empty-config] [&#8211;domain DOMAIN] [&#8211;raw] [&#8211;virtuals {only,disable}] [&#8211;repo REPO | &#8211;vdb | &#8211;all-repos] [&#8211;all] [&#8211;has-use has_use] [&#8211;license license] [&#8211;herd herd] [&#8211;revdep REVDEP] [&#8211;revdep-pkgs REVDEP_PKGS] [&#8211;restrict-revdep restrict_revdep] [&#8211;restrict-revdep-pkgs restrict_revdep_pkgs] [&#8211;description description] [&#8211;owns owns] [&#8211;owns-re owns_re] [&#8211;maintainer maintainer] [&#8211;maintainer-name maintainer_name] [&#8211;maintainer-email maintainer_email] [&#8211;environment environment] [&#8211;pkgset pkgset] [&#8211;early-out] [&#8211;no-version | &#8211;min | &#8211;max] [&#8211;cpv] [&#8211;atom] [&#8211;attr attribute] [&#8211;force-attr attribute] [&#8211;one-attr attribute | &#8211;force-one-attr attribute] [&#8211;contents] [&#8211;verbose] [&#8211;highlight-dep HIGHLIGHT_DEP] [&#8211;blame] [&#8211;print-revdep PRINT_REVDEP] [matches [matches ...]]</p>
+<p>pquery [-h] [&#8211;version] [&#8211;debug] [&#8211;color BOOLEAN] [&#8211;add-config SECTION KEY VALUE] [&#8211;new-config SECTION KEY VALUE] [&#8211;empty-config] [&#8211;domain DOMAIN] [&#8211;raw] [&#8211;no-filters] [&#8211;virtuals {only,disable}] [&#8211;repo REPO | &#8211;vdb | &#8211;all-repos] [&#8211;all] [&#8211;has-use has_use] [&#8211;license license] [&#8211;herd herd] [&#8211;revdep REVDEP] [&#8211;revdep-pkgs REVDEP_PKGS] [&#8211;restrict-revdep restrict_revdep] [&#8211;restrict-revdep-pkgs restrict_revdep_pkgs] [&#8211;description description] [&#8211;owns owns] [&#8211;owns-re owns_re] [&#8211;maintainer maintainer] [&#8211;maintainer-name maintainer_name] [&#8211;maintainer-email maintainer_email] [&#8211;environment environment] [&#8211;pkgset pkgset] [&#8211;early-out] [&#8211;no-version | &#8211;min | &#8211;max] [&#8211;cpv] [&#8211;atom] [&#8211;attr attribute] [&#8211;force-attr attribute] [&#8211;one-attr attribute | &#8211;force-one-attr attribute] [&#8211;contents] [&#8211;verbose] [&#8211;highlight-dep HIGHLIGHT_DEP] [&#8211;blame] [&#8211;print-revdep PRINT_REVDEP] [matches [matches ...]]</p>
 </div>
 <div class="section" id="description">
 <h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
@@ -149,7 +149,10 @@
 <tbody valign="top">
 <tr><td class="option-group">
 <kbd><span class="option">--raw</span></kbd></td>
-<td>Without this switch your configuration affects what packages are visible (through masking) and what USE flags are applied to depends and fetchables.  With this switch your configuration values aren&#8217;t used and you see the &#8220;raw&#8221; repository data.</td></tr>
+<td>With this switch enabled, no configuration is used, and no filtering  is done.  This means you see the raw dependencies, rather than the dependencies rendered via your USE configuration.  Primarily useful for people who need to look under the hood- ebuild devs, PM tool authors, etc.  Note this option ignores &#8211;domain if is specified.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--no-filters</span></kbd></td>
+<td>With this option enabled, all license filtering, visibility filtering (ACCEPT_KEYWORDS, package masking, etc) is turned off.</td></tr>
 <tr><td class="option-group" colspan="2">
 <kbd><span class="option">--virtuals <var>&lt;only | disable&gt;</var></span></kbd></td>
 </tr>

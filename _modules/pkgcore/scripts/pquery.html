@@ -462,10 +462,14 @@
 <span class="n">repo_group</span> <span class="o">=</span> <span class="n">argparser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s">&#39;Repository matching options&#39;</span><span class="p">,</span>
     <span class="s">&#39;options controlling which repositories to inspect.&#39;</span><span class="p">)</span>
 <span class="n">repo_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--raw&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s">&quot;Without this switch your configuration affects what packages are &quot;</span>
-        <span class="s">&quot;visible (through masking) and what USE flags are applied to depends &quot;</span>
-        <span class="s">&quot;and fetchables.  With this switch your configuration values aren&#39;t &quot;</span>
-        <span class="s">&#39;used and you see the &quot;raw&quot; repository data.&#39;</span><span class="p">)</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;With this switch enabled, no configuration is used, and no filtering &quot;</span>
+         <span class="s">&quot; is done.  This means you see the raw dependencies, rather than the &quot;</span>
+         <span class="s">&quot;dependencies rendered via your USE configuration.  Primarily useful &quot;</span>
+         <span class="s">&quot;for people who need to look under the hood- ebuild devs, PM tool &quot;</span>
+         <span class="s">&quot;authors, etc.  Note this option ignores --domain if is specified.&quot;</span><span class="p">)</span>
+<span class="n">repo_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--no-filters&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s">&quot;With this option enabled, all license filtering, visibility filtering&quot;</span>
+         <span class="s">&quot; (ACCEPT_KEYWORDS, package masking, etc) is turned off.&quot;</span><span class="p">)</span>
 <span class="n">repo_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--virtuals&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;only&#39;</span><span class="p">,</span> <span class="s">&#39;disable&#39;</span><span class="p">),</span>
     <span class="n">help</span><span class="o">=</span><span class="s">&#39;arg &quot;only&quot; for only matching virtuals, &quot;disable&quot; to not match &#39;</span>
         <span class="s">&#39;virtuals at all. Default is to match everything.&#39;</span><span class="p">)</span>
@@ -480,6 +484,8 @@
         <span class="k">if</span> <span class="n">namespace</span><span class="o">.</span><span class="n">raw</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">commandline</span><span class="o">.</span><span class="n">StoreConfigObject</span><span class="o">.</span><span class="n">_get_sections</span><span class="p">(</span>
                 <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">namespace</span><span class="o">.</span><span class="n">no_filters</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">namespace</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">repos_configured</span>
         <span class="k">return</span> <span class="n">commandline</span><span class="o">.</span><span class="n">StoreRepoObject</span><span class="o">.</span><span class="n">_get_sections</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
 </div>
@@ -503,12 +509,20 @@
         <span class="n">namespace</span><span class="o">.</span><span class="n">vdb</span> <span class="o">=</span> <span class="bp">True</span>
 
     <span class="c"># Get repo(s) to operate on.</span>
-    <span class="k">if</span> <span class="n">namespace</span><span class="o">.</span><span class="n">vdb</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">namespace</span><span class="o">.</span><span class="n">repo</span><span class="p">:</span>
+        <span class="c"># The store repo machinery handles --raw and --no-filters for</span>
+        <span class="c"># us, thus it being the first check.</span>
+        <span class="n">repos</span> <span class="o">=</span> <span class="p">[</span><span class="n">namespace</span><span class="o">.</span><span class="n">repo</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">namespace</span><span class="o">.</span><span class="n">vdb</span><span class="p">:</span>
         <span class="n">repos</span> <span class="o">=</span> <span class="n">namespace</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">vdb</span>
+    <span class="k">elif</span> <span class="n">namespace</span><span class="o">.</span><span class="n">no_filters</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">namespace</span><span class="o">.</span><span class="n">all_repos</span><span class="p">:</span>
+            <span class="n">repos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">namespace</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">vdb</span><span class="p">)</span>
+            <span class="n">repos</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">namespace</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">repos_configured</span><span class="o">.</span><span class="n">itervalues</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">repos</span> <span class="o">=</span> <span class="n">namespace</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">repos_configured</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
     <span class="k">elif</span> <span class="n">namespace</span><span class="o">.</span><span class="n">all_repos</span><span class="p">:</span>
         <span class="n">repos</span> <span class="o">=</span> <span class="n">namespace</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">repos</span> <span class="o">+</span> <span class="n">namespace</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">vdb</span>
-    <span class="k">elif</span> <span class="n">namespace</span><span class="o">.</span><span class="n">repo</span><span class="p">:</span>
-        <span class="n">repos</span> <span class="o">=</span> <span class="p">[</span><span class="n">namespace</span><span class="o">.</span><span class="n">repo</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">repos</span> <span class="o">=</span> <span class="n">namespace</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">repos</span>
 

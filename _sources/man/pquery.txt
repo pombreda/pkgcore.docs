@@ -7,7 +7,7 @@ pquery
 synopsis
 ========
 
-pquery [-h] [--version] [--debug] [--color BOOLEAN] [--add-config SECTION KEY VALUE] [--new-config SECTION KEY VALUE] [--empty-config] [--domain DOMAIN] [--raw] [--virtuals {only,disable}] [--repo REPO | --vdb | --all-repos] [--all] [--has-use has_use] [--license license] [--herd herd] [--revdep REVDEP] [--revdep-pkgs REVDEP_PKGS] [--restrict-revdep restrict_revdep] [--restrict-revdep-pkgs restrict_revdep_pkgs] [--description description] [--owns owns] [--owns-re owns_re] [--maintainer maintainer] [--maintainer-name maintainer_name] [--maintainer-email maintainer_email] [--environment environment] [--pkgset pkgset] [--early-out] [--no-version | --min | --max] [--cpv] [--atom] [--attr attribute] [--force-attr attribute] [--one-attr attribute | --force-one-attr attribute] [--contents] [--verbose] [--highlight-dep HIGHLIGHT_DEP] [--blame] [--print-revdep PRINT_REVDEP] [matches [matches ...]]
+pquery [-h] [--version] [--debug] [--color BOOLEAN] [--add-config SECTION KEY VALUE] [--new-config SECTION KEY VALUE] [--empty-config] [--domain DOMAIN] [--raw] [--no-filters] [--virtuals {only,disable}] [--repo REPO | --vdb | --all-repos] [--all] [--has-use has_use] [--license license] [--herd herd] [--revdep REVDEP] [--revdep-pkgs REVDEP_PKGS] [--restrict-revdep restrict_revdep] [--restrict-revdep-pkgs restrict_revdep_pkgs] [--description description] [--owns owns] [--owns-re owns_re] [--maintainer maintainer] [--maintainer-name maintainer_name] [--maintainer-email maintainer_email] [--environment environment] [--pkgset pkgset] [--early-out] [--no-version | --min | --max] [--cpv] [--atom] [--attr attribute] [--force-attr attribute] [--one-attr attribute | --force-one-attr attribute] [--contents] [--verbose] [--highlight-dep HIGHLIGHT_DEP] [--blame] [--print-revdep PRINT_REVDEP] [matches [matches ...]]
 
 DESCRIPTION
 ===========
@@ -31,7 +31,8 @@ Repository matching options
 
 options controlling which repositories to inspect.
 
---raw                        Without this switch your configuration affects what packages are visible (through masking) and what USE flags are applied to depends and fetchables.  With this switch your configuration values aren't used and you see the "raw" repository data.
+--raw                        With this switch enabled, no configuration is used, and no filtering  is done.  This means you see the raw dependencies, rather than the dependencies rendered via your USE configuration.  Primarily useful for people who need to look under the hood- ebuild devs, PM tool authors, etc.  Note this option ignores --domain if is specified.
+--no-filters                 With this option enabled, all license filtering, visibility filtering (ACCEPT_KEYWORDS, package masking, etc) is turned off.
 --virtuals <only | disable>  arg "only" for only matching virtuals, "disable" to not match virtuals at all. Default is to match everything.
 --repo REPO                  repo to use (default from domain if omitted).
 --vdb                        match only vdb (installed) packages.
