@@ -69,6 +69,8 @@
 <span class="c"># Copyright: 2005-2011 Brian Harring &lt;ferringb@gmail.com&gt;</span>
 <span class="c"># License: GPL2/BSD</span>
 
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">with_statement</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">package class for buildable ebuilds</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -100,6 +102,7 @@
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
     <span class="s">&quot;pkgcore.log:logger&quot;</span><span class="p">,</span>
     <span class="s">&quot;pkgcore.ebuild.eapi:get_eapi&quot;</span><span class="p">,</span>
+    <span class="s">&quot;snakeoil:data_source&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
 
@@ -350,6 +353,15 @@
     <span class="k">def</span> <span class="nf">_mtime_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_get_ebuild_mtime</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="package.environment"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebuild_src.html#pkgcore.ebuild.ebuild_src.package.environment">[docs]</a>    <span class="k">def</span> <span class="nf">environment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ebuild_environment</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">data_source</span><span class="o">.</span><span class="n">data_source</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mutable</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_get_ebuild_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ebp</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">processor</span><span class="o">.</span><span class="n">reuse_or_request</span><span class="p">(</span><span class="n">ebp</span><span class="p">)</span> <span class="k">as</span> <span class="n">ebp</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ebp</span><span class="o">.</span><span class="n">get_ebuild_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">eclass_cache</span><span class="p">)</span>
+
 </div>
 <div class="viewcode-block" id="package_factory"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebuild_src.html#pkgcore.ebuild.ebuild_src.package_factory">[docs]</a><span class="k">class</span> <span class="nc">package_factory</span><span class="p">(</span><span class="n">metadata</span><span class="o">.</span><span class="n">factory</span><span class="p">):</span>
     <span class="n">child_class</span> <span class="o">=</span> <span class="n">package</span>
@@ -411,14 +423,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_metadata</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">ebp</span><span class="o">=</span><span class="n">ebp</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_update_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">ebp</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="n">release</span> <span class="o">=</span> <span class="n">ebp</span> <span class="ow">is</span> <span class="bp">None</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">release</span><span class="p">:</span>
-                <span class="n">ebp</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">request_ebuild_processor</span><span class="p">()</span>
-            <span class="n">mydata</span> <span class="o">=</span> <span class="n">ebp</span><span class="o">.</span><span class="n">get_keys</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ecache</span><span class="p">)</span>
-        <span class="k">finally</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">ebp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">release</span><span class="p">:</span>
-                <span class="n">processor</span><span class="o">.</span><span class="n">release_ebuild_processor</span><span class="p">(</span><span class="n">ebp</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">processor</span><span class="o">.</span><span class="n">reuse_or_request</span><span class="p">(</span><span class="n">ebp</span><span class="p">)</span> <span class="k">as</span> <span class="n">my_proc</span><span class="p">:</span>
+            <span class="n">mydata</span> <span class="o">=</span> <span class="n">my_proc</span><span class="o">.</span><span class="n">get_keys</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ecache</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">my_proc</span>
+        <span class="k">del</span> <span class="n">ebp</span>
 
         <span class="n">inherited</span> <span class="o">=</span> <span class="n">mydata</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;INHERITED&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
         <span class="c"># rewrite defined_phases as needed, since we now know the eapi.</span>

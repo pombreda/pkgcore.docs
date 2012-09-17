@@ -107,6 +107,7 @@
 <span class="n">inactive_ebp_list</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">active_ebp_list</span> <span class="o">=</span> <span class="p">[]</span>
 
+<span class="kn">import</span> <span class="nn">contextlib</span>
 <span class="kn">import</span> <span class="nn">pkgcore.spawn</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">signal</span><span class="o">,</span> <span class="nn">errno</span>
 <span class="kn">from</span> <span class="nn">pkgcore</span> <span class="kn">import</span> <span class="n">const</span><span class="p">,</span> <span class="n">os_data</span>
 <span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">const</span> <span class="k">as</span> <span class="n">e_const</span>
@@ -132,6 +133,12 @@
     <span class="n">_inner</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">functor</span>
     <span class="n">pretty_docs</span><span class="p">(</span><span class="n">_inner</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">functor</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_inner</span>
+
+<span class="nd">@_single_thread_allowed</span>
+<span class="k">def</span> <span class="nf">forget_all_processors</span><span class="p">():</span>
+    <span class="n">active_ebp_list</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">inactive_ebp_list</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">[]</span>
+
 
 <span class="nd">@_single_thread_allowed</span>
 <span class="k">def</span> <span class="nf">shutdown_all_processors</span><span class="p">():</span>
@@ -224,6 +231,23 @@
     <span class="k">return</span> <span class="bp">True</span>
 
 </div>
+<span class="nd">@contextlib.contextmanager</span>
+<span class="k">def</span> <span class="nf">reuse_or_request</span><span class="p">(</span><span class="n">ebp</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">request_kwds</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Do an processor operation, locking as necessary.</span>
+
+<span class="sd">    If the processor is given, it&#39;s assumed to be locked already.</span>
+<span class="sd">    If no processor is given, one is allocated, then released upon</span>
+<span class="sd">    finishing.&quot;&quot;&quot;</span>
+    <span class="n">release_required</span> <span class="o">=</span> <span class="n">ebp</span> <span class="ow">is</span> <span class="bp">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ebp</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">ebp</span> <span class="o">=</span> <span class="n">request_ebuild_processor</span><span class="p">(</span><span class="o">**</span><span class="n">request_kwds</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">ebp</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">release_required</span> <span class="ow">and</span> <span class="n">ebp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">release_ebuild_processor</span><span class="p">(</span><span class="n">ebp</span><span class="p">)</span>
+
+
 <span class="k">class</span> <span class="nc">ProcessingInterruption</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span>
 
@@ -240,7 +264,17 @@
         <span class="n">ProcessingInterruption</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="s">&quot;unhandled command, </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">line</span><span class="p">,))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">=</span> <span class="n">line</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">line</span><span class="p">,)</span>
 </div>
+<span class="k">class</span> <span class="nc">InternalError</span><span class="p">(</span><span class="n">ProcessingInterruption</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">ProcessingInterruption</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s">&quot;Internal error occured: line=</span><span class="si">%r</span><span class="s">, msg=</span><span class="si">%r</span><span class="s">&quot;</span>
+            <span class="o">%</span> <span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">msg</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="n">line</span><span class="p">,</span> <span class="n">msg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+
 <span class="k">def</span> <span class="nf">chuck_KeyboardInterrupt</span><span class="p">(</span><span class="o">*</span><span class="n">arg</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">KeyboardInterrupt</span><span class="p">(</span><span class="s">&quot;ctrl+c encountered&quot;</span><span class="p">)</span>
 
@@ -255,8 +289,6 @@
 
 <span class="k">class</span> <span class="nc">InitializationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span>
-
-
 
 
 <div class="viewcode-block" id="EbuildProcessor"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor">[docs]</a><span class="k">class</span> <span class="nc">EbuildProcessor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -726,6 +758,59 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="s">&quot;metadata_path_received&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_metadata_paths</span> <span class="o">=</span> <span class="n">paths</span>
 
+    <span class="k">def</span> <span class="nf">_run_depend_like_phase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">package_inst</span><span class="p">,</span> <span class="n">eclass_cache</span><span class="p">,</span>
+                               <span class="n">extra_commands</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_metadata_paths</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">HOST_NONROOT_PATHS</span><span class="p">)</span>
+
+        <span class="n">e</span> <span class="o">=</span> <span class="n">expected_ebuild_env</span><span class="p">(</span><span class="n">package_inst</span><span class="p">,</span> <span class="n">depends</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_env_str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> </span><span class="si">%i</span><span class="se">\n</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">data</span><span class="p">),</span>
+            <span class="n">append_newline</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+        <span class="n">updates</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eclass_caching</span><span class="p">:</span>
+            <span class="n">updates</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">commands</span> <span class="o">=</span> <span class="n">extra_commands</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">commands</span><span class="p">[</span><span class="s">&quot;request_inherit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">inherit_handler</span><span class="p">,</span> <span class="n">eclass_cache</span><span class="p">,</span> <span class="n">updates</span><span class="o">=</span><span class="n">updates</span><span class="p">)</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generic_handler</span><span class="p">(</span><span class="n">additional_commands</span><span class="o">=</span><span class="n">commands</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">val</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;returned val from </span><span class="si">%s</span><span class="s"> was &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)))</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">updates</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">preload_eclasses</span><span class="p">(</span><span class="n">eclass_cache</span><span class="p">,</span> <span class="n">limited_to</span><span class="o">=</span><span class="n">updates</span><span class="p">,</span> <span class="n">async</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EbuildProcessor.get_ebuild_environment"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.get_ebuild_environment">[docs]</a>    <span class="k">def</span> <span class="nf">get_ebuild_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">package_inst</span><span class="p">,</span> <span class="n">eclass_cache</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Request a dump of the ebuild environ for a package.</span>
+
+<span class="sd">        This dump is created from doing metadata sourcing.</span>
+
+<span class="sd">        :param package_inst: :obj:`pkgcore.ebuild.ebuild_src.package` instance</span>
+<span class="sd">            to regenerate</span>
+<span class="sd">        :param eclass_cache: :obj:`pkgcore.ebuild.eclass_cache` instance to use</span>
+<span class="sd">            for eclass access</span>
+<span class="sd">        :return: string of the ebuild environment.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">environ</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">def</span> <span class="nf">receive_env</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">environ</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InternalError</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s">&quot;receive_env was invoked twice.&quot;</span><span class="p">)</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InternalError</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s">&quot;During env receive, ebd didn&#39;t give us a size.&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="n">InternalError</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s">&quot;Returned size wasn&#39;t an integer&quot;</span><span class="p">)</span>
+            <span class="c"># This is a raw transfer, for obvious reasons.</span>
+            <span class="n">environ</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ebd_read</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">)))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_depend_like_phase</span><span class="p">(</span><span class="s">&#39;gen_ebuild_env&#39;</span><span class="p">,</span> <span class="n">package_inst</span><span class="p">,</span> <span class="n">eclass_cache</span><span class="p">,</span>
+                                    <span class="p">{</span><span class="s">&#39;receive_env&#39;</span><span class="p">:</span> <span class="n">receive_env</span><span class="p">})</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">environ</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InternalError</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="s">&quot;receive_env was never invoked.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">environ</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</div>
 <div class="viewcode-block" id="EbuildProcessor.get_keys"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.get_keys">[docs]</a>    <span class="k">def</span> <span class="nf">get_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">package_inst</span><span class="p">,</span> <span class="n">eclass_cache</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        request the metadata be regenerated from an ebuild</span>
@@ -736,42 +821,20 @@
 <span class="sd">            for eclass access</span>
 <span class="sd">        :return: dict when successful, None when failed</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_metadata_paths</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">HOST_NONROOT_PATHS</span><span class="p">)</span>
-
-        <span class="n">e</span> <span class="o">=</span> <span class="n">expected_ebuild_env</span><span class="p">(</span><span class="n">package_inst</span><span class="p">,</span> <span class="n">depends</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_env_str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;gen_metadata </span><span class="si">%i</span><span class="se">\n</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">data</span><span class="p">),</span>
-            <span class="n">append_newline</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-
         <span class="n">metadata_keys</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">updates</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eclass_caching</span><span class="p">:</span>
-            <span class="n">updates</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generic_handler</span><span class="p">(</span><span class="n">additional_commands</span><span class="o">=</span><span class="p">{</span>
-                <span class="s">&quot;request_inherit&quot;</span><span class="p">:</span> <span class="n">partial</span><span class="p">(</span><span class="n">inherit_handler</span><span class="p">,</span> <span class="n">eclass_cache</span><span class="p">,</span> <span class="n">updates</span><span class="o">=</span><span class="n">updates</span><span class="p">),</span>
-                <span class="s">&quot;key&quot;</span><span class="p">:</span> <span class="n">post_curry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">_receive_key</span><span class="p">,</span> <span class="n">metadata_keys</span><span class="p">)})</span>
+        <span class="k">def</span> <span class="nf">receive_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">FinishedProcessing</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">metadata_keys</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">val</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;returned val from get_keys was &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">updates</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">preload_eclasses</span><span class="p">(</span><span class="n">eclass_cache</span><span class="p">,</span> <span class="n">limited_to</span><span class="o">=</span><span class="n">updates</span><span class="p">,</span> <span class="n">async</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_depend_like_phase</span><span class="p">(</span><span class="s">&#39;gen_metadata&#39;</span><span class="p">,</span> <span class="n">package_inst</span><span class="p">,</span> <span class="n">eclass_cache</span><span class="p">,</span>
+                                    <span class="p">{</span><span class="s">&quot;key&quot;</span><span class="p">:</span> <span class="n">receive_key</span><span class="p">})</span>
 
         <span class="k">return</span> <span class="n">metadata_keys</span>
-</div>
-    <span class="k">def</span> <span class="nf">_receive_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">keys_dict</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        internal function used for receiving keys from the bash processor</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">FinishedProcessing</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
-        <span class="n">keys_dict</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="c"># this basically handles all hijacks from the daemon, whether</span>
-    <span class="c"># confcache or portageq.</span>
+    <span class="c"># confcache or portageq.</span></div>
 <div class="viewcode-block" id="EbuildProcessor.generic_handler"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.processor.html#pkgcore.ebuild.processor.EbuildProcessor.generic_handler">[docs]</a>    <span class="k">def</span> <span class="nf">generic_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">additional_commands</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        internal event handler responding to the running processor&#39;s requests.</span>
