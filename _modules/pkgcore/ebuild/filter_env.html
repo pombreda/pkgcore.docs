@@ -85,7 +85,9 @@
 <span class="n">COMMAND_PARSING</span><span class="p">,</span> <span class="n">SPACE_PARSING</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">native_run</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">file_buff</span><span class="p">,</span> <span class="n">var_match</span><span class="p">,</span> <span class="n">func_match</span><span class="p">,</span> <span class="n">global_envvar_callback</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">native_run</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">file_buff</span><span class="p">,</span> <span class="n">var_match</span><span class="p">,</span> <span class="n">func_match</span><span class="p">,</span>
+               <span class="n">global_envvar_callback</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+               <span class="n">func_callback</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Print a filtered environment.</span>
 
 <span class="sd">    :param out: file-like object to write to.</span>
@@ -96,7 +98,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">process_scope</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">file_buff</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">var_match</span><span class="p">,</span> <span class="n">func_match</span><span class="p">,</span> <span class="s">&#39;</span><span class="se">\0</span><span class="s">&#39;</span><span class="p">,</span>
-        <span class="n">global_envvar_callback</span><span class="p">)</span>
+        <span class="n">global_envvar_callback</span><span class="p">,</span> <span class="n">func_callback</span><span class="o">=</span><span class="n">func_callback</span><span class="p">)</span>
 
 
 <span class="n">cpy_run</span> <span class="o">=</span> <span class="bp">None</span>
@@ -185,7 +187,9 @@
     <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
 
-<span class="k">def</span> <span class="nf">process_scope</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">buff</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">var_match</span><span class="p">,</span> <span class="n">func_match</span><span class="p">,</span> <span class="n">endchar</span><span class="p">,</span> <span class="n">envvar_callback</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">process_scope</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">buff</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">var_match</span><span class="p">,</span> <span class="n">func_match</span><span class="p">,</span> <span class="n">endchar</span><span class="p">,</span>
+                  <span class="n">envvar_callback</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">func_callback</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                  <span class="n">func_level</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="n">window_start</span> <span class="o">=</span> <span class="n">pos</span>
     <span class="n">window_end</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="n">isspace</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">isspace</span>
@@ -212,8 +216,12 @@
         <span class="k">if</span> <span class="n">new_p</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">func_name</span> <span class="o">=</span> <span class="n">buff</span><span class="p">[</span><span class="n">new_start</span><span class="p">:</span><span class="n">new_end</span><span class="p">]</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;matched func name </span><span class="si">%r</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">func_name</span><span class="p">)</span>
-            <span class="n">new_p</span> <span class="o">=</span> <span class="n">process_scope</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">buff</span><span class="p">,</span> <span class="n">new_p</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;}&#39;</span><span class="p">)</span>
+            <span class="n">new_p</span> <span class="o">=</span> <span class="n">process_scope</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">buff</span><span class="p">,</span> <span class="n">new_p</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;}&#39;</span><span class="p">,</span>
+                                  <span class="n">func_callback</span><span class="o">=</span><span class="n">func_callback</span><span class="p">,</span>
+                                  <span class="n">func_level</span><span class="o">=</span><span class="n">func_level</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;ended processing </span><span class="si">%r</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">func_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">func_callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">func_callback</span><span class="p">(</span><span class="n">func_level</span><span class="p">,</span> <span class="n">func_name</span><span class="p">,</span> <span class="n">buff</span><span class="p">[</span><span class="n">new_start</span><span class="p">:</span><span class="n">new_p</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">func_match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">func_match</span><span class="p">(</span><span class="n">func_name</span><span class="p">):</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;filtering func </span><span class="si">%r</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">func_name</span><span class="p">)</span>
                 <span class="n">window_end</span> <span class="o">=</span> <span class="n">com_start</span>
@@ -470,22 +478,33 @@
             <span class="n">pos</span> <span class="o">+=</span> <span class="mi">1</span>
     <span class="k">return</span> <span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span>
 
-<span class="k">def</span> <span class="nf">main_run</span><span class="p">(</span><span class="n">out_handle</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">vars_str</span><span class="p">,</span> <span class="n">funcs_str</span><span class="p">,</span> <span class="n">vars_is_whitelist</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">funcs_is_whitelist</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-    <span class="n">global_envvar_callback</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">_parser</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">main_run</span><span class="p">(</span><span class="n">out_handle</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">vars_to_filter</span><span class="o">=</span><span class="p">(),</span> <span class="n">funcs_to_filter</span><span class="o">=</span><span class="p">(),</span> <span class="n">vars_is_whitelist</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">funcs_is_whitelist</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">global_envvar_callback</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">func_callback</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">_parser</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 
     <span class="nb">vars</span> <span class="o">=</span> <span class="n">funcs</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="k">if</span> <span class="n">vars_str</span><span class="p">:</span>
-        <span class="nb">vars</span> <span class="o">=</span> <span class="n">build_regex_string</span><span class="p">(</span><span class="n">vars_str</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">vars_is_whitelist</span><span class="p">)</span><span class="o">.</span><span class="n">match</span>
+    <span class="k">if</span> <span class="n">vars_to_filter</span><span class="p">:</span>
+        <span class="nb">vars</span> <span class="o">=</span> <span class="n">build_regex_string</span><span class="p">(</span><span class="n">vars_to_filter</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">vars_is_whitelist</span><span class="p">)</span><span class="o">.</span><span class="n">match</span>
 
-    <span class="k">if</span> <span class="n">funcs_str</span><span class="p">:</span>
-        <span class="n">funcs</span> <span class="o">=</span> <span class="n">build_regex_string</span><span class="p">(</span><span class="n">funcs_str</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">funcs_is_whitelist</span><span class="p">)</span><span class="o">.</span><span class="n">match</span>
+    <span class="k">if</span> <span class="n">funcs_to_filter</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">funcs_to_filter</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;funcs_str should not be a string; should be a sequence.&quot;</span><span class="p">)</span>
+        <span class="n">funcs</span> <span class="o">=</span> <span class="n">build_regex_string</span><span class="p">(</span><span class="n">funcs_to_filter</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">funcs_is_whitelist</span><span class="p">)</span><span class="o">.</span><span class="n">match</span>
 
     <span class="n">data</span> <span class="o">=</span> <span class="n">data</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\0</span><span class="s">&#39;</span>
 
+    <span class="n">kwds</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;global_envvar_callback&#39;</span><span class="p">:</span><span class="n">global_envvar_callback</span><span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">func_callback</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">_parser</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">native_run</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;_parser must be native_run or None if func_callback is active&quot;</span><span class="p">)</span>
+        <span class="n">_parser</span> <span class="o">=</span> <span class="n">native_run</span>
+        <span class="c"># Set this only if func_callback is enabled; extension can&#39;t yet</span>
+        <span class="c"># handle the arg.</span>
+        <span class="n">kwds</span><span class="p">[</span><span class="s">&#39;func_callback&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">func_callback</span>
     <span class="k">if</span> <span class="n">_parser</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="n">_parser</span> <span class="o">=</span> <span class="n">run</span>
 
-    <span class="n">_parser</span><span class="p">(</span><span class="n">out_handle</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="nb">vars</span><span class="p">,</span> <span class="n">funcs</span><span class="p">,</span> <span class="n">global_envvar_callback</span><span class="o">=</span><span class="n">global_envvar_callback</span><span class="p">)</span>
+    <span class="n">_parser</span><span class="p">(</span><span class="n">out_handle</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="nb">vars</span><span class="p">,</span> <span class="n">funcs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
 </pre></div>
 
           </div>
