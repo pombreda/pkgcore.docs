@@ -83,7 +83,7 @@
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
     <span class="s">&#39;re&#39;</span><span class="p">,</span>
     <span class="s">&#39;errno&#39;</span><span class="p">,</span>
-    <span class="s">&#39;snakeoil.lists:iter_stable_unique&#39;</span><span class="p">,</span>
+     <span class="s">&#39;snakeoil.lists:iter_stable_unique&#39;</span><span class="p">,</span>
     <span class="s">&#39;pkgcore.fs:fs@fs_module,contents@contents_module&#39;</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -120,21 +120,28 @@
     <span class="n">__hash__</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">__hash__</span>
 
 </div>
-<span class="n">deps_like_attrs</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;depends&#39;</span><span class="p">,</span> <span class="s">&#39;post_rdepends&#39;</span><span class="p">]</span>
-<span class="n">deps_like_attrs</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="s">&#39;raw_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">deps_like_attrs</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s">&#39;restrict&#39;</span><span class="p">]</span>
-<span class="n">deps_like_attrs</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">deps_like_attrs</span><span class="p">)</span>
+<span class="n">dep_like_attrs</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;depends&#39;</span><span class="p">,</span> <span class="s">&#39;post_rdepends&#39;</span><span class="p">]</span>
+<span class="n">metadata_attrs</span> <span class="o">=</span> <span class="n">dep_like_attrs</span>
+<span class="n">dep_like_attrs</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="s">&#39;raw_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dep_like_attrs</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s">&#39;restrict&#39;</span><span class="p">]</span>
+<span class="n">dep_like_attrs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">dep_like_attrs</span><span class="p">))</span>
+<span class="n">dep_like_attrs_set</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">dep_like_attrs</span><span class="p">)</span>
 
-<span class="n">printable_attrs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span>
-    <span class="nb">list</span><span class="p">(</span><span class="n">deps_like_attrs</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span>
+<span class="n">metadata_attrs</span> <span class="o">+=</span> <span class="p">[</span>
+    <span class="s">&#39;provides&#39;</span><span class="p">,</span> <span class="s">&#39;use&#39;</span><span class="p">,</span> <span class="s">&#39;iuse&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="s">&#39;license&#39;</span><span class="p">,</span> <span class="s">&#39;fetchables&#39;</span><span class="p">,</span>
+    <span class="s">&#39;slot&#39;</span><span class="p">,</span> <span class="s">&#39;keywords&#39;</span><span class="p">,</span> <span class="s">&#39;homepage&#39;</span><span class="p">,</span> <span class="s">&#39;eapi&#39;</span><span class="p">,</span> <span class="s">&#39;properties&#39;</span><span class="p">,</span> <span class="s">&#39;defined_phases&#39;</span><span class="p">,</span>
+    <span class="s">&#39;restrict&#39;</span><span class="p">,</span> <span class="s">&#39;required_use&#39;</span><span class="p">,</span> <span class="s">&#39;inherited&#39;</span><span class="p">,]</span>
+<span class="n">metadata_attrs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">metadata_attrs</span><span class="p">))</span>
+
+<span class="n">printable_attrs</span> <span class="o">=</span> <span class="n">dep_like_attrs</span> <span class="o">+</span> <span class="n">metadata_attrs</span>
+<span class="n">printable_attrs</span> <span class="o">+=</span> <span class="p">(</span>
     <span class="s">&#39;alldepends&#39;</span><span class="p">,</span> <span class="s">&#39;raw_alldepends&#39;</span><span class="p">,</span>
-    <span class="s">&#39;provides&#39;</span><span class="p">,</span> <span class="s">&#39;use&#39;</span><span class="p">,</span> <span class="s">&#39;iuse&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="s">&#39;longdescription&#39;</span><span class="p">,</span>
-    <span class="s">&#39;herds&#39;</span><span class="p">,</span> <span class="s">&#39;license&#39;</span><span class="p">,</span> <span class="s">&#39;uris&#39;</span><span class="p">,</span> <span class="s">&#39;files&#39;</span><span class="p">,</span> <span class="s">&#39;category&#39;</span><span class="p">,</span> <span class="s">&#39;package&#39;</span><span class="p">,</span>  <span class="s">&#39;slot&#39;</span><span class="p">,</span>
-    <span class="s">&#39;maintainers&#39;</span><span class="p">,</span> <span class="s">&#39;restrict&#39;</span><span class="p">,</span> <span class="s">&#39;repo&#39;</span><span class="p">,</span> <span class="s">&#39;source_repository&#39;</span><span class="p">,</span>
-    <span class="s">&#39;path&#39;</span><span class="p">,</span> <span class="s">&#39;version&#39;</span><span class="p">,</span>
-    <span class="s">&#39;revision&#39;</span><span class="p">,</span> <span class="s">&#39;fullver&#39;</span><span class="p">,</span> <span class="s">&#39;environment&#39;</span><span class="p">,</span> <span class="s">&#39;keywords&#39;</span><span class="p">,</span> <span class="s">&#39;homepage&#39;</span><span class="p">,</span>
-    <span class="s">&#39;fetchables&#39;</span><span class="p">,</span> <span class="s">&#39;eapi&#39;</span><span class="p">,</span> <span class="s">&#39;inherited&#39;</span><span class="p">,</span> <span class="s">&#39;chost&#39;</span><span class="p">,</span> <span class="s">&#39;cbuild&#39;</span><span class="p">,</span> <span class="s">&#39;ctarget&#39;</span><span class="p">,</span>
-    <span class="s">&#39;all&#39;</span><span class="p">,</span> <span class="s">&#39;allmetadata&#39;</span><span class="p">,</span> <span class="s">&#39;properties&#39;</span><span class="p">,</span> <span class="s">&#39;defined_phases&#39;</span><span class="p">,</span> <span class="s">&#39;required_use&#39;</span>
-    <span class="p">]))</span>
+    <span class="s">&#39;longdescription&#39;</span><span class="p">,</span> <span class="s">&#39;herds&#39;</span><span class="p">,</span> <span class="s">&#39;uris&#39;</span><span class="p">,</span> <span class="s">&#39;files&#39;</span><span class="p">,</span> <span class="s">&#39;category&#39;</span><span class="p">,</span> <span class="s">&#39;package&#39;</span><span class="p">,</span>
+    <span class="s">&#39;maintainers&#39;</span><span class="p">,</span> <span class="s">&#39;repo&#39;</span><span class="p">,</span> <span class="s">&#39;source_repository&#39;</span><span class="p">,</span> <span class="s">&#39;path&#39;</span><span class="p">,</span> <span class="s">&#39;version&#39;</span><span class="p">,</span>
+    <span class="s">&#39;revision&#39;</span><span class="p">,</span> <span class="s">&#39;fullver&#39;</span><span class="p">,</span> <span class="s">&#39;environment&#39;</span><span class="p">,</span>
+    <span class="s">&#39;chost&#39;</span><span class="p">,</span> <span class="s">&#39;cbuild&#39;</span><span class="p">,</span> <span class="s">&#39;ctarget&#39;</span><span class="p">,</span>
+    <span class="s">&#39;all&#39;</span><span class="p">,</span> <span class="s">&#39;allmetadata&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">printable_attrs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">printable_attrs</span><span class="p">)))</span>
 
 
 <div class="viewcode-block" id="stringify_attr"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.stringify_attr">[docs]</a><span class="k">def</span> <span class="nf">stringify_attr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
@@ -258,7 +265,7 @@
 <div class="viewcode-block" id="format_attr"><a class="viewcode-back" href="../../../api/pkgcore.scripts.pquery.html#pkgcore.scripts.pquery.format_attr">[docs]</a><span class="k">def</span> <span class="nf">format_attr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Grab a package attr and print it through a formatter.&quot;&quot;&quot;</span>
     <span class="c"># config is currently unused but may affect display in the future.</span>
-    <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">deps_like_attrs</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">dep_like_attrs_set</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">get_pkg_attr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;MISSING&#39;</span><span class="p">)</span>
@@ -319,7 +326,7 @@
             <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">green</span><span class="p">,</span> <span class="s">&#39;     </span><span class="si">%s</span><span class="s">: &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">attr</span><span class="p">,),</span> <span class="n">out</span><span class="o">.</span><span class="n">fg</span><span class="p">(),</span> <span class="n">autoline</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
             <span class="n">format_attr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">revdep</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">print_revdep</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">deps_like_attrs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">dep_like_attrs_set</span><span class="p">:</span>
                 <span class="n">depset</span> <span class="o">=</span> <span class="n">get_pkg_attr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
                 <span class="n">find_cond</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">depset</span><span class="p">,</span> <span class="s">&#39;find_cond_nodes&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">find_cond</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -379,7 +386,7 @@
             <span class="n">printed_something</span> <span class="o">=</span> <span class="bp">True</span>
             <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">=&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">stringify_attr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">attr</span><span class="p">)))</span>
         <span class="k">for</span> <span class="n">revdep</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">print_revdep</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">deps_like_attrs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">dep_like_attrs_set</span><span class="p">:</span>
                 <span class="n">depset</span> <span class="o">=</span> <span class="n">get_pkg_attr</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">depset</span><span class="p">,</span> <span class="s">&#39;find_cond_nodes&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
                     <span class="c"># TODO maybe be smarter here? (this code is</span>
@@ -824,7 +831,7 @@
             <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;all&#39;</span><span class="p">:</span>
                 <span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">printable_attrs</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="s">&#39;all&#39;</span><span class="p">]</span>
             <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;allmetadata&#39;</span><span class="p">:</span>
-                <span class="n">i</span> <span class="o">=</span> <span class="n">process_attrs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata_attrs</span><span class="p">)</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">process_attrs</span><span class="p">(</span><span class="n">metadata_attrs</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;alldepends&#39;</span><span class="p">:</span>
                 <span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;depends&#39;</span><span class="p">,</span> <span class="s">&#39;rdepends&#39;</span><span class="p">,</span> <span class="s">&#39;post_rdepends&#39;</span><span class="p">]</span>
             <span class="k">elif</span> <span class="n">attr</span> <span class="o">==</span> <span class="s">&#39;raw_alldepends&#39;</span><span class="p">:</span>

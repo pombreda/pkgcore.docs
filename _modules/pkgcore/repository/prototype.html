@@ -197,6 +197,8 @@
 <span class="sd">        yielding a configured form of the repository</span>
 <span class="sd">    :ivar frozen_settable: bool controlling whether frozen is able to be set via</span>
 <span class="sd">        __init__</span>
+<span class="sd">    :ivar aliases: dictionary of known aliases for this repository.  This is</span>
+<span class="sd">        typically {repo_id:said_id, location:on-disk-path}.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">raw_repo</span> <span class="o">=</span> <span class="bp">None</span>
@@ -516,7 +518,12 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_visibility_limiters</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
 </div>
     <span class="k">def</span> <span class="nf">_visibility_limiters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[(),</span> <span class="p">()]</span></div>
+        <span class="k">return</span> <span class="p">[(),</span> <span class="p">()]</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="tree.aliases"><a class="viewcode-back" href="../../../api/pkgcore.repository.prototype.html#pkgcore.repository.prototype.tree.aliases">[docs]</a>    <span class="k">def</span> <span class="nf">aliases</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">potentials</span> <span class="o">=</span> <span class="p">[(</span><span class="n">key</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;repo_id&#39;</span><span class="p">,</span> <span class="s">&#39;location&#39;</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">potentials</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>
