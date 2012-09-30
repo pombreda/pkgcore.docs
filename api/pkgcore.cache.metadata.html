@@ -116,7 +116,12 @@ to _eclasses_ as required.</p>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.metadata.database.auxdbkeys_order">
-<tt class="descname">auxdbkeys_order</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES')</em><a class="headerlink" href="#pkgcore.cache.metadata.database.auxdbkeys_order" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">auxdbkeys_order</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', '_eclasses_', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES')</em><a class="headerlink" href="#pkgcore.cache.metadata.database.auxdbkeys_order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.database.chf_type">
+<tt class="descname">chf_type</tt><em class="property"> = 'mtime'</em><a class="headerlink" href="#pkgcore.cache.metadata.database.chf_type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -136,23 +141,49 @@ to _eclasses_ as required.</p>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.metadata.database.complete_eclass_entries">
-<tt class="descname">complete_eclass_entries</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.cache.metadata.database.complete_eclass_entries" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">complete_eclass_entries</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.metadata.database.complete_eclass_entries" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pkgcore.cache.metadata.database.deconstruct_eclasses">
-<em class="property">static </em><tt class="descname">deconstruct_eclasses</tt><big>(</big><em>eclass_dict</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.database.deconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">deconstruct_eclasses</tt><big>(</big><em>eclass_dict</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.database.deconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
 <dd><p>takes a dict, returns a string representing said dict</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.metadata.database.default_keys">
-<tt class="descname">default_keys</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES', '_mtime_', '_eclasses_')</em><a class="headerlink" href="#pkgcore.cache.metadata.database.default_keys" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">default_keys</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES', '_eclasses_')</em><a class="headerlink" href="#pkgcore.cache.metadata.database.default_keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.metadata.database.default_sync_rate">
 <tt class="descname">default_sync_rate</tt><em class="property"> = 1</em><a class="headerlink" href="#pkgcore.cache.metadata.database.default_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.database.eclass_chf_deserializers">
+<tt class="descname">eclass_chf_deserializers</tt><a class="headerlink" href="#pkgcore.cache.metadata.database.eclass_chf_deserializers" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.database.eclass_chf_serializers">
+<tt class="descname">eclass_chf_serializers</tt><a class="headerlink" href="#pkgcore.cache.metadata.database.eclass_chf_serializers" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.database.eclass_chf_types">
+<tt class="descname">eclass_chf_types</tt><em class="property"> = []</em><a class="headerlink" href="#pkgcore.cache.metadata.database.eclass_chf_types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.database.eclass_splitter">
+<tt class="descname">eclass_splitter</tt><em class="property"> = ' '</em><a class="headerlink" href="#pkgcore.cache.metadata.database.eclass_splitter" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -199,23 +230,23 @@ to _eclasses_ as required.</p>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.metadata.database.pkgcore_config_type">
-<tt class="descname">pkgcore_config_type</tt><em class="property"> = &lt;pkgcore.config.ConfigHint object at 0x3eb3590&gt;</em><a class="headerlink" href="#pkgcore.cache.metadata.database.pkgcore_config_type" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">pkgcore_config_type</tt><em class="property"> = &lt;pkgcore.config.ConfigHint object at 0x30be6e0&gt;</em><a class="headerlink" href="#pkgcore.cache.metadata.database.pkgcore_config_type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pkgcore.cache.metadata.database.reconstruct_eclasses">
-<em class="property">static </em><tt class="descname">reconstruct_eclasses</tt><big>(</big><em>cpv</em>, <em>eclass_string</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.database.reconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn a string from <a class="reference internal" href="#pkgcore.cache.metadata.database.serialize_eclasses" title="pkgcore.cache.metadata.database.serialize_eclasses"><tt class="xref py py-obj docutils literal"><span class="pre">serialize_eclasses</span></tt></a> into a dict.</p>
+<tt class="descname">reconstruct_eclasses</tt><big>(</big><em>cpv</em>, <em>eclass_string</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.database.reconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn a string from <tt class="xref py py-obj docutils literal"><span class="pre">serialize_eclasses</span></tt> into a dict.</p>
 </dd></dl>
-
-<dl class="attribute">
-<dt id="pkgcore.cache.metadata.database.serialize_eclasses">
-<tt class="descname">serialize_eclasses</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.metadata.database.serialize_eclasses" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.cache.metadata.database.set_sync_rate">
 <tt class="descname">set_sync_rate</tt><big>(</big><em>rate=0</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.database.set_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.cache.metadata.database.validate_entry">
+<tt class="descname">validate_entry</tt><big>(</big><em>cache_item</em>, <em>ebuild_hash_item</em>, <em>eclass_db</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.database.validate_entry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -240,7 +271,12 @@ for normal, for paludis it&#8217;s max mtime of eclasses/ebuild involved.</p>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.metadata.paludis_flat_list.auxdbkeys_order">
-<tt class="descname">auxdbkeys_order</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES')</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.auxdbkeys_order" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">auxdbkeys_order</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', '_eclasses_', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES')</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.auxdbkeys_order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.paludis_flat_list.chf_type">
+<tt class="descname">chf_type</tt><em class="property"> = 'mtime'</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.chf_type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -260,23 +296,49 @@ for normal, for paludis it&#8217;s max mtime of eclasses/ebuild involved.</p>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.metadata.paludis_flat_list.complete_eclass_entries">
-<tt class="descname">complete_eclass_entries</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.complete_eclass_entries" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">complete_eclass_entries</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.complete_eclass_entries" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pkgcore.cache.metadata.paludis_flat_list.deconstruct_eclasses">
-<em class="property">static </em><tt class="descname">deconstruct_eclasses</tt><big>(</big><em>eclass_dict</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.deconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">deconstruct_eclasses</tt><big>(</big><em>eclass_dict</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.deconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
 <dd><p>takes a dict, returns a string representing said dict</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.metadata.paludis_flat_list.default_keys">
-<tt class="descname">default_keys</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES', '_mtime_', '_eclasses_')</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.default_keys" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">default_keys</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES', '_eclasses_')</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.default_keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.metadata.paludis_flat_list.default_sync_rate">
 <tt class="descname">default_sync_rate</tt><em class="property"> = 1</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.default_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.paludis_flat_list.eclass_chf_deserializers">
+<tt class="descname">eclass_chf_deserializers</tt><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.eclass_chf_deserializers" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.paludis_flat_list.eclass_chf_serializers">
+<tt class="descname">eclass_chf_serializers</tt><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.eclass_chf_serializers" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.paludis_flat_list.eclass_chf_types">
+<tt class="descname">eclass_chf_types</tt><em class="property"> = []</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.eclass_chf_types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.paludis_flat_list.eclass_splitter">
+<tt class="descname">eclass_splitter</tt><em class="property"> = ' '</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.eclass_splitter" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -323,23 +385,23 @@ for normal, for paludis it&#8217;s max mtime of eclasses/ebuild involved.</p>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.metadata.paludis_flat_list.pkgcore_config_type">
-<tt class="descname">pkgcore_config_type</tt><em class="property"> = &lt;pkgcore.config.ConfigHint object at 0x3eb3600&gt;</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.pkgcore_config_type" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">pkgcore_config_type</tt><em class="property"> = &lt;pkgcore.config.ConfigHint object at 0x30be750&gt;</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.pkgcore_config_type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pkgcore.cache.metadata.paludis_flat_list.reconstruct_eclasses">
-<em class="property">static </em><tt class="descname">reconstruct_eclasses</tt><big>(</big><em>cpv</em>, <em>eclass_string</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.reconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn a string from <a class="reference internal" href="#pkgcore.cache.metadata.paludis_flat_list.serialize_eclasses" title="pkgcore.cache.metadata.paludis_flat_list.serialize_eclasses"><tt class="xref py py-obj docutils literal"><span class="pre">serialize_eclasses</span></tt></a> into a dict.</p>
+<tt class="descname">reconstruct_eclasses</tt><big>(</big><em>cpv</em>, <em>eclass_string</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.reconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn a string from <tt class="xref py py-obj docutils literal"><span class="pre">serialize_eclasses</span></tt> into a dict.</p>
 </dd></dl>
-
-<dl class="attribute">
-<dt id="pkgcore.cache.metadata.paludis_flat_list.serialize_eclasses">
-<tt class="descname">serialize_eclasses</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.serialize_eclasses" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.cache.metadata.paludis_flat_list.set_sync_rate">
 <tt class="descname">set_sync_rate</tt><big>(</big><em>rate=0</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.set_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.cache.metadata.paludis_flat_list.validate_entry">
+<tt class="descname">validate_entry</tt><big>(</big><em>cache_item</em>, <em>ebuild_hash_item</em>, <em>eclass_db</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.paludis_flat_list.validate_entry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -360,7 +422,12 @@ for normal, for paludis it&#8217;s max mtime of eclasses/ebuild involved.</p>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.metadata.protective_database.auxdbkeys_order">
-<tt class="descname">auxdbkeys_order</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES')</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.auxdbkeys_order" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">auxdbkeys_order</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', '_eclasses_', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES')</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.auxdbkeys_order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.protective_database.chf_type">
+<tt class="descname">chf_type</tt><em class="property"> = 'mtime'</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.chf_type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -380,23 +447,49 @@ for normal, for paludis it&#8217;s max mtime of eclasses/ebuild involved.</p>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.metadata.protective_database.complete_eclass_entries">
-<tt class="descname">complete_eclass_entries</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.complete_eclass_entries" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">complete_eclass_entries</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.complete_eclass_entries" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pkgcore.cache.metadata.protective_database.deconstruct_eclasses">
-<em class="property">static </em><tt class="descname">deconstruct_eclasses</tt><big>(</big><em>eclass_dict</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.deconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">deconstruct_eclasses</tt><big>(</big><em>eclass_dict</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.deconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
 <dd><p>takes a dict, returns a string representing said dict</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.metadata.protective_database.default_keys">
-<tt class="descname">default_keys</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES', '_mtime_', '_eclasses_')</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.default_keys" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">default_keys</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES', '_eclasses_')</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.default_keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.metadata.protective_database.default_sync_rate">
 <tt class="descname">default_sync_rate</tt><em class="property"> = 1</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.default_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.protective_database.eclass_chf_deserializers">
+<tt class="descname">eclass_chf_deserializers</tt><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.eclass_chf_deserializers" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.protective_database.eclass_chf_serializers">
+<tt class="descname">eclass_chf_serializers</tt><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.eclass_chf_serializers" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.protective_database.eclass_chf_types">
+<tt class="descname">eclass_chf_types</tt><em class="property"> = []</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.eclass_chf_types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.metadata.protective_database.eclass_splitter">
+<tt class="descname">eclass_splitter</tt><em class="property"> = ' '</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.eclass_splitter" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -443,23 +536,23 @@ for normal, for paludis it&#8217;s max mtime of eclasses/ebuild involved.</p>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.metadata.protective_database.pkgcore_config_type">
-<tt class="descname">pkgcore_config_type</tt><em class="property"> = &lt;pkgcore.config.ConfigHint object at 0x3eb3590&gt;</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.pkgcore_config_type" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">pkgcore_config_type</tt><em class="property"> = &lt;pkgcore.config.ConfigHint object at 0x30be6e0&gt;</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.pkgcore_config_type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pkgcore.cache.metadata.protective_database.reconstruct_eclasses">
-<em class="property">static </em><tt class="descname">reconstruct_eclasses</tt><big>(</big><em>cpv</em>, <em>eclass_string</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.reconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn a string from <a class="reference internal" href="#pkgcore.cache.metadata.protective_database.serialize_eclasses" title="pkgcore.cache.metadata.protective_database.serialize_eclasses"><tt class="xref py py-obj docutils literal"><span class="pre">serialize_eclasses</span></tt></a> into a dict.</p>
+<tt class="descname">reconstruct_eclasses</tt><big>(</big><em>cpv</em>, <em>eclass_string</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.reconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn a string from <tt class="xref py py-obj docutils literal"><span class="pre">serialize_eclasses</span></tt> into a dict.</p>
 </dd></dl>
-
-<dl class="attribute">
-<dt id="pkgcore.cache.metadata.protective_database.serialize_eclasses">
-<tt class="descname">serialize_eclasses</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.serialize_eclasses" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.cache.metadata.protective_database.set_sync_rate">
 <tt class="descname">set_sync_rate</tt><big>(</big><em>rate=0</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.set_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.cache.metadata.protective_database.validate_entry">
+<tt class="descname">validate_entry</tt><big>(</big><em>cache_item</em>, <em>ebuild_hash_item</em>, <em>eclass_db</em><big>)</big><a class="headerlink" href="#pkgcore.cache.metadata.protective_database.validate_entry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">

@@ -468,15 +468,21 @@
             <span class="k">if</span> <span class="n">path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">overlay_syncers</span><span class="p">:</span>
                 <span class="n">overlay_syncers</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">make_autodetect_syncer</span><span class="p">(</span><span class="n">new_config</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
 
-    <span class="n">rsync_portdir_cache</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">portdir</span><span class="p">,</span> <span class="s">&quot;metadata&quot;</span><span class="p">,</span> <span class="s">&quot;cache&quot;</span><span class="p">))</span> \
-        <span class="ow">and</span> <span class="s">&quot;metadata-transfer&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">features</span>
-
-    <span class="c"># if a metadata cache exists, use it</span>
+    <span class="n">rsync_portdir_cache</span> <span class="o">=</span> <span class="s">&#39;metadata-transfer&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">features</span>
+    <span class="c"># if a metadata cache exists, use it.</span>
     <span class="k">if</span> <span class="n">rsync_portdir_cache</span><span class="p">:</span>
-        <span class="n">new_config</span><span class="p">[</span><span class="s">&quot;cache:</span><span class="si">%s</span><span class="s">/metadata/cache&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">portdir</span><span class="p">,)]</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">AutoConfigSection</span><span class="p">({</span>
-            <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;pkgcore.cache.metadata.database&#39;</span><span class="p">,</span> <span class="s">&#39;readonly&#39;</span><span class="p">:</span> <span class="s">&#39;yes&#39;</span><span class="p">,</span>
-            <span class="s">&#39;location&#39;</span><span class="p">:</span> <span class="n">portdir</span><span class="p">,</span>
-        <span class="p">})</span>
+        <span class="k">for</span> <span class="n">cache_type</span><span class="p">,</span> <span class="n">frag</span> <span class="ow">in</span> <span class="p">((</span><span class="s">&#39;flat_hash.md5_cache&#39;</span><span class="p">,</span> <span class="s">&#39;md5-cache&#39;</span><span class="p">),</span>
+                                 <span class="p">(</span><span class="s">&#39;metadata.database&#39;</span><span class="p">,</span> <span class="s">&#39;cache&#39;</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">portdir</span><span class="p">,</span> <span class="s">&#39;metadata&#39;</span><span class="p">,</span> <span class="n">frag</span><span class="p">)):</span>
+                <span class="k">continue</span>
+            <span class="n">new_config</span><span class="p">[</span><span class="s">&quot;cache:</span><span class="si">%s</span><span class="s">/metadata/cache&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">portdir</span><span class="p">,)]</span> <span class="o">=</span> <span class="n">basics</span><span class="o">.</span><span class="n">AutoConfigSection</span><span class="p">({</span>
+                <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;pkgcore.cache.&#39;</span> <span class="o">+</span> <span class="n">cache_type</span><span class="p">,</span>
+                <span class="s">&#39;readonly&#39;</span><span class="p">:</span> <span class="s">&#39;yes&#39;</span><span class="p">,</span>
+                <span class="s">&#39;location&#39;</span><span class="p">:</span> <span class="n">portdir</span><span class="p">,</span>
+            <span class="p">})</span>
+            <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rsync_portdir_cache</span> <span class="o">=</span> <span class="bp">False</span>
 
     <span class="k">for</span> <span class="n">tree_loc</span> <span class="ow">in</span> <span class="p">[</span><span class="n">portdir</span><span class="p">]</span> <span class="o">+</span> <span class="n">portdir_overlays</span><span class="p">:</span>
         <span class="n">kwds</span> <span class="o">=</span> <span class="p">{</span>

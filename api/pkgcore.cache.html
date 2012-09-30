@@ -117,12 +117,8 @@
 <tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
 <li><strong>autocommits</strong> &#8211; Controls whether the template commits every update,
 or queues up updates.</li>
-<li><strong>complete_eclass_entries</strong> &#8211; Specifies if the cache backend stores full
-eclass data, or partial.</li>
 <li><strong>cleanse_keys</strong> &#8211; Boolean controlling whether the template should drop
 empty keys for storing.</li>
-<li><strong>serialize_eclasses</strong> &#8211; Boolean controlling whether the template should
-serialize eclass data itself, or leave it to the derivative.</li>
 </ul>
 </td>
 </tr>
@@ -131,6 +127,11 @@ serialize eclass data itself, or leave it to the derivative.</li>
 <dl class="attribute">
 <dt id="pkgcore.cache.base.autocommits">
 <tt class="descname">autocommits</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.cache.base.autocommits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.base.chf_type">
+<tt class="descname">chf_type</tt><em class="property"> = 'mtime'</em><a class="headerlink" href="#pkgcore.cache.base.chf_type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -148,25 +149,46 @@ serialize eclass data itself, or leave it to the derivative.</li>
 <tt class="descname">commit</tt><big>(</big><em>force=False</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#base.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base.commit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="pkgcore.cache.base.complete_eclass_entries">
-<tt class="descname">complete_eclass_entries</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.base.complete_eclass_entries" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pkgcore.cache.base.deconstruct_eclasses">
-<em class="property">static </em><tt class="descname">deconstruct_eclasses</tt><big>(</big><em>eclass_dict</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#base.deconstruct_eclasses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base.deconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">deconstruct_eclasses</tt><big>(</big><em>eclass_dict</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#base.deconstruct_eclasses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base.deconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
 <dd><p>takes a dict, returns a string representing said dict</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.base.default_keys">
-<tt class="descname">default_keys</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES', '_mtime_', '_eclasses_')</em><a class="headerlink" href="#pkgcore.cache.base.default_keys" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">default_keys</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES', '_eclasses_')</em><a class="headerlink" href="#pkgcore.cache.base.default_keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.base.default_sync_rate">
 <tt class="descname">default_sync_rate</tt><em class="property"> = 1</em><a class="headerlink" href="#pkgcore.cache.base.default_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.base.eclass_chf_deserializers">
+<tt class="descname">eclass_chf_deserializers</tt><a class="reference internal" href="../_modules/pkgcore/cache.html#base.eclass_chf_deserializers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base.eclass_chf_deserializers" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.base.eclass_chf_serializers">
+<tt class="descname">eclass_chf_serializers</tt><a class="reference internal" href="../_modules/pkgcore/cache.html#base.eclass_chf_serializers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base.eclass_chf_serializers" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.base.eclass_chf_types">
+<tt class="descname">eclass_chf_types</tt><em class="property"> = ('mtime',)</em><a class="headerlink" href="#pkgcore.cache.base.eclass_chf_types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.base.eclass_splitter">
+<tt class="descname">eclass_splitter</tt><em class="property"> = '\t'</em><a class="headerlink" href="#pkgcore.cache.base.eclass_splitter" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -200,20 +222,20 @@ serialize eclass data itself, or leave it to the derivative.</li>
 <tt class="descname">keys</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#base.keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base.keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pkgcore.cache.base.reconstruct_eclasses">
-<em class="property">static </em><tt class="descname">reconstruct_eclasses</tt><big>(</big><em>cpv</em>, <em>eclass_string</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#base.reconstruct_eclasses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base.reconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn a string from <a class="reference internal" href="#pkgcore.cache.base.serialize_eclasses" title="pkgcore.cache.base.serialize_eclasses"><tt class="xref py py-obj docutils literal"><span class="pre">serialize_eclasses</span></tt></a> into a dict.</p>
+<tt class="descname">reconstruct_eclasses</tt><big>(</big><em>cpv</em>, <em>eclass_string</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#base.reconstruct_eclasses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base.reconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn a string from <tt class="xref py py-obj docutils literal"><span class="pre">serialize_eclasses</span></tt> into a dict.</p>
 </dd></dl>
-
-<dl class="attribute">
-<dt id="pkgcore.cache.base.serialize_eclasses">
-<tt class="descname">serialize_eclasses</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.base.serialize_eclasses" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.cache.base.set_sync_rate">
 <tt class="descname">set_sync_rate</tt><big>(</big><em>rate=0</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#base.set_sync_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base.set_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.cache.base.validate_entry">
+<tt class="descname">validate_entry</tt><big>(</big><em>cache_item</em>, <em>ebuild_hash_item</em>, <em>eclass_db</em><big>)</big><a class="reference internal" href="../_modules/pkgcore/cache.html#base.validate_entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.base.validate_entry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -225,6 +247,11 @@ serialize eclass data itself, or leave it to the derivative.</li>
 <dl class="attribute">
 <dt id="pkgcore.cache.bulk.autocommits">
 <tt class="descname">autocommits</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.cache.bulk.autocommits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.bulk.chf_type">
+<tt class="descname">chf_type</tt><em class="property"> = 'mtime'</em><a class="headerlink" href="#pkgcore.cache.bulk.chf_type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -243,11 +270,6 @@ serialize eclass data itself, or leave it to the derivative.</li>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pkgcore.cache.bulk.complete_eclass_entries">
-<tt class="descname">complete_eclass_entries</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.bulk.complete_eclass_entries" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
 <dt id="pkgcore.cache.bulk.data">
 <tt class="descname">data</tt><a class="reference internal" href="../_modules/pkgcore/cache.html#bulk.data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pkgcore.cache.bulk.data" title="Permalink to this definition">¶</a></dt>
 <dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
@@ -255,20 +277,46 @@ serialize eclass data itself, or leave it to the derivative.</li>
 instead of directly consuming this.</p>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pkgcore.cache.bulk.deconstruct_eclasses">
-<em class="property">static </em><tt class="descname">deconstruct_eclasses</tt><big>(</big><em>eclass_dict</em><big>)</big><a class="headerlink" href="#pkgcore.cache.bulk.deconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">deconstruct_eclasses</tt><big>(</big><em>eclass_dict</em><big>)</big><a class="headerlink" href="#pkgcore.cache.bulk.deconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
 <dd><p>takes a dict, returns a string representing said dict</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.bulk.default_keys">
-<tt class="descname">default_keys</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES', '_mtime_', '_eclasses_')</em><a class="headerlink" href="#pkgcore.cache.bulk.default_keys" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">default_keys</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES', '_eclasses_')</em><a class="headerlink" href="#pkgcore.cache.bulk.default_keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.bulk.default_sync_rate">
 <tt class="descname">default_sync_rate</tt><em class="property"> = 100</em><a class="headerlink" href="#pkgcore.cache.bulk.default_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.bulk.eclass_chf_deserializers">
+<tt class="descname">eclass_chf_deserializers</tt><a class="headerlink" href="#pkgcore.cache.bulk.eclass_chf_deserializers" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.bulk.eclass_chf_serializers">
+<tt class="descname">eclass_chf_serializers</tt><a class="headerlink" href="#pkgcore.cache.bulk.eclass_chf_serializers" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.bulk.eclass_chf_types">
+<tt class="descname">eclass_chf_types</tt><em class="property"> = ('mtime',)</em><a class="headerlink" href="#pkgcore.cache.bulk.eclass_chf_types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.bulk.eclass_splitter">
+<tt class="descname">eclass_splitter</tt><em class="property"> = '\t'</em><a class="headerlink" href="#pkgcore.cache.bulk.eclass_splitter" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -302,20 +350,20 @@ instead of directly consuming this.</p>
 <tt class="descname">keys</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.cache.bulk.keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pkgcore.cache.bulk.reconstruct_eclasses">
-<em class="property">static </em><tt class="descname">reconstruct_eclasses</tt><big>(</big><em>cpv</em>, <em>eclass_string</em><big>)</big><a class="headerlink" href="#pkgcore.cache.bulk.reconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn a string from <a class="reference internal" href="#pkgcore.cache.bulk.serialize_eclasses" title="pkgcore.cache.bulk.serialize_eclasses"><tt class="xref py py-obj docutils literal"><span class="pre">serialize_eclasses</span></tt></a> into a dict.</p>
+<tt class="descname">reconstruct_eclasses</tt><big>(</big><em>cpv</em>, <em>eclass_string</em><big>)</big><a class="headerlink" href="#pkgcore.cache.bulk.reconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn a string from <tt class="xref py py-obj docutils literal"><span class="pre">serialize_eclasses</span></tt> into a dict.</p>
 </dd></dl>
-
-<dl class="attribute">
-<dt id="pkgcore.cache.bulk.serialize_eclasses">
-<tt class="descname">serialize_eclasses</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.bulk.serialize_eclasses" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.cache.bulk.set_sync_rate">
 <tt class="descname">set_sync_rate</tt><big>(</big><em>rate=0</em><big>)</big><a class="headerlink" href="#pkgcore.cache.bulk.set_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.cache.bulk.validate_entry">
+<tt class="descname">validate_entry</tt><big>(</big><em>cache_item</em>, <em>ebuild_hash_item</em>, <em>eclass_db</em><big>)</big><a class="headerlink" href="#pkgcore.cache.bulk.validate_entry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

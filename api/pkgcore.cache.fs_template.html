@@ -107,6 +107,11 @@ the specified owners/perms.</p>
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="pkgcore.cache.fs_template.FsBased.chf_type">
+<tt class="descname">chf_type</tt><em class="property"> = 'mtime'</em><a class="headerlink" href="#pkgcore.cache.fs_template.FsBased.chf_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="pkgcore.cache.fs_template.FsBased.cleanse_keys">
 <tt class="descname">cleanse_keys</tt><em class="property"> = False</em><a class="headerlink" href="#pkgcore.cache.fs_template.FsBased.cleanse_keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -121,25 +126,46 @@ the specified owners/perms.</p>
 <tt class="descname">commit</tt><big>(</big><em>force=False</em><big>)</big><a class="headerlink" href="#pkgcore.cache.fs_template.FsBased.commit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="pkgcore.cache.fs_template.FsBased.complete_eclass_entries">
-<tt class="descname">complete_eclass_entries</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.fs_template.FsBased.complete_eclass_entries" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pkgcore.cache.fs_template.FsBased.deconstruct_eclasses">
-<em class="property">static </em><tt class="descname">deconstruct_eclasses</tt><big>(</big><em>eclass_dict</em><big>)</big><a class="headerlink" href="#pkgcore.cache.fs_template.FsBased.deconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">deconstruct_eclasses</tt><big>(</big><em>eclass_dict</em><big>)</big><a class="headerlink" href="#pkgcore.cache.fs_template.FsBased.deconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
 <dd><p>takes a dict, returns a string representing said dict</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.fs_template.FsBased.default_keys">
-<tt class="descname">default_keys</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES', '_mtime_', '_eclasses_')</em><a class="headerlink" href="#pkgcore.cache.fs_template.FsBased.default_keys" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">default_keys</tt><em class="property"> = ('DEPEND', 'RDEPEND', 'SLOT', 'SRC_URI', 'RESTRICT', 'HOMEPAGE', 'LICENSE', 'DESCRIPTION', 'KEYWORDS', 'INHERITED', 'IUSE', 'REQUIRED_USE', 'PDEPEND', 'PROVIDE', 'EAPI', 'PROPERTIES', 'DEFINED_PHASES', '_eclasses_')</em><a class="headerlink" href="#pkgcore.cache.fs_template.FsBased.default_keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pkgcore.cache.fs_template.FsBased.default_sync_rate">
 <tt class="descname">default_sync_rate</tt><em class="property"> = 1</em><a class="headerlink" href="#pkgcore.cache.fs_template.FsBased.default_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.fs_template.FsBased.eclass_chf_deserializers">
+<tt class="descname">eclass_chf_deserializers</tt><a class="headerlink" href="#pkgcore.cache.fs_template.FsBased.eclass_chf_deserializers" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.fs_template.FsBased.eclass_chf_serializers">
+<tt class="descname">eclass_chf_serializers</tt><a class="headerlink" href="#pkgcore.cache.fs_template.FsBased.eclass_chf_serializers" title="Permalink to this definition">¶</a></dt>
+<dd><p>object implementing the descriptor protocol for use in Just In Time access to attributes.</p>
+<p>Consumers should likely be using the <tt class="xref py py-func docutils literal"><span class="pre">jit_func()</span></tt> line of helper functions
+instead of directly consuming this.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.fs_template.FsBased.eclass_chf_types">
+<tt class="descname">eclass_chf_types</tt><em class="property"> = ('mtime',)</em><a class="headerlink" href="#pkgcore.cache.fs_template.FsBased.eclass_chf_types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pkgcore.cache.fs_template.FsBased.eclass_splitter">
+<tt class="descname">eclass_splitter</tt><em class="property"> = '\t'</em><a class="headerlink" href="#pkgcore.cache.fs_template.FsBased.eclass_splitter" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -173,20 +199,20 @@ the specified owners/perms.</p>
 <tt class="descname">keys</tt><big>(</big><big>)</big><a class="headerlink" href="#pkgcore.cache.fs_template.FsBased.keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pkgcore.cache.fs_template.FsBased.reconstruct_eclasses">
-<em class="property">static </em><tt class="descname">reconstruct_eclasses</tt><big>(</big><em>cpv</em>, <em>eclass_string</em><big>)</big><a class="headerlink" href="#pkgcore.cache.fs_template.FsBased.reconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn a string from <a class="reference internal" href="#pkgcore.cache.fs_template.FsBased.serialize_eclasses" title="pkgcore.cache.fs_template.FsBased.serialize_eclasses"><tt class="xref py py-obj docutils literal"><span class="pre">serialize_eclasses</span></tt></a> into a dict.</p>
+<tt class="descname">reconstruct_eclasses</tt><big>(</big><em>cpv</em>, <em>eclass_string</em><big>)</big><a class="headerlink" href="#pkgcore.cache.fs_template.FsBased.reconstruct_eclasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn a string from <tt class="xref py py-obj docutils literal"><span class="pre">serialize_eclasses</span></tt> into a dict.</p>
 </dd></dl>
-
-<dl class="attribute">
-<dt id="pkgcore.cache.fs_template.FsBased.serialize_eclasses">
-<tt class="descname">serialize_eclasses</tt><em class="property"> = True</em><a class="headerlink" href="#pkgcore.cache.fs_template.FsBased.serialize_eclasses" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="pkgcore.cache.fs_template.FsBased.set_sync_rate">
 <tt class="descname">set_sync_rate</tt><big>(</big><em>rate=0</em><big>)</big><a class="headerlink" href="#pkgcore.cache.fs_template.FsBased.set_sync_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pkgcore.cache.fs_template.FsBased.validate_entry">
+<tt class="descname">validate_entry</tt><big>(</big><em>cache_item</em>, <em>ebuild_hash_item</em>, <em>eclass_db</em><big>)</big><a class="headerlink" href="#pkgcore.cache.fs_template.FsBased.validate_entry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">

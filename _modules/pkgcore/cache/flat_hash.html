@@ -100,7 +100,8 @@
 
     <span class="n">autocommits</span> <span class="o">=</span> <span class="bp">True</span>
     <span class="n">mtime_in_entry</span> <span class="o">=</span> <span class="bp">True</span>
-
+    <span class="n">eclass_chf_types</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;eclassdir&#39;</span><span class="p">,</span> <span class="s">&#39;mtime&#39;</span><span class="p">)</span>
+ 
     <span class="k">def</span> <span class="nf">_getitem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cpv</span><span class="p">):</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">cpv</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
@@ -121,9 +122,11 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mtime_used</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mtime_in_entry</span><span class="p">:</span>
-                <span class="n">d</span><span class="p">[</span><span class="s">&quot;_mtime_&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">long</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;_mtime_&quot;</span><span class="p">])</span>
+                <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_chf_key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chf_deserializer</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_chf_key</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">d</span><span class="p">[</span><span class="s">&quot;_mtime_&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">long</span><span class="p">(</span><span class="n">mtime</span><span class="p">)</span>
+                <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_chf_key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">long</span><span class="p">(</span><span class="n">mtime</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_chf_key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chf_deserializer</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_chf_key</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">d</span>
 
     <span class="k">def</span> <span class="nf">_setitem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cpv</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
@@ -148,17 +151,15 @@
         <span class="k">except</span> <span class="ne">OSError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">CacheCorruption</span><span class="p">(</span><span class="n">cpv</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mtime_in_entry</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-                <span class="n">myf</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">=</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s">&quot;_mtime_&quot;</span><span class="p">:</span>
-                    <span class="n">myf</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">=</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mtime_used</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mtime_in_entry</span><span class="p">:</span>
+                <span class="n">mtime</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="s">&#39;_mtime_&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">myf</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">=</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
 
         <span class="n">myf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mtime_used</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mtime_in_entry</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_access</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">mtime</span><span class="o">=</span><span class="n">values</span><span class="p">[</span><span class="s">&quot;_mtime_&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_access</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">mtime</span><span class="o">=</span><span class="n">mtime</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_access</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
 
@@ -197,7 +198,18 @@
                 <span class="k">if</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_ISDIR</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">st_mode</span><span class="p">):</span>
                     <span class="n">dirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
                     <span class="k">continue</span>
-                <span class="k">yield</span> <span class="n">p</span><span class="p">[</span><span class="n">len_base</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span></div></div>
+                <span class="k">yield</span> <span class="n">p</span><span class="p">[</span><span class="n">len_base</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+
+</div></div>
+<span class="k">class</span> <span class="nc">md5_cache</span><span class="p">(</span><span class="n">database</span><span class="p">):</span>
+
+    <span class="n">chf_type</span> <span class="o">=</span> <span class="s">&#39;md5&#39;</span>
+    <span class="n">eclass_chf_types</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;md5&#39;</span><span class="p">,)</span>
+    <span class="n">chf_base</span> <span class="o">=</span> <span class="mi">16</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">):</span>
+        <span class="n">location</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s">&#39;metadata&#39;</span><span class="p">,</span> <span class="s">&#39;md5-cache&#39;</span><span class="p">)</span>
+        <span class="n">database</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">)</span>
 </pre></div>
 
           </div>

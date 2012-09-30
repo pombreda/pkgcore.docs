@@ -81,6 +81,7 @@
 <span class="kn">from</span> <span class="nn">pkgcore.os_data</span> <span class="kn">import</span> <span class="n">portage_gid</span>
 <span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">ensure_dirs</span><span class="p">,</span> <span class="n">pjoin</span>
 
+
 <div class="viewcode-block" id="FsBased"><a class="viewcode-back" href="../../../api/pkgcore.cache.fs_template.html#pkgcore.cache.fs_template.FsBased">[docs]</a><span class="k">class</span> <span class="nc">FsBased</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Template wrapping fs needed options.</span>
 
@@ -88,7 +89,7 @@
 <span class="sd">    the specified owners/perms.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>  <span class="o">**</span><span class="n">config</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        throws InitializationError if needs args aren&#39;t specified</span>
 
@@ -109,7 +110,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">location</span> <span class="o">=</span> <span class="n">location</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_mtime_used</span> <span class="o">=</span> <span class="s">&quot;_mtime_&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_known_keys</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mtime_used</span> <span class="o">=</span> <span class="s">&#39;mtime&#39;</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">chf_type</span>
 
     <span class="n">__init__</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
         <span class="n">x</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">__init__</span><span class="o">.</span><span class="n">__doc__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span>

@@ -75,14 +75,17 @@
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;base&quot;</span><span class="p">,</span> <span class="s">&quot;cache&quot;</span><span class="p">,</span> <span class="s">&quot;StackedCaches&quot;</span><span class="p">)</span>
 
+<span class="kn">import</span> <span class="nn">operator</span>
+
 <span class="kn">from</span> <span class="nn">snakeoil.data_source</span> <span class="kn">import</span> <span class="n">local_source</span>
 <span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">ConfigHint</span>
 
-<span class="kn">from</span> <span class="nn">snakeoil.mappings</span> <span class="kn">import</span> <span class="n">ImmutableDict</span>
-<span class="kn">from</span> <span class="nn">snakeoil.weakrefs</span> <span class="kn">import</span> <span class="n">WeakValCache</span>
-<span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span><span class="p">,</span> <span class="n">listdir_files</span>
+<span class="kn">from</span> <span class="nn">snakeoil.chksum</span> <span class="kn">import</span> <span class="n">LazilyHashedPath</span>
 <span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="nb">intern</span>
 <span class="kn">from</span> <span class="nn">snakeoil.klass</span> <span class="kn">import</span> <span class="n">jit_attr_ext_method</span>
+<span class="kn">from</span> <span class="nn">snakeoil.mappings</span> <span class="kn">import</span> <span class="n">ImmutableDict</span>
+<span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span><span class="p">,</span> <span class="n">listdir_files</span>
+<span class="kn">from</span> <span class="nn">snakeoil.weakrefs</span> <span class="kn">import</span> <span class="n">WeakValCache</span>
 
 <span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
@@ -104,23 +107,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">portdir</span> <span class="o">=</span> <span class="n">portdir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eclassdir</span> <span class="o">=</span> <span class="n">eclassdir</span>
 
-<div class="viewcode-block" id="base.is_eclass_data_valid"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.eclass_cache.html#pkgcore.ebuild.eclass_cache.base.is_eclass_data_valid">[docs]</a>    <span class="k">def</span> <span class="nf">is_eclass_data_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ec_dict</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Check if eclass data is still valid.</span>
-
-<span class="sd">        Given a dict as returned by get_eclass_data, walk it comparing</span>
-<span class="sd">        it to internal eclass view.</span>
-
-<span class="sd">        :return: a boolean representing whether that eclass data is still</span>
-<span class="sd">            up to date, or not</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eclasses</span>
-        <span class="k">for</span> <span class="n">eclass</span><span class="p">,</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">ec_dict</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">eclass</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ec</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">False</span>
-            <span class="k">if</span> <span class="n">tup</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ec</span><span class="p">[</span><span class="n">eclass</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
-                <span class="k">return</span> <span class="bp">False</span>
-        <span class="k">return</span> <span class="bp">True</span>
-</div>
 <div class="viewcode-block" id="base.get_eclass_data"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.eclass_cache.html#pkgcore.ebuild.eclass_cache.base.get_eclass_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_eclass_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inherits</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the cachable entries from a list of inherited eclasses.</span>
 
@@ -141,11 +127,31 @@
         <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eclasses</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">eclass</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">o</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">None</span>
-        <span class="k">return</span> <span class="n">local_source</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">o</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">eclass</span><span class="o">+</span><span class="s">&quot;.eclass&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">local_source</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
 </div>
     <span class="n">eclasses</span> <span class="o">=</span> <span class="n">jit_attr_ext_method</span><span class="p">(</span><span class="s">&quot;_load_eclasses&quot;</span><span class="p">,</span> <span class="s">&quot;_eclasses&quot;</span><span class="p">)</span>
 
-</div>
+<div class="viewcode-block" id="base.rebuild_cache_entry"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.eclass_cache.html#pkgcore.ebuild.eclass_cache.base.rebuild_cache_entry">[docs]</a>    <span class="k">def</span> <span class="nf">rebuild_cache_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_eclasses</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if eclass data is still valid.</span>
+
+<span class="sd">        Given a dict as returned by get_eclass_data, walk it comparing</span>
+<span class="sd">        it to internal eclass view.</span>
+
+<span class="sd">        :return: a boolean representing whether that eclass data is still</span>
+<span class="sd">            up to date, or not</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eclasses</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">eclass</span><span class="p">,</span> <span class="n">chksums</span> <span class="ow">in</span> <span class="n">entry_eclasses</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">ec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">eclass</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">val</span> <span class="o">!=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">chf</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">chf</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">chksums</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">None</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">eclass</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+
+        <span class="k">return</span> <span class="n">d</span>
+
+</div></div>
 <div class="viewcode-block" id="cache"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.eclass_cache.html#pkgcore.ebuild.eclass_cache.cache">[docs]</a><span class="k">class</span> <span class="nc">cache</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
 
     <span class="n">pkgcore_config_type</span> <span class="o">=</span> <span class="n">ConfigHint</span><span class="p">({</span><span class="s">&quot;path&quot;</span><span class="p">:</span><span class="s">&quot;str&quot;</span><span class="p">,</span> <span class="s">&quot;portdir&quot;</span><span class="p">:</span><span class="s">&quot;str&quot;</span><span class="p">},</span>
@@ -170,9 +176,9 @@
         <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">y</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.eclass&quot;</span><span class="p">):</span>
                 <span class="k">continue</span>
-            <span class="n">mtime</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eclassdir</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span><span class="o">.</span><span class="n">st_mtime</span>
             <span class="n">ys</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:</span><span class="o">-</span><span class="n">eclass_len</span><span class="p">]</span>
-            <span class="n">ec</span><span class="p">[</span><span class="nb">intern</span><span class="p">(</span><span class="n">ys</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eclassdir</span><span class="p">,</span> <span class="nb">long</span><span class="p">(</span><span class="n">mtime</span><span class="p">))</span>
+            <span class="n">ec</span><span class="p">[</span><span class="nb">intern</span><span class="p">(</span><span class="n">ys</span><span class="p">)]</span> <span class="o">=</span> <span class="n">LazilyHashedPath</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eclassdir</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span>
+                                              <span class="n">eclassdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eclassdir</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ImmutableDict</span><span class="p">(</span><span class="n">ec</span><span class="p">)</span>
 
 </div>

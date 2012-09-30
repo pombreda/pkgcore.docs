@@ -90,13 +90,14 @@
 <span class="kn">from</span> <span class="nn">snakeoil.mappings</span> <span class="kn">import</span> <span class="n">DictMixin</span><span class="p">,</span> <span class="n">StackedDict</span>
 <span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">listdir_dirs</span><span class="p">,</span> <span class="n">listdir_files</span><span class="p">,</span> <span class="n">access</span>
 <span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span>
-<span class="kn">from</span> <span class="nn">snakeoil.klass</span> <span class="kn">import</span> <span class="n">jit_attr</span>
+<span class="kn">from</span> <span class="nn">snakeoil.klass</span> <span class="kn">import</span> <span class="n">jit_attr</span><span class="p">,</span> <span class="n">jit_attr_named</span><span class="p">,</span> <span class="n">alias_attr</span>
 
 <span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
+    <span class="s">&quot;snakeoil:chksum&quot;</span><span class="p">,</span>
+    <span class="s">&quot;snakeoil.data_source:local_source,data_source&quot;</span><span class="p">,</span>
     <span class="s">&quot;pkgcore.merge:engine&quot;</span><span class="p">,</span>
     <span class="s">&quot;pkgcore.fs.livefs:scan&quot;</span><span class="p">,</span>
-    <span class="s">&quot;snakeoil.data_source:local_source,data_source&quot;</span><span class="p">,</span>
     <span class="s">&quot;pkgcore.fs.contents:offset_rewriter,contentsSet&quot;</span><span class="p">,</span>
     <span class="s">&quot;pkgcore.repository:wrapper&quot;</span><span class="p">,</span>
     <span class="s">&quot;pkgcore.package:base@pkg_base&quot;</span><span class="p">,</span>
@@ -178,7 +179,7 @@
 
 <span class="k">class</span> <span class="nc">StackedXpakDict</span><span class="p">(</span><span class="n">DictMixin</span><span class="p">):</span>
     <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;_xpak&quot;</span><span class="p">,</span> <span class="s">&quot;_parent&quot;</span><span class="p">,</span> <span class="s">&quot;_pkg&quot;</span><span class="p">,</span> <span class="s">&quot;contents&quot;</span><span class="p">,</span>
-        <span class="s">&quot;_wipes&quot;</span><span class="p">,</span> <span class="s">&quot;_mtime&quot;</span><span class="p">)</span>
+        <span class="s">&quot;_wipes&quot;</span><span class="p">,</span> <span class="s">&quot;_chf_obj&quot;</span><span class="p">)</span>
 
     <span class="n">_metadata_rewrites</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s">&quot;depends&quot;</span><span class="p">:</span><span class="s">&quot;DEPEND&quot;</span><span class="p">,</span> <span class="s">&quot;rdepends&quot;</span><span class="p">:</span><span class="s">&quot;RDEPEND&quot;</span><span class="p">,</span> <span class="s">&quot;post_rdepends&quot;</span><span class="p">:</span><span class="s">&quot;PDEPEND&quot;</span><span class="p">,</span>
@@ -195,9 +196,11 @@
     <span class="k">def</span> <span class="nf">xpak</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Xpak</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_get_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pkg</span><span class="p">))</span>
 
-    <span class="nd">@jit_attr</span>
-    <span class="k">def</span> <span class="nf">mtime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_get_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pkg</span><span class="p">))</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">)</span>
+    <span class="n">mtime</span> <span class="o">=</span> <span class="n">alias_attr</span><span class="p">(</span><span class="s">&#39;_chf_.mtime&#39;</span><span class="p">)</span>
+
+    <span class="nd">@jit_attr_named</span><span class="p">(</span><span class="s">&#39;_chf_obj&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_chf_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">chksum</span><span class="o">.</span><span class="n">LazilyHashedPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_get_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pkg</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata_rewrites</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>

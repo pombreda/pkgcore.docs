@@ -103,6 +103,7 @@
     <span class="s">&quot;pkgcore.log:logger&quot;</span><span class="p">,</span>
     <span class="s">&quot;pkgcore.ebuild.eapi:get_eapi&quot;</span><span class="p">,</span>
     <span class="s">&quot;snakeoil:data_source&quot;</span><span class="p">,</span>
+    <span class="s">&quot;snakeoil:chksum&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
 
@@ -394,24 +395,19 @@
     <span class="k">def</span> <span class="nf">_get_ebuild_mtime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_ebuild_path</span><span class="p">(</span><span class="n">pkg</span><span class="p">))</span><span class="o">.</span><span class="n">st_mtime</span>
 
-    <span class="k">def</span> <span class="nf">_invalidated_eclasses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">pkg</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;_eclasses_&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ecache</span><span class="o">.</span><span class="n">is_eclass_data_valid</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;_eclasses_&quot;</span><span class="p">]))</span>
-
     <span class="k">def</span> <span class="nf">_get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">ebp</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">force_regen</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="n">caches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span>
         <span class="k">if</span> <span class="n">force_regen</span><span class="p">:</span>
             <span class="n">caches</span> <span class="o">=</span> <span class="p">()</span>
+        <span class="n">ebuild_hash</span> <span class="o">=</span> <span class="n">chksum</span><span class="o">.</span><span class="n">LazilyHashedPath</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">cache</span> <span class="ow">in</span> <span class="n">caches</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">data</span> <span class="o">=</span> <span class="n">cache</span><span class="p">[</span><span class="n">pkg</span><span class="o">.</span><span class="n">cpvstr</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="nb">long</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;_mtime_&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">long</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">_mtime_</span><span class="p">)</span> <span class="ow">or</span> \
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_invalidated_eclasses</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pkg</span><span class="p">):</span>
-                        <span class="k">if</span> <span class="ow">not</span> <span class="n">cache</span><span class="o">.</span><span class="n">readonly</span><span class="p">:</span>
-                            <span class="k">del</span> <span class="n">cache</span><span class="p">[</span><span class="n">pkg</span><span class="o">.</span><span class="n">cpvstr</span><span class="p">]</span>
-                        <span class="k">continue</span>
-                    <span class="k">return</span> <span class="n">data</span>
+                    <span class="k">if</span> <span class="n">cache</span><span class="o">.</span><span class="n">validate_entry</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ebuild_hash</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ecache</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="n">data</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">cache</span><span class="o">.</span><span class="n">readonly</span><span class="p">:</span>
+                        <span class="k">del</span> <span class="n">cache</span><span class="p">[</span><span class="n">pkg</span><span class="o">.</span><span class="n">cpvstr</span><span class="p">]</span>
                 <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                     <span class="k">continue</span>
                 <span class="k">except</span> <span class="n">cache_errors</span><span class="o">.</span><span class="n">CacheError</span><span class="p">,</span> <span class="n">ce</span><span class="p">:</span>
@@ -436,7 +432,8 @@
             <span class="c"># drop the metadata, leaving just the validation info</span>
             <span class="c"># we currently know about, and marking the eapi</span>
             <span class="c"># in a negative fashion.</span>
-            <span class="n">wipes</span><span class="o">.</span><span class="n">difference_update</span><span class="p">([</span><span class="s">&quot;_eclasses_&quot;</span><span class="p">,</span> <span class="s">&quot;EAPI&quot;</span><span class="p">,</span> <span class="s">&quot;_mtime_&quot;</span><span class="p">])</span>
+            <span class="c"># TODO(FIX THIS)</span>
+            <span class="n">wipes</span><span class="o">.</span><span class="n">difference_update</span><span class="p">([</span><span class="s">&quot;_eclasses_&quot;</span><span class="p">,</span> <span class="s">&quot;EAPI&quot;</span><span class="p">])</span>
             <span class="n">mydata</span><span class="p">[</span><span class="s">&quot;EAPI&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;-&quot;</span> <span class="o">+</span> <span class="n">mydata</span><span class="p">[</span><span class="s">&quot;EAPI&quot;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">wipes</span><span class="o">.</span><span class="n">difference_update</span><span class="p">(</span><span class="n">eapi</span><span class="o">.</span><span class="n">metadata_keys</span><span class="p">)</span>
@@ -449,13 +446,12 @@
                 <span class="n">phases</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
                 <span class="n">mydata</span><span class="p">[</span><span class="s">&quot;DEFINED_PHASES&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">phases</span><span class="p">))</span>
 
-        <span class="n">mydata</span><span class="p">[</span><span class="s">&quot;_mtime_&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">long</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">_mtime_</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">inherited</span><span class="p">:</span>
             <span class="n">mydata</span><span class="p">[</span><span class="s">&quot;_eclasses_&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ecache</span><span class="o">.</span><span class="n">get_eclass_data</span><span class="p">(</span>
                 <span class="n">inherited</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">mydata</span><span class="p">[</span><span class="s">&quot;_eclasses_&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-
+        <span class="n">mydata</span><span class="p">[</span><span class="s">&#39;_chf_&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">chksum</span><span class="o">.</span><span class="n">LazilyHashedPath</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">wipes</span><span class="p">:</span>
             <span class="k">del</span> <span class="n">mydata</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
