@@ -92,28 +92,25 @@
 <span class="c"># while the package section looks fugly, there is a reason for it-</span>
 <span class="c"># to prevent version chunks from showing up in the package</span>
 
-
 <span class="n">demand_compile_regexp</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span> <span class="s">&#39;isvalid_version_re&#39;</span><span class="p">,</span>
-    <span class="s">&quot;^(?:</span><span class="se">\\</span><span class="s">d+)(?:</span><span class="se">\\</span><span class="s">.</span><span class="se">\\</span><span class="s">d+)*[a-z]?&quot;</span>
-    <span class="s">&quot;(?:_(p(?:re)?|beta|alpha|rc)</span><span class="se">\\</span><span class="s">d*)*$&quot;</span><span class="p">)</span>
+    <span class="s">r&quot;^(?:\d+)(?:\.\d+)*[a-zA-Z]?(?:_(p(?:re)?|beta|alpha|rc)\d*)*$&quot;</span><span class="p">)</span>
 
 <span class="n">demand_compile_regexp</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span> <span class="s">&#39;isvalid_cat_re&#39;</span><span class="p">,</span>
-    <span class="s">&quot;^(?:[a-zA-Z0-9][-a-zA-Z0-9+._]*(?:/(?!$))?)+$&quot;</span><span class="p">)</span>
+    <span class="s">r&quot;^(?:[a-zA-Z0-9][-a-zA-Z0-9+._]*(?:/(?!$))?)+$&quot;</span><span class="p">)</span>
 
 <span class="n">demand_compile_regexp</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span> <span class="s">&#39;_pkg_re&#39;</span><span class="p">,</span>
     <span class="c">#empty string is fine, means a -- was encounter.</span>
-    <span class="s">&quot;^[a-zA-Z0-9+_]+$&quot;</span><span class="p">)</span>
+    <span class="s">r&quot;^[a-zA-Z0-9+_]+$&quot;</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">isvalid_pkg_name</span><span class="p">(</span><span class="n">chunks</span><span class="p">):</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">chunks</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
-        <span class="c"># this means a leading -</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">chunks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">chunks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;+&#39;</span><span class="p">:</span>
+        <span class="c"># this means a leading -; additionally, &#39;+asdf&#39; is disallowed</span>
         <span class="k">return</span> <span class="bp">False</span>
     <span class="n">mf</span> <span class="o">=</span> <span class="n">_pkg_re</span><span class="o">.</span><span class="n">match</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="ow">not</span> <span class="n">s</span> <span class="ow">or</span> <span class="n">mf</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">mf</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
         <span class="k">return</span> <span class="bp">False</span>
-    <span class="k">if</span> <span class="n">chunks</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">chunks</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-        <span class="c"># not allowed.</span>
-        <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">if</span> <span class="n">chunks</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">mf</span><span class="p">(</span><span class="n">chunks</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">isvalid_version_re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">chunks</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
     <span class="k">return</span> <span class="bp">True</span>
 
 <span class="k">def</span> <span class="nf">isvalid_rev</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
