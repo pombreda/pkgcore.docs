@@ -94,7 +94,7 @@
 
 
 <span class="n">demand_compile_regexp</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span> <span class="s">&#39;isvalid_version_re&#39;</span><span class="p">,</span>
-    <span class="s">&quot;^(?:cvs</span><span class="se">\\</span><span class="s">.)?(?:</span><span class="se">\\</span><span class="s">d+)(?:</span><span class="se">\\</span><span class="s">.</span><span class="se">\\</span><span class="s">d+)*[a-z]?&quot;</span>
+    <span class="s">&quot;^(?:</span><span class="se">\\</span><span class="s">d+)(?:</span><span class="se">\\</span><span class="s">.</span><span class="se">\\</span><span class="s">d+)*[a-z]?&quot;</span>
     <span class="s">&quot;(?:_(p(?:re)?|beta|alpha|rc)</span><span class="se">\\</span><span class="s">d*)*$&quot;</span><span class="p">)</span>
 
 <span class="n">demand_compile_regexp</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span> <span class="s">&#39;isvalid_cat_re&#39;</span><span class="p">,</span>
@@ -272,17 +272,6 @@
         <span class="c"># First split up the dotted strings into their components.</span>
         <span class="n">ver_parts1</span> <span class="o">=</span> <span class="n">parts1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">)</span>
         <span class="n">ver_parts2</span> <span class="o">=</span> <span class="n">parts2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">)</span>
-
-        <span class="c"># And check if CVS ebuilds come into play. If there is only</span>
-        <span class="c"># one it wins by default. Otherwise any CVS component can</span>
-        <span class="c"># be ignored.</span>
-        <span class="k">if</span> <span class="n">ver_parts1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;cvs&quot;</span> <span class="ow">and</span> <span class="n">ver_parts2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;cvs&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mi">1</span>
-        <span class="k">elif</span> <span class="n">ver_parts1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;cvs&quot;</span> <span class="ow">and</span> <span class="n">ver_parts2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;cvs&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="k">elif</span> <span class="n">ver_parts1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;cvs&quot;</span><span class="p">:</span>
-            <span class="k">del</span> <span class="n">ver_parts1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">del</span> <span class="n">ver_parts2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="c"># Pull out any letter suffix on the final components and keep</span>
         <span class="c"># them for later.</span>
