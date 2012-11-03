@@ -81,6 +81,7 @@
 <span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">ConfigHint</span>
 <span class="c">#needed to grab the PN</span>
 <span class="kn">from</span> <span class="nn">pkgcore.ebuild.cpv</span> <span class="kn">import</span> <span class="n">versioned_CPV</span>
+<span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">ebuild_built</span>
 <span class="kn">from</span> <span class="nn">pkgcore.ebuild.errors</span> <span class="kn">import</span> <span class="n">InvalidCPV</span>
 
 <span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">pjoin</span>
@@ -139,7 +140,7 @@
     <span class="n">configured</span> <span class="o">=</span> <span class="bp">False</span>
     <span class="n">configurables</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;domain&quot;</span><span class="p">,</span> <span class="s">&quot;settings&quot;</span><span class="p">)</span>
     <span class="n">configure</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="n">format_magic</span> <span class="o">=</span> <span class="s">&quot;ebuild_built&quot;</span>
+    <span class="n">package_factory</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">ebuild_built</span><span class="o">.</span><span class="n">generate_new_factory</span><span class="p">)</span>
     <span class="n">operations_kls</span> <span class="o">=</span> <span class="n">repo_ops</span><span class="o">.</span><span class="n">operations</span>
 
     <span class="n">pkgcore_config_type</span> <span class="o">=</span> <span class="n">ConfigHint</span><span class="p">({</span><span class="s">&#39;location&#39;</span><span class="p">:</span> <span class="s">&#39;str&#39;</span><span class="p">,</span>
@@ -171,7 +172,7 @@
             <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">InitializationError</span><span class="p">(</span>
                 <span class="s">&quot;lstat failed on base </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">))</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">package_class</span> <span class="o">=</span> <span class="n">get_plugin</span><span class="p">(</span><span class="s">&#39;format.&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_magic</span><span class="p">)(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">package_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">package_factory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">optional_category</span><span class="p">):</span>
         <span class="c"># return if optional_category is passed... cause it&#39;s not yet supported</span>

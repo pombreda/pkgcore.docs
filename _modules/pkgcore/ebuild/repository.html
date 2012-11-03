@@ -80,6 +80,7 @@
 
 <span class="kn">from</span> <span class="nn">pkgcore.repository</span> <span class="kn">import</span> <span class="n">prototype</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">configured</span>
 <span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">eclass_cache</span> <span class="k">as</span> <span class="n">eclass_cache_module</span>
+<span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">ebuild_src</span>
 <span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">ConfigHint</span><span class="p">,</span> <span class="n">configurable</span>
 <span class="kn">from</span> <span class="nn">pkgcore.plugin</span> <span class="kn">import</span> <span class="n">get_plugin</span>
 <span class="kn">from</span> <span class="nn">pkgcore.operations</span> <span class="kn">import</span> <span class="n">repo</span> <span class="k">as</span> <span class="n">_repo_ops</span>
@@ -271,7 +272,9 @@
     <span class="n">configured</span> <span class="o">=</span> <span class="bp">False</span>
     <span class="n">configurables</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;domain&quot;</span><span class="p">,</span> <span class="s">&quot;settings&quot;</span><span class="p">)</span>
     <span class="n">configure</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="n">format_magic</span> <span class="o">=</span> <span class="s">&quot;ebuild_src&quot;</span>
+    <span class="n">package_factory</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">ebuild_src</span><span class="o">.</span><span class="n">generate_new_factory</span><span class="p">)</span>
+    <span class="c"># This attributes needs to be replaced/removed; it&#39;s a hack for pmerge.</span>
+    <span class="n">repository_type</span> <span class="o">=</span> <span class="s">&#39;source&#39;</span>
     <span class="n">enable_gpg</span> <span class="o">=</span> <span class="bp">False</span>
     <span class="n">extension</span> <span class="o">=</span> <span class="s">&#39;.ebuild&#39;</span>
 
@@ -347,7 +350,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">cache</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ignore_paludis_versioning</span> <span class="o">=</span> <span class="n">ignore_paludis_versioning</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_allow_missing_chksums</span> <span class="o">=</span> <span class="n">allow_missing_manifests</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">package_class</span> <span class="o">=</span> <span class="n">get_plugin</span><span class="p">(</span><span class="s">&quot;format.&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_magic</span><span class="p">)(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">package_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">package_factory</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">cache</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eclass_cache</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mirrors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_mirrors</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_shared_pkg_cache</span> <span class="o">=</span> <span class="n">WeakValCache</span><span class="p">()</span>
 
@@ -566,7 +569,7 @@
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">parent_repo</span><span class="o">.</span><span class="n">mirrors</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mirrors</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">mirrors</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">package_class</span> <span class="o">=</span> <span class="n">get_plugin</span><span class="p">(</span><span class="s">&quot;format.&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_magic</span><span class="p">)(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">package_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">package_factory</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eclass_cache</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mirrors</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">default_mirrors</span><span class="p">)</span>
 
