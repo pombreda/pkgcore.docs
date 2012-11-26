@@ -239,6 +239,7 @@
 
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">generic_equality</span>
     <span class="n">__attr_comparison__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;defaults&#39;</span><span class="p">,</span> <span class="s">&#39;freeform&#39;</span><span class="p">,</span> <span class="s">&#39;atoms&#39;</span><span class="p">,</span> <span class="s">&#39;__class__&#39;</span><span class="p">)</span>
+    <span class="n">incremental</span> <span class="o">=</span> <span class="bp">True</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">restrict_sources</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -296,9 +297,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">freeform</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">cat</span><span class="p">,</span> <span class="n">pkg</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span> <span class="o">=</span> <span class="n">atom_d</span>
 
-<div class="viewcode-block" id="collapsed_restrict_to_data.atom_intersects"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.misc.html#pkgcore.ebuild.misc.collapsed_restrict_to_data.atom_intersects">[docs]</a>    <span class="k">def</span> <span class="nf">atom_intersects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">atom</span><span class="o">.</span><span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span>
-</div>
 <div class="viewcode-block" id="collapsed_restrict_to_data.pull_data"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.misc.html#pkgcore.ebuild.misc.collapsed_restrict_to_data.pull_data">[docs]</a>    <span class="k">def</span> <span class="nf">pull_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">force_copy</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">pre_defaults</span><span class="o">=</span><span class="p">()):</span>
         <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">specific</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">freeform</span><span class="p">:</span>

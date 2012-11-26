@@ -76,21 +76,25 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;Maintainer&quot;</span><span class="p">,</span> <span class="s">&quot;MetadataXml&quot;</span><span class="p">,</span> <span class="s">&quot;LocalMetadataXml&quot;</span><span class="p">,</span>
     <span class="s">&quot;SharedPkgData&quot;</span><span class="p">,</span> <span class="s">&quot;Licenses&quot;</span><span class="p">,</span> <span class="s">&quot;OverlayedLicenses&quot;</span><span class="p">)</span>
 
+<span class="kn">from</span> <span class="nn">snakeoil.caching</span> <span class="kn">import</span> <span class="n">WeakInstMeta</span>
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">compatibility</span>
 <span class="kn">from</span> <span class="nn">snakeoil.currying</span> <span class="kn">import</span> <span class="n">post_curry</span>
 <span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
 <span class="kn">from</span> <span class="nn">snakeoil.osutils</span> <span class="kn">import</span> <span class="n">pjoin</span><span class="p">,</span> <span class="n">listdir_files</span><span class="p">,</span> <span class="n">listdir</span>
-<span class="kn">from</span> <span class="nn">snakeoil.caching</span> <span class="kn">import</span> <span class="n">WeakInstMeta</span>
+<span class="kn">from</span> <span class="nn">snakeoil.sequences</span> <span class="kn">import</span> <span class="n">namedtuple</span>
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">mappings</span>
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">klass</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
 <span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">ConfigHint</span>
 <span class="kn">from</span> <span class="nn">pkgcore.repository</span> <span class="kn">import</span> <span class="n">syncable</span>
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
-    <span class="s">&#39;snakeoil.xml:etree&#39;</span><span class="p">,</span>
-    <span class="s">&#39;pkgcore.log:logger&#39;</span><span class="p">,</span>
-    <span class="s">&#39;snakeoil:fileutils,bash&#39;</span><span class="p">,</span>
-    <span class="s">&#39;snakeoil.lists:iter_stable_unique&#39;</span><span class="p">,</span>
     <span class="s">&#39;errno&#39;</span><span class="p">,</span>
+    <span class="s">&#39;snakeoil.xml:etree&#39;</span><span class="p">,</span>
+    <span class="s">&#39;snakeoil:fileutils,bash,mappings&#39;</span><span class="p">,</span>
+    <span class="s">&#39;snakeoil.lists:iter_stable_unique&#39;</span><span class="p">,</span>
+    <span class="s">&#39;pkgcore.log:logger&#39;</span><span class="p">,</span>
+    <span class="s">&#39;pkgcore.ebuild:atom,profiles&#39;</span><span class="p">,</span>
+    <span class="s">&quot;pkgcore.restrictions:packages&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
 
@@ -210,19 +214,17 @@
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">WeakInstMeta</span>
     <span class="n">__inst_caching__</span> <span class="o">=</span> <span class="bp">True</span>
 
-    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;_base&#39;</span><span class="p">,</span> <span class="s">&#39;_licenses&#39;</span><span class="p">,</span> <span class="s">&#39;_groups&#39;</span><span class="p">)</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;_base&#39;</span><span class="p">,</span> <span class="s">&#39;_licenses&#39;</span><span class="p">,</span> <span class="s">&#39;_groups&#39;</span><span class="p">,</span> <span class="s">&#39;license_groups_path&#39;</span><span class="p">,</span> <span class="s">&#39;licenses_dir&#39;</span><span class="p">)</span>
 
-    <span class="n">licenses_dir</span> <span class="o">=</span> <span class="s">&#39;licenses&#39;</span>
-    <span class="n">license_group_location</span> <span class="o">=</span> <span class="s">&#39;profiles/license_groups&#39;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_base</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_base</span><span class="p">,</span> <span class="n">profile_base</span><span class="o">=</span><span class="s">&#39;profiles&#39;</span><span class="p">,</span> <span class="n">licenses_dir</span><span class="o">=</span><span class="s">&#39;licenses&#39;</span><span class="p">,</span> <span class="n">license_groups</span><span class="o">=</span><span class="s">&#39;profiles/license_groups&#39;</span><span class="p">):</span>
         <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;_base&#39;</span><span class="p">,</span> <span class="n">repo_base</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;license_groups_path&#39;</span><span class="p">,</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">repo_base</span><span class="p">,</span> <span class="n">license_groups</span><span class="p">))</span>
+        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;licenses_dir&#39;</span><span class="p">,</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">repo_base</span><span class="p">,</span> <span class="n">licenses_dir</span><span class="p">))</span>
 
     <span class="nd">@klass.jit_attr_none</span>
 <div class="viewcode-block" id="Licenses.licenses"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.Licenses.licenses">[docs]</a>    <span class="k">def</span> <span class="nf">licenses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">content</span> <span class="o">=</span> <span class="n">listdir_files</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">licenses_dir</span><span class="p">))</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">listdir_files</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">licenses_dir</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">:</span>
             <span class="n">content</span> <span class="o">=</span> <span class="p">()</span>
         <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
@@ -230,8 +232,7 @@
     <span class="nd">@klass.jit_attr_none</span>
 <div class="viewcode-block" id="Licenses.groups"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.repo_objs.html#pkgcore.ebuild.repo_objs.Licenses.groups">[docs]</a>    <span class="k">def</span> <span class="nf">groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">fp</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">license_group_location</span><span class="p">)</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="n">fileutils</span><span class="o">.</span><span class="n">read_dict</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">splitter</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">fileutils</span><span class="o">.</span><span class="n">read_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">license_groups_path</span><span class="p">,</span> <span class="n">splitter</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">fileutils</span><span class="o">.</span><span class="n">ParseError</span><span class="p">,</span> <span class="n">pe</span><span class="p">:</span>
@@ -276,7 +277,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">license</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">license</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">licenses_dir</span><span class="p">,</span> <span class="n">license</span><span class="p">))</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">licenses_dir</span><span class="p">,</span> <span class="n">license</span><span class="p">))</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">license</span><span class="p">)</span>
@@ -345,10 +346,47 @@
     <span class="n">mappings</span><span class="o">.</span><span class="n">inject_getitem_as_getattr</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
 
 
-<span class="k">class</span> <span class="nc">RepoConfig</span><span class="p">(</span><span class="n">syncable</span><span class="o">.</span><span class="n">tree</span><span class="p">):</span>
+<span class="n">_KnownProfile</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;_KnownProfile&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;profile&#39;</span><span class="p">,</span> <span class="s">&#39;status&#39;</span><span class="p">])</span>
 
-    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;location&quot;</span><span class="p">,</span> <span class="s">&quot;manifests&quot;</span><span class="p">,</span> <span class="s">&quot;masters&quot;</span><span class="p">,</span> <span class="s">&quot;aliases&quot;</span><span class="p">,</span> <span class="s">&quot;cache_format&quot;</span><span class="p">,</span>
-        <span class="s">&#39;profile_format&#39;</span><span class="p">,</span> <span class="s">&#39;_syncer&#39;</span><span class="p">,</span> <span class="s">&#39;_repo_id&#39;</span><span class="p">,</span> <span class="s">&#39;_is_empty&#39;</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">BundledProfiles</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="n">klass</span><span class="o">.</span><span class="n">inject_immutable_instance</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile_base</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&#39;pms&#39;</span><span class="p">):</span>
+        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;profile_base&#39;</span><span class="p">,</span> <span class="n">profile_base</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;format&#39;</span><span class="p">,</span> <span class="n">format</span><span class="p">)</span>
+
+    <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">arch_profiles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">mappings</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile_base</span><span class="p">,</span> <span class="s">&#39;profiles.desc&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fileutils</span><span class="o">.</span><span class="n">iter_read_bash</span><span class="p">(</span><span class="n">fp</span><span class="p">):</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">key</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">l</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                        <span class="s">&quot;</span><span class="si">%s</span><span class="s">: line doesn&#39;t follow &#39;key profile status&#39; form: </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">,</span>
+                         <span class="n">fp</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="c"># Normalize the profile name on the offchance someone slipped an extra /</span>
+                <span class="c"># into it.</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_KnownProfile</span><span class="p">(</span>
+                    <span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">profile</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">))),</span> <span class="n">status</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;No profile descriptions found at </span><span class="si">%r</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">fp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mappings</span><span class="o">.</span><span class="n">ImmutableDict</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">create_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">profiles</span><span class="o">.</span><span class="n">OnDiskProfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile_base</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">RepoConfig</span><span class="p">(</span><span class="n">syncable</span><span class="o">.</span><span class="n">tree</span><span class="p">):</span>
 
     <span class="n">layout_offset</span> <span class="o">=</span> <span class="s">&quot;metadata/layout.conf&quot;</span>
 
@@ -362,8 +400,9 @@
     <span class="n">pkgcore_config_type</span> <span class="o">=</span> <span class="n">ConfigHint</span><span class="p">(</span><span class="n">typename</span><span class="o">=</span><span class="s">&#39;raw_repo&#39;</span><span class="p">,</span>
         <span class="n">types</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;syncer&#39;</span><span class="p">:</span><span class="s">&#39;lazy_ref:syncer&#39;</span><span class="p">})</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">syncer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">syncer</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">profiles_base</span><span class="o">=</span><span class="s">&#39;profiles&#39;</span><span class="p">):</span>
         <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;location&#39;</span><span class="p">,</span> <span class="n">location</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;profiles_base&#39;</span><span class="p">,</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">profiles_base</span><span class="p">))</span>
         <span class="n">syncable</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">syncer</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parse_config</span><span class="p">()</span>
 
@@ -422,10 +461,79 @@
         <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;profile_format&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">v</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">raw_known_arches</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">bash</span><span class="o">.</span><span class="n">iter_read_bash</span><span class="p">(</span>
+                <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profiles_base</span><span class="p">,</span> <span class="s">&#39;arch.list&#39;</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="k">return</span> <span class="nb">frozenset</span><span class="p">()</span>
+
+    <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">raw_use_desc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># todo: convert this to using a common exception base, with</span>
+        <span class="c"># conversion of ValueErrors...</span>
+        <span class="k">def</span> <span class="nf">converter</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">packages</span><span class="o">.</span><span class="n">AlwaysTrue</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_split_use_desc_file</span><span class="p">(</span><span class="s">&#39;use.desc&#39;</span><span class="p">,</span> <span class="n">converter</span><span class="p">))</span>
+
+    <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">raw_use_local_desc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">converter</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="c"># todo: convert this to using a common exception base, with</span>
+            <span class="c"># conversion of ValueErrors/atom exceptoins...</span>
+            <span class="n">chunks</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="n">chunks</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">chunks</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_split_use_desc_file</span><span class="p">(</span><span class="s">&#39;use.local.desc&#39;</span><span class="p">,</span> <span class="n">converter</span><span class="p">))</span>
+
+    <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">raw_use_expand_desc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profiles_base</span><span class="p">,</span> <span class="s">&#39;desc&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">targets</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">listdir_files</span><span class="p">(</span><span class="n">base</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="k">return</span> <span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">f</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">use_group</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+                <span class="n">group</span> <span class="o">=</span> <span class="n">use_group</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;_&quot;</span>
+                <span class="k">def</span> <span class="nf">converter</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="p">(</span><span class="n">packages</span><span class="o">.</span><span class="n">AlwaysTrue</span><span class="p">,</span> <span class="n">group</span> <span class="o">+</span> <span class="n">key</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">blah</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split_use_desc_file</span><span class="p">(</span><span class="s">&#39;desc/</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">use_group</span><span class="p">,</span> <span class="n">converter</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="n">blah</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">f</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">_split_use_desc_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">converter</span><span class="p">):</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profiles_base</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fileutils</span><span class="o">.</span><span class="n">iter_read_bash</span><span class="p">(</span><span class="n">fp</span><span class="p">):</span>
+                <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">converter</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">val</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;-&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
+                <span class="k">raise</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">line</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span>
+                <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Failed parsing </span><span class="si">%r</span><span class="s">: line was </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">line</span><span class="p">)))</span>
+
+    <span class="n">known_arches</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&#39;raw_known_arches&#39;</span><span class="p">)</span>
+    <span class="n">use_desc</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&#39;raw_use_desc&#39;</span><span class="p">)</span>
+    <span class="n">use_local_desc</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&#39;raw_use_local_desc&#39;</span><span class="p">)</span>
+    <span class="n">use_expand_desc</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&#39;raw_use_expand_desc&#39;</span><span class="p">)</span>
+
+    <span class="nd">@klass.jit_attr</span>
     <span class="k">def</span> <span class="nf">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="c"># any files means it&#39;s not empty</span>
+            <span class="c"># any files existing means it&#39;s not empty</span>
             <span class="n">result</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">EnvironmentError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
@@ -437,13 +545,19 @@
 
     <span class="nd">@klass.jit_attr</span>
     <span class="k">def</span> <span class="nf">repo_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">val</span> <span class="o">=</span> <span class="n">fileutils</span><span class="o">.</span><span class="n">readfile</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="s">&#39;profiles&#39;</span><span class="p">,</span> <span class="s">&#39;repo_name&#39;</span><span class="p">),</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">fileutils</span><span class="o">.</span><span class="n">readfile</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profiles_base</span><span class="p">,</span> <span class="s">&#39;repo_name&#39;</span><span class="p">),</span> <span class="bp">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;repository at location </span><span class="si">%r</span><span class="s"> lacks a defined repo_name&quot;</span><span class="p">,</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
             <span class="n">val</span> <span class="o">=</span> <span class="s">&#39;&lt;unlabeled repository </span><span class="si">%s</span><span class="s">&gt;&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span>
         <span class="k">return</span> <span class="n">val</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="n">arch_profiles</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&#39;profiles.arch_profiles&#39;</span><span class="p">)</span>
+
+    <span class="nd">@klass.jit_attr</span>
+    <span class="k">def</span> <span class="nf">profiles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">BundledProfiles</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profiles_base</span><span class="p">)</span>
 </pre></div>
 
           </div>

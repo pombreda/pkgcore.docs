@@ -75,7 +75,7 @@
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;package&quot;</span><span class="p">,</span> <span class="s">&quot;package_factory&quot;</span><span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">ebuild_src</span><span class="p">,</span> <span class="n">conditionals</span>
+<span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">ebuild_src</span><span class="p">,</span> <span class="n">conditionals</span><span class="p">,</span> <span class="n">eapi</span>
 <span class="kn">from</span> <span class="nn">pkgcore.package</span> <span class="kn">import</span> <span class="n">metadata</span>
 <span class="kn">from</span> <span class="nn">snakeoil.data_source</span> <span class="kn">import</span> <span class="n">local_source</span>
 
@@ -112,30 +112,29 @@
         <span class="k">return</span> <span class="n">repo</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="k">return</span> <span class="bp">None</span>
 
-<span class="n">default_pkg_preinst_re</span> <span class="o">=</span> <span class="bp">None</span>
-
-<span class="k">def</span> <span class="nf">pkg_uses_default_preinst</span><span class="p">(</span><span class="n">pkg</span><span class="p">):</span>
-    <span class="k">global</span> <span class="n">default_pkg_preinst_re</span>
-    <span class="k">if</span> <span class="n">default_pkg_preinst_re</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">default_pkg_preinst_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-            <span class="s">&quot;(?:^|</span><span class="se">\n</span><span class="s">)pkg_preinst *\(\)\s*{\s*return;?\s*}[ </span><span class="se">\t</span><span class="s">]*(?:</span><span class="se">\n</span><span class="s">|$)&quot;</span><span class="p">)</span>
-
-    <span class="n">data</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">text_fileobj</span><span class="p">()</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">default_pkg_preinst_re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-
-    <span class="c"># second check. make sure there aren&#39;t two matches- if so, that</span>
-    <span class="c"># means we should not guess it.</span>
-    <span class="k">return</span> <span class="n">m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> \
-        <span class="n">default_pkg_preinst_re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">end</span><span class="p">():])</span> <span class="ow">is</span> <span class="bp">None</span>
 
 <span class="k">def</span> <span class="nf">wrap_inst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wrap</span><span class="p">,</span> <span class="n">inst</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">wrap</span><span class="p">(</span><span class="n">inst</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">use</span><span class="p">)</span>
 
+
 <span class="n">_empty_fetchable</span> <span class="o">=</span> <span class="n">conditionals</span><span class="o">.</span><span class="n">DepSet</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">ebuild_src</span><span class="o">.</span><span class="n">fetchable</span><span class="p">,</span>
     <span class="n">operators</span><span class="o">=</span><span class="p">{})</span>
 
+
 <span class="k">def</span> <span class="nf">_get_inherited</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;INHERITED&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
+
+
+<span class="k">def</span> <span class="nf">generate_eapi_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">eapi_magic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;EAPI&quot;</span><span class="p">,</span> <span class="s">&quot;0&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">eapi_magic</span><span class="p">:</span>
+        <span class="c"># &quot;&quot; means &#39;0&#39; eapi</span>
+        <span class="n">eapi_magic</span> <span class="o">=</span> <span class="s">&#39;0&#39;</span>
+    <span class="n">eapi_obj</span> <span class="o">=</span> <span class="n">eapi</span><span class="o">.</span><span class="n">get_eapi</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">eapi_magic</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="c"># this can return None... definitely the wrong thing right now</span>
+    <span class="c"># for an unsupported eapi.  Fix it later.</span>
+    <span class="k">return</span> <span class="n">eapi_obj</span>
+
 
 <div class="viewcode-block" id="package"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebuild_built.html#pkgcore.ebuild.ebuild_built.package">[docs]</a><span class="k">class</span> <span class="nc">package</span><span class="p">(</span><span class="n">ebuild_src</span><span class="o">.</span><span class="n">base</span><span class="p">):</span>
 
@@ -178,6 +177,7 @@
         <span class="k">lambda</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;USE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
 
     <span class="n">_get_attr</span><span class="p">[</span><span class="s">&quot;inherited&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_get_inherited</span>
+    <span class="n">_get_attr</span><span class="p">[</span><span class="s">&quot;eapi_obj&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">generate_eapi_obj</span>
 
     <span class="k">def</span> <span class="nf">_chost_fallback</span><span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="bp">self</span><span class="p">):</span>
         <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">initial</span><span class="p">)</span>
@@ -239,7 +239,7 @@
 <span class="k">def</span> <span class="nf">generic_format_triggers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">op_inst</span><span class="p">,</span> <span class="n">format_op_inst</span><span class="p">,</span> <span class="n">engine_inst</span><span class="p">):</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">engine_inst</span><span class="o">.</span><span class="n">mode</span> <span class="ow">in</span> <span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">REPLACE_MODE</span><span class="p">,</span> <span class="n">engine</span><span class="o">.</span><span class="n">INSTALL_MODE</span><span class="p">)</span>
         <span class="ow">and</span> <span class="n">pkg</span> <span class="o">==</span> <span class="n">engine_inst</span><span class="o">.</span><span class="n">new</span> <span class="ow">and</span> <span class="n">pkg</span><span class="o">.</span><span class="n">repo</span> <span class="ow">is</span> <span class="n">engine_inst</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">repo</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">pkg_uses_default_preinst</span><span class="p">(</span><span class="n">pkg</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s">&#39;preinst&#39;</span> <span class="ow">in</span> <span class="n">pkg</span><span class="o">.</span><span class="n">mandatory_phases</span><span class="p">:</span>
             <span class="n">t</span> <span class="o">=</span> <span class="n">triggers</span><span class="o">.</span><span class="n">preinst_contents_reset</span><span class="p">(</span><span class="n">format_op_inst</span><span class="p">)</span>
             <span class="n">t</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">engine_inst</span><span class="p">)</span>
         <span class="c"># for ebuild format, always check the syms.</span>

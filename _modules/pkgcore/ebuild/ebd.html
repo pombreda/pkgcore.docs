@@ -93,7 +93,6 @@
     <span class="n">spawn_bash</span><span class="p">,</span> <span class="n">spawn</span><span class="p">,</span> <span class="n">is_sandbox_capable</span><span class="p">,</span> <span class="n">is_fakeroot_capable</span><span class="p">,</span>
     <span class="n">is_userpriv_capable</span><span class="p">,</span> <span class="n">spawn_get_output</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pkgcore.os_data</span> <span class="kn">import</span> <span class="n">xargs</span>
-<span class="kn">from</span> <span class="nn">pkgcore.ebuild.const</span> <span class="kn">import</span> <span class="n">eapi_capable</span>
 <span class="kn">from</span> <span class="nn">pkgcore.operations</span> <span class="kn">import</span> <span class="n">observer</span><span class="p">,</span> <span class="n">format</span>
 <span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">ebuild_built</span>
 <span class="kn">from</span> <span class="nn">snakeoil.currying</span> <span class="kn">import</span> <span class="n">post_curry</span><span class="p">,</span> <span class="n">pretty_docs</span><span class="p">,</span> <span class="n">partial</span>
@@ -139,10 +138,9 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;observer&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">observer</span> <span class="o">=</span> <span class="n">observer</span>
-        <span class="k">if</span> <span class="n">pkg</span><span class="o">.</span><span class="n">eapi</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">eapi_capable</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">pkg</span><span class="o">.</span><span class="n">eapi_obj</span><span class="o">.</span><span class="n">is_supported</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s">&quot;pkg isn&#39;t of a supported eapi!, </span><span class="si">%i</span><span class="s"> not in </span><span class="si">%s</span><span class="s"> for </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                    <span class="n">pkg</span><span class="o">.</span><span class="n">eapi</span><span class="p">,</span> <span class="n">eapi_capable</span><span class="p">,</span> <span class="n">pkg</span><span class="p">))</span>
+                <span class="s">&quot;package </span><span class="si">%s</span><span class="s"> uses an unsupported eapi: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">pkg</span><span class="o">.</span><span class="n">eapi</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">initial_env</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="c"># copy.</span>

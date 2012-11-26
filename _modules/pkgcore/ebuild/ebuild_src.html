@@ -98,13 +98,17 @@
 <span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">klass</span>
 <span class="kn">from</span> <span class="nn">snakeoil.compatibility</span> <span class="kn">import</span> <span class="nb">intern</span>
 
-<span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
-<span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">demandload</span>
+<span class="n">demandload</span><span class="o">.</span><span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
     <span class="s">&quot;pkgcore.log:logger&quot;</span><span class="p">,</span>
     <span class="s">&quot;pkgcore.ebuild.eapi:get_eapi&quot;</span><span class="p">,</span>
-    <span class="s">&quot;snakeoil:data_source&quot;</span><span class="p">,</span>
+    <span class="s">&quot;snakeoil:data_source,fileutils&quot;</span><span class="p">,</span>
     <span class="s">&quot;snakeoil:chksum&quot;</span><span class="p">,</span>
 <span class="p">)</span>
+
+<span class="n">demandload</span><span class="o">.</span><span class="n">demand_compile_regexp</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
+    <span class="s">&#39;_parse_EAPI_RE&#39;</span><span class="p">,</span>
+    <span class="s">r&quot;^EAPI=([&#39;</span><span class="se">\&quot;</span><span class="s">]?)([A-Za-z0-9+_.-]*)\1[\t ]*(?:#.*)?&quot;</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">generate_depset</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">non_package_type</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
@@ -113,8 +117,8 @@
             <span class="n">operators</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;||&quot;</span><span class="p">:</span><span class="n">boolean</span><span class="o">.</span><span class="n">OrRestriction</span><span class="p">,</span>
             <span class="s">&quot;&quot;</span><span class="p">:</span><span class="n">boolean</span><span class="o">.</span><span class="n">AndRestriction</span><span class="p">},</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
     <span class="n">eapi_obj</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">eapi_obj</span>
-    <span class="k">if</span> <span class="n">eapi_obj</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">metadata_errors</span><span class="o">.</span><span class="n">MetadataException</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s">&quot;eapi&quot;</span><span class="p">,</span> <span class="s">&quot;unsupported eapi&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">eapi_obj</span><span class="o">.</span><span class="n">is_supported</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">metadata_errors</span><span class="o">.</span><span class="n">MetadataException</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s">&quot;eapi&quot;</span><span class="p">,</span> <span class="s">&quot;unsupported eapi: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">eapi_obj</span><span class="o">.</span><span class="n">magic</span><span class="p">)</span>
     <span class="n">kwds</span><span class="p">[</span><span class="s">&#39;element_func&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">eapi_obj</span><span class="o">.</span><span class="n">atom_kls</span>
     <span class="n">kwds</span><span class="p">[</span><span class="s">&#39;transitive_use_atoms&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">eapi_obj</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">transitive_use_atoms</span>
     <span class="k">return</span> <span class="n">conditionals</span><span class="o">.</span><span class="n">DepSet</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">),</span> <span class="n">c</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
@@ -207,15 +211,21 @@
         <span class="n">common_files</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">fetchable</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">uris</span><span class="p">,</span> <span class="n">chksums</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">common_files</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span>
 
-<span class="k">def</span> <span class="nf">generate_eapi_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">eapi_magic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;EAPI&quot;</span><span class="p">,</span> <span class="s">&quot;0&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">eapi_magic</span><span class="p">:</span>
-        <span class="c"># &quot;&quot; means &#39;0&#39; eapi</span>
-        <span class="n">eapi_magic</span> <span class="o">=</span> <span class="s">&#39;0&#39;</span>
-    <span class="n">eapi_obj</span> <span class="o">=</span> <span class="n">get_eapi</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">eapi_magic</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-    <span class="c"># this can return None... definitely the wrong thing right now</span>
-    <span class="c"># for an unsupported eapi.  Fix it later.</span>
-    <span class="k">return</span> <span class="n">eapi_obj</span>
+<span class="k">def</span> <span class="nf">get_parsed_eapi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">ebuild</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebuild</span>
+    <span class="n">eapi</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="n">ebuild</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+        <span class="c"># Use readlines directly since it does whitespace stripping</span>
+        <span class="c"># for us, far faster than native python can.</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">fileutils</span><span class="o">.</span><span class="n">readlines_ascii</span><span class="p">(</span><span class="n">ebuild</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ebuild</span><span class="o">.</span><span class="n">get_text_fileobj</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">i</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;#&#39;</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">eapi</span> <span class="o">=</span> <span class="n">_parse_EAPI_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">break</span>
+    <span class="k">return</span> <span class="n">get_eapi</span><span class="p">(</span><span class="n">eapi</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">eapi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s">&#39;0&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">get_slot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;SLOT&quot;</span><span class="p">,</span> <span class="s">&quot;0&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
@@ -273,7 +283,7 @@
     <span class="n">_get_attr</span><span class="p">[</span><span class="s">&quot;restrict&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span><span class="n">conditionals</span><span class="o">.</span><span class="n">DepSet</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span>
         <span class="n">s</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;RESTRICT&quot;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">),</span> <span class="nb">str</span><span class="p">,</span> <span class="n">operators</span><span class="o">=</span><span class="p">{},</span>
         <span class="n">element_func</span><span class="o">=</span><span class="n">rewrite_restrict</span><span class="p">)</span>
-    <span class="n">_get_attr</span><span class="p">[</span><span class="s">&quot;eapi_obj&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">generate_eapi_obj</span>
+    <span class="n">_get_attr</span><span class="p">[</span><span class="s">&quot;eapi_obj&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_parsed_eapi</span>
     <span class="n">_get_attr</span><span class="p">[</span><span class="s">&quot;iuse&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span><span class="nb">frozenset</span><span class="p">(</span><span class="n">imap</span><span class="p">(</span><span class="nb">intern</span><span class="p">,</span>
         <span class="n">s</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;IUSE&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
     <span class="n">_get_attr</span><span class="p">[</span><span class="s">&quot;properties&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span><span class="nb">frozenset</span><span class="p">(</span><span class="n">imap</span><span class="p">(</span><span class="nb">intern</span><span class="p">,</span>
@@ -289,6 +299,8 @@
 
     <span class="n">PN</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&quot;package&quot;</span><span class="p">)</span>
     <span class="n">repo_id</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&quot;repo.repo_id&quot;</span><span class="p">)</span>
+
+    <span class="n">is_supported</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="n">alias_attr</span><span class="p">(</span><span class="s">&#39;eapi_obj.options.is_supported&#39;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="base.eapi"><a class="viewcode-back" href="../../../api/pkgcore.ebuild.ebuild_src.html#pkgcore.ebuild.ebuild_src.base.eapi">[docs]</a>    <span class="k">def</span> <span class="nf">eapi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -419,32 +431,30 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_metadata</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">ebp</span><span class="o">=</span><span class="n">ebp</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_update_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">ebp</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">eapi</span> <span class="o">=</span> <span class="n">parsed_eapi</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">parsed_eapi</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">parsed_eapi</span><span class="o">.</span><span class="n">is_supported</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s">&#39;EAPI&#39;</span><span class="p">:</span><span class="n">eapi</span><span class="o">.</span><span class="n">magic</span><span class="p">}</span>
+
         <span class="k">with</span> <span class="n">processor</span><span class="o">.</span><span class="n">reuse_or_request</span><span class="p">(</span><span class="n">ebp</span><span class="p">)</span> <span class="k">as</span> <span class="n">my_proc</span><span class="p">:</span>
             <span class="n">mydata</span> <span class="o">=</span> <span class="n">my_proc</span><span class="o">.</span><span class="n">get_keys</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ecache</span><span class="p">)</span>
-            <span class="k">del</span> <span class="n">my_proc</span>
-        <span class="k">del</span> <span class="n">ebp</span>
 
         <span class="n">inherited</span> <span class="o">=</span> <span class="n">mydata</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;INHERITED&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
         <span class="c"># rewrite defined_phases as needed, since we now know the eapi.</span>
         <span class="n">eapi</span> <span class="o">=</span> <span class="n">get_eapi</span><span class="p">(</span><span class="n">mydata</span><span class="p">[</span><span class="s">&quot;EAPI&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">parsed_eapi</span> <span class="o">!=</span> <span class="n">eapi</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">metadata_errors</span><span class="o">.</span><span class="n">MetadataException</span><span class="p">(</span>
+                <span class="n">pkg</span><span class="p">,</span> <span class="s">&#39;eapi&#39;</span><span class="p">,</span> <span class="s">&quot;parsed eapi doesn&#39;t match sourced eapi&quot;</span><span class="p">)</span>
         <span class="n">wipes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">mydata</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">eapi</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="c"># drop the metadata, leaving just the validation info</span>
-            <span class="c"># we currently know about, and marking the eapi</span>
-            <span class="c"># in a negative fashion.</span>
-            <span class="c"># TODO(FIX THIS)</span>
-            <span class="n">wipes</span><span class="o">.</span><span class="n">difference_update</span><span class="p">([</span><span class="s">&quot;_eclasses_&quot;</span><span class="p">,</span> <span class="s">&quot;EAPI&quot;</span><span class="p">])</span>
-            <span class="n">mydata</span><span class="p">[</span><span class="s">&quot;EAPI&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;-&quot;</span> <span class="o">+</span> <span class="n">mydata</span><span class="p">[</span><span class="s">&quot;EAPI&quot;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">wipes</span><span class="o">.</span><span class="n">difference_update</span><span class="p">(</span><span class="n">eapi</span><span class="o">.</span><span class="n">metadata_keys</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">mydata</span><span class="p">[</span><span class="s">&quot;DEFINED_PHASES&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;-&#39;</span><span class="p">:</span>
-                <span class="n">phases</span> <span class="o">=</span> <span class="n">mydata</span><span class="p">[</span><span class="s">&quot;DEFINED_PHASES&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-                <span class="n">d</span> <span class="o">=</span> <span class="n">eapi</span><span class="o">.</span><span class="n">phases_rev</span>
-                <span class="n">phases</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">phases</span><span class="p">)</span>
-                <span class="c"># discard is required should we have gotten</span>
-                <span class="c"># a phase that isn&#39;t actually in this eapi</span>
-                <span class="n">phases</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
-                <span class="n">mydata</span><span class="p">[</span><span class="s">&quot;DEFINED_PHASES&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">phases</span><span class="p">))</span>
+
+        <span class="n">wipes</span><span class="o">.</span><span class="n">difference_update</span><span class="p">(</span><span class="n">eapi</span><span class="o">.</span><span class="n">metadata_keys</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mydata</span><span class="p">[</span><span class="s">&quot;DEFINED_PHASES&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;-&#39;</span><span class="p">:</span>
+            <span class="n">phases</span> <span class="o">=</span> <span class="n">mydata</span><span class="p">[</span><span class="s">&quot;DEFINED_PHASES&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">eapi</span><span class="o">.</span><span class="n">phases_rev</span>
+            <span class="n">phases</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">phases</span><span class="p">)</span>
+            <span class="c"># discard is required should we have gotten</span>
+            <span class="c"># a phase that isn&#39;t actually in this eapi</span>
+            <span class="n">phases</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+            <span class="n">mydata</span><span class="p">[</span><span class="s">&quot;DEFINED_PHASES&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">phases</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">inherited</span><span class="p">:</span>
             <span class="n">mydata</span><span class="p">[</span><span class="s">&quot;_eclasses_&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ecache</span><span class="o">.</span><span class="n">get_eclass_data</span><span class="p">(</span>
