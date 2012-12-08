@@ -437,9 +437,9 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_metadata</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">ebp</span><span class="o">=</span><span class="n">ebp</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_update_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkg</span><span class="p">,</span> <span class="n">ebp</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="n">eapi</span> <span class="o">=</span> <span class="n">parsed_eapi</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">parsed_eapi</span>
+        <span class="n">parsed_eapi</span> <span class="o">=</span> <span class="n">pkg</span><span class="o">.</span><span class="n">eapi_obj</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">parsed_eapi</span><span class="o">.</span><span class="n">is_supported</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">{</span><span class="s">&#39;EAPI&#39;</span><span class="p">:</span><span class="n">eapi</span><span class="o">.</span><span class="n">magic</span><span class="p">}</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s">&#39;EAPI&#39;</span><span class="p">:</span><span class="n">parsed_eapi</span><span class="o">.</span><span class="n">magic</span><span class="p">}</span>
 
         <span class="k">with</span> <span class="n">processor</span><span class="o">.</span><span class="n">reuse_or_request</span><span class="p">(</span><span class="n">ebp</span><span class="p">)</span> <span class="k">as</span> <span class="n">my_proc</span><span class="p">:</span>
             <span class="n">mydata</span> <span class="o">=</span> <span class="n">my_proc</span><span class="o">.</span><span class="n">get_keys</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ecache</span><span class="p">)</span>
