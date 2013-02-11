@@ -200,14 +200,21 @@
     <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
     <span class="n">__instance_caching__</span> <span class="o">=</span> <span class="bp">True</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">slots</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
-        <span class="n">v</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">StrExactMatch</span><span class="p">,</span> <span class="n">slots</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">v</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">OrRestriction</span><span class="p">(</span><span class="o">*</span><span class="n">v</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slot</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">StrExactMatch</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
             <span class="s">&quot;slot&quot;</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">negate</span><span class="o">=</span><span class="n">kwds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;negate&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">SubSlotDep</span><span class="p">(</span><span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">):</span>
+
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">__instance_caching__</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slot</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">StrExactMatch</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <span class="s">&quot;subslot&quot;</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">negate</span><span class="o">=</span><span class="n">kwds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;negate&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">))</span>
 
 
 <span class="k">class</span> <span class="nc">CategoryDep</span><span class="p">(</span><span class="n">packages</span><span class="o">.</span><span class="n">PackageRestriction</span><span class="p">):</span>

@@ -190,27 +190,56 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;repo_id&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
         <span class="c"># slot dep.</span>
-        <span class="n">slots</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">atom</span><span class="p">[</span><span class="n">slot_start</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">)))</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">slots</span><span class="p">):</span>
+        <span class="n">slot</span> <span class="o">=</span> <span class="n">atom</span><span class="p">[</span><span class="n">slot_start</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">slot_operator</span> <span class="o">=</span> <span class="n">subslot</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">slot</span><span class="p">:</span>
             <span class="c"># if the slot char came in only due to repo_id, force slots to None</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">slots</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">i2</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-                <span class="n">slots</span> <span class="o">=</span> <span class="bp">None</span>
-            <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">i2</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">MalformedAtom</span><span class="p">(</span><span class="n">orig_atom</span><span class="p">,</span>
-                    <span class="s">&quot;empty slots aren&#39;t allowed&quot;</span><span class="p">)</span>
+                    <span class="s">&quot;Empty slot targets aren&#39;t allowed&quot;</span><span class="p">)</span>
+            <span class="n">slot</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">slots</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s">&#39;-.&#39;</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">MalformedAtom</span><span class="p">(</span><span class="n">orig_atom</span><span class="p">,</span>
-                        <span class="s">&quot;invalid first char of slot dep &#39;</span><span class="si">%s</span><span class="s">&#39; (must not begin with a hyphen or a dot)&quot;</span> <span class="o">%</span> <span class="n">x</span><span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">valid_slot_chars</span><span class="o">.</span><span class="n">issuperset</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-                   <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">MalformedAtom</span><span class="p">(</span><span class="n">orig_atom</span><span class="p">,</span>
-                       <span class="s">&quot;invalid char spotted in slot dep &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">x</span><span class="p">)</span>
+            <span class="n">slots</span> <span class="o">=</span> <span class="p">(</span><span class="n">slot</span><span class="p">,)</span>
+            <span class="k">if</span> <span class="n">eapi</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">slot</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;*&quot;</span><span class="p">,</span> <span class="s">&quot;=&quot;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">MalformedAtom</span><span class="p">(</span><span class="n">orig_atom</span><span class="p">,</span>
+                            <span class="s">&quot;Slot operators &#39;*&#39; and &#39;=&#39; do not take slot targets&quot;</span><span class="p">)</span>
+                    <span class="n">slot_operator</span> <span class="o">=</span> <span class="n">slot</span>
+                    <span class="n">slot</span><span class="p">,</span> <span class="n">slots</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">slot</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;=&#39;</span><span class="p">):</span>
+                        <span class="n">slot_operator</span> <span class="o">=</span> <span class="s">&#39;=&#39;</span>
+                        <span class="n">slot</span> <span class="o">=</span> <span class="n">slot</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">slots</span> <span class="o">=</span> <span class="n">slot</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">eapi</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">MalformedAtom</span><span class="p">(</span><span class="n">orig_atom</span><span class="p">,</span>
+                    <span class="s">&quot;slot dependencies aren&#39;t allowed in EAPI0&quot;</span><span class="p">)</span>
 
-        <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;slot&quot;</span><span class="p">,</span> <span class="n">slots</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">slots</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">chunk</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">MalformedAtom</span><span class="p">(</span><span class="n">orig_atom</span><span class="p">,</span>
+                        <span class="s">&quot;Empty slot targets aren&#39;t allowed&quot;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">chunk</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s">&#39;-.&#39;</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">MalformedAtom</span><span class="p">(</span><span class="n">orig_atom</span><span class="p">,</span>
+                        <span class="s">&quot;Slot targets must not start with a hypen or dot: </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">chunk</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="ow">not</span> <span class="n">valid_slot_chars</span><span class="o">.</span><span class="n">issuperset</span><span class="p">(</span><span class="n">chunk</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">MalformedAtom</span><span class="p">(</span><span class="n">orig_atom</span><span class="p">,</span>
+                        <span class="s">&quot;Invalid character(s) in slot target: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                            <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">valid_slot_chars</span><span class="p">)))))</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">slots</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">slot</span><span class="p">,</span> <span class="n">subslot</span> <span class="o">=</span> <span class="n">slots</span>
+
+        <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;slot_operator&quot;</span><span class="p">,</span> <span class="n">slot_operator</span><span class="p">)</span>
+        <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;slot&quot;</span><span class="p">,</span> <span class="n">slot</span><span class="p">)</span>
+        <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;subslot&quot;</span><span class="p">,</span> <span class="n">subslot</span><span class="p">)</span>
         <span class="n">atom</span> <span class="o">=</span> <span class="n">atom</span><span class="p">[:</span><span class="n">slot_start</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
+        <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;slot_operator&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
         <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;slot&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;subslot&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
         <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;repo_id&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
 
     <span class="n">sf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;blocks&quot;</span><span class="p">,</span> <span class="n">atom</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;!&quot;</span><span class="p">)</span>
@@ -260,9 +289,6 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">MalformedAtom</span><span class="p">(</span><span class="n">orig_atom</span><span class="p">,</span>
                 <span class="s">&quot;repo_id atoms aren&#39;t supported for eapi </span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">eapi</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">slot</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slot</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">MalformedAtom</span><span class="p">(</span><span class="n">orig_atom</span><span class="p">,</span>
-                <span class="s">&quot;multiple slot restrictions not supported for eapi </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">eapi</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">use_start</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">slot_start</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">use_start</span> <span class="o">&lt;</span> <span class="n">slot_start</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">MalformedAtom</span><span class="p">(</span><span class="n">orig_atom</span><span class="p">,</span>
             <span class="s">&quot;slot restriction must proceed use&quot;</span><span class="p">)</span>
@@ -318,7 +344,9 @@
                                   <span class="n">negate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">negate_vers</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">slot</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">restricts</span><span class="o">.</span><span class="n">SlotDep</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">slot</span><span class="p">))</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">restricts</span><span class="o">.</span><span class="n">SlotDep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slot</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">subslot</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">restricts</span><span class="o">.</span><span class="n">SubSlotDep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subslot</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
         <span class="n">r</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">restricts</span><span class="o">.</span><span class="n">_parse_nontransitive_use</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">use</span><span class="p">))</span>
@@ -389,7 +417,8 @@
     <span class="c"># note we don&#39;t need _hash</span>
     <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s">&quot;blocks&quot;</span><span class="p">,</span> <span class="s">&quot;blocks_strongly&quot;</span><span class="p">,</span> <span class="s">&quot;op&quot;</span><span class="p">,</span> <span class="s">&quot;cpvstr&quot;</span><span class="p">,</span> <span class="s">&quot;negate_vers&quot;</span><span class="p">,</span>
-        <span class="s">&quot;use&quot;</span><span class="p">,</span> <span class="s">&quot;slot&quot;</span><span class="p">,</span> <span class="s">&quot;category&quot;</span><span class="p">,</span> <span class="s">&quot;version&quot;</span><span class="p">,</span> <span class="s">&quot;revision&quot;</span><span class="p">,</span> <span class="s">&quot;fullver&quot;</span><span class="p">,</span>
+        <span class="s">&quot;use&quot;</span><span class="p">,</span> <span class="s">&quot;slot_operator&quot;</span><span class="p">,</span> <span class="s">&quot;slot&quot;</span><span class="p">,</span> <span class="s">&quot;subslot&quot;</span><span class="p">,</span>
+        <span class="s">&quot;category&quot;</span><span class="p">,</span> <span class="s">&quot;version&quot;</span><span class="p">,</span> <span class="s">&quot;revision&quot;</span><span class="p">,</span> <span class="s">&quot;fullver&quot;</span><span class="p">,</span>
         <span class="s">&quot;package&quot;</span><span class="p">,</span> <span class="s">&quot;key&quot;</span><span class="p">,</span> <span class="s">&quot;repo_id&quot;</span><span class="p">,</span> <span class="s">&quot;_hash&quot;</span><span class="p">)</span>
 
     <span class="nb">type</span> <span class="o">=</span> <span class="n">packages</span><span class="o">.</span><span class="n">package_type</span>
@@ -399,7 +428,7 @@
     <span class="n">_evaluate_collapse</span> <span class="o">=</span> <span class="bp">True</span>
 
     <span class="n">__attr_comparison__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;cpvstr&quot;</span><span class="p">,</span> <span class="s">&quot;op&quot;</span><span class="p">,</span> <span class="s">&quot;blocks&quot;</span><span class="p">,</span> <span class="s">&quot;negate_vers&quot;</span><span class="p">,</span>
-        <span class="s">&quot;use&quot;</span><span class="p">,</span> <span class="s">&quot;slot&quot;</span><span class="p">,</span> <span class="s">&quot;repo_id&quot;</span><span class="p">)</span>
+        <span class="s">&quot;use&quot;</span><span class="p">,</span> <span class="s">&quot;slot&quot;</span><span class="p">,</span> <span class="s">&quot;subslot&quot;</span><span class="p">,</span> <span class="s">&quot;slot_operator&quot;</span><span class="p">,</span> <span class="s">&quot;repo_id&quot;</span><span class="p">)</span>
 
     <span class="n">inject_richcmp_methods_from_cmp</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
     <span class="c"># hack; combine these 2 metaclasses at some point...</span>
