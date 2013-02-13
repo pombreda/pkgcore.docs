@@ -75,10 +75,11 @@
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;FileList&quot;</span><span class="p">,</span> <span class="s">&quot;WorldFile&quot;</span><span class="p">)</span>
 
+<span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">ConfigHint</span><span class="p">,</span> <span class="n">errors</span>
 <span class="kn">from</span> <span class="nn">pkgcore.ebuild</span> <span class="kn">import</span> <span class="n">const</span>
 <span class="kn">from</span> <span class="nn">pkgcore.ebuild.atom</span> <span class="kn">import</span> <span class="n">atom</span>
-<span class="kn">from</span> <span class="nn">pkgcore.config</span> <span class="kn">import</span> <span class="n">ConfigHint</span>
-<span class="kn">from</span> <span class="nn">snakeoil.klass</span> <span class="kn">import</span> <span class="n">jit_attr</span>
+<span class="kn">from</span> <span class="nn">pkgcore.package.errors</span> <span class="kn">import</span> <span class="n">InvalidDependency</span>
+<span class="kn">from</span> <span class="nn">snakeoil</span> <span class="kn">import</span> <span class="n">compatibility</span><span class="p">,</span> <span class="n">klass</span>
 
 <span class="kn">from</span> <span class="nn">snakeoil.demandload</span> <span class="kn">import</span> <span class="n">demandload</span>
 <span class="n">demandload</span><span class="p">(</span><span class="nb">globals</span><span class="p">(),</span>
@@ -97,21 +98,24 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
         <span class="c"># note that _atoms is generated on the fly.</span>
 
-    <span class="nd">@jit_attr</span>
+    <span class="nd">@klass.jit_attr</span>
     <span class="k">def</span> <span class="nf">_atoms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">readlines_ascii</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="bp">True</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span> <span class="ow">or</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;#&quot;</span><span class="p">):</span>
-                <span class="k">continue</span>
-            <span class="k">elif</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;@&quot;</span><span class="p">):</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">error_on_subsets</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;set </span><span class="si">%s</span><span class="s"> isn&#39;t a valid atom in pkgset </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span>
-                        <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;set item </span><span class="si">%r</span><span class="s"> found in pkgset </span><span class="si">%r</span><span class="s">: it will be &quot;</span>
-                    <span class="s">&quot;wiped on update since portage/pkgcore store set items&quot;</span>
-                    <span class="s">&quot; in a seperate way&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
-                <span class="k">continue</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">atom</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">readlines_ascii</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="bp">True</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span> <span class="ow">or</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;#&quot;</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="k">elif</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;@&quot;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">error_on_subsets</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;set </span><span class="si">%s</span><span class="s"> isn&#39;t a valid atom in pkgset </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span>
+                            <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;set item </span><span class="si">%r</span><span class="s"> found in pkgset </span><span class="si">%r</span><span class="s">: it will be &quot;</span>
+                        <span class="s">&quot;wiped on update since portage/pkgcore store set items&quot;</span>
+                        <span class="s">&quot; in a seperate way&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
+                    <span class="k">continue</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">atom</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">InvalidDependency</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">compatibility</span><span class="o">.</span><span class="n">raise_from</span><span class="p">(</span><span class="n">errors</span><span class="o">.</span><span class="n">ParsingError</span><span class="p">(</span><span class="s">&quot;parsing </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">exception</span><span class="o">=</span><span class="n">e</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">s</span>
 
